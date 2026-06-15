@@ -38,38 +38,52 @@ class SessionRunResponse(BaseModel):
     thread_id: str
     # DB session UUID (set when coach_open ran with the DB online).
     db_session_id: str
+    # True when this response came from a resumed checkpoint (no re-run).
+    resumed: bool
 
 
 @router.post("/session/run", response_model=SessionRunResponse)
 async def run_session(req: SessionRunRequest) -> SessionRunResponse:
+    graph = get_session_graph()
     thread_id = req.thread_id or str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 
-    # If we're resuming, leave state empty — the checkpointer supplies it.
-    # Otherwise seed a fresh initial state.
-    is_new = req.thread_id is None
-    if is_new:
-        state = initial_state(user_id=req.user_id)
-        if req.pending_user_answers is not None:
-            state["pending_user_answers"] = req.pending_user_answers
-    else:
-        state = {}
+    # Resume path: caller supplied an existing thread_id. Load the latest
+    # checkpoint and return it without replaying the graph.
+    if req.thread_id is not None:
+        snapshot = await graph.aget_state(config)
+        if snapshot is None or not snapshot.values:
+            raise HTTPException(
+                status_code=404,
+                detail=f"thread_id {thread_id} not found",
+            )
+        return _build_response(snapshot.values, thread_id=thread_id, resumed=True)
+
+    # New session: seed initial state and run end-to-end.
+    state = initial_state(user_id=req.user_id)
+    if req.pending_user_answers is not None:
+        state["pending_user_answers"] = req.pending_user_answers
 
     try:
-        final = await get_session_graph().ainvoke(state, config=config)
+        final = await graph.ainvoke(state, config=config)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    history = final.get("session_history", [])
+    return _build_response(final, thread_id=thread_id, resumed=False)
+
+
+def _build_response(state: dict, thread_id: str, *, resumed: bool) -> SessionRunResponse:
+    """Shape the final state into the response model."""
+    history = state.get("session_history", []) or []
     real_exchanges = [ex for ex in history if ex.get("cycle", -1) > 0]
     correct = sum(1 for ex in real_exchanges if ex.get("outcome") == "correct")
-
     return SessionRunResponse(
-        user_id=final.get("user_id", req.user_id),
-        domain=final.get("current_domain", ""),
+        user_id=state.get("user_id", "dev-user"),
+        domain=state.get("current_domain", ""),
         cycles_completed=len(real_exchanges),
         correct=correct,
         exchanges=real_exchanges,
         thread_id=thread_id,
-        db_session_id=final.get("db_session_id", ""),
+        db_session_id=state.get("db_session_id", ""),
+        resumed=resumed,
     )
