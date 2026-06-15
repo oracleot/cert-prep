@@ -17,11 +17,17 @@
 #
 # The two conditional edges are the *only* routing logic — no abstractions
 # hiding the graph shape (per 2.3 learning objective).
+#
+# 2.4: the graph is compiled lazily, once, with the Postgres checkpointer
+# wired in. State is persisted at every node boundary; thread_id identifies
+# the session for resume.
 
 from __future__ import annotations
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
+from db import get_checkpointer
 from nodes.coach_close import coach_close
 from nodes.coach_open import coach_open
 from nodes.evaluate_answer import evaluate_answer
@@ -49,8 +55,8 @@ def route_after_sage(state: AppState) -> str:
 
 
 def build_session_graph() -> StateGraph:
-    """Compile the SessionSubgraph. Exposed as a factory so 2.4 can wrap it
-    in a checkpointer without re-defining the structure."""
+    """Build the uncompiled StateGraph. Exposed as a factory so the structure
+    is inspectable separately from the compiled runtime."""
     graph = StateGraph(AppState)
 
     graph.add_node("coach_open", coach_open)
@@ -87,8 +93,18 @@ def build_session_graph() -> StateGraph:
     graph.add_edge("rex_rechallenge", "evaluate_answer")
     graph.add_edge("coach_close", END)
 
-    return graph.compile()
+    return graph
 
 
-# Module-level compiled graph for the FastAPI endpoint.
-session_graph = build_session_graph()
+_cached_graph: CompiledStateGraph | None = None
+
+
+def get_session_graph() -> CompiledStateGraph:
+    """Lazily compile the graph with the Postgres checkpointer.
+    First call wires it; subsequent calls return the cached instance."""
+    global _cached_graph
+    if _cached_graph is None:
+        _cached_graph = build_session_graph().compile(
+            checkpointer=get_checkpointer(),
+        )
+    return _cached_graph

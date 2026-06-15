@@ -8,7 +8,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from db import close_pool, init_pool
+from db import (
+    close_pool,
+    init_checkpointer,
+    init_pool,
+    run_migrations,
+    setup_checkpointer_tables,
+)
 from routes.session import router as session_router
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -28,6 +34,9 @@ async def lifespan(app: FastAPI):
     _required_env("OPENROUTER_API_KEY")
     _required_env("DATABASE_URL")
     await init_pool()
+    await init_checkpointer()
+    await run_migrations()
+    await setup_checkpointer_tables()
     try:
         yield
     finally:
