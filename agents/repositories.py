@@ -8,11 +8,14 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-from db import get_pool
+from db import get_pool, has_pool
 
 
 async def create_session(user_id: str, exam_id: str, domain: str) -> str:
     """Insert a sessions row, return the new UUID as a string."""
+    if not has_pool():
+        return ""
+
     pool = get_pool()
     async with pool.connection() as conn:
         async with conn.cursor() as cur:
@@ -37,6 +40,9 @@ async def create_exchange(
     sage_response: str,
 ) -> None:
     """Append a completed cycle to the exchanges table."""
+    if not has_pool():
+        return
+
     pool = get_pool()
     async with pool.connection() as conn:
         await conn.execute(
@@ -59,6 +65,9 @@ async def create_exchange(
 
 async def close_session(session_id: str) -> None:
     """Stamp the session's ended_at — fired by coach_close."""
+    if not has_pool():
+        return
+
     pool = get_pool()
     async with pool.connection() as conn:
         await conn.execute(

@@ -18,7 +18,7 @@
 | 6 | Task Breakdown | 🔄 In Progress | docs/task-breakdown.md | 2026-06-15 |
 | 7 | Implementation Backlog | ✅ Complete | docs/implementation-backlog.md | 2026-06-15 |
 | P1 | Phase 1 — Rex+Sage loop | ✅ Complete | issues 1.3–1.9 shipped | 2026-06-15 |
-| P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.3, 2.4 shipped; 2.2, 2.5, 2.6, 2.7 remaining | 2026-06-15 |
+| P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.2, 2.3, 2.4, 2.5, 2.6 shipped; 2.7 remaining | 2026-06-15 |
 | 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints

@@ -10,15 +10,20 @@
 
 from __future__ import annotations
 
+import logging
+
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
 from llm import get_llm
 from prompts.sage import MODEL, SageInput, build_sage_depth_prompt, build_sage_explain_prompt
 from repositories import create_exchange
 from state import AppState
 
+logger = logging.getLogger(__name__)
 
-def _generate_sage_response(state: AppState, kind: str) -> str:
+
+async def _generate_sage_response(state: AppState, kind: str, config: RunnableConfig) -> str:
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
 
@@ -37,10 +42,9 @@ def _generate_sage_response(state: AppState, kind: str) -> str:
         system, user = build_sage_explain_prompt(sage_input)
 
     llm = get_llm(MODEL)
-    response = llm.invoke(
+    response = await llm.ainvoke(
         [SystemMessage(content=system), HumanMessage(content=user)],
-        temperature=0.7,
-        max_tokens=512,
+        config=config,
     )
     return response.content if isinstance(response.content, str) else str(response.content)
 
@@ -67,29 +71,32 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
     session_id = state.get("db_session_id", "")
     if not session_id:
         return
-    await create_exchange(
-        session_id=session_id,
-        cycle=exchange["cycle"],
-        domain=exchange["domain"],
-        topic=exchange["topic"],
-        challenge=exchange["challenge"],
-        user_answer=exchange["user_answer"],
-        outcome=exchange["outcome"],
-        sage_response=exchange["sage_response"],
-    )
+    try:
+        await create_exchange(
+            session_id=session_id,
+            cycle=exchange["cycle"],
+            domain=exchange["domain"],
+            topic=exchange["topic"],
+            challenge=exchange["challenge"],
+            user_answer=exchange["user_answer"],
+            outcome=exchange["outcome"],
+            sage_response=exchange["sage_response"],
+        )
+    except Exception:
+        logger.exception("Failed to persist exchange; continuing without DB persistence.")
 
 
-async def sage_depth(state: AppState) -> dict:
+async def sage_depth(state: AppState, config: RunnableConfig) -> dict:
     """Sage adds depth beyond a correct answer."""
-    sage_text = _generate_sage_response(state, "depth")
+    sage_text = await _generate_sage_response(state, "depth", config)
     exchange = _build_exchange(state, sage_text)
     await _persist_exchange_if_db(state, exchange)
     return {"session_history": [exchange]}
 
 
-async def sage_explain(state: AppState) -> dict:
+async def sage_explain(state: AppState, config: RunnableConfig) -> dict:
     """Sage corrects the misconception behind an incorrect answer."""
-    sage_text = _generate_sage_response(state, "explain")
+    sage_text = await _generate_sage_response(state, "explain", config)
     exchange = _build_exchange(state, sage_text)
     await _persist_exchange_if_db(state, exchange)
     return {"session_history": [exchange]}

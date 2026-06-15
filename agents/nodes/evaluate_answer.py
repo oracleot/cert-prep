@@ -18,16 +18,11 @@ def _strip_code_fences(text: str) -> str:
 
 
 def evaluate_answer(state: AppState) -> dict:
-    """Evaluate the user's answer against the current challenge.
+    """Evaluate the user's answer against the current challenge."""
+    user_answer = state.get("user_answer")
+    if not user_answer:
+        raise ValueError("No user answer provided.")
 
-    Pop the next pending user answer from state. In 2.3 answers are pre-seeded;
-    2.6 will replace this with a LangGraph interrupt that waits for the user.
-    """
-    pending = list(state.get("pending_user_answers") or [])
-    if not pending:
-        raise ValueError("No pending user answers in state.")
-
-    user_answer = pending.pop(0)
     challenge = state["current_challenge"]
 
     ev_input = EvaluatorInput(
@@ -53,10 +48,8 @@ def evaluate_answer(state: AppState) -> dict:
         raise ValueError(f"Evaluator returned invalid outcome: {result}")
 
     return {
-        "user_answer": user_answer,
         "last_evaluation": {
             "outcome": result["outcome"],
             "reasoning": result["reasoning"],
         },
-        "pending_user_answers": pending,
     }

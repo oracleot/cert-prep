@@ -4,8 +4,12 @@
 
 from __future__ import annotations
 
+import logging
+
 from repositories import create_session
 from state import AppState
+
+logger = logging.getLogger(__name__)
 
 
 HARDCODED_DOMAIN = "Deployment"
@@ -23,7 +27,11 @@ async def coach_open(state: AppState) -> dict:
     user_id = state.get("user_id", "dev-user")
     exam_id = state.get("exam_id", "dva-c02")
 
-    db_session_id = await create_session(user_id=user_id, exam_id=exam_id, domain=domain)
+    db_session_id = ""
+    try:
+        db_session_id = await create_session(user_id=user_id, exam_id=exam_id, domain=domain)
+    except Exception:
+        logger.exception("Failed to create sessions row; continuing without DB persistence.")
 
     return {
         "current_domain": domain,

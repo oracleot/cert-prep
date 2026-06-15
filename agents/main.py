@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
+import logging
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -16,6 +17,8 @@ from db import (
     setup_checkpointer_tables,
 )
 from routes.session import router as session_router
+
+logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env.local")
@@ -32,11 +35,13 @@ def _required_env(name: str) -> str:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _required_env("OPENROUTER_API_KEY")
-    _required_env("DATABASE_URL")
     await init_pool()
     await init_checkpointer()
-    await run_migrations()
-    await setup_checkpointer_tables()
+    try:
+        await run_migrations()
+        await setup_checkpointer_tables()
+    except Exception:
+        logger.exception("Database setup failed. Continuing with degraded persistence.")
     try:
         yield
     finally:

@@ -145,11 +145,11 @@ Status: first-pass | Date: 2026-06-15
 
 ### 2.2 — Docker Compose for local dev (P0, S, infra)
 **Acceptance criteria:**
-- [ ] `docker-compose.yml` at project root starts Postgres + Redis
-- [ ] Postgres accessible at `localhost:5432`
-- [ ] Redis accessible at `localhost:6379`
-- [ ] `docker compose up -d` documented in README
-- [ ] `.env.example` updated with `DATABASE_URL` and `REDIS_URL`
+- [x] `docker-compose.yml` at project root starts Postgres + Redis
+- [x] Postgres accessible at `localhost:5432`
+- [x] Redis accessible at `localhost:6379`
+- [x] `docker compose up -d` documented in README
+- [x] `.env.example` updated with `DATABASE_URL` and `REDIS_URL`
 
 ---
 
@@ -180,19 +180,19 @@ Status: first-pass | Date: 2026-06-15
 
 ### 2.5 — BullMQ + Redis setup (P1, M, infra)
 **Acceptance criteria:**
-- [ ] BullMQ installed and connected to Redis
-- [ ] Placeholder background job queue defined (ready for Phase 3 Blueprint Scout + Curriculum Builder)
-- [ ] Queue health visible in logs
-- [ ] No actual jobs dispatched yet — infrastructure only
+- [x] BullMQ installed and connected to Redis
+- [x] Placeholder background job queue defined (ready for Phase 3 Blueprint Scout + Curriculum Builder)
+- [x] Queue health visible in logs
+- [x] No actual jobs dispatched yet — infrastructure only
 
 ---
 
 ### 2.6 — Next.js → LangGraph API integration (P0, M, frontend)
 **Acceptance criteria:**
-- [ ] Session screen calls LangGraph Python service instead of direct OpenRouter
-- [ ] SSE streaming preserved end-to-end (LangGraph service → Next.js → browser)
-- [ ] Hardcoded user_id passed in all requests (`"dev-user"` for Phase 2)
-- [ ] Error handling for LangGraph service unavailability (shows inline retry per UX spec)
+- [x] Session screen calls LangGraph Python service instead of direct OpenRouter
+- [x] SSE streaming preserved end-to-end (LangGraph service → Next.js → browser)
+- [x] Hardcoded user_id passed in all requests (`"dev-user"` for Phase 2)
+- [x] Error handling for LangGraph service unavailability (shows inline retry per UX spec)
 
 ---
 

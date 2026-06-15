@@ -5,8 +5,12 @@
 
 from __future__ import annotations
 
+import logging
+
 from repositories import close_session
 from state import AppState
+
+logger = logging.getLogger(__name__)
 
 
 async def coach_close(state: AppState) -> dict:
@@ -16,7 +20,10 @@ async def coach_close(state: AppState) -> dict:
 
     session_id = state.get("db_session_id", "")
     if session_id:
-        await close_session(session_id)
+        try:
+            await close_session(session_id)
+        except Exception:
+            logger.exception("Failed to close sessions row; continuing without DB persistence.")
 
     return {
         "session_history": [

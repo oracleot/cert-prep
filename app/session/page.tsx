@@ -24,6 +24,7 @@ export default function SessionPage() {
     errorMsg,
     submitAnswer,
     nextChallenge,
+    retry,
     restart,
   } = useSession();
 
@@ -43,10 +44,10 @@ export default function SessionPage() {
         <div className="w-full max-w-lg rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
           <p className="text-sm font-medium text-destructive">{errorMsg}</p>
           <button
-            onClick={restart}
+            onClick={retry}
             className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Try again
+            Retry
           </button>
         </div>
       </main>

@@ -3,12 +3,16 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator
 
 import psycopg_pool
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+
+logger = logging.getLogger(__name__)
 
 
 def _db_url() -> str:
@@ -25,24 +29,40 @@ MIGRATIONS_DIR = PROJECT_ROOT / "migrations"
 _pool: psycopg_pool.AsyncConnectionPool | None = None
 
 # Module-level checkpointer — initialised once on startup via lifespan.
-_checkpointer: AsyncPostgresSaver | None = None
+_checkpointer: Any | None = None
 
 
 async def init_pool() -> None:
-    """Create the async connection pool. Call once at app startup."""
+    """Create the async connection pool when DATABASE_URL is available."""
     global _pool
+    if not os.environ.get("DATABASE_URL"):
+        logger.warning("DATABASE_URL is not set. Falling back to in-memory sessions.")
+        _pool = None
+        return
+
+    if _pool is not None:
+        return
+
     _pool = psycopg_pool.AsyncConnectionPool(
         conninfo=_db_url(),
         min_size=1,
         max_size=10,
         open=False,
     )
-    await _pool.open()
+    try:
+        await _pool.open()
+    except Exception:
+        logger.exception("Failed to open Postgres pool. Falling back to in-memory sessions.")
+        _pool = None
 
 
-async def init_checkpointer() -> AsyncPostgresSaver:
-    """Create the AsyncPostgresSaver backed by the module pool. Call once at startup."""
+async def init_checkpointer() -> Any:
+    """Create the configured checkpointer for the current persistence mode."""
     global _checkpointer
+    if _pool is None:
+        _checkpointer = InMemorySaver()
+        return _checkpointer
+
     _checkpointer = AsyncPostgresSaver(get_pool())
     return _checkpointer
 
@@ -62,13 +82,17 @@ def get_pool() -> psycopg_pool.AsyncConnectionPool:
     return _pool
 
 
-def get_checkpointer() -> AsyncPostgresSaver:
+def get_checkpointer() -> Any:
     if _checkpointer is None:
         raise RuntimeError("Checkpointer not initialised. Call init_checkpointer() first.")
     return _checkpointer
 
 
-async def open_checkpointer() -> AsyncGenerator[AsyncPostgresSaver, None]:
+def has_pool() -> bool:
+    return _pool is not None
+
+
+async def open_checkpointer() -> AsyncGenerator[Any, None]:
     """Async-context wrapper around get_checkpointer() for callers that want
     a scoped handle. The underlying saver is shared (module-level)."""
     yield get_checkpointer()
@@ -90,6 +114,9 @@ async def setup_checkpointer_tables() -> None:
     """
     from langgraph.checkpoint.postgres.base import MIGRATIONS
 
+    if _pool is None:
+        return
+
     pool = get_pool()
     last_version = len(MIGRATIONS) - 1
 
@@ -110,6 +137,9 @@ async def setup_checkpointer_tables() -> None:
 
 async def run_migration(sql: str) -> None:
     """Execute a raw SQL migration string."""
+    if _pool is None:
+        return
+
     pool = get_pool()
     async with pool.connection() as conn:
         await conn.execute(sql)
@@ -119,6 +149,9 @@ async def run_migration(sql: str) -> None:
 async def run_migrations() -> None:
     """Apply SQL files from migrations/ in lexical order. Idempotent —
     files use CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS."""
+    if _pool is None:
+        return
+
     pool = get_pool()
     files = sorted(MIGRATIONS_DIR.glob("*.sql"))
     async with pool.connection() as conn:

@@ -106,5 +106,6 @@ def get_session_graph() -> CompiledStateGraph:
     if _cached_graph is None:
         _cached_graph = build_session_graph().compile(
             checkpointer=get_checkpointer(),
+            interrupt_before=["evaluate_answer", "rex_rechallenge"]
         )
     return _cached_graph

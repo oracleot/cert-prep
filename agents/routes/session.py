@@ -1,17 +1,10 @@
-# POST /session/run
-# Invokes the SessionSubgraph end-to-end and returns the final state.
-#
-# 2.3 scope: pre-seeded user answers; no streaming; no interrupts.
-# 2.4 scope: Postgres checkpointer; thread_id identifies the session for
-#            resume. Re-running with an existing thread_id loads the prior
-#            checkpoint state and continues from there.
-# 2.6 will add SSE streaming + human-in-the-loop interrupts.
-
 from __future__ import annotations
 
+import json
 import uuid
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from graphs.session import get_session_graph
@@ -20,70 +13,152 @@ from state import initial_state
 router = APIRouter()
 
 
-class SessionRunRequest(BaseModel):
+class SessionStartRequest(BaseModel):
     user_id: str = "dev-user"
-    pending_user_answers: list[str] | None = None
-    # Optional: pass an existing thread_id to resume a session from its
-    # last checkpoint. Omit to start a new session.
-    thread_id: str | None = None
 
 
-class SessionRunResponse(BaseModel):
-    user_id: str
-    domain: str
-    cycles_completed: int
-    correct: int
-    exchanges: list[dict]
-    # Echoed back so the caller can resume this session later.
+class SessionSubmitRequest(BaseModel):
     thread_id: str
-    # DB session UUID (set when coach_open ran with the DB online).
-    db_session_id: str
-    # True when this response came from a resumed checkpoint (no re-run).
-    resumed: bool
+    user_answer: str
 
 
-@router.post("/session/run", response_model=SessionRunResponse)
-async def run_session(req: SessionRunRequest) -> SessionRunResponse:
+class SessionNextRequest(BaseModel):
+    thread_id: str
+
+
+class SessionStateRequest(BaseModel):
+    thread_id: str
+
+
+def _session_results(history: list[dict]) -> list[dict]:
+    return [
+        {"cycle": item["cycle"], "topic": item["topic"], "outcome": item["outcome"]}
+        for item in history
+        if item.get("outcome") in {"correct", "incorrect"}
+    ]
+
+
+def _latest_exchange(history: list[dict]) -> dict | None:
+    for item in reversed(history):
+        if item.get("outcome") in {"correct", "incorrect"}:
+            return item
+    return None
+
+
+def _snapshot_phase(snapshot) -> str:
+    next_nodes = set(snapshot.next or [])
+    if not next_nodes:
+        return "summary"
+    if "rex_rechallenge" in next_nodes:
+        return "sage_done"
+    return "ready"
+
+
+@router.post("/session/start")
+async def start_session(req: SessionStartRequest):
     graph = get_session_graph()
-    thread_id = req.thread_id or str(uuid.uuid4())
+    thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
-
-    # Resume path: caller supplied an existing thread_id. Load the latest
-    # checkpoint and return it without replaying the graph.
-    if req.thread_id is not None:
-        snapshot = await graph.aget_state(config)
-        if snapshot is None or not snapshot.values:
-            raise HTTPException(
-                status_code=404,
-                detail=f"thread_id {thread_id} not found",
-            )
-        return _build_response(snapshot.values, thread_id=thread_id, resumed=True)
-
-    # New session: seed initial state and run end-to-end.
     state = initial_state(user_id=req.user_id)
-    if req.pending_user_answers is not None:
-        state["pending_user_answers"] = req.pending_user_answers
 
+    # Run graph until first interrupt (evaluate_answer)
     try:
-        final = await graph.ainvoke(state, config=config)
-    except Exception as e:  # noqa: BLE001
+        await graph.ainvoke(state, config=config)
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    return _build_response(final, thread_id=thread_id, resumed=False)
+    snapshot = await graph.aget_state(config)
+    return {
+        "thread_id": thread_id,
+        "challenge": snapshot.values.get("current_challenge"),
+    }
 
 
-def _build_response(state: dict, thread_id: str, *, resumed: bool) -> SessionRunResponse:
-    """Shape the final state into the response model."""
-    history = state.get("session_history", []) or []
-    real_exchanges = [ex for ex in history if ex.get("cycle", -1) > 0]
-    correct = sum(1 for ex in real_exchanges if ex.get("outcome") == "correct")
-    return SessionRunResponse(
-        user_id=state.get("user_id", "dev-user"),
-        domain=state.get("current_domain", ""),
-        cycles_completed=len(real_exchanges),
-        correct=correct,
-        exchanges=real_exchanges,
-        thread_id=thread_id,
-        db_session_id=state.get("db_session_id", ""),
-        resumed=resumed,
-    )
+@router.post("/session/submit")
+async def submit_answer(req: SessionSubmitRequest):
+    graph = get_session_graph()
+    config = {"configurable": {"thread_id": req.thread_id}}
+
+    snapshot = await graph.aget_state(config)
+    if not snapshot or not snapshot.values:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Update state with user answer
+    await graph.aupdate_state(config, {"user_answer": req.user_answer})
+
+    async def sse_generator():
+        try:
+            async for event in graph.astream_events(None, config=config, version="v2"):
+                kind = event["event"]
+                name = event["name"]
+
+                if kind == "on_chat_model_stream":
+                    chunk = event["data"]["chunk"]
+                    if hasattr(chunk, "content") and chunk.content:
+                        # Make sure to handle newlines properly for SSE
+                        content = json.dumps({"type": "token", "token": chunk.content})
+                        yield f"data: {content}\n\n"
+
+                elif kind == "on_chain_end" and name == "evaluate_answer":
+                    outputs = event["data"].get("output")
+                    if outputs and "last_evaluation" in outputs:
+                        eval_result = outputs["last_evaluation"]
+                        yield f"data: {json.dumps({'type': 'evaluation', 'data': json.dumps(eval_result)})}\n\n"
+
+                elif kind == "on_chain_end" and name == "LangGraph":
+                    yield f"data: {json.dumps({'type': 'done'})}\n\n"
+        except Exception as e:
+            err_msg = json.dumps({"type": "error", "error": {"message": str(e)}})
+            yield f"data: {err_msg}\n\n"
+
+    return StreamingResponse(sse_generator(), media_type="text/event-stream")
+
+
+@router.post("/session/state")
+async def session_state(req: SessionStateRequest):
+    graph = get_session_graph()
+    config = {"configurable": {"thread_id": req.thread_id}}
+
+    snapshot = await graph.aget_state(config)
+    if not snapshot or not snapshot.values:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    history = snapshot.values.get("session_history", [])
+    latest_exchange = _latest_exchange(history)
+
+    evaluation = snapshot.values.get("last_evaluation") or None
+    if evaluation and evaluation.get("outcome") not in {"correct", "incorrect"}:
+        evaluation = None
+
+    return {
+        "thread_id": req.thread_id,
+        "phase": _snapshot_phase(snapshot),
+        "cycle": snapshot.values.get("cycle") or 1,
+        "max_cycles": snapshot.values.get("max_cycles") or 2,
+        "challenge": snapshot.values.get("current_challenge") or None,
+        "user_answer": snapshot.values.get("user_answer") or "",
+        "evaluation": evaluation,
+        "sage_text": latest_exchange.get("sage_response", "") if latest_exchange else "",
+        "results": _session_results(history),
+    }
+
+
+@router.post("/session/next")
+async def next_challenge(req: SessionNextRequest):
+    graph = get_session_graph()
+    config = {"configurable": {"thread_id": req.thread_id}}
+
+    snapshot = await graph.aget_state(config)
+    if not snapshot or not snapshot.values:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    try:
+        await graph.ainvoke(None, config=config)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+    snapshot = await graph.aget_state(config)
+    return {
+        "challenge": snapshot.values.get("current_challenge"),
+        "cycle": snapshot.values.get("cycle"),
+    }

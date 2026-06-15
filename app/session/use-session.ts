@@ -1,25 +1,15 @@
 "use client";
 
-// Session state hook — orchestrates the Rex + Sage loop
-// Phase 1: 2 cycles, hardcoded Deployment domain, in-memory only
-
-import { useState, useCallback, useEffect, useRef } from "react";
-import { readSseStream } from "@/lib/sse-reader";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Challenge, EvaluationResult, SessionResult } from "@/lib/types";
+import { nextSessionRequest, restoreSessionRequest, startSessionRequest, submitSessionRequest } from "./session-api";
+import { clearThreadId, loadThreadId, type RestoredSession, saveThreadId } from "./session-persistence";
+import { readSessionStream } from "./session-stream";
 
-export type SessionPhase =
-  | "loading_challenge"
-  | "ready"
-  | "evaluating"
-  | "streaming_sage"
-  | "sage_done"
-  | "loading_rechallenge"
-  | "summary"
-  | "error";
-
+export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
 const DOMAIN = "Deployment";
 const MAX_CYCLES = 2;
-
+type SessionAction = "start" | "resume" | "submit" | "next";
 export function useSession() {
   const [phase, setPhase] = useState<SessionPhase>("loading_challenge");
   const [cycle, setCycle] = useState(1);
@@ -29,132 +19,164 @@ export function useSession() {
   const [sageText, setSageText] = useState("");
   const [results, setResults] = useState<SessionResult[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
-  const abortRef = useRef<AbortController | null>(null);
-
-  const fetchChallenge = useCallback(async (difficulty: "medium" | "hard" = "medium") => {
-    setPhase("loading_challenge");
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const lastActionRef = useRef<SessionAction>("start");
+  const applySnapshot = useCallback((snapshot: RestoredSession) => {
+    setThreadId(snapshot.thread_id);
+    saveThreadId(snapshot.thread_id);
+    setCycle(snapshot.cycle);
+    setChallenge(snapshot.challenge);
+    setAnswer(snapshot.user_answer);
+    setEvaluation(snapshot.evaluation);
+    setSageText(snapshot.sage_text);
+    setResults(snapshot.results);
+    setErrorMsg("");
+    setPhase(snapshot.phase);
+  }, []);
+  const startSession = useCallback(async (showLoading = true) => {
+    lastActionRef.current = "start";
+    if (showLoading) setPhase("loading_challenge");
     setChallenge(null);
     setAnswer("");
     setEvaluation(null);
     setSageText("");
-
-    const res = await fetch("/api/rex/challenge", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ domain: DOMAIN, difficulty }),
-    });
-
+    const res = await startSessionRequest();
     if (!res.ok) {
       setErrorMsg("Rex couldn't generate a challenge. Try again.");
       setPhase("error");
       return;
     }
-
-    const data = (await res.json()) as Challenge;
-    setChallenge(data);
+    const data = await res.json();
+    saveThreadId(data.thread_id);
+    setThreadId(data.thread_id);
+    setCycle(1);
+    setResults([]);
+    setChallenge(data.challenge);
     setPhase("ready");
   }, []);
-
-  const fetchRechallenge = useCallback(async (previousTopic: string) => {
+  const restoreSession = useCallback(
+    async (
+      sessionThreadId: string,
+      showLoading = true,
+    ): Promise<RestoredSession["phase"] | null> => {
+      lastActionRef.current = "resume";
+      if (showLoading) setPhase("loading_challenge");
+      const res = await restoreSessionRequest(sessionThreadId);
+      if (res.status === 404) {
+        clearThreadId();
+        setThreadId(null);
+        return null;
+      }
+      if (!res.ok) {
+        setErrorMsg("We couldn't restore your session. Retry in a moment.");
+        setPhase("error");
+        return null;
+      }
+      const data = (await res.json()) as RestoredSession;
+      applySnapshot(data);
+      return data.phase;
+    },
+    [applySnapshot],
+  );
+  const loadNextChallenge = useCallback(async () => {
+    if (!threadId) return;
+    lastActionRef.current = "next";
     setPhase("loading_rechallenge");
     setChallenge(null);
     setAnswer("");
     setEvaluation(null);
     setSageText("");
-
-    const res = await fetch("/api/rex/rechallenge", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ domain: DOMAIN, previousTopic, difficulty: "hard" }),
-    });
-
+    const res = await nextSessionRequest(threadId);
     if (!res.ok) {
       setErrorMsg("Rex couldn't generate a rechallenge. Try again.");
       setPhase("error");
       return;
     }
-
-    const data = (await res.json()) as Challenge;
-    setChallenge(data);
+    const data = await res.json();
+    setCycle(data.cycle);
+    setChallenge(data.challenge);
     setPhase("ready");
-  }, []);
-
+  }, [threadId]);
   const submitAnswer = useCallback(async () => {
-    if (!challenge || !answer.trim()) return;
-
+    if (!challenge || !answer.trim() || !threadId) return;
+    lastActionRef.current = "submit";
     setPhase("evaluating");
-
-    const evalRes = await fetch("/api/evaluate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ challenge, userAnswer: answer }),
-    });
-
-    if (!evalRes.ok) {
+    const res = await submitSessionRequest(threadId, answer);
+    if (!res.ok || !res.body) {
       setErrorMsg("Evaluation failed. Try again.");
       setPhase("error");
       return;
     }
 
-    const evalData = (await evalRes.json()) as EvaluationResult;
-    setEvaluation(evalData);
-    setPhase("streaming_sage");
-
-    // Stream Sage response
-    abortRef.current = new AbortController();
-    const sageRes = await fetch("/api/sage", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ challenge, evaluation: evalData, userAnswer: answer }),
-      signal: abortRef.current.signal,
-    });
-
-    if (!sageRes.ok || !sageRes.body) {
-      setErrorMsg("Sage failed to respond. Try again.");
-      setPhase("error");
-      return;
-    }
-
-    await readSseStream(sageRes.body, (event) => {
-      if (event.type === "token") {
-        setSageText((prev) => prev + event.token);
-      } else if (event.type === "done") {
-        setResults((prev) => [
-          ...prev,
-          { cycle, topic: challenge.topic, outcome: evalData.outcome },
-        ]);
+    let currentEvaluation: EvaluationResult | null = null;
+    let accumulatedSageText = "";
+    await readSessionStream(res.body, {
+      onEvaluation: (nextEvaluation) => {
+        currentEvaluation = nextEvaluation;
+        setEvaluation(nextEvaluation);
+        setPhase("streaming_sage");
+      },
+      onToken: (token) => {
+        accumulatedSageText += token;
+        setSageText(accumulatedSageText);
+      },
+      onDone: () => {
+        const completedEvaluation = currentEvaluation;
+        if (completedEvaluation) {
+          setResults((prev) => [...prev, { cycle, topic: challenge.topic, outcome: completedEvaluation.outcome }]);
+        }
         setPhase("sage_done");
-      } else if (event.type === "error") {
-        setErrorMsg(event.error.message);
+      },
+      onError: (message) => {
+        setErrorMsg(message);
         setPhase("error");
-      }
+      },
     });
-  }, [challenge, answer, cycle]);
+  }, [challenge, answer, cycle, threadId]);
 
   const nextChallenge = useCallback(async () => {
     if (!challenge) return;
-
     if (cycle >= MAX_CYCLES) {
       setPhase("summary");
       return;
     }
+    await loadNextChallenge();
+  }, [challenge, cycle, loadNextChallenge]);
 
-    const nextCycle = cycle + 1;
-    setCycle(nextCycle);
-    await fetchRechallenge(challenge.topic);
-  }, [challenge, cycle, fetchRechallenge]);
+  const retry = useCallback(async () => {
+    const action = lastActionRef.current;
+    if (action === "start" || !threadId) {
+      await startSession();
+      return;
+    }
+    const restoredPhase = await restoreSession(threadId);
+    if (!restoredPhase) {
+      await startSession();
+      return;
+    }
+    if (action === "submit" && restoredPhase === "ready" && answer.trim()) await submitAnswer();
+    if (action === "next" && restoredPhase === "sage_done") await loadNextChallenge();
+  }, [answer, loadNextChallenge, restoreSession, startSession, submitAnswer, threadId]);
 
   const restart = useCallback(() => {
+    clearThreadId();
     setCycle(1);
     setResults([]);
     setErrorMsg("");
-    fetchChallenge("medium");
-  }, [fetchChallenge]);
+    setThreadId(null);
+    void startSession();
+  }, [startSession]);
 
-  // Initial load
   useEffect(() => {
-    fetchChallenge("medium");
-  }, [fetchChallenge]);
+    const savedThreadId = loadThreadId();
+    queueMicrotask(() => {
+      if (savedThreadId) {
+        void restoreSession(savedThreadId, false).then((restoredPhase) => !restoredPhase && void startSession(false));
+        return;
+      }
+      void startSession(false);
+    });
+  }, [restoreSession, startSession]);
 
   return {
     phase,
@@ -170,6 +192,7 @@ export function useSession() {
     errorMsg,
     submitAnswer,
     nextChallenge,
+    retry,
     restart,
   };
 }

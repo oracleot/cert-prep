@@ -50,7 +50,7 @@ class AppState(TypedDict):
 
     # 2.3 affordance: pre-seeded user answers so the graph runs end-to-end.
     # Removed in 2.6 when LangGraph interrupts wait for real user input.
-    pending_user_answers: list[str]
+    # pending_user_answers: list[str]
 
     # Accumulated per-session — appended by sage_respond after each cycle
     # Annotated with operator.add so each append is additive, not overwriting
@@ -63,8 +63,7 @@ class AppState(TypedDict):
 def initial_state(user_id: str = "dev-user") -> dict[str, Any]:
     """Returns the initial state dict for a new session.
 
-    `pending_user_answers` is pre-seeded with two real-ish DVA-C02 answers so
-    the SessionSubgraph can run end-to-end in 2.3 without a human in the loop.
+    `pending_user_answers` is removed in 2.6 as we now use LangGraph interrupts.
     """
     return {
         "user_id": user_id,
@@ -77,12 +76,6 @@ def initial_state(user_id: str = "dev-user") -> dict[str, Any]:
         "current_challenge": {},
         "user_answer": "",
         "last_evaluation": {},
-        "pending_user_answers": [
-            "I would use a blue/green deployment via CodeDeploy with traffic "
-            "shifting enabled to swap over to the new task set with zero downtime.",
-            "I would use ECS rolling deploy with the deployment circuit breaker "
-            "enabled so a failed task set auto-rolls back without manual cleanup.",
-        ],
         "session_history": [],
         "db_session_id": "",
     }
