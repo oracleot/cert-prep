@@ -17,6 +17,7 @@
 | 5 | Security & Compliance | ⏭ Skipped | docs/security-compliance.md | post-MVP |
 | 6 | Task Breakdown | 🔄 In Progress | docs/task-breakdown.md | 2026-06-15 |
 | 7 | Implementation Backlog | ✅ Complete | docs/implementation-backlog.md | 2026-06-15 |
+| P1 | Phase 1 — Rex+Sage loop | ✅ Complete | issues 1.3–1.9 shipped | 2026-06-15 |
 | 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints

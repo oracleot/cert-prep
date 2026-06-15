@@ -56,74 +56,74 @@ Status: first-pass | Date: 2026-06-15
 
 ### 1.3 — Rex challenge generation (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Rex system prompt implemented — competitive, ruthless persona
-- [ ] Generates scenario-based challenge for a hardcoded DVA-C02 topic (Deployment domain)
-- [ ] Challenge includes: scenario description, question, and domain + topic tag
-- [ ] Response is structured (JSON or clearly parseable) — not free prose
-- [ ] Hardcoded topic for Phase 1 — no curriculum selection yet
-- [ ] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
+- [x] Rex system prompt implemented — competitive, ruthless persona
+- [x] Generates scenario-based challenge for a hardcoded DVA-C02 topic (Deployment domain)
+- [x] Challenge includes: scenario description, question, and domain + topic tag
+- [x] Response is structured (JSON or clearly parseable) — not free prose
+- [x] Hardcoded topic for Phase 1 — no curriculum selection yet
+- [x] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
 
 ---
 
 ### 1.4 — Session screen UI — challenge card (P0, M, frontend)
 **Acceptance criteria:**
-- [ ] Full-focus layout — no navigation visible
-- [ ] Challenge card renders: domain tag, topic tag, scenario text, question
-- [ ] Mobile-first layout — card readable and usable on 375px viewport
-- [ ] Text answer input field below challenge
-- [ ] Submit button — disabled until user has typed something
-- [ ] Loading state while Rex generates (skeleton or spinner on card)
+- [x] Full-focus layout — no navigation visible
+- [x] Challenge card renders: domain tag, topic tag, scenario text, question
+- [x] Mobile-first layout — card readable and usable on 375px viewport
+- [x] Text answer input field below challenge
+- [x] Submit button — disabled until user has typed something
+- [x] Loading state while Rex generates (skeleton or spinner on card)
 
 ---
 
 ### 1.5 — Answer evaluation (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Evaluation prompt assesses user answer against challenge
-- [ ] Returns structured result: `{ outcome: "correct" | "incorrect", reasoning: string }`
-- [ ] Outcome used to route to Sage depth vs Sage explain
-- [ ] Evaluation is strict — partial credit counts as incorrect for MVP
-- [ ] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
-- [ ] Evaluation logged to console in dev (outcome + reasoning) for QA purposes
+- [x] Evaluation prompt assesses user answer against challenge
+- [x] Returns structured result: `{ outcome: "correct" | "incorrect", reasoning: string }`
+- [x] Outcome used to route to Sage depth vs Sage explain
+- [x] Evaluation is strict — partial credit counts as incorrect for MVP
+- [x] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
+- [x] Evaluation logged to console in dev (outcome + reasoning) for QA purposes
 
 ---
 
 ### 1.6 — Sage response (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Two Sage prompts: `sage_depth` (correct path) and `sage_explain` (incorrect path)
-- [ ] Sage persona implemented — dry wit, never lectures, confident and specific
-- [ ] `sage_explain`: explains the gap, corrects the misconception, cites relevant AWS service/concept directly. No hedging.
-- [ ] `sage_depth`: adds depth beyond the correct answer — what else is worth knowing about this topic
-- [ ] Response streams to frontend via SSE
-- [ ] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
+- [x] Two Sage prompts: `sage_depth` (correct path) and `sage_explain` (incorrect path)
+- [x] Sage persona implemented — dry wit, never lectures, confident and specific
+- [x] `sage_explain`: explains the gap, corrects the misconception, cites relevant AWS service/concept directly. No hedging.
+- [x] `sage_depth`: adds depth beyond the correct answer — what else is worth knowing about this topic
+- [x] Response streams to frontend via SSE
+- [x] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
 
 ---
 
 ### 1.7 — Session screen UI — Sage response (P0, M, frontend)
 **Acceptance criteria:**
-- [ ] Sage response animates in below the challenge card after evaluation
-- [ ] Distinct visual treatment from Rex card (different background, typography weight, or border — clearly a different voice)
-- [ ] Streams in token-by-token (SSE) — not a loading spinner then full dump
-- [ ] Correct/incorrect outcome subtly reflected in card treatment (green/neutral — no red, no alarm)
-- [ ] "Next challenge" CTA appears after Sage response completes
+- [x] Sage response animates in below the challenge card after evaluation
+- [x] Distinct visual treatment from Rex card (different background, typography weight, or border — clearly a different voice)
+- [x] Streams in token-by-token (SSE) — not a loading spinner then full dump
+- [x] Correct/incorrect outcome subtly reflected in card treatment (green/neutral — no red, no alarm)
+- [x] "Next challenge" CTA appears after Sage response completes
 
 ---
 
 ### 1.8 — Rex rechallenge (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Rex generates a harder variant on the same domain after Sage responds
-- [ ] Rechallenge prompt references that the user has just seen Sage's explanation — raises the stakes
-- [ ] Difficulty is explicitly incremented in the prompt (same domain, harder scenario)
-- [ ] Loop completes after 2 full cycles (challenge → eval → sage → rechallenge × 2)
-- [ ] After 2nd cycle: session summary screen rendered (static for Phase 1)
+- [x] Rex generates a harder variant on the same domain after Sage responds
+- [x] Rechallenge prompt references that the user has just seen Sage's explanation — raises the stakes
+- [x] Difficulty is explicitly incremented in the prompt (same domain, harder scenario)
+- [x] Loop completes after 2 full cycles (challenge → eval → sage → rechallenge × 2)
+- [x] After 2nd cycle: session summary screen rendered (static for Phase 1)
 
 ---
 
 ### 1.9 — Static session summary screen (P0, S, frontend)
 **Acceptance criteria:**
-- [ ] Shows: number of correct answers out of total, domain covered
-- [ ] "Start another session" CTA resets and restarts the loop
-- [ ] No score persistence in Phase 1 — purely in-memory display
-- [ ] Mobile-first layout
+- [x] Shows: number of correct answers out of total, domain covered
+- [x] "Start another session" CTA resets and restarts the loop
+- [x] No score persistence in Phase 1 — purely in-memory display
+- [x] Mobile-first layout
 
 ---
 
