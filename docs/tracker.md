@@ -1,0 +1,64 @@
+# Build-Ready Tracker
+
+## Project
+- **Name:** AI Certification Prep App (working name: Gauntlet)
+- **Type:** greenfield
+- **Started:** 2026-06-15
+- **Last updated:** 2026-06-15
+
+## Sessions
+| # | Session | Status | Output Doc | Last Updated |
+|---|---------|--------|------------|--------------|
+| 1 | Vision & Feasibility | 🔄 In Progress | docs/product-spec.md | 2026-06-15 |
+| 2 | UX & User Flows | ✅ Complete | docs/ux-flows.md | 2026-06-15 |
+| 2.5 | Design System *(optional)* | ⏭ Skipped | DESIGN.md | — |
+| 3 | System Design | 🔄 In Progress | docs/system-design.md | 2026-06-15 |
+| 4 | Tech Stack | ✅ Complete | docs/tech-stack.md | 2026-06-15 |
+| 5 | Security & Compliance | ⏭ Skipped | docs/security-compliance.md | post-MVP |
+| 6 | Task Breakdown | 🔄 In Progress | docs/task-breakdown.md | 2026-06-15 |
+| 7 | Implementation Backlog | ✅ Complete | docs/implementation-backlog.md | 2026-06-15 |
+| 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
+
+## Key Constraints
+<!-- Populated from handoff 2026-06-15 -->
+- Phase 1 iron rule: do not build infrastructure before validating the Rex+Sage loop is fun
+- V1 is DVA-C02 only — do not generalise Blueprint Scout beyond hardcoded domains until Phase 3
+- Rex and Sage are the product — never swap their models without an explicit A/B test showing quality parity
+- The user wants to learn LangGraph deeply — do not abstract it away; expose graph structure, state typing, and conditional edges explicitly
+- No codebase exists — start from scratch
+- Auth (Clerk) added in Phase 4, not before
+- Diagnostic challenge, Coach, Gap Tracker, Boss Battles, RAG pipeline all deferred to v1.1
+
+## Gaps to Grill (from handoff analysis)
+### Session 1 gaps
+- Competitors not formally named or analysed
+- Pricing deferred — needs a decision before UX (pricing affects feature gating + onboarding)
+- Success metrics (3mo / 6mo / 12mo) not defined
+- Riskiest assumptions not formalised
+- Regulatory / compliance check not performed
+
+### Session 2 gaps
+- Edge states (empty, error, success) not defined per screen
+- Degraded UX for external integration failures (OpenRouter down, etc.)
+- Trust moments not mapped
+- Destructive actions not named
+- V2 UX deferrals not explicitly listed
+
+### Session 3 gaps
+- Failure handling per external dependency not defined
+- Formal provider abstraction map not written
+
+### Session 4 gaps
+- Local dev setup procedure not documented
+- One-way vs two-way door classification not made explicit
+- Provider abstraction interfaces not named
+
+### Session 6 gaps
+- Hard dependency chain not formalised
+- MVP cut line (50% scope cut scenario) not defined
+- Definition of done per phase not stated
+- Scope traps not explicitly named
+- Cross-cutting work (testing, observability, security) not embedded in phases
+
+## Reference Docs
+- Handoff: /var/folders/kx/3xrxjz2x0q70mb_8295rm5v40000gn/T/opencode/cert-prep/HANDOFF.md
