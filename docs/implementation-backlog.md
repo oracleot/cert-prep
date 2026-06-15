@@ -168,11 +168,13 @@ Status: first-pass | Date: 2026-06-15
 
 ### 2.4 — Postgres checkpointer setup (P0, M, infra)
 **Acceptance criteria:**
-- [ ] LangGraph Postgres checkpointer configured and connected
-- [ ] Session state is persisted to Postgres at each node completion
-- [ ] State is resumable: stopping mid-session and restarting loads the correct checkpoint
-- [ ] Exchange records written to Postgres on cycle completion
-- [ ] DB schema documented or managed via migration file
+- [x] LangGraph Postgres checkpointer configured and connected
+- [x] Session state is persisted to Postgres at each node completion
+- [x] State is resumable: stopping mid-session and restarting loads the correct checkpoint
+- [x] Exchange records written to Postgres on cycle completion
+- [x] DB schema documented or managed via migration file
+
+*Note: langgraph-checkpoint-postgres==2.0.3's `AsyncPostgresSaver.setup()` is broken on a fresh DB (UndefinedTable in the version-probe aborts the transaction before the migrations can run). Worked around in `agents/db.py:setup_checkpointer_tables` by pre-creating the checkpointer tables in autocommit mode using the library's own `MIGRATIONS` list, then registering v=4 in `checkpoint_migrations` so a subsequent `setup()` is a no-op. Idempotent — re-runs cleanly on every app start.*
 
 ---
 

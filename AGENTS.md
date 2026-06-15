@@ -2,7 +2,7 @@
 
 ## Repo Reality (current state)
 - **Phase 1 is fully shipped.** `app/`, `lib/`, `components/`, `agents/state.py`, `agents/db.py`, `migrations/`, `docker-compose.yml` all exist. The "planning-only" claim in prior sessions is stale.
-- Phase 2 Python service is partially scaffolded: `agents/state.py`, `agents/db.py`, and `agents/main.py` are implemented, while `agents/graphs/`, `agents/nodes/`, and `agents/routes/` are still empty `__init__.py` stubs.
+- **Phase 2 in progress.** SessionSubgraph (2.3) and Postgres checkpointer + persistence (2.4) shipped. `agents/graphs/`, `agents/nodes/`, `agents/routes/`, and `agents/repositories.py` are all populated. Remaining Phase 2: 2.2 (docker compose AC checklist), 2.5 (BullMQ), 2.6 (Next.js → LangGraph API), 2.7 (Railway deploy).
 - No CI workflows, no test runner (Jest/Vitest/pytest), no `pyproject.toml`.
 
 ## Source of truth order
@@ -30,13 +30,15 @@ If you accidentally read a sensitive file, stop, do not echo its contents back, 
 
 ## Dev runbook (verified against actual repo)
 ```
-cp .env.example .env.local      # fill OPENROUTER_API_KEY at minimum
+cp .env.example .env.local      # fill OPENROUTER_API_KEY at minimum; DATABASE_URL is required for Phase 2 and has a working default in .env.example
 docker compose up -d            # Postgres :5432, Redis :6379 (both named "gauntlet")
 npm install && npm run dev      # Next.js on :3000
 # Phase 2 only:
 cd agents && pip install -r requirements.txt
 python -m uvicorn main:app --reload  # target: :8000
 ```
+- The agents service refuses to start if `DATABASE_URL` is unset. If you see `RuntimeError: DATABASE_URL is not set` on boot, copy it from `.env.example` into `.env.local`.
+- `langgraph-checkpoint-postgres==2.0.3`'s `AsyncPostgresSaver.setup()` is broken on a fresh DB (UndefinedTable in the version-probe SELECT aborts the transaction before migrations run). `agents/db.py:setup_checkpointer_tables` works around it by pre-creating the checkpointer tables in autocommit mode. Do not "simplify" this back to a plain `await checkpointer.setup()`.
 - `npm run lint` runs ESLint (eslint-config-next, core-web-vitals + TypeScript).
 - No typecheck script in package.json; run `npx tsc --noEmit` manually.
 - No test command exists yet.
@@ -44,8 +46,8 @@ python -m uvicorn main:app --reload  # target: :8000
 ## Architecture: what's actually wired
 - **Phase 1 loop (fully working):** `app/session/use-session.ts` orchestrates the full 2-cycle Rex→Sage loop via direct Next.js API routes (`/api/rex/challenge`, `/api/rex/rechallenge`, `/api/evaluate`, `/api/sage`). Domain hardcoded to `"Deployment"`, `MAX_CYCLES = 2` in `use-session.ts`.
 - **OpenRouter clients:** `lib/openrouter.ts` (SSE streaming) and `lib/openrouter-json.ts` (structured JSON). The SSE client strips markdown fences before `JSON.parse` in the JSON client.
-- **Agent prompts:** `agents/prompts/` has both `.ts` files (consumed by Next.js API routes now) and `.py` ports (for Phase 2 LangGraph). `sage.py` and `evaluator.py` Python ports do not exist yet.
-- **Phase 2 foundations ready:** `agents/state.py` has the full `AppState` TypedDict with `Annotated[list[Exchange], operator.add]` for LangGraph additive state. `agents/db.py` has `AsyncPostgresSaver` setup.
+- **Agent prompts:** `agents/prompts/` has both `.ts` files (consumed by Next.js API routes now) and `.py` ports (for Phase 2 LangGraph). All three Python ports (`rex.py`, `sage.py`, `evaluator.py`) exist.
+- **Phase 2 graph runtime:** `agents/state.py` has the full `AppState` TypedDict with `Annotated[list[Exchange], operator.add]` for LangGraph additive state. `agents/graphs/session.py` builds the SessionSubgraph explicitly (no abstractions) and compiles lazily with the Postgres checkpointer on first call. `agents/db.py` owns the pool + AsyncPostgresSaver singleton; `agents/repositories.py` owns application-table CRUD (sessions, exchanges). The checkpointer setup is idempotent and survives restart (see runbook note).
 
 ## LLM model assignments (from `docs/tech-stack.md`)
 - Rex, Sage, Curriculum Builder → `anthropic/claude-sonnet-4.6`
