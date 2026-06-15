@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from db import close_pool, init_pool
+from routes.session import router as session_router
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env.local")
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Gauntlet LangGraph Service", lifespan=lifespan)
+app.include_router(session_router)
 
 
 class HealthResponse(BaseModel):

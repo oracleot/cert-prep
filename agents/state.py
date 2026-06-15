@@ -40,21 +40,32 @@ class AppState(TypedDict):
     rex_difficulty: str  # "easy" | "medium" | "hard"
     max_cycles: int
 
+    # 1-indexed cycle counter, advanced by rex_rechallenge.
+    cycle: int
+
     # Per-cycle working state — overwritten each cycle
     current_challenge: Challenge
     user_answer: str
     last_evaluation: EvaluationResult
 
+    # 2.3 affordance: pre-seeded user answers so the graph runs end-to-end.
+    # Removed in 2.6 when LangGraph interrupts wait for real user input.
+    pending_user_answers: list[str]
+
     # Accumulated per-session — appended by sage_respond after each cycle
     # Annotated with operator.add so each append is additive, not overwriting
     session_history: Annotated[list[Exchange], operator.add]
 
-    # Written by coach_open when a Postgres session row is created
+    # Written by coach_open when a Postgres session row is created (2.4)
     db_session_id: str
 
 
 def initial_state(user_id: str = "dev-user") -> dict[str, Any]:
-    """Returns the initial state dict for a new session."""
+    """Returns the initial state dict for a new session.
+
+    `pending_user_answers` is pre-seeded with two real-ish DVA-C02 answers so
+    the SessionSubgraph can run end-to-end in 2.3 without a human in the loop.
+    """
     return {
         "user_id": user_id,
         "exam_id": "dva-c02",
@@ -62,9 +73,16 @@ def initial_state(user_id: str = "dev-user") -> dict[str, Any]:
         "current_topic": "",
         "rex_difficulty": "medium",
         "max_cycles": 2,
+        "cycle": 0,
         "current_challenge": {},
         "user_answer": "",
         "last_evaluation": {},
+        "pending_user_answers": [
+            "I would use a blue/green deployment via CodeDeploy with traffic "
+            "shifting enabled to swap over to the new task set with zero downtime.",
+            "I would use ECS rolling deploy with the deployment circuit breaker "
+            "enabled so a failed task set auto-rolls back without manual cleanup.",
+        ],
         "session_history": [],
         "db_session_id": "",
     }
