@@ -75,8 +75,37 @@ async def open_checkpointer() -> AsyncGenerator[AsyncPostgresSaver, None]:
 
 
 async def setup_checkpointer_tables() -> None:
-    """Create LangGraph checkpointer tables if they don't exist."""
-    await get_checkpointer().setup()
+    """Create LangGraph checkpointer tables if they don't exist.
+
+    Workaround for langgraph-checkpoint-postgres==2.0.3: its setup() runs
+    the initial version-probe SELECT inside the same transaction as the
+    migration loop. On a fresh DB the SELECT raises UndefinedTable, which
+    puts the transaction into an aborted state — so the subsequent CREATE
+    TABLE statements fail with InFailedSqlTransaction.
+
+    To avoid relying on the broken setup(), we pre-create the four
+    checkpointer tables ourselves in autocommit mode, register them at
+    the latest version in checkpoint_migrations, and then let setup() run
+    a no-op pass.
+    """
+    from langgraph.checkpoint.postgres.base import MIGRATIONS
+
+    pool = get_pool()
+    last_version = len(MIGRATIONS) - 1
+
+    async with pool.connection() as conn:
+        was_autocommit = conn.autocommit
+        await conn.set_autocommit(True)
+        try:
+            for sql in MIGRATIONS:
+                await conn.execute(sql)
+            await conn.execute(
+                "INSERT INTO checkpoint_migrations (v) VALUES (%s) "
+                "ON CONFLICT (v) DO NOTHING",
+                (last_version,),
+            )
+        finally:
+            await conn.set_autocommit(was_autocommit)
 
 
 async def run_migration(sql: str) -> None:
