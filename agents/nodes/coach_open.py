@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from repositories import create_session
 from state import AppState
 
 
@@ -11,11 +12,22 @@ HARDCODED_DOMAIN = "Deployment"
 HARDCODED_TOPIC = "CodeDeploy deployment strategies"
 
 
-def coach_open(state: AppState) -> dict:
-    """Initialise session: domain, topic, cycle counter, pending user answers."""
-    initial: dict = {
-        "current_domain": HARDCODED_DOMAIN,
+async def coach_open(state: AppState) -> dict:
+    """Initialise session: domain, topic, cycle counter, db_session_id.
+
+    Persists a `sessions` row in Postgres and stashes the returned UUID in
+    state so downstream nodes (sage_respond, coach_close) can attach
+    exchanges and stamp ended_at to the same session.
+    """
+    domain = HARDCODED_DOMAIN
+    user_id = state.get("user_id", "dev-user")
+    exam_id = state.get("exam_id", "dva-c02")
+
+    db_session_id = await create_session(user_id=user_id, exam_id=exam_id, domain=domain)
+
+    return {
+        "current_domain": domain,
         "current_topic": HARDCODED_TOPIC,
         "cycle": 1,
+        "db_session_id": db_session_id,
     }
-    return initial

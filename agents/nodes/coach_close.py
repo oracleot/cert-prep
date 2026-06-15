@@ -1,16 +1,22 @@
 # coach_close node — wraps up a session, marks it complete.
 # Phase 2: returns the final session_history count and a simple outcome tally.
 # Phase 4 will persist aggregates to Postgres (readiness score, rex record).
+# 2.4: stamps ended_at on the session row in Postgres.
 
 from __future__ import annotations
 
+from repositories import close_session
 from state import AppState
 
 
-def coach_close(state: AppState) -> dict:
-    """Finalise the session — count outcomes, no-op persistence in 2.3."""
+async def coach_close(state: AppState) -> dict:
+    """Finalise the session — count outcomes, mark session ended in DB."""
     history = state.get("session_history", [])
     correct = sum(1 for ex in history if ex.get("outcome") == "correct")
+
+    session_id = state.get("db_session_id", "")
+    if session_id:
+        await close_session(session_id)
 
     return {
         "session_history": [
