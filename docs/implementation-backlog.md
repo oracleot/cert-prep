@@ -155,12 +155,14 @@ Status: first-pass | Date: 2026-06-15
 
 ### 2.3 — AppState TypedDict + LangGraph SessionSubgraph (P0, L, agents)
 **Acceptance criteria:**
-- [ ] `AppState` TypedDict implemented per `docs/system-design.md`
-- [ ] SessionSubgraph implements all nodes: `coach_open`, `rex_challenge`, `evaluate_answer`, `sage_respond`, `rex_rechallenge`, `coach_close`
-- [ ] Conditional edge: `correct → sage_depth | incorrect → sage_explain`
-- [ ] Graph is compiled and executable end-to-end with a hardcoded user_id
-- [ ] Each node implementation matches Phase 1 agent logic (ported, not rewritten)
-- [ ] Graph structure is explicit — no abstraction hiding the node/edge definitions (learning objective)
+- [x] `AppState` TypedDict implemented per `docs/system-design.md`
+- [x] SessionSubgraph implements all nodes: `coach_open`, `rex_challenge`, `evaluate_answer`, `sage_respond` (split as `sage_depth`/`sage_explain` for the conditional edge), `rex_rechallenge`, `coach_close`
+- [x] Conditional edge: `correct → sage_depth | incorrect → sage_explain`
+- [x] Graph is compiled and executable end-to-end with a hardcoded user_id
+- [x] Each node implementation matches Phase 1 agent logic (ported, not rewritten)
+- [x] Graph structure is explicit — no abstraction hiding the node/edge definitions (learning objective)
+
+*Note: `pending_user_answers` pre-seeded in `initial_state` is a 2.3 affordance so the graph runs without a human in the loop. Removed in 2.6 when LangGraph interrupts wait for real user input.*
 
 ---
 
