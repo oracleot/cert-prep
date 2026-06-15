@@ -135,11 +135,11 @@ Status: first-pass | Date: 2026-06-15
 
 ### 2.1 — Python LangGraph service scaffold (P0, S, infra)
 **Acceptance criteria:**
-- [ ] Python project initialised in `agents/` with `pyproject.toml` or `requirements.txt`
-- [ ] FastAPI or equivalent serving LangGraph graph over HTTP
-- [ ] `uvicorn main:app --reload` starts on :8000 with no errors
-- [ ] Health check endpoint: `GET /health` returns 200
-- [ ] `OPENROUTER_API_KEY` and `DATABASE_URL` read from env
+- [x] Python project initialised in `agents/` with `pyproject.toml` or `requirements.txt`
+- [x] FastAPI or equivalent serving LangGraph graph over HTTP
+- [x] `uvicorn main:app --reload` starts on :8000 with no errors
+- [x] Health check endpoint: `GET /health` returns 200
+- [x] `OPENROUTER_API_KEY` and `DATABASE_URL` read from env
 
 ---
 
