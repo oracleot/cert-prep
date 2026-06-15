@@ -2,14 +2,19 @@
 # Invokes the SessionSubgraph end-to-end and returns the final state.
 #
 # 2.3 scope: pre-seeded user answers; no streaming; no interrupts.
+# 2.4 scope: Postgres checkpointer; thread_id identifies the session for
+#            resume. Re-running with an existing thread_id loads the prior
+#            checkpoint state and continues from there.
 # 2.6 will add SSE streaming + human-in-the-loop interrupts.
 
 from __future__ import annotations
 
+import uuid
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from graphs.session import session_graph
+from graphs.session import get_session_graph
 from state import initial_state
 
 router = APIRouter()
@@ -18,6 +23,9 @@ router = APIRouter()
 class SessionRunRequest(BaseModel):
     user_id: str = "dev-user"
     pending_user_answers: list[str] | None = None
+    # Optional: pass an existing thread_id to resume a session from its
+    # last checkpoint. Omit to start a new session.
+    thread_id: str | None = None
 
 
 class SessionRunResponse(BaseModel):
@@ -26,16 +34,29 @@ class SessionRunResponse(BaseModel):
     cycles_completed: int
     correct: int
     exchanges: list[dict]
+    # Echoed back so the caller can resume this session later.
+    thread_id: str
+    # DB session UUID (set when coach_open ran with the DB online).
+    db_session_id: str
 
 
 @router.post("/session/run", response_model=SessionRunResponse)
 async def run_session(req: SessionRunRequest) -> SessionRunResponse:
-    state = initial_state(user_id=req.user_id)
-    if req.pending_user_answers is not None:
-        state["pending_user_answers"] = req.pending_user_answers
+    thread_id = req.thread_id or str(uuid.uuid4())
+    config = {"configurable": {"thread_id": thread_id}}
+
+    # If we're resuming, leave state empty — the checkpointer supplies it.
+    # Otherwise seed a fresh initial state.
+    is_new = req.thread_id is None
+    if is_new:
+        state = initial_state(user_id=req.user_id)
+        if req.pending_user_answers is not None:
+            state["pending_user_answers"] = req.pending_user_answers
+    else:
+        state = {}
 
     try:
-        final = await session_graph.ainvoke(state)
+        final = await get_session_graph().ainvoke(state, config=config)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -49,4 +70,6 @@ async def run_session(req: SessionRunRequest) -> SessionRunResponse:
         cycles_completed=len(real_exchanges),
         correct=correct,
         exchanges=real_exchanges,
+        thread_id=thread_id,
+        db_session_id=final.get("db_session_id", ""),
     )
