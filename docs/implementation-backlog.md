@@ -13,7 +13,7 @@ Status: first-pass | Date: 2026-06-15
 - M — 0.5–2 days
 - L — 2–5 days
 
-**Phase:** 1 · 2 · 3 · 4 · 5 · 6 · 7
+**Phase:** 1 · 2 · 3 · 4 · 5 · 6 · 7 · 8
 
 **Area:** frontend · agents · infra · auth · gamification
 
@@ -591,15 +591,76 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
+## Phase 8: Testing Infrastructure — Issues 8.1 through 8.5
+
+**Done when:** `npm test` and `pytest` both run on every PR, smoke tests guard the highest-value units, and CI blocks merges on red.
+
+**Scope note:** This phase installs the test runners and writes smoke coverage for the targets that are about to multiply (openrouter clients, blueprint/artifact validation, curriculum persistence, LangGraph session graph). It does not promise full unit coverage — the ratio of test code to product code should rise over subsequent phases, not befront-loaded.
+
+---
+
+### 8.1 — Choose test runners + record in docs (P0, S, infra)
+**Acceptance criteria:**
+- [ ] Decision recorded in `docs/tech-stack.md` (or new `docs/testing.md`): Vitest for Next.js/TS, pytest + pytest-asyncio for agents
+- [ ] Rationale documented: speed (Vitest), async support (pytest-asyncio matches `agents/main.py` lifespan + `agents/db.py` async pool), zero-config Next.js integration
+- [ ] No Jest (Vitest is API-compatible; pick one to avoid dual runner confusion)
+- [ ] No Mocha/Chai — same reason
+
+---
+
+### 8.2 — Wire Vitest into the Next.js app (P0, M, infra)
+**Acceptance criteria:**
+- [ ] `vitest` + `@testing-library/react` + `jsdom` in `package.json` devDependencies
+- [ ] `npm test` script in `package.json` runs the suite headless
+- [ ] `vitest.config.ts` (or inline in `next.config.mjs`) configures path aliases, jsdom environment, and a setup file if needed
+- [ ] One passing smoke test ships in this issue — proves the runner is wired (suggest a unit test for `lib/anonymous-user.ts` or a small util)
+- [ ] No regression: `npm run dev` still works
+
+---
+
+### 8.3 — Wire pytest into the agents service (P0, M, infra)
+**Acceptance criteria:**
+- [ ] `pytest`, `pytest-asyncio`, and any HTTP test client (suggest `httpx` for FastAPI) in `agents/requirements.txt`
+- [ ] `pyproject.toml` or `pytest.ini` declares `asyncio_mode = auto` and `pythonpath = .` so tests import `agents.*` modules cleanly
+- [ ] `pytest` runs from the `agents/` directory and exits 0 with no test files (or with the first smoke test from 8.4)
+- [ ] `agents/requirements.txt` still includes every runtime dep; dev deps are clearly grouped (e.g., `# --- test ---` comment block)
+- [ ] `agents/db.py` guard for missing `DATABASE_URL` is exercised by a test that monkeypatches env to absent (so the agents service is testable without Postgres)
+
+---
+
+### 8.4 — Smoke tests for highest-value targets (P0, M, agents + frontend)
+**Acceptance criteria:**
+- [ ] Python: `blueprint.validate_exam_name` and the new artifact validator (lands in 7.2) — accept/reject matrix
+- [ ] Python: `curriculum_repository._fallback_curriculum` and `_valid_domains` — deterministic, no LLM call required
+- [ ] Python: at least one FastAPI route per group (onboarding start, jobs, dashboard summary) using `httpx.AsyncClient` against the app — no live OpenRouter calls; mock the LLM
+- [ ] Python: LangGraph session graph compiles and runs end-to-end with hardcoded state and a stubbed LLM (covers `coach_open` → `rex_challenge` → `evaluate_answer` → `sage_respond` → `rex_rechallenge` → `coach_close` path)
+- [ ] TypeScript: `lib/sse-reader.ts` (or equivalent) — token/eval/done/error event parsing
+- [ ] TypeScript: `lib/anonymous-user.ts` — ID generation + persistence
+- [ ] TypeScript: at least one component test for the dashboard CTA states (no session / in-progress / completed) — per 6.3 AC
+- [ ] Tests run in <30s locally (mock all LLM calls; no network)
+
+---
+
+### 8.5 — CI workflow (P1, M, infra)
+**Acceptance criteria:**
+- [ ] GitHub Actions workflow at `.github/workflows/test.yml` runs on pull_request
+- [ ] Two jobs: `frontend-test` (Node 20, `npm ci`, `npm test`) and `agents-test` (Python 3.12, `pip install -r agents/requirements.txt`, `cd agents && pytest`)
+- [ ] `agents-test` spins up a Postgres service container (matches `docker-compose.yml`) so DB-touching tests can run
+- [ ] Both jobs must pass before the PR is mergeable (no required-check enforcement yet — that needs repo admin; document it as a follow-up)
+- [ ] Workflow caches `node_modules` and `pip` to keep PR feedback under 90s
+- [ ] No secrets required to run — LLM-touching tests must be skipped or fully mocked in CI
+
+---
+
 ## Ready Queue
 Issues startable right now (no dependencies unmet):
 - **2.7** — Railway deployment: Postgres + Redis + Python service
 - **4.1** — Clerk auth integration
-- **6.6** — Visual review for unified session surfaces (remaining validation)
-- **6.8** — One-week dogfood validation / session-length revisit
-- **7.1** — Exam reliability readiness rubric
-- **7.4** — DVA-C02 full blueprint topic expansion
-- **7.6** — Sage AWS documentation grounding + citations
+- **7.1** — Exam reliability readiness rubric (in flight)
+- **7.2** — Official exam artifact model (design-locked; awaits 7.1 sign-off)
+- **7.4** — DVA-C02 full blueprint topic expansion (awaits 7.2)
+- **7.6** — Sage AWS documentation grounding + citations (awaits 7.4)
+- **8.1** — Choose test runners + record in docs (startable alongside 7.1)
 
 ---
 

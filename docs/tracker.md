@@ -22,8 +22,9 @@
 | P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.2, 2.3, 2.4, 2.5, 2.6 shipped; 2.7 remaining | 2026-06-15 |
 | P3 | Phase 3 — Onboarding + Curriculum | ✅ Complete | issues 3.1–3.8 shipped locally; E2E verified | 2026-06-16 |
 | P6 | Phase 6 — Dogfood-Driven UX Refinements | ✅ Complete | issues 6.1–6.8 shipped locally; dogfood validation done | 2026-06-16 |
-| P7 | Phase 7 — Exam Reliability + Grounded Content | ⏳ Planned | official-source blueprint coverage, Sage citations, and one second-cert smoke path | 2026-06-16 |
-| 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
+| P7 | Phase 7 — Exam Reliability + Grounded Content | 🔄 In Progress | issue 7.1 in flight; 7.2–7.8 blocked behind rubric sign-off | 2026-06-16 |
+| P8 | Phase 8 — Testing Infrastructure | ⏳ Planned | test runners for Next.js + agents, smoke tests for highest-value targets, CI wiring | 2026-06-16 |
+| 9 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints
 <!-- Populated from handoff 2026-06-15 -->
