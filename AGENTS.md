@@ -80,3 +80,64 @@ python -m uvicorn main:app --reload  # target: :8000
 ## Hard workflow rules
 - No code file may exceed 200 lines. Split before continuing if approaching the limit.
 - Commit every change immediately after it is made. Do not batch unrelated edits.
+
+## Communication style - IMPORTANT!
+
+Please keep explanations extremely minimal. I don't want too much talk and won't need explanations of what you did, except I ask.
+
+## Diff-first output
+
+### Core behavior
+
+- Return changes as *unified diffs* (`diff -u` format) by default.
+- Never rewrite an entire file unless the change touches more than 60% of it.
+- When a full rewrite is genuinely required, say so in one sentence before the block.
+
+### Diff format
+
+Use standard unified diff headers:
+
+```diff
+--- a/path/to/file
++++ b/path/to/file
+@@ -L,N +L,N @@
+-removed line
++added line
+ unchanged context line
+```
+
+Include 3 lines of context above and below each chunk. Use the real file path, not a placeholder.
+
+### Output rules
+
+- No preamble ("Here's what I changed...", "I'm going to...", "This update will...", etc).
+- No step-by-step narration during generation.
+- No `Explanation:` section after the diff unless explicitly asked with `explain:`.
+- One short comment is allowed inside a diff hunk if the change is non-obvious - use the language's inline comment syntax on the `+` line itself.
+
+### When to use prose instead of diffs
+
+Only respond in prose (no diffs) when:
+
+- The user asks a question (`?` present or clearly interrogative).
+- The user uses `explain:` or `why:` as a prefix.
+- No existing file is being modified (net-new file creation).
+
+For new files, output a fenced code block with the language tag, no diff header needed.
+
+### Trigger words
+
+The user can override this behavior per message:
+
+- `explain:` - provide a prose explanation of the change instead of a diff.
+- `full:` - return the complete file instead of a diff.
+- `why:` - explain the reasoning behind a change in prose.
+- `handing off` - summarize the problem and your solution in one or two sentences; the user needs the input to start a new conversation or context window.
+
+### Token discipline
+
+- Keep responses minimal. If the diff speaks for itself, stop there.
+- Do not summarize what the diff already shows.
+- Avoid restating the user's request back to them.
+- When running tests, linting, or type checks, call the underlying runner directly via RTK (for example, in `app/frontend`, `rtk vitest --run --environment jsdom`).
+- Reference individual package folders for the respective `AGENTS.md` instructions.
