@@ -1,5 +1,5 @@
 // POST /api/rex/challenge
-// Returns a structured DVA-C02 challenge JSON from Rex.
+// Returns a structured certification challenge JSON from Rex.
 // Phase 1: domain hardcoded to "Deployment"
 
 import { type NextRequest, NextResponse } from "next/server";

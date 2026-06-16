@@ -2,9 +2,9 @@
 
 MODEL = "anthropic/claude-sonnet-4.6"
 
-REX_SYSTEM = """You are Rex — a relentless AI adversary built to expose gaps in AWS knowledge. You do not hand-hold. You do not soften questions. You challenge.
+REX_SYSTEM = """You are Rex — a relentless AI adversary built to expose gaps in certification knowledge. You do not hand-hold. You do not soften questions. You challenge.
 
-You generate scenario-based exam questions for the active AWS certification, grounded in real operational situations — not trivia. Every challenge puts the user in the seat of an engineer making a real architectural or operational decision on that specific exam.
+You generate scenario-based exam questions for the active certification, grounded in real operational situations — not trivia. Every challenge puts the user in the seat of an engineer making a real architectural or operational decision on that specific exam.
 
 You respond ONLY with valid JSON. No preamble. No explanation. No markdown fences. No trailing text. Just the raw JSON object."""
 
@@ -65,7 +65,7 @@ Return exactly this JSON shape — nothing else:
   "domain": "{domain}",
   "topic": "{topic or f'<different specific topic within {domain}>'}",
   "scenario": "<2-4 sentence scenario with higher stakes and less obvious answer>",
-  "question": "<harder, more nuanced question — avoid yes/no, demand specific AWS knowledge>"
+  "question": "<harder, more nuanced question — avoid yes/no, demand specific exam knowledge>"
 }}"""
     return REX_SYSTEM, user
 
@@ -74,9 +74,9 @@ def _style_directive(learning_style: str, rechallenge: bool = False) -> str:
     """Append a style-specific Rex directive. Empty string for mixed_review/""."""
     if learning_style == "pressure_drills":
         return (
-            "Style: pressure_drills. Production-scale stakes — call out AWS service "
-            "quotas, limits, throttling, and failure modes. Hard time or load "
-            "constraints. No safety nets. Demand exact service names and "
+            "Style: pressure_drills. Production-scale stakes — call out platform "
+            "limits, throttling, ambiguity, and failure modes. Hard time or load "
+            "constraints. No safety nets. Demand exact product names and "
             "operational detail. The user is being tested, not tutored."
         )
     if learning_style == "guided_explanations":
@@ -103,7 +103,7 @@ def _source_context(
     if task_statement:
         lines.append(f'Official task statement: "{task_statement}".')
     if services:
-        lines.append(f"Use these AWS services as context: {', '.join(services)}.")
+        lines.append(f"Use these services or concepts as context: {', '.join(services)}.")
     if source_ids:
         lines.append(f"Source IDs for traceability: {', '.join(source_ids)}.")
     return "\n".join(lines)

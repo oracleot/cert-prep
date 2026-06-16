@@ -100,13 +100,13 @@ def _sample(exam_id: str, target: dict[str, Any], sample_index: int, mode: str) 
 
 
 def _mock_challenge(target: dict[str, Any], sample_index: int) -> dict[str, str]:
-    service = target["services"][0] if target["services"] else "AWS"
+    service = target["services"][0] if target["services"] else "the platform"
     return {
         "domain": target["domain"],
         "topic": target["topic"],
         "scenario": (
             f"Mock eval sample {sample_index}: an engineer is validating {target['topic']} "
-            f"with {service} before an AWS certification review."
+            f"with {service} before a certification review."
         ),
         "question": f"Which implementation choice best satisfies {target['task_statement']}?",
     }

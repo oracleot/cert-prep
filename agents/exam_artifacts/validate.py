@@ -21,10 +21,11 @@ class ExamValidation:
 
 
 def _normalize(raw: str) -> str:
-    """Lowercase, collapse whitespace, strip a leading ``aws `` prefix."""
+    """Lowercase, collapse whitespace, strip common provider prefixes."""
     norm = " ".join(raw.strip().lower().split())
-    if norm.startswith("aws "):
-        norm = norm[4:]
+    for prefix in ("aws ", "anthropic "):
+        if norm.startswith(prefix):
+            norm = norm.removeprefix(prefix)
     return norm
 
 
@@ -45,14 +46,17 @@ def _exam_id_for_canonical_name(norm: str) -> str | None:
         artifact = load_artifact_from_file(exam_id)
         if _normalize(artifact.get("canonical_name", "")) == norm:
             return exam_id
+        aliases = artifact.get("aliases", [])
+        if any(_normalize(alias) == norm for alias in aliases):
+            return exam_id
     return None
 
 
 def validate_exam_id(raw: str) -> ExamValidation:
     """Return ExamValidation. ``accepted=False`` for unknown / empty codes.
 
-    Accepts the exam id (e.g. ``DVA-C02``), the id with a leading ``AWS``
-    (e.g. ``AWS DVA-C02``), and the full canonical name.
+    Accepts the exam id, the id with a leading provider, the full canonical
+    name, and artifact-defined aliases.
     """
     if not raw or not raw.strip():
         return ExamValidation(False, "", "", "Exam code is required.")

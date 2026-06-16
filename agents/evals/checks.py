@@ -62,7 +62,13 @@ def _shape_errors(samples: list[dict[str, Any]]) -> list[str]:
 
 
 def _has_official_citation(sample: dict[str, Any]) -> bool:
-    return any(citation["url"].startswith("https://docs.aws.amazon.com/") for citation in sample["citations"])
+    allowed_roots = (
+        "https://docs.aws.amazon.com/",
+        "https://docs.anthropic.com/",
+        "https://modelcontextprotocol.io/",
+        "https://claudecertifications.com/",
+    )
+    return any(citation["url"].startswith(allowed_roots) for citation in sample["citations"])
 
 
 def _leakage_errors(exam_id: str, samples: list[dict[str, Any]]) -> list[str]:

@@ -62,7 +62,7 @@ export function SageCard({
       {!isStreaming && citations.length > 0 && (
         <div className="mt-4 rounded-xl border border-zinc-200 bg-white/60 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-zinc-500">
-            AWS sources
+            Sources
           </p>
           <div className="mt-2 space-y-2">
             {citations.map((citation) => (
