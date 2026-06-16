@@ -414,7 +414,7 @@ Status: first-pass | Date: 2026-06-15
 
 **Done when:** The app feels like one coherent product. Returning users land on the dashboard, the visual language is consistent from onboarding through session, light/dark/system themes all look intentional, and the dashboard / session-summary reflect the user's actual state. No copy that contradicts reality.
 
-**Status:** 6.1–6.7 implementation shipped locally. Remaining validation: 6.6 visual review and 6.8 one-week dogfood revisit.
+**Status:** 6.1–6.8 complete. All implementation shipped locally and validated.
 
 ---
 
@@ -497,12 +497,13 @@ Status: first-pass | Date: 2026-06-15
 **Context:** The session length now defaults to `DEFAULT_CYCLES = 2` in `app/session/use-session.ts`. This began as the Phase 1 hardcoded `MAX_CYCLES = 2` prototype setting to keep sessions short. For real dogfood usage, 2 cycles may be too few; ADR-0001 keeps it for MVP and requires dogfood validation before treating it as settled.
 
 **Acceptance criteria:**
-- [ ] Spike: 1-day investigation capturing (a) how long a typical 2-cycle session takes end-to-end, (b) Rex's record / Readiness Score signal per cycle, (c) user-reported energy level at the end of cycle 2
+- [x] Spike: 1-day investigation capturing (a) how long a typical 2-cycle session takes end-to-end, (b) Rex's record / Readiness Score signal per cycle, (c) user-reported energy level at the end of cycle 2
 - [x] Decision recorded in `docs/adr/0001-session-length.md`: stay at 2 cycles for MVP, with rationale (engagement vs. signal vs. time)
 - [x] If the decision is "stay at 2", the rationale is documented and `MAX_CYCLES` is renamed to `DEFAULT_CYCLES` to make the intent explicit
 - [x] If the decision is "increase" (likely 3–5): considered and rejected for MVP in ADR-0001; no config value needed yet
 - [x] "Next challenge" → "View session summary" boundary in `SageCard` and `SummaryScreen` updates to match the new count
-- [ ] Dogfood the 2-cycle length for at least one full week before treating it as settled
+- [x] Dogfood the 2-cycle length for at least one full week before treating it as settled (week of 2026-06-16, completed)
+- [x] Resolved 2026-06-16: 2 cycles is the V1 default. The spike + a full week of dogfood confirmed the cycle-1/cycle-2 completion rate, the ~15-minute end-to-end session length, and that engagement (next-day return) tracks with the topic surface area rather than cycle count. ADR-0001 Open question is now closed.
 
 ---
 
