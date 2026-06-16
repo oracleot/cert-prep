@@ -53,6 +53,7 @@ export type DomainPlan = {
   task_statements?: Array<{ id: string; text: string }>;
   study_order: number;
   performance_score: number;
+  readiness_contribution?: number;
   correct_count?: number;
   total_count?: number;
   topic_count?: number;

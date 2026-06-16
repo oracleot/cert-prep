@@ -26,6 +26,9 @@ function DomainTile({ domain }: { domain: DomainPlan }) {
       <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
         {covered}/{topicCount} topics covered - {domain.correct_count || 0}/{domain.total_count || 0} vs Rex
       </p>
+      <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+        {domain.weight}% weight x {Math.round(domain.performance_score * 100)}% performance = {domain.readiness_contribution || 0}%
+      </p>
     </div>
   );
 }

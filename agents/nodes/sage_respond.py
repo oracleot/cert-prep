@@ -16,6 +16,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 
 from llm import get_llm
+from performance_repository import record_rex_result
 from prompts.sage import MODEL, SageInput, build_sage_depth_prompt, build_sage_explain_prompt
 from repositories import create_exchange
 from sage_sources import Citation, load_sage_grounding
@@ -100,8 +101,9 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
             sage_response=exchange["sage_response"],
             citations=exchange["citations"],
         )
+        await record_rex_result(state["user_id"], state["exam_id"], exchange["outcome"])
     except Exception:
-        logger.exception("Failed to persist exchange; continuing without DB persistence.")
+        logger.exception("Failed to persist exchange/Rex record; continuing without DB persistence.")
 
 
 async def sage_depth(state: AppState, config: RunnableConfig) -> dict:

@@ -58,11 +58,13 @@ def domain_overview(
         topic_count = max(len(topics), 1)
         covered_topics = _covered_topic_count(topics, topic_stats)
         performance = stat["correct_count"] / total if total else 0
+        contribution = domain["weight"] * performance
         overview.append({
             **domain,
             "correct_count": stat["correct_count"],
             "total_count": total,
             "performance_score": round(performance, 2),
+            "readiness_contribution": round(contribution),
             "topic_count": topic_count,
             "covered_topic_count": covered_topics,
             "completion_percent": min(100, round((covered_topics / topic_count) * 100)),

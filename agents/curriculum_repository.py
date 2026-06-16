@@ -14,6 +14,7 @@ from curriculum_topics import coverage_matrix, valid_domains
 from db import get_pool, has_pool
 from exam_artifacts.loader import load_artifact_from_file
 from llm import get_llm
+from performance_repository import calculate_readiness, read_readiness_score, read_rex_record
 from prompts.curriculum_builder import MODEL, build_curriculum_prompt
 
 
@@ -67,6 +68,11 @@ def _active_domains(curriculum: dict[str, Any] | None, exam_id: str) -> list[dic
     return curriculum["domains"] if curriculum else _fallback_for_exam(exam_id)
 
 
+async def active_domains_for(user_id: str, exam_id: str) -> list[dict]:
+    curriculum = await get_active_curriculum(user_id, exam_id)
+    return _active_domains(curriculum, exam_id)
+
+
 async def create_curriculum(
     user_id: str,
     exam_id: str,
@@ -90,6 +96,8 @@ async def create_curriculum(
             )
             row = await cur.fetchone()
         await conn.commit()
+    if not row:
+        return ""
     return str(row[0])
 
 
@@ -150,16 +158,16 @@ async def dashboard_summary(user_id: str, exam_id: str) -> dict[str, Any]:
     stats = await performance_map(user_id, exam_id)
     topic_stats = await topic_performance_map(user_id, exam_id)
     overview = domain_overview(domains, stats, topic_stats)
-    correct = sum(item["correct_count"] for item in stats.values())
-    total = sum(item["total_count"] for item in stats.values())
-    readiness = round(sum(item["weight"] * item["performance_score"] for item in overview))
+    persisted_score = await read_readiness_score(user_id, exam_id)
+    readiness = persisted_score["score"] if persisted_score else calculate_readiness(domains, stats)[0]
+    rex_record = await read_rex_record(user_id, exam_id)
     today = await choose_today_target(user_id, exam_id)
     return {
         "exam_id": exam_id,
         "readiness_score": readiness,
         "today_domain": today["domain"],
         "today_topic": today["topic"],
-        "rex_record": {"user_wins": correct, "rex_wins": total - correct},
+        "rex_record": rex_record,
         "domains": overview,
     }
 

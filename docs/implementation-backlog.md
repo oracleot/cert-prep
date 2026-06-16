@@ -324,20 +324,20 @@ Status: reshuffled | Date: 2026-06-16
 
 ### 4.3 — Exam Readiness Score hardening (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Score calculated as: `Σ (domain_weight × domain_performance_score)`
-- [ ] `domain_performance_score` = correct_challenges / total_challenges per domain
-- [ ] Score persisted to Postgres after every session
-- [ ] Score displayed on dashboard with domain weight breakdown visible (not a black box)
-- [ ] Ghost/projected score overlay shown at 0% (per empty state spec)
+- [x] Score calculated as: `Σ (domain_weight × domain_performance_score)`
+- [x] `domain_performance_score` = correct_challenges / total_challenges per domain
+- [x] Score persisted to Postgres after every session
+- [x] Score displayed on dashboard with domain weight breakdown visible (not a black box)
+- [x] Ghost/projected score overlay shown at 0% (per empty state spec)
 
 ---
 
 ### 4.4 — Rex's record persistence (P0, M, agents)
 **Acceptance criteria:**
-- [ ] `rex_record` table stores `rex_wins` and `user_wins` per user
-- [ ] Updated after every session cycle evaluation
-- [ ] Displayed on dashboard
-- [ ] Resets only on explicit "Reset progress" action (per destructive action spec)
+- [x] `rex_record` table stores `rex_wins` and `user_wins` per user
+- [x] Updated after every session cycle evaluation
+- [x] Displayed on dashboard
+- [x] Resets only on explicit "Reset progress" action (per destructive action spec)
 
 ---
 
