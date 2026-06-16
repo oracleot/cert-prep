@@ -26,22 +26,22 @@ export function SageCard({
 
   return (
     <div
-      className={`rounded-xl border p-6 ${
+      className={`rounded-2xl border p-6 backdrop-blur-sm ${
         outcome === "correct"
-          ? "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30"
-          : "border-border bg-muted/40"
+          ? "border-emerald-400/30 bg-emerald-500/10"
+          : "border-zinc-800 bg-zinc-950/80"
       }`}
     >
       <div className="mb-3 flex items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <span className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500">
           Sage
         </span>
         {outcome && (
           <span
-            className={`text-xs font-medium ${
+            className={`text-xs font-semibold uppercase tracking-wider ${
               outcome === "correct"
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-muted-foreground"
+                ? "text-emerald-300"
+                : "text-zinc-400"
             }`}
           >
             {outcome === "correct" ? "correct" : "incorrect"}
@@ -49,19 +49,23 @@ export function SageCard({
         )}
       </div>
 
-      <div className="relative text-sm leading-relaxed text-foreground">
-        <MarkdownStream text={text} />
+      <div className="relative text-sm leading-relaxed text-zinc-100">
+        <MarkdownStream text={text} className="text-zinc-100" />
         {isStreaming && (
-          <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-foreground align-middle" />
+          <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-zinc-100 align-middle" />
         )}
       </div>
 
       {!isStreaming && text && (
-        <div className="mt-4 border-t border-border pt-4">
+        <div className="mt-4 border-t border-zinc-800 pt-4">
           <Button
             onClick={onNext}
             variant={isLastCycle ? "default" : "outline"}
-            className="w-full"
+            className={`w-full min-h-11 ${
+              isLastCycle
+                ? "bg-amber-300 text-zinc-950 hover:bg-amber-200"
+                : "border-zinc-700 bg-transparent text-zinc-100 hover:bg-zinc-800"
+            }`}
           >
             {isLastCycle ? "View session summary" : "Next challenge →"}
           </Button>

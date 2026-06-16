@@ -1,8 +1,5 @@
 "use client";
 
-// Session screen — full-focus Rex + Sage loop
-// AC 1.4, 1.7: no navigation visible; mobile-first
-
 import { useSession } from "./use-session";
 import { ChallengeCard } from "@/components/session/challenge-card";
 import { AnswerForm } from "@/components/session/answer-form";
@@ -30,8 +27,9 @@ export default function SessionPage() {
 
   if (phase === "summary") {
     return (
-      <main className="flex min-h-screen items-start justify-center bg-background px-4 py-12">
-        <div className="w-full max-w-lg">
+      <main className="relative min-h-screen overflow-hidden bg-black px-4 py-12 text-zinc-50">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.14),transparent_32%)]" />
+        <div className="relative mx-auto flex w-full max-w-lg items-start justify-center">
           <SummaryScreen results={results} domain={domain} onRestart={restart} />
         </div>
       </main>
@@ -40,15 +38,18 @@ export default function SessionPage() {
 
   if (phase === "error") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="w-full max-w-lg rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
-          <p className="text-sm font-medium text-destructive">{errorMsg}</p>
-          <button
-            onClick={retry}
-            className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            Retry
-          </button>
+      <main className="relative min-h-screen overflow-hidden bg-black px-4 text-zinc-50">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.14),transparent_32%)]" />
+        <div className="relative flex min-h-screen items-center justify-center">
+          <div className="w-full max-w-lg rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 text-center backdrop-blur-sm">
+            <p className="text-sm font-medium text-rose-200">{errorMsg}</p>
+            <button
+              onClick={retry}
+              className="mt-4 min-h-11 rounded-full bg-amber-300 px-5 text-sm font-black text-zinc-950 hover:bg-amber-200"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -61,15 +62,12 @@ export default function SessionPage() {
   const answerDisabled = isEvaluating || isStreaming || phase === "sage_done";
 
   return (
-    <main className="flex min-h-screen items-start justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-lg space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {domain}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Cycle {cycle} of {maxCycles}
-          </span>
+    <main className="relative min-h-screen overflow-hidden bg-black px-4 py-10 text-zinc-50">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.14),transparent_32%)]" />
+      <div className="relative mx-auto w-full max-w-lg space-y-5">
+        <div className="flex items-center justify-between text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-zinc-500">
+          <span>{domain}</span>
+          <span>Cycle {cycle} of {maxCycles}</span>
         </div>
 
         <ChallengeCard challenge={challenge} isLoading={isLoading} />

@@ -1,8 +1,5 @@
 "use client";
 
-// Answer form — text input + submit
-// AC 1.4: submit disabled until user has typed something; evaluating state
-
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -32,7 +29,7 @@ export function AnswerForm({
   return (
     <div className="flex flex-col gap-3">
       <textarea
-        className="min-h-[120px] w-full resize-none rounded-lg border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-[120px] w-full resize-none rounded-2xl border border-zinc-800 bg-zinc-950/80 px-4 py-3 text-sm text-zinc-50 placeholder:text-zinc-500 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300/40 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-sm"
         placeholder="Your answer… (⌘↵ to submit)"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -44,7 +41,7 @@ export function AnswerForm({
       <Button
         onClick={onSubmit}
         disabled={!canSubmit}
-        className="w-full"
+        className="w-full min-h-11 bg-amber-300 text-zinc-950 hover:bg-amber-200"
         aria-label={isEvaluating ? "Evaluating…" : "Submit answer"}
       >
         {isEvaluating ? (
