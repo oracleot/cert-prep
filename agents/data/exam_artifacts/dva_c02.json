@@ -1,0 +1,84 @@
+{
+  "exam_code": "dva-c02",
+  "canonical_name": "AWS Certified Developer - Associate (DVA-C02)",
+  "provider": "aws",
+  "official_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/developer-associate-02/developer-associate-02.html",
+  "captured_at": "2026-06-16",
+  "source_version": "DVA-C02-current",
+  "domains": [
+    {
+      "name": "Development with AWS Services",
+      "weight": 32,
+      "task_statements": [
+        {"id": "1.1", "text": "Develop code for applications hosted on AWS"},
+        {"id": "1.2", "text": "Develop code for AWS Lambda"},
+        {"id": "1.3", "text": "Use data stores in application development"}
+      ],
+      "topics": [
+        "AWS SDK usage patterns (boto3, AWS SDK for JavaScript)",
+        "Amazon EventBridge event-driven patterns",
+        "Lambda environment configuration and VPC access",
+        "Lambda event lifecycle and Destinations",
+        "Lambda performance tuning and concurrency",
+        "DynamoDB partition keys, consistency models, and indexing",
+        "DynamoDB query vs scan patterns",
+        "Data serialization (JSON, Parquet) and caching with ElastiCache"
+      ]
+    },
+    {
+      "name": "Security",
+      "weight": 26,
+      "task_statements": [
+        {"id": "2.1", "text": "Implement authentication and/or authorization for applications and AWS services"},
+        {"id": "2.2", "text": "Implement encryption by using AWS services"},
+        {"id": "2.3", "text": "Manage sensitive data in application code"}
+      ],
+      "topics": [
+        "Amazon Cognito user pools and identity pools",
+        "IAM least privilege for application code",
+        "Bearer tokens and STS for cross-service access",
+        "Encryption at rest vs in transit (KMS, S3, RDS)",
+        "AWS KMS key rotation and envelope encryption",
+        "Secrets Manager rotation from applications",
+        "Sensitive data classification and masking"
+      ]
+    },
+    {
+      "name": "Deployment",
+      "weight": 24,
+      "task_statements": [
+        {"id": "3.1", "text": "Prepare application artifacts to be deployed to AWS"},
+        {"id": "3.2", "text": "Test applications in development environments"},
+        {"id": "3.3", "text": "Automate deployment testing"},
+        {"id": "3.4", "text": "Deploy code by using AWS CI/CD services"}
+      ],
+      "topics": [
+        "CodeDeploy deployment strategies (blue/green, canary, rolling)",
+        "Lambda deployment traffic shifting with aliases",
+        "CI/CD pipelines with CodePipeline and CodeBuild",
+        "Elastic Beanstalk application deployments",
+        "API Gateway stages and custom domains",
+        "AWS SAM and CloudFormation template authoring",
+        "Application rollback and version management"
+      ]
+    },
+    {
+      "name": "Troubleshooting and Optimization",
+      "weight": 18,
+      "task_statements": [
+        {"id": "4.1", "text": "Assist in a root cause analysis"},
+        {"id": "4.2", "text": "Instrument code for observability"},
+        {"id": "4.3", "text": "Optimize applications by using AWS services and features"}
+      ],
+      "topics": [
+        "CloudWatch Logs Insights debugging",
+        "CloudWatch embedded metric format (EMF)",
+        "X-Ray trace analysis and annotations",
+        "Lambda concurrency throttling and reserved concurrency",
+        "Dead-letter queues and redrive policies",
+        "Application-level caching and request-header caching",
+        "Performance profiling and right-sizing Lambda memory"
+      ]
+    }
+  ]
+}
