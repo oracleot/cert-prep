@@ -27,6 +27,7 @@ def rex_challenge(state: AppState) -> dict:
         task_statement=state.get("current_task_statement", ""),
         services=state.get("current_services", []),
         source_ids=state.get("current_source_ids", []),
+        learning_style=state.get("learning_style", ""),
     )
 
     llm = get_llm(MODEL)
