@@ -1,4 +1,4 @@
-// Shared domain types for Phase 1 Rex + Sage loop
+// Shared domain types for the app and API proxy boundaries.
 
 export type Challenge = {
   domain: string;
@@ -16,4 +16,46 @@ export type SessionResult = {
   cycle: number;
   topic: string;
   outcome: "correct" | "incorrect";
+};
+
+export type LearningStyle =
+  | "pressure_drills"
+  | "guided_explanations"
+  | "mixed_review";
+
+export type DomainPlan = {
+  name: string;
+  weight: number;
+  topics: string[];
+  study_order: number;
+  performance_score: number;
+  correct_count?: number;
+  total_count?: number;
+  completion_percent?: number;
+};
+
+export type AgentFeedEvent = {
+  id?: number;
+  agent: string;
+  status: "running" | "complete" | "failed";
+  message: string;
+  created_at?: string;
+};
+
+export type OnboardingRun = {
+  id: string;
+  exam_id: string;
+  exam_name: string;
+  learning_style: LearningStyle;
+  status: string;
+  step: string;
+  curriculum_id: string | null;
+};
+
+export type DashboardSummary = {
+  readiness_score: number;
+  today_domain: string;
+  today_topic: string;
+  rex_record: { user_wins: number; rex_wins: number };
+  domains: DomainPlan[];
 };

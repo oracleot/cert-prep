@@ -1,6 +1,8 @@
 import { Queue, Worker, QueueEvents } from "bullmq";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+const LANGGRAPH_URL = process.env.LANGGRAPH_URL || "http://localhost:8000";
+const WORKER_VERSION = "phase3-jobs-v1";
 
 function getConnectionOptions() {
   const url = new URL(REDIS_URL);
@@ -20,12 +22,37 @@ function getConnectionOptions() {
 
 const connection = getConnectionOptions();
 
+async function runBackendJob(path: string, onboardingId: string) {
+  const res = await fetch(`${LANGGRAPH_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ onboarding_id: onboardingId }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Backend job ${path} failed: ${body}`);
+  }
+
+  return res.json();
+}
+
 // Prevent multiple instances in development due to hot reloading
 const globalForBullMQ = global as unknown as {
   __worker?: Worker;
+  __workerVersion?: string;
   __queue?: Queue;
   __queueEvents?: QueueEvents;
 };
+
+if (
+  process.env.NODE_ENV !== "production" &&
+  globalForBullMQ.__worker &&
+  globalForBullMQ.__workerVersion !== WORKER_VERSION
+) {
+  void globalForBullMQ.__worker.close();
+  globalForBullMQ.__worker = undefined;
+}
 
 export const agentQueue =
   globalForBullMQ.__queue || new Queue("agent-tasks", { connection });
@@ -37,9 +64,14 @@ export const agentWorker =
     async (job) => {
       console.log(`[JobQueue] Processing job ${job.id} of type ${job.name}`);
       if (job.name === "blueprint_scout") {
-        console.log("[JobQueue] Running blueprint_scout placeholder");
+        await runBackendJob("/jobs/blueprint-scout", job.data.onboardingId);
+        await agentQueue.add(
+          "curriculum_builder",
+          { onboardingId: job.data.onboardingId },
+          { jobId: `curriculum-${job.data.onboardingId}` },
+        );
       } else if (job.name === "curriculum_builder") {
-        console.log("[JobQueue] Running curriculum_builder placeholder");
+        await runBackendJob("/jobs/curriculum-builder", job.data.onboardingId);
       }
     },
     { connection, autorun: true },
@@ -51,6 +83,7 @@ export const agentQueueEvents =
 if (process.env.NODE_ENV !== "production") {
   globalForBullMQ.__queue = agentQueue;
   globalForBullMQ.__worker = agentWorker;
+  globalForBullMQ.__workerVersion = WORKER_VERSION;
   globalForBullMQ.__queueEvents = agentQueueEvents;
 }
 
