@@ -4,7 +4,7 @@
 - **Name:** AI Certification Prep App (working name: Gauntlet)
 - **Type:** greenfield
 - **Started:** 2026-06-15
-- **Last updated:** 2026-06-15
+- **Last updated:** 2026-06-16
 
 ## Sessions
 | # | Session | Status | Output Doc | Last Updated |
@@ -19,6 +19,7 @@
 | 7 | Implementation Backlog | ✅ Complete | docs/implementation-backlog.md | 2026-06-15 |
 | P1 | Phase 1 — Rex+Sage loop | ✅ Complete | issues 1.3–1.9 shipped | 2026-06-15 |
 | P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.2, 2.3, 2.4, 2.5, 2.6 shipped; 2.7 remaining | 2026-06-15 |
+| P3 | Phase 3 — Onboarding + Curriculum | ✅ Complete | issues 3.1–3.8 shipped locally; E2E verified | 2026-06-16 |
 | 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints

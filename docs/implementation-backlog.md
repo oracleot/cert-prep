@@ -215,83 +215,83 @@ Status: first-pass | Date: 2026-06-15
 
 ### 3.1 — Onboarding flow UI (P0, L, frontend)
 **Acceptance criteria:**
-- [ ] Welcome screen → Exam input → Learning style → Agent feed → Plan reveal → Dashboard
-- [ ] Exam input: text field with DVA-C02 autocomplete
-- [ ] Learning style: single-select from 3 options with descriptions
-- [ ] Agent feed: live SSE status display (non-skippable)
-- [ ] Plan reveal: exam name, 4 domains with weightings, "Let's go" CTA
-- [ ] Mobile-first layout across all steps
-- [ ] Onboarding state persisted — refreshing mid-onboarding resumes at correct step
+- [x] Welcome screen → Exam input → Learning style → Agent feed → Plan reveal → Dashboard
+- [x] Exam input: text field with DVA-C02 autocomplete
+- [x] Learning style: single-select from 3 options with descriptions
+- [x] Agent feed: live SSE status display (non-skippable)
+- [x] Plan reveal: exam name, 4 domains with weightings, "Let's go" CTA
+- [x] Mobile-first layout across all steps
+- [x] Onboarding state persisted — refreshing mid-onboarding resumes at correct step
 
 ---
 
 ### 3.2 — Onboarding Agent (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Collects exam name + learning style
-- [ ] Validates exam name (DVA-C02 accepted; unknown exams gracefully handled in MVP)
-- [ ] Stores intake to Postgres
-- [ ] Dispatches background jobs via BullMQ on completion
-- [ ] Warm, curious persona in any conversational elements
+- [x] Collects exam name + learning style
+- [x] Validates exam name (DVA-C02 accepted; unknown exams gracefully handled in MVP)
+- [x] Stores intake to Postgres
+- [x] Dispatches background jobs via BullMQ on completion
+- [x] Warm, curious persona in any conversational elements
 
 ---
 
 ### 3.3 — Blueprint Scout (hardcoded DVA-C02) (P0, S, agents)
 **Acceptance criteria:**
-- [ ] Hardcoded DVA-C02 domain weights:
+- [x] Hardcoded DVA-C02 domain weights:
   - Deployment: 32%, Security: 26%, Development: 30%, Troubleshooting: 12%
-- [ ] Returns structured blueprint object matching `Domain` type in AppState
-- [ ] Runs as BullMQ job dispatched from Onboarding Agent
-- [ ] Completion updates onboarding state — triggers Curriculum Builder job
-- [ ] No web scraping in Phase 3 — hardcoded only
+- [x] Returns structured blueprint object matching `Domain` type in AppState
+- [x] Runs as BullMQ job dispatched from Onboarding Agent
+- [x] Completion updates onboarding state — triggers Curriculum Builder job
+- [x] No web scraping in Phase 3 — hardcoded only
 
 ---
 
 ### 3.4 — Curriculum Builder (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Takes blueprint + learning style as input
-- [ ] Generates personalised domain ordering (weighting + learning style influence sequencing)
-- [ ] Output is a structured `list[Domain]` with study order
-- [ ] Runs as BullMQ job after Blueprint Scout completes
-- [ ] Result persisted to Postgres and attached to user session
-- [ ] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
+- [x] Takes blueprint + learning style as input
+- [x] Generates personalised domain ordering (weighting + learning style influence sequencing)
+- [x] Output is a structured `list[Domain]` with study order
+- [x] Runs as BullMQ job after Blueprint Scout completes
+- [x] Result persisted to Postgres and attached to user session
+- [x] Model: `anthropic/claude-sonnet-4.6` via OpenRouter
 
 ---
 
 ### 3.5 — Agent feed SSE endpoint (P0, M, agents)
 **Acceptance criteria:**
-- [ ] SSE endpoint streams job status events: `{ agent: string, status: "running" | "complete" | "failed", message: string }`
-- [ ] Events emitted as each BullMQ job starts, completes, or fails
-- [ ] Frontend agent feed UI subscribes and renders live status
-- [ ] Feed shows Blueprint Scout → Curriculum Builder progression
+- [x] SSE endpoint streams job status events: `{ agent: string, status: "running" | "complete" | "failed", message: string }`
+- [x] Events emitted as each BullMQ job starts, completes, or fails
+- [x] Frontend agent feed UI subscribes and renders live status
+- [x] Feed shows Blueprint Scout → Curriculum Builder progression
 
 ---
 
 ### 3.6 — Dashboard (P1, M, frontend)
 **Acceptance criteria:**
-- [ ] Renders: Readiness Score (0% with ghost overlay on first visit), today's domain, Rex's record (0–0 initially), domain overview
-- [ ] "Continue" / "Start your first session" CTA routes to session screen
-- [ ] Readiness Score formula: `Σ (domain_weight × domain_performance_score)`
-- [ ] Score is prominently displayed — not buried
-- [ ] Empty state per `docs/ux-flows.md`
-- [ ] Mobile-first layout
+- [x] Renders: Readiness Score (0% with ghost overlay on first visit), today's domain, Rex's record (0–0 initially), domain overview
+- [x] "Continue" / "Start your first session" CTA routes to session screen
+- [x] Readiness Score formula: `Σ (domain_weight × domain_performance_score)`
+- [x] Score is prominently displayed — not buried
+- [x] Empty state per `docs/ux-flows.md`
+- [x] Mobile-first layout
 
 ---
 
 ### 3.7 — SessionSubgraph wired to real curriculum (P0, M, agents)
 **Acceptance criteria:**
-- [ ] `coach_open` node reads curriculum from Postgres to select today's domain + topic
-- [ ] Rex challenge uses curriculum-driven domain/topic — not hardcoded
-- [ ] Session exchanges written to Postgres with correct domain/topic attribution
-- [ ] Performance aggregates updated after each session
+- [x] `coach_open` node reads curriculum from Postgres to select today's domain + topic
+- [x] Rex challenge uses curriculum-driven domain/topic — not hardcoded
+- [x] Session exchanges written to Postgres with correct domain/topic attribution
+- [x] Performance aggregates updated after each session
 
 ---
 
 ### 3.8 — Progress map (P1, M, frontend)
 **Acceptance criteria:**
-- [ ] Shows all domains at their completion % 
-- [ ] 0% domains shown with lock icon (per empty state spec)
-- [ ] Domain completion % derived from Performance aggregates
-- [ ] Mobile-first layout
+- [x] Shows all domains at their completion % 
+- [x] 0% domains shown with lock icon (per empty state spec)
+- [x] Domain completion % derived from Performance aggregates
+- [x] Mobile-first layout
 
 ---
 
