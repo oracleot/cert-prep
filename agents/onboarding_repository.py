@@ -106,6 +106,23 @@ async def get_latest_onboarding(user_id: str) -> dict[str, Any] | None:
     return _run_from_row(row) if row else None
 
 
+async def get_learning_style(user_id: str) -> str:
+    """Read the most recent learning_style for a user. Returns "" when absent
+    or no pool — callers must default to 'mixed_review' on empty."""
+    if not has_pool():
+        return ""
+    pool = get_pool()
+    async with pool.connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "SELECT learning_style FROM onboarding_runs "
+                "WHERE user_id = %s ORDER BY created_at DESC LIMIT 1",
+                (user_id,),
+            )
+            row = await cur.fetchone()
+    return row[0] if row and row[0] else ""
+
+
 async def update_run_status(onboarding_id: str, status: str, step: str) -> None:
     if not has_pool():
         return
