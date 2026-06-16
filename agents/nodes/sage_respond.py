@@ -48,6 +48,7 @@ async def _generate_sage_response(
         reasoning=evaluation["reasoning"],
         source_context=grounding["source_context"],
         has_verified_sources=bool(grounding["citations"]),
+        learning_style=state.get("learning_style", ""),
     )
 
     if kind == "depth":
