@@ -404,10 +404,10 @@ Status: reshuffled | Date: 2026-06-16
 
 ### 5.6 — Difficulty progression (P2, M, agents)
 **Acceptance criteria:**
-- [ ] Rex tracks rolling accuracy per domain across sessions
-- [ ] Upgrades difficulty (easy → medium → hard) when accuracy exceeds threshold for 3 consecutive sessions on a domain
-- [ ] Downgrades if accuracy drops below threshold for 2 consecutive sessions
-- [ ] Difficulty level visible somewhere in session UI (subtle — domain tag or similar)
+- [x] Rex tracks rolling accuracy per domain across sessions
+- [x] Upgrades difficulty (easy → medium → hard) when accuracy exceeds threshold for 3 consecutive sessions on a domain
+- [x] Downgrades if accuracy drops below threshold for 2 consecutive sessions
+- [x] Difficulty level visible somewhere in session UI (subtle — domain tag or similar)
 
 ---
 

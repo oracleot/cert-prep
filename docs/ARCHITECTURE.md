@@ -666,9 +666,14 @@ Same domain as the previous challenge, but a different topic. The algorithm:
 
 The result is **always** harder than the first challenge and **always** in the same domain. The topic moves deliberately so a session doesn't sample the same narrow area.
 
+### Difficulty progression
+
+`domain_difficulty_progress` stores one difficulty per `(user_id, exam_id, domain)`, starting at `easy`. When a completed session has domain accuracy above 80%, that domain's high-accuracy streak increments; after 3 consecutive high-accuracy sessions it advances one step (`easy` → `medium` → `hard`) and resets the streak. When session accuracy is below 80%, the low-accuracy streak increments; after 2 consecutive low-accuracy sessions it drops one step and resets.
+
+`choose_today_target` passes the stored per-domain difficulty into the scheduler, so the first Rex challenge for a domain reflects cross-session progression. Rechallenge still forces `hard` because it is intentionally the pressure round for the same session.
+
 ### What the scheduler does NOT do
 
-- **No difficulty tracking across sessions.** A topic's difficulty is determined by its per-topic stat: `medium` if never tried or mixed, `hard` if mastered. The Phase 5 5.6 work (consecutive-session accuracy thresholds) is not wired.
 - **No LLM calls.** The scheduler is pure Python over the active curriculum + `performance_aggregates` + `exchanges`.
 - **No user preferences.** Learning style only influences the *order of study* (via `study_order` in the curriculum). It does not change today's target.
 

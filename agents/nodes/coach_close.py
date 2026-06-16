@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 
 from curriculum_repository import active_domains_for
+from domain_difficulty_repository import record_domain_difficulty_sessions
 from performance_repository import persist_readiness_score, record_session_history
 from repositories import close_session
 from state import AppState
@@ -30,6 +31,11 @@ async def coach_close(state: AppState) -> dict:
     try:
         domains = state.get("curriculum", []) or await active_domains_for(state["user_id"], state["exam_id"])
         await record_session_history(
+            user_id=state["user_id"],
+            exam_id=state["exam_id"],
+            history=history,
+        )
+        await record_domain_difficulty_sessions(
             user_id=state["user_id"],
             exam_id=state["exam_id"],
             history=history,

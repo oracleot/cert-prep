@@ -12,6 +12,7 @@ from curriculum_progress import domain_overview, performance_map, topic_performa
 from coverage_scheduler import select_rechallenge_target, select_today_target
 from curriculum_topics import coverage_matrix, valid_domains
 from db import get_pool, has_pool
+from domain_difficulty_repository import read_domain_difficulties
 from exam_artifacts.loader import load_artifact_from_file
 from llm import get_llm
 from performance_repository import calculate_readiness, read_readiness_score, read_rex_record
@@ -125,11 +126,13 @@ async def choose_today_target(user_id: str, exam_id: str) -> dict[str, Any]:
     domains = _active_domains(curriculum, exam_id)
     domain_stats = await performance_map(user_id, exam_id)
     topic_stats = await topic_performance_map(user_id, exam_id)
+    domain_difficulties = await read_domain_difficulties(user_id, exam_id)
     return select_today_target(
         domains,
         domain_stats,
         topic_stats,
         curriculum["id"] if curriculum else "",
+        domain_difficulties,
     )
 
 

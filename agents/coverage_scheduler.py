@@ -10,6 +10,7 @@ def select_today_target(
     domain_stats: dict[str, dict[str, int]],
     topic_stats: dict[str, dict[str, int]],
     curriculum_id: str = "",
+    domain_difficulties: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     candidates = _candidates(domains, topic_stats)
     if not candidates:
@@ -20,7 +21,7 @@ def select_today_target(
         candidates,
         key=lambda item: _coverage_key(item, domain_stats, total_attempts),
     )
-    return _target_payload(selected, curriculum_id)
+    return _target_payload(selected, curriculum_id, domain_difficulties or {})
 
 
 def select_rechallenge_target(
@@ -46,7 +47,7 @@ def select_rechallenge_target(
     ]
     pool = _weak_or_uncovered(same_task) or _weak_or_uncovered(candidates) or same_task or candidates
     selected = min(pool, key=lambda item: (_topic_rank(item), item["stat"]["total_count"], item["topic"]["name"]))
-    target = _target_payload(selected, curriculum_id)
+    target = _target_payload(selected, curriculum_id, {})
     return {**target, "difficulty": "hard"}
 
 
@@ -96,12 +97,9 @@ def _topic_rank(item: dict) -> int:
     return 2
 
 
-def _difficulty(stat: dict[str, int]) -> str:
-    if stat["total_count"] == 0:
-        return "medium"
-    if stat["correct_count"] < stat["total_count"]:
-        return "medium"
-    return "hard"
+def _difficulty(domain: str, domain_difficulties: dict[str, str]) -> str:
+    difficulty = domain_difficulties.get(domain, "easy")
+    return difficulty if difficulty in {"easy", "medium", "hard"} else "easy"
 
 
 def _stat(topic_stats: dict[str, dict[str, int]], topic: str) -> dict[str, int]:
@@ -116,7 +114,7 @@ def _weak_or_uncovered(candidates: list[dict]) -> list[dict]:
     return [item for item in candidates if _topic_rank(item) < 2]
 
 
-def _target_payload(item: dict, curriculum_id: str) -> dict[str, Any]:
+def _target_payload(item: dict, curriculum_id: str, domain_difficulties: dict[str, str]) -> dict[str, Any]:
     topic = item["topic"]
     return {
         "curriculum_id": curriculum_id,
@@ -127,7 +125,7 @@ def _target_payload(item: dict, curriculum_id: str) -> dict[str, Any]:
         "task_statement": item["task_statement"],
         "services": topic.get("services", []),
         "source_ids": topic.get("source_ids", []),
-        "difficulty": _difficulty(item["stat"]),
+        "difficulty": _difficulty(item["domain"], domain_difficulties),
     }
 
 
