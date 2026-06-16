@@ -1,89 +1,89 @@
-# Gauntlet End-User Tutorial
+# Gauntlet User Guide
 
-## What Gauntlet Does
+## Introduction
 
-Gauntlet helps you prepare for the AWS Certified Developer - Associate exam (`DVA-C02`).
+Gauntlet is a focused study application for the AWS Certified Developer - Associate exam (`DVA-C02`). It is designed to help you move from setup to active practice quickly, then reinforce your learning through repeated challenge-and-feedback sessions.
 
-The app uses a guided study loop:
+The experience follows a simple loop:
 
-1. It builds your study route during onboarding.
-2. It shows you today's target on the dashboard.
-3. Rex gives you scenario-based challenges.
-4. Sage explains what you got right or wrong.
-5. The app tracks your progress across the exam domains.
+1. Gauntlet builds your study route during onboarding.
+2. The dashboard presents your current focus area.
+3. Rex delivers scenario-based challenges.
+4. Sage explains the result of each response.
+5. Your readiness and domain progress update over time.
 
-## Before You Start
+## Getting Started
 
-1. Open the app in your browser.
-2. On the home page, select `Start onboarding`.
-3. Keep the page open during onboarding so the curriculum can finish building.
+Before beginning, open the application in your browser and select `Start onboarding` from the home page.
+
+During onboarding, leave the page open until your curriculum has been generated.
 
 ## Step 1: Complete Onboarding
 
-Onboarding only takes a few steps.
+Onboarding sets up your study route and prepares your dashboard.
 
-### Welcome Screen
+### Welcome
 
-1. Read the short intro.
+1. Review the short introduction.
 2. Select `Start calibration`.
 
-### Exam Screen
+### Exam Selection
 
 1. Enter your certification code.
 2. Use `DVA-C02`.
 3. Select `Continue`.
 
-### Learning Style Screen
+### Learning Style
 
-Choose the study style that fits you best:
+Choose the learning style that best matches how you prefer to study:
 
-- `Pressure drills`: harder scenarios first.
-- `Guided explanations`: concept-first learning.
-- `Mixed review`: balanced coverage and variety.
+- `Pressure drills`: emphasizes harder scenarios early.
+- `Guided explanations`: emphasizes concept-first understanding.
+- `Mixed review`: balances coverage and variety.
 
-After choosing a style, select `Build my plan`.
+When you are ready, select `Build my plan`.
 
-### Agent Feed
+### Agent Build Feed
 
-You will see a live build feed while the app prepares your route.
+Gauntlet will display a live build feed while your study route is being prepared.
 
-The feed shows progress for:
+You will see progress from:
 
 - Onboarding Agent
 - Blueprint Scout
 - Curriculum Builder
 
-This screen is non-skippable. Wait for the build to finish.
+This step cannot be skipped. Wait for the process to complete.
 
 ### Plan Reveal
 
-When the build is done, the app shows:
+When the build is finished, Gauntlet presents your study route, including:
 
-- your exam route
+- the exam route
 - the four study domains
 - each domain's weighting
 - the first topic in each domain
 
-Select `Let's go` to move to the dashboard.
+Select `Let's go` to continue to the dashboard.
 
 ## Step 2: Use the Dashboard
 
-The dashboard is your main control center.
+The dashboard is the main overview screen for your progress and next action.
 
 ### Readiness Score
 
-At the top left, you will see your `Readiness score`.
+The `Readiness score` appears at the top left of the dashboard.
 
-- New users start at `0%`.
-- The score increases based on your performance in weighted domains.
+- New users begin at `0%`.
+- The score increases based on performance across weighted domains.
 
 ### Today's Target
 
-At the top right, you will see:
+The panel on the right highlights your current study target, including:
 
 - today's domain
 - today's topic
-- a button to begin studying
+- the main action button to begin studying
 
 Select `Start your first session` to begin.
 
@@ -91,118 +91,116 @@ Select `Start your first session` to begin.
 
 The dashboard also shows `Rex's record`.
 
-- The first number is your wins.
-- The second number is Rex's wins.
+- The first number represents your wins.
+- The second number represents Rex's wins.
 
-### Domain Tiles
+### Domain Overview
 
 Each domain tile shows:
 
 - the domain name
-- the exam weight
-- your completion bar
-- your correct answers vs total Rex challenges
+- the official exam weight
+- your completion progress
+- your correct answers compared with total Rex challenges
 
-Use this area to see which parts of the exam need more work.
+Use these tiles to identify stronger and weaker areas across the exam blueprint.
 
-## Step 3: Run a Study Session
+## Step 3: Complete a Study Session
 
-Sessions are the core learning loop in Gauntlet.
-
-### What Happens in a Session
+Study sessions are the core practice experience in Gauntlet.
 
 Each session currently runs for `2 cycles`.
 
-In each cycle:
+### Session Flow
 
-1. Rex gives you a scenario-based challenge.
+During each cycle:
+
+1. Rex presents a scenario-based challenge.
 2. You read the scenario and question.
-3. You type your answer.
+3. You enter your answer.
 4. You select `Submit`.
-5. Sage evaluates your answer and explains the result.
+5. Sage evaluates your response and explains the result.
 6. You continue to the next challenge.
 
-### Reading the Challenge Card
+### Understanding the Rex Challenge Card
 
-Each Rex card includes:
+Each challenge card includes:
 
 - the domain tag
 - the topic tag
 - the scenario
 - the question
 
-Read all parts before answering.
+Review all parts of the prompt before answering.
 
-### Submitting an Answer
+### Submitting Your Answer
 
-1. Type your response in the answer box.
+1. Type your response into the answer field.
 2. Select `Submit`.
 
-Tips:
+Helpful details:
 
-- The submit button stays disabled until you type something.
-- On desktop, you can use `Ctrl+Enter` or `Command+Enter` to submit faster.
+- The submit button remains disabled until you enter text.
+- On desktop, you can submit more quickly with `Ctrl+Enter` or `Command+Enter`.
 
 ### Reviewing Sage's Feedback
 
-After you submit, Sage responds below the Rex card.
+After submission, Sage appears below the Rex card and explains the outcome of your answer.
 
-You will see whether your answer was:
+Your response will be marked as either:
 
 - `correct`
 - `incorrect`
 
-Sage then explains the reasoning so you can tighten your understanding before moving on.
+Read Sage's explanation carefully. Even correct answers often include additional context that strengthens exam readiness.
 
-### Moving to the Next Cycle
+### Continuing the Session
 
-After Sage finishes:
+Once Sage has finished responding:
 
 - select `Next challenge` to continue
 - or, on the final cycle, select `View session summary`
 
 ## Step 4: Review the Session Summary
 
-At the end of the session, Gauntlet shows a summary screen with:
+At the end of each session, Gauntlet displays a summary screen showing:
 
-- how many answers you got correct
-- the domain you covered
-- the result for each cycle
+- the number of correct answers
+- the domain covered during the session
+- the result of each cycle
 
-Select `Start another session` if you want to keep going.
+If you want to continue practicing, select `Start another session`.
 
-## Step 5: Check Your Progress
+## Step 5: Review Your Progress
 
-Use the `Progress` page from the main navigation.
+Open the `Progress` page from the main navigation to see a broader view of your advancement.
 
-The progress map shows all four exam domains.
-
-For each domain, you can see:
+The progress map displays all four exam domains. For each domain, you can review:
 
 - the domain name
 - the official exam weight
 - your completion percentage
 - whether the domain is still locked at `0%`
 
-This page is useful for spotting weak areas and tracking improvement over time.
+This page is useful for identifying gaps and measuring improvement over time.
 
-## Navigation Basics
+## Navigation
 
-Outside of an active session, the app navigation gives you quick access to:
+Outside of an active session, the main navigation provides access to:
 
 - `Dashboard`
 - `Progress`
 - `Start session`
 
-During an active session, the experience is intentionally more focused, with fewer distractions.
+During an active session, the interface becomes more focused to reduce distractions.
 
-## If You Leave Mid-Session
+## Returning to an In-Progress Session
 
-If you leave and come back later, the app attempts to restore your in-progress session automatically.
+If you leave the app during a session and return later, Gauntlet attempts to restore your in-progress session automatically.
 
-That means you can usually return without losing your place.
+In most cases, this allows you to continue without losing your place.
 
-## Common Messages and What To Do
+## Common Messages
 
 ### "Rex couldn't generate a challenge. Try again."
 
@@ -214,23 +212,25 @@ Select `Retry` to continue the current session.
 
 ### "Evaluation failed. Try again."
 
-Select `Retry` and submit again if needed.
+Select `Retry`, then resubmit your answer if needed.
 
 ### "We couldn't restore your session. Retry in a moment."
 
-Wait a few seconds and try again.
+Wait a few seconds, then try again.
 
 ### "Dashboard is waiting for the agent service."
 
-The backend service may still be starting. Refresh after a short wait.
+The backend service may still be starting. Refresh the page after a short wait.
 
-## Best Way To Use Gauntlet
+## Recommended Daily Use
+
+For the best experience:
 
 1. Start from the dashboard each day.
 2. Complete at least one full session.
-3. Read Sage's explanations carefully, even when you are correct.
-4. Check the progress map to see which domain needs more attention.
-5. Repeat consistently until your readiness score improves.
+3. Read Sage's explanations closely, including after correct answers.
+4. Review the progress map to identify weaker domains.
+5. Repeat consistently as your readiness score improves.
 
 ## Quick Start Checklist
 
@@ -242,5 +242,5 @@ The backend service may still be starting. Refresh after a short wait.
 6. Open the dashboard.
 7. Start a session.
 8. Answer Rex's challenge.
-9. Read Sage's feedback.
-10. Review your progress.
+9. Review Sage's feedback.
+10. Check your progress.
