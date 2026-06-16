@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+agents/reports/
 /.playwright-mcp/
 /console-localhost.txt
 /*network*.txt

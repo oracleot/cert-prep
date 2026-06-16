@@ -78,7 +78,7 @@ Each item is binary: pass or fail. Partial credit does not pass. The status colu
 - [ ] R3.4 Difficulty is honored (easy/medium/hard produces visibly different scenarios — manual rubric).
 - [ ] R3.5 Challenges for non-DVA exams show no DVA-C02 domain/topic leakage (harness in 7.7 asserts this).
 
-**Current status: NOT MEASURED.** Eval harness ships in 7.7.
+**Current status: NOT MEASURED.** Eval harness now exists; append a live run before sign-off.
 
 ### R4 — Answer evaluation quality
 
@@ -87,7 +87,7 @@ Each item is binary: pass or fail. Partial credit does not pass. The status colu
 - [ ] R4.3 Evaluator's `reasoning` field is specific enough that Sage can use it directly (no re-evaluation needed).
 - [ ] R4.4 Multiple-response exam questions (per official guide: 2+ correct out of 5+) are at least supported in the prompt, even if the UI is single-select for MVP.
 
-**Current status: NOT MEASURED.** Eval harness ships in 7.7.
+**Current status: NOT MEASURED.** Eval harness now exists; append a live run before sign-off.
 
 ### R5 — Sage citation quality (7.6)
 
@@ -134,11 +134,11 @@ The user verifies R1, R5.1, R6.2 by clicking the URLs in the "Supported exam all
 
 ### A.1 — Eval harness run, DVA-C02
 
-TBD — appended when 7.7 ships.
+Pending live run from `python -m evals.content_quality --exam-id dva-c02 --mode live`.
 
 ### A.2 — Eval harness run, SAA-C03
 
-TBD — appended when 7.7 ships.
+Pending after the SAA-C03 smoke artifact ships in 7.8.
 
 ### A.3 — Manual QA session log
 

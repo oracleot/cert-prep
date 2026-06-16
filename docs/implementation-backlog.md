@@ -574,10 +574,10 @@ Status: first-pass | Date: 2026-06-15
 
 ### 7.7 — Content quality evaluation harness (P1, M, agents)
 **Acceptance criteria:**
-- [ ] Add an offline eval harness that generates sample Rex challenges across all domains/topics for a selected exam artifact
-- [ ] Eval report checks JSON shape, domain/topic distribution, duplicate rate, official-source citation presence, and obvious DVA-C02 leakage in non-DVA exams
-- [ ] Include a human review rubric for challenge realism, exam relevance, and Sage correctness
-- [ ] Save eval outputs under a non-secret local reports path and summarize pass/fail criteria in docs
+- [x] Add an offline eval harness that generates sample Rex challenges across all domains/topics for a selected exam artifact
+- [x] Eval report checks JSON shape, domain/topic distribution, duplicate rate, official-source citation presence, and obvious DVA-C02 leakage in non-DVA exams
+- [x] Include a human review rubric for challenge realism, exam relevance, and Sage correctness
+- [x] Save eval outputs under a non-secret local reports path and summarize pass/fail criteria in docs
 
 ---
 
