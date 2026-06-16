@@ -899,11 +899,10 @@ Loaded in two places:
 ### Known violations
 
 - **`lib/openrouter.ts` is 266 lines** (200-line hard rule). Must be split before adding more code. The natural split is: (1) `lib/openrouter/sse.ts` (the SSE encoding), (2) `lib/openrouter/errors.ts` (the typed error code and `openRouterErrorToSseResponse`), (3) `lib/openrouter/stream.ts` (the upstream→SSE transform), (4) `lib/openrouter.ts` (the public `streamOpenRouterResponse` and `sseResponseFromStream` facade).
-- **`agents/routes/onboarding.py:18-21` and `agents/routes/jobs.py:39-41` have hardcoded DVA-C02 strings** in event messages ("DVA-C02 only", "Deployment 32%..."). These are the violations called out in R6 of the exam-reliability-rubric.
 
 ### Known limitations (V1)
 
-- **No second exam.** `dva-c02.json` is the only artifact. `validate_exam_id` rejects everything else. The second-cert smoke (issue 7.8) is not yet shipped.
+- **Second exam is smoke-only.** `dva-c02.json` is the primary artifact. `saa-c03.json` is allowlisted for smoke coverage, but does not yet have DVA-level topic inventory depth. `validate_exam_id` rejects everything else.
 - **No Coach agent.** The session summary is static. ADR-0001 explains the design choice.
 - **No Boss Battles, Gap Tracker, RAG, spaced repetition, notes.** All deferred to v1.1.
 - **No Clerk auth.** All `user_id`s are anonymous browser UUIDs.
@@ -916,7 +915,7 @@ Loaded in two places:
 The phase-level Definition of Done is in `docs/task-breakdown.md`. The current status (per `docs/tracker.md`):
 
 - ✅ Phase 1, 2, 3, 6 complete.
-- 🟡 Phase 7 in progress (7.1–7.7 done; 7.8 next).
+- 🟡 Phase 7 in progress (7.1–7.8 shipped locally; eval/manual sign-off remains).
 - ⏳ Phase 4 (Clerk), Phase 5 (PWA + polish), Phase 8 (tests + CI) planned.
 - ⏭️ Pilot/launch deferred to post-MVP.
 

@@ -583,11 +583,11 @@ Status: first-pass | Date: 2026-06-15
 
 ### 7.8 — Second-cert smoke path (P1, L, agents + frontend)
 **Acceptance criteria:**
-- [ ] Add one additional AWS cert code as an allowlisted smoke target after DVA-C02 is reliable
-- [ ] Onboarding autocomplete includes the smoke cert only after its official artifact exists
-- [ ] Session, dashboard, progress, prompts, and stored data use the selected exam_id end-to-end
-- [ ] No DVA-C02-specific copy, prompts, default topics, or domain weights leak into the smoke cert flow
-- [ ] Unsupported cert codes still fail clearly and quickly with no fake curriculum
+- [x] Add one additional AWS cert code as an allowlisted smoke target after DVA-C02 is reliable
+- [x] Onboarding autocomplete includes the smoke cert only after its official artifact exists
+- [x] Session, dashboard, progress, prompts, and stored data use the selected exam_id end-to-end
+- [x] No DVA-C02-specific copy, prompts, default topics, or domain weights leak into the smoke cert flow
+- [x] Unsupported cert codes still fail clearly and quickly with no fake curriculum
 
 ---
 

@@ -22,14 +22,14 @@
 | P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.2, 2.3, 2.4, 2.5, 2.6 shipped; 2.7 remaining | 2026-06-15 |
 | P3 | Phase 3 — Onboarding + Curriculum | ✅ Complete | issues 3.1–3.8 shipped locally; E2E verified | 2026-06-16 |
 | P6 | Phase 6 — Dogfood-Driven UX Refinements | ✅ Complete | issues 6.1–6.8 shipped locally; dogfood validation done | 2026-06-16 |
-| P7 | Phase 7 — Exam Reliability + Grounded Content | 🔄 In Progress | issues 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7 shipped locally; 7.8 next | 2026-06-16 |
+| P7 | Phase 7 — Exam Reliability + Grounded Content | 🔄 In Progress | issues 7.1–7.8 shipped locally; eval/manual sign-off remains | 2026-06-16 |
 | P8 | Phase 8 — Testing Infrastructure | ⏳ Planned | test runners for Next.js + agents, smoke tests for highest-value targets, CI wiring | 2026-06-16 |
 | 9 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints
 <!-- Populated from handoff 2026-06-15 -->
 - Phase 1 iron rule: do not build infrastructure before validating the Rex+Sage loop is fun
-- V1 is DVA-C02 only — do not generalise Blueprint Scout beyond hardcoded domains until Phase 3
+- V1 is DVA-C02 primary with SAA-C03 smoke-only — do not add more exams without explicit scope
 - Rex and Sage are the product — never swap their models without an explicit A/B test showing quality parity
 - The user wants to learn LangGraph deeply — do not abstract it away; expose graph structure, state typing, and conditional edges explicitly
 - No codebase exists — start from scratch
@@ -39,7 +39,7 @@
 - Current MVP is dogfood-ready, not exam-reliability complete: Rex can only cover the topic inventory and scheduler provided by the app.
 - No system can guarantee every possible exam question; Phase 7 targets full official exam guide coverage, source-traced topic maps, and broad scenario variation.
 - Sage is currently prompt-instructed to cite AWS concepts/docs, but not retrieval-grounded. Treat Sage as useful coaching until Phase 7 citation enforcement ships.
-- Multi-cert support remains blocked until official-source blueprint ingestion and DVA-C02 prompt/copy leakage are handled.
+- Additional cert support remains blocked until each cert has an official-source artifact and no selected-exam leakage.
 
 ## Gaps to Grill (from handoff analysis)
 ### Session 1 gaps

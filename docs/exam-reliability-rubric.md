@@ -57,9 +57,9 @@ Each item is binary: pass or fail. Partial credit does not pass. The status colu
 - [ ] R1.2 Every artifact's domain weights match the official exam guide exactly (sum to 100, integer percentages, ordered as in the guide).
 - [ ] R1.3 Every artifact's task statements are present in the artifact JSON (the per-domain markdown files linked above are the source of truth).
 - [ ] R1.4 The full topic inventory for each artifact covers every task statement with at least one topic; topic names align with AWS service names from the official short-name list.
-- [ ] R1.5 `validate_exam_id(exam_id)` returns `accepted: True` for every supported code and `accepted: False` (with a clear message) for everything else. No silent coercion.
+- [x] R1.5 `validate_exam_id(exam_id)` returns `accepted: True` for every supported code and `accepted: False` (with a clear message) for everything else. No silent coercion.
 
-**Current status (2026-06-16): PARTIAL.** DVA-C02 now uses the artifact-backed official weights and full 101-topic skill inventory from the four official domain pages. R1 remains open until every supported exam, including the SAA-C03 smoke artifact, has the same complete artifact coverage.
+**Current status (2026-06-16): PARTIAL.** DVA-C02 now uses the artifact-backed official weights and full 101-topic skill inventory from the four official domain pages. SAA-C03 has a smoke artifact with official weights and every task statement represented at least once; R1 remains open until SAA-C03 receives full DVA-level topic inventory depth.
 
 ### R2 — Topic coverage
 
@@ -102,12 +102,12 @@ Each item is binary: pass or fail. Partial credit does not pass. The status colu
 
 ### R6 — Unsupported cert behavior
 
-- [ ] R6.1 Onboarding `validate_exam_id` rejects unsupported codes with a clear message and no fake curriculum.
-- [ ] R6.2 ExamStep autocomplete (`components/onboarding/exam-step.tsx:34-37`) lists exactly the supported codes — pulled from the artifact store, not hardcoded.
-- [ ] R6.3 No prompt, event message, default topic, or domain weight is hardcoded to DVA-C02 in any code path the second-cert smoke (7.8) would exercise.
+- [x] R6.1 Onboarding `validate_exam_id` rejects unsupported codes with a clear message and no fake curriculum.
+- [x] R6.2 ExamStep autocomplete (`components/onboarding/exam-step.tsx:34-37`) lists exactly the supported codes — pulled from the artifact store, not hardcoded.
+- [x] R6.3 No prompt, event message, default topic, or domain weight is hardcoded to DVA-C02 in any code path the second-cert smoke (7.8) would exercise.
 - [ ] R6.4 Second-cert smoke: a full happy path (onboarding → feed → curriculum → first session) completes for SAA-C03 with no DVA-C02 text appearing anywhere user-visible.
 
-**Current status: FAIL.** `agents/blueprint.py:5-7` hardcodes `EXAM_ID = "dva-c02"`. `agents/prompts/curriculum_builder.py:8` says "DVA-C02" in the system prompt. `agents/routes/onboarding.py:18-21` has hardcoded "DVA-C02 only" event messages. `agents/routes/jobs.py:39-41` has a hardcoded "Deployment 32%..." event message.
+**Current status: PARTIAL.** Unsupported codes reject through `validate_exam_id`; onboarding autocomplete is sourced from `/exams`; selected `exam_id` flows through onboarding, dashboard, progress, session state, prompts, citations, and stored sessions/exchanges. R6.4 remains open until a live SAA-C03 happy-path QA run is recorded.
 
 ### R7 — Manual QA (the human bar)
 
@@ -138,7 +138,7 @@ Pending live run from `python -m evals.content_quality --exam-id dva-c02 --mode 
 
 ### A.2 — Eval harness run, SAA-C03
 
-Pending after the SAA-C03 smoke artifact ships in 7.8.
+Pending live run from `python -m evals.content_quality --exam-id saa-c03 --mode live`.
 
 ### A.3 — Manual QA session log
 

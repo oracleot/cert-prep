@@ -27,14 +27,14 @@ Storage: Postgres (app state + LangGraph checkpointer) and Redis (BullMQ, for th
 | Phase 4 | Planned | Clerk auth, cross-device progress, user_id everywhere. |
 | Phase 5 | Planned | PWA, mobile polish, Boss Battles, streaks, difficulty progression. |
 | Phase 6 | Shipped | UX refinements: returning-user redirects, dashboard CTA states, Sage markdown rendering, theme toggle, 2-cycle default (ADR-0001). |
-| Phase 7 | In progress (7.1–7.7 done, 7.8 next) | Exam artifacts, full DVA-C02 topic map, Rex coverage scheduler, Sage AWS-doc grounding + citations, content-quality eval harness. |
+| Phase 7 | In progress (7.1–7.8 shipped locally) | Exam artifacts, full DVA-C02 topic map, SAA-C03 smoke artifact, Rex coverage scheduler, Sage AWS-doc grounding + citations, content-quality eval harness. |
 | Phase 8 | Planned | Vitest + pytest, smoke tests, CI. **No test runner is wired today.** |
 
-The end-to-end happy path works today: `open app → onboarding → see agent feed → land on dashboard → start a 2-cycle session → see Rex's challenge, answer it, watch Sage stream back → get a summary → dashboard reflects your win/loss`. What's not done: real auth, PWA, any exam other than DVA-C02.
+The end-to-end happy path works today: `open app → onboarding → see agent feed → land on dashboard → start a 2-cycle session → see Rex's challenge, answer it, watch Sage stream back → get a summary → dashboard reflects your win/loss`. What's not done: real auth, PWA, or DVA-level depth for non-DVA exams.
 
 ### V1 hard scope (don't drift)
 
-- **DVA-C02 only.** SAA-C03 is the allowlisted second cert (7.8) but not yet shipped.
+- **DVA-C02 primary.** SAA-C03 is the allowlisted second-cert smoke path. Do not add more exams without a new official artifact and explicit scope.
 - **Anonymous browser user.** A UUID is generated client-side in `localStorage` and passed as `user_id` on every request. Clerk replaces this in Phase 4 — `user_id` is the only contract that has to stay stable.
 - **2 cycles per session.** Hardcoded as `DEFAULT_CYCLES = 2` in `app/session/use-session.ts:10`. ADR-0001 explains why.
 - **No Coach, Gap Tracker, Boss Battles, RAG, spaced repetition, notes.** Static summary screen stands in for Coach in MVP.
@@ -529,7 +529,7 @@ These are enforced (or expected to be enforced) by the codebase, lint, and AGENT
 - **No code file may exceed 200 lines.** Split before continuing if you approach the limit. The only known violation today is `lib/openrouter.ts` (266 lines) — fix it before adding more code there.
 - **Commit every change immediately after it is made.** Don't batch unrelated edits into one commit.
 - **No CI workflows, no test runner, no `pyproject.toml`.** Don't add them without an explicit ask. (Phase 8 is the planned landing pad.)
-- **DVA-C02 only.** Don't generalise to a second exam, second user model, or any other phase-bait. Phase 7.8 is the allowlist gate.
+- **DVA-C02 primary, SAA-C03 smoke only.** Don't add another exam, second user model, or any other phase-bait without explicit scope.
 - **No Clerk auth before Phase 4.** All `user_id`s are the anonymous UUID today.
 - **No Boss Battles, Coach agent, Gap Tracker, RAG, spaced repetition, notes feature** in V1.
 - **LangGraph graph stays explicit** — no abstractions hiding the node/edge definitions. The user is learning LangGraph deeply.
@@ -575,14 +575,14 @@ These are enforced (or expected to be enforced) by the codebase, lint, and AGENT
 
 ### Stage a new exam artifact (scope-gated)
 
-V1 is DVA-C02 only. Do not enable another exam unless the 7.8 allowlist work is explicitly in scope. Adding a `*.json` file makes `validate_exam_id` accept that exam, so this recipe is a scope gate, not a casual extension path.
+V1 is DVA-C02 primary with SAA-C03 as the only smoke cert. Do not enable another exam unless the allowlist work is explicitly in scope. Adding a `*.json` file makes `validate_exam_id` accept that exam, so this recipe is a scope gate, not a casual extension path.
 
 1. Author `agents/data/exam_artifacts/<exam_id>.json` with the shape documented in `agents/exam_artifacts/loader.py:_REQUIRED_TOP_LEVEL` and `_REQUIRED_DOMAIN` and `_REQUIRED_TOPIC`. Sum of `domain.weight` must equal 100.
 2. Add an entry to `EXAM_GUIDE_ROOTS` in `agents/sage_sources.py:19` (key = `exam_id`, value = the public docs.aws.amazon.com root).
 3. Add the AWS services you'll need to `SERVICE_DOCS` in the same file.
 4. Restart the agents service. The `ensure_seeded` lifespan call will validate the shape, refuse to seed if invalid, and otherwise upsert the row. Check the log for `Seeded N exam artifact(s) into the DB cache.`.
-5. Add the code to `components/onboarding/exam-step.tsx:29-32`'s `<datalist>` so the autocomplete picks it up.
-6. Update `agents/prompts/curriculum_builder.py` if the new exam's blueprint has fewer/more domains (currently hardcoded to 4 — parameterise it).
+5. Restart Next.js. `components/onboarding/exam-step.tsx` reads `/api/exams`, which proxies the artifact-backed `/exams` route.
+6. Update `agents/prompts/curriculum_builder.py` if the new exam's blueprint has fewer/more domains.
 
 ### Add a new background job
 
