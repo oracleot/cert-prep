@@ -1,5 +1,5 @@
 # Implementation Backlog
-Status: first-pass | Date: 2026-06-15
+Status: reshuffled | Date: 2026-06-16
 
 ## Labels
 
@@ -23,7 +23,8 @@ Status: first-pass | Date: 2026-06-15
 - No phase closes until the Definition of Done is met end-to-end
 - Security and observability ACs are embedded in feature tickets — not separate hardening tickets
 - Phase 1 has no infrastructure dependency — raw OpenRouter calls from Next.js only
-- Auth (Clerk) is Phase 4 — do not introduce user identity before then
+- Auth (Clerk), PWA install/offline behavior, and mobile-only polish are deferred until explicitly resumed
+- Anonymous/dev-user persistence is acceptable for the next V1 work slice
 - LangGraph is introduced in Phase 2 — Phase 1 uses direct API calls only
 
 ---
@@ -295,13 +296,13 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-## Phase 4: Auth + Persistent Progress — Issues 4.1 through 4.5
+## Phase 4: Persistent Progress Signals + Deferred Auth — Issues 4.1 through 4.5
 
-**Done when:** Log in on a different device. Your progress, score, and Rex's record are there.
+**Done when:** Readiness Score and Rex's record are trustworthy for the current anonymous/dev user. Real account auth is no longer a milestone blocker.
 
 ---
 
-### 4.1 — Clerk auth integration (P0, L, auth)
+### 4.1 — Clerk auth integration (P2, L, auth, deferred)
 **Acceptance criteria:**
 - [ ] Clerk installed in Next.js (`@clerk/nextjs`)
 - [ ] Sign up / sign in flows working
@@ -312,7 +313,7 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-### 4.2 — User table + data migration (P0, M, infra)
+### 4.2 — User table + data migration (P2, M, infra, deferred until auth resumes)
 **Acceptance criteria:**
 - [ ] `users` table created with `clerk_user_id` as the identity key
 - [ ] All existing tables (`sessions`, `exchanges`, `performance`, `rex_record`) have `user_id` foreign key
@@ -321,7 +322,7 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-### 4.3 — Exam Readiness Score (P0, M, agents)
+### 4.3 — Exam Readiness Score hardening (P0, M, agents)
 **Acceptance criteria:**
 - [ ] Score calculated as: `Σ (domain_weight × domain_performance_score)`
 - [ ] `domain_performance_score` = correct_challenges / total_challenges per domain
@@ -331,7 +332,7 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-### 4.4 — Rex's record persistence (P1, M, agents)
+### 4.4 — Rex's record persistence (P0, M, agents)
 **Acceptance criteria:**
 - [ ] `rex_record` table stores `rex_wins` and `user_wins` per user
 - [ ] Updated after every session cycle evaluation
@@ -340,7 +341,7 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-### 4.5 — Settings screen (P1, S, frontend)
+### 4.5 — Settings screen (P2, S, frontend, deferred)
 **Acceptance criteria:**
 - [ ] Accessible from nav (not prominent — tucked away)
 - [ ] "Change learning style" option — warns curriculum will rebuild
@@ -349,13 +350,13 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-## Phase 5: Polish + Dogfood — Issues 5.1 through 5.6
+## Phase 5: Product Dogfood Improvements — Issues 5.1 through 5.6
 
-**Done when:** PWA installed and used for at least one week of real DVA-C02 prep.
+**Done when:** the next product-core dogfood improvements are shipped without spending time on PWA install flows or mobile-only layout polish.
 
 ---
 
-### 5.1 — PWA configuration (P0, M, frontend)
+### 5.1 — PWA configuration (P2, M, frontend, deferred)
 **Acceptance criteria:**
 - [ ] `manifest.json` configured with app name, icons, theme colour
 - [ ] Service worker registered (Next.js PWA plugin or manual)
@@ -364,7 +365,7 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-### 5.2 — Mobile layout polish (P0, M, frontend)
+### 5.2 — Mobile layout polish (P2, M, frontend, deferred)
 **Acceptance criteria:**
 - [ ] Full session loop tested and usable on 375px (iPhone SE) viewport
 - [ ] No horizontal scroll on any screen
@@ -391,7 +392,7 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
-### 5.5 — Boss Battles (P2, L, gamification)
+### 5.5 — Boss Battles (deferred to v1.1, L, gamification)
 **Acceptance criteria:**
 - [ ] Unlocks when a domain reaches a defined completion threshold (TBD — suggest 80% challenges complete)
 - [ ] 10-challenge Rex gauntlet — no Sage safety net
@@ -654,10 +655,22 @@ Status: first-pass | Date: 2026-06-15
 
 ## Ready Queue
 Issues startable right now (no dependencies unmet):
-- **2.7** — Railway deployment: Postgres + Redis + Python service
+- **8.1** — Choose test runners + record in docs
+- **8.2** — Wire Vitest into the Next.js app
+- **8.3** — Wire pytest into the agents service
+- **8.4** — Smoke tests for highest-value targets
+- **4.3** — Exam Readiness Score hardening
+- **4.4** — Rex's record persistence
+- **5.6** — Difficulty progression
+- **2.7** — Railway deployment: Postgres + Redis + Python service, only when deployment matters
+
+Not next unless explicitly resumed:
 - **4.1** — Clerk auth integration
-- **7.7** — Content quality evaluation harness (Sage citations and Rex coverage are now instrumented)
-- **8.1** — Choose test runners + record in docs (startable alongside Phase 7)
+- **4.2** — User table + data migration for real auth
+- **4.5** — Settings screen
+- **5.1** — PWA configuration
+- **5.2** — Mobile layout polish
+- **5.5** — Boss Battles
 
 ---
 
