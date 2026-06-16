@@ -1,8 +1,6 @@
 "use client";
 
-// Static session summary screen — Phase 1
-// AC 1.9: correct count, domain covered, restart CTA
-
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { SessionResult } from "@/lib/types";
 
@@ -65,9 +63,18 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
         </div>
       </div>
 
-      <Button onClick={onRestart} className="w-full">
-        Start another session
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button onClick={onRestart} className="w-full min-h-11">
+          Start another session
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="w-full min-h-11 text-muted-foreground"
+        >
+          <Link href="/dashboard">Back to dashboard</Link>
+        </Button>
+      </div>
     </div>
   );
 }
