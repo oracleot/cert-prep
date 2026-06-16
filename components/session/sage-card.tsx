@@ -1,9 +1,7 @@
 "use client";
 
-// Sage response card — streams in token-by-token
-// AC 1.7: distinct visual from Rex card, streams via SSE, correct/incorrect treatment, Next CTA
-
 import { Button } from "@/components/ui/button";
+import { MarkdownStream } from "./markdown-stream";
 
 type Props = {
   text: string;
@@ -51,12 +49,12 @@ export function SageCard({
         )}
       </div>
 
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-        {text}
+      <div className="relative text-sm leading-relaxed text-foreground">
+        <MarkdownStream text={text} />
         {isStreaming && (
-          <span className="inline-block h-4 w-px animate-pulse bg-foreground align-middle" />
+          <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-foreground align-middle" />
         )}
-      </p>
+      </div>
 
       {!isStreaming && text && (
         <div className="mt-4 border-t border-border pt-4">
