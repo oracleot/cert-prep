@@ -1,11 +1,10 @@
 "use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Challenge, Citation, EvaluationResult, SessionResult } from "@/lib/types";
 import { nextSessionRequest, restoreSessionRequest, startSessionRequest, submitSessionRequest } from "./session-api";
 import { clearThreadId, loadThreadId, type RestoredSession, saveThreadId } from "./session-persistence";
 import { readSessionStream } from "./session-stream";
-
+import { useRexRecord } from "./use-rex-record";
 export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
 const DEFAULT_CYCLES = 2;
 type SessionAction = "start" | "resume" | "submit" | "next";
@@ -21,6 +20,7 @@ export function useSession() {
   const [errorMsg, setErrorMsg] = useState("");
   const [threadId, setThreadId] = useState<string | null>(null);
   const lastActionRef = useRef<SessionAction>("start");
+  const { rexRecord, refreshRexRecord } = useRexRecord();
   const applySnapshot = useCallback((snapshot: RestoredSession) => {
     setThreadId(snapshot.thread_id);
     saveThreadId(snapshot.thread_id);
@@ -106,7 +106,6 @@ export function useSession() {
       setPhase("error");
       return;
     }
-
     let currentEvaluation: EvaluationResult | null = null;
     let accumulatedSageText = "";
     setSageCitations([]);
@@ -126,6 +125,7 @@ export function useSession() {
         if (completedEvaluation) {
           setResults((prev) => [...prev, { cycle, topic: challenge.topic, outcome: completedEvaluation.outcome }]);
         }
+        void refreshRexRecord();
         setPhase("sage_done");
       },
       onError: (message) => {
@@ -133,8 +133,7 @@ export function useSession() {
         setPhase("error");
       },
     });
-  }, [challenge, answer, cycle, threadId]);
-
+  }, [challenge, answer, cycle, refreshRexRecord, threadId]);
   const nextChallenge = useCallback(async () => {
     if (!challenge) return;
     if (cycle >= DEFAULT_CYCLES) {
@@ -143,7 +142,6 @@ export function useSession() {
     }
     await loadNextChallenge();
   }, [challenge, cycle, loadNextChallenge]);
-
   const retry = useCallback(async () => {
     const action = lastActionRef.current;
     if (action === "start" || !threadId) {
@@ -158,7 +156,6 @@ export function useSession() {
     if (action === "submit" && restoredPhase === "ready" && answer.trim()) await submitAnswer();
     if (action === "next" && restoredPhase === "sage_done") await loadNextChallenge();
   }, [answer, loadNextChallenge, restoreSession, startSession, submitAnswer, threadId]);
-
   const restart = useCallback(() => {
     clearThreadId();
     setCycle(1);
@@ -167,7 +164,6 @@ export function useSession() {
     setThreadId(null);
     void startSession();
   }, [startSession]);
-
   useEffect(() => {
     const savedThreadId = loadThreadId();
     queueMicrotask(() => {
@@ -178,7 +174,6 @@ export function useSession() {
       void startSession(false);
     });
   }, [restoreSession, startSession]);
-
   return {
     phase,
     cycle,
@@ -191,6 +186,7 @@ export function useSession() {
     sageText,
     sageCitations,
     results,
+    rexRecord,
     errorMsg,
     submitAnswer,
     nextChallenge,

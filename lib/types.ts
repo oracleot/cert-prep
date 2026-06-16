@@ -85,11 +85,19 @@ export type ExamOption = {
   provider: string;
 };
 
+export type RexRecord = { user_wins: number; rex_wins: number };
+
+export type SessionStreak = {
+  current_streak: number;
+  last_completed_on: string | null;
+};
+
 export type DashboardSummary = {
   exam_id: string;
   readiness_score: number;
   today_domain: string;
   today_topic: string;
-  rex_record: { user_wins: number; rex_wins: number };
+  rex_record: RexRecord;
+  streak: SessionStreak;
   domains: DomainPlan[];
 };

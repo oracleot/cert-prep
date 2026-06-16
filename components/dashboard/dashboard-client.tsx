@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { AppNav } from "@/components/navigation/app-nav";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { getBrowserTimezone } from "@/lib/browser-timezone";
 import { loadThreadId } from "@/app/session/session-persistence";
 import type { DashboardSummary, DomainPlan } from "@/lib/types";
 
@@ -63,7 +64,7 @@ export function DashboardClient() {
       const res = await fetch("/api/dashboard/summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: userId, timezone: getBrowserTimezone() }),
       });
       if (!res.ok) {
         setError("Dashboard is waiting for the agent service.");
@@ -123,7 +124,16 @@ export function DashboardClient() {
             </Link>
           </div>
         </section>
-        <section className="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+        <section className="mt-5 grid gap-5 lg:grid-cols-2">
+          <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-950">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500 dark:text-zinc-500">
+              Daily streak
+            </p>
+            <p className="mt-5 text-5xl font-black">{summary.streak.current_streak}</p>
+            <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">
+              completed-session days
+            </p>
+          </div>
           <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-950">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500 dark:text-zinc-500">
               Rex&apos;s record
@@ -133,7 +143,7 @@ export function DashboardClient() {
             </p>
             <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">YOU vs REX</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
             {summary.domains.map((domain) => <DomainTile key={domain.name} domain={domain} />)}
           </div>
         </section>

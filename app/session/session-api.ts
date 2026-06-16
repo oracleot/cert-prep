@@ -1,4 +1,5 @@
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { getBrowserTimezone } from "@/lib/browser-timezone";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -6,7 +7,10 @@ export function startSessionRequest() {
   return fetch("/api/session/start", {
     method: "POST",
     headers: JSON_HEADERS,
-    body: JSON.stringify({ user_id: getAnonymousUserId() }),
+    body: JSON.stringify({
+      user_id: getAnonymousUserId(),
+      timezone: getBrowserTimezone(),
+    }),
   });
 }
 

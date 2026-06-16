@@ -19,6 +19,7 @@ export default function SessionPage() {
     sageText,
     sageCitations,
     results,
+    rexRecord,
     errorMsg,
     submitAnswer,
     nextChallenge,
@@ -66,8 +67,9 @@ export default function SessionPage() {
     <main className="relative min-h-screen overflow-hidden bg-background px-4 py-10 text-foreground">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.12),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.14),transparent_32%)]" />
       <div className="relative mx-auto w-full max-w-lg space-y-5">
-        <div className="flex items-center justify-between text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-zinc-600 dark:text-zinc-500">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-zinc-600 dark:text-zinc-500">
           <span>{domain}</span>
+          <span>{rexRecord.user_wins}-{rexRecord.rex_wins} YOU vs REX</span>
           <span>Cycle {cycle} of {maxCycles}</span>
         </div>
 
