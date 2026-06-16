@@ -1,0 +1,41 @@
+import Link from "next/link";
+
+import type { DomainPlan } from "@/lib/types";
+
+type Props = {
+  domains: DomainPlan[];
+};
+
+export function PlanReveal({ domains }: Props) {
+  return (
+    <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950/85 p-7 sm:p-10">
+      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-300">
+        Plan reveal
+      </p>
+      <h1 className="mt-4 text-3xl font-black text-zinc-50 sm:text-5xl">
+        DVA-C02 route loaded.
+      </h1>
+      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        {domains.map((domain) => (
+          <div key={domain.name} className="rounded-3xl border border-zinc-800 bg-black/60 p-5">
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="text-xl font-black text-zinc-50">{domain.name}</h2>
+              <span className="rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-zinc-950">
+                {domain.weight}%
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-zinc-400">
+              Order {domain.study_order}. First topic: {domain.topics?.[0] || "calibration"}
+            </p>
+          </div>
+        ))}
+      </div>
+      <Link
+        href="/dashboard"
+        className="mt-8 inline-flex min-h-11 items-center rounded-full bg-amber-300 px-6 text-sm font-black text-zinc-950 hover:bg-amber-200"
+      >
+        Let&apos;s go
+      </Link>
+    </section>
+  );
+}

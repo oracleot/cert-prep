@@ -2,17 +2,21 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-black text-zinc-50">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-16">
-        <h1 className="text-4xl font-semibold tracking-tight">Gauntlet</h1>
-        <p className="text-base text-muted-foreground">
-          DVA-C02 certification prep. Rex challenges. Sage teaches.
+        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-300">
+          Gauntlet
+        </p>
+        <h1 className="text-5xl font-black tracking-tight">Certification prep with teeth.</h1>
+        <p className="text-base leading-7 text-zinc-400">
+          Build a DVA-C02 curriculum, watch the agents assemble it, then let Rex find
+          every gap Sage needs to close.
         </p>
         <Link
-          href="/session"
-          className="inline-flex w-fit items-center rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          href="/onboarding"
+          className="inline-flex min-h-11 w-fit items-center rounded-full bg-amber-300 px-5 text-sm font-black text-zinc-950 hover:bg-amber-200"
         >
-          Start session →
+          Start onboarding →
         </Link>
       </div>
     </main>
