@@ -7,7 +7,7 @@ import { clearThreadId, loadThreadId, type RestoredSession, saveThreadId } from 
 import { readSessionStream } from "./session-stream";
 
 export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
-const MAX_CYCLES = 2;
+const DEFAULT_CYCLES = 2;
 type SessionAction = "start" | "resume" | "submit" | "next";
 export function useSession() {
   const [phase, setPhase] = useState<SessionPhase>("loading_challenge");
@@ -135,7 +135,7 @@ export function useSession() {
 
   const nextChallenge = useCallback(async () => {
     if (!challenge) return;
-    if (cycle >= MAX_CYCLES) {
+    if (cycle >= DEFAULT_CYCLES) {
       setPhase("summary");
       return;
     }
@@ -180,7 +180,7 @@ export function useSession() {
   return {
     phase,
     cycle,
-    maxCycles: MAX_CYCLES,
+    maxCycles: DEFAULT_CYCLES,
     domain: challenge?.domain ?? "DVA-C02",
     challenge,
     answer,
