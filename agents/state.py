@@ -89,14 +89,14 @@ class AppState(TypedDict):
     db_session_id: str
 
 
-def initial_state(user_id: str) -> dict[str, Any]:
+def initial_state(user_id: str, exam_id: str = "dva-c02") -> dict[str, Any]:
     """Returns the initial state dict for a new session.
 
     `pending_user_answers` is removed in 2.6 as we now use LangGraph interrupts.
     """
     return {
         "user_id": user_id,
-        "exam_id": "dva-c02",
+        "exam_id": exam_id,
         "curriculum_id": "",
         "curriculum": [],
         "current_domain": "",

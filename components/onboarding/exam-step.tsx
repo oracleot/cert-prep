@@ -1,12 +1,15 @@
+import type { ExamOption } from "@/lib/types";
+
 type Props = {
   examName: string;
+  examOptions: ExamOption[];
   onChange: (value: string) => void;
   onBack: () => void;
   onContinue: () => void;
   error: string;
 };
 
-export function ExamStep({ examName, onChange, onBack, onContinue, error }: Props) {
+export function ExamStep({ examName, examOptions, onChange, onBack, onContinue, error }: Props) {
   return (
     <section className="rounded-[2rem] border border-zinc-200 bg-white/90 p-7 sm:p-10 dark:border-zinc-800 dark:bg-zinc-950/85">
       <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sky-600 dark:text-sky-300">
@@ -24,11 +27,12 @@ export function ExamStep({ examName, onChange, onBack, onContinue, error }: Prop
         onChange={(event) => onChange(event.target.value)}
         list="exam-options"
         className="mt-3 min-h-12 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-950 outline-none transition focus:border-amber-300 dark:border-zinc-700 dark:bg-black dark:text-zinc-50"
-        placeholder="DVA-C02"
+        placeholder="Certification code or name"
       />
       <datalist id="exam-options">
-        <option value="DVA-C02" />
-        <option value="AWS Certified Developer - Associate (DVA-C02)" />
+        {examOptions.map((exam) => (
+          <option key={exam.exam_code} value={exam.canonical_name} />
+        ))}
       </datalist>
       {error ? <p className="mt-3 text-sm text-amber-600 dark:text-amber-200">{error}</p> : null}
       <div className="mt-8 flex flex-wrap gap-3">

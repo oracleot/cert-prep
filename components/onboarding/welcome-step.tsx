@@ -12,7 +12,7 @@ export function WelcomeStep({ onContinue }: Props) {
         Build the exam route before Rex starts swinging.
       </h1>
       <p className="mt-5 max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
-        Gauntlet reads the DVA-C02 blueprint, builds your first curriculum, then drops
+        Gauntlet reads the official exam blueprint, builds your first curriculum, then drops
         you onto a dashboard with today&apos;s target ready.
       </p>
       <button

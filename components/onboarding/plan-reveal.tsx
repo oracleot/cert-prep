@@ -17,7 +17,7 @@ export function PlanReveal({ domains }: Props) {
         Plan reveal
       </p>
       <h1 className="mt-4 text-3xl font-black text-zinc-950 sm:text-5xl dark:text-zinc-50">
-        DVA-C02 route loaded.
+        Exam route loaded.
       </h1>
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {domains.map((domain) => (

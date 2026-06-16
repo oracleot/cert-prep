@@ -51,7 +51,7 @@ export default function Home() {
         </p>
         <h1 className="text-5xl font-black tracking-tight">Certification prep with teeth.</h1>
         <p className="text-base leading-7 text-muted-foreground">
-          Build a DVA-C02 curriculum, watch the agents assemble it, then let Rex find
+          Build a certification curriculum, watch the agents assemble it, then let Rex find
           every gap Sage needs to close.
         </p>
         <Link

@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from graphs.session import get_session_graph
+from onboarding_repository import get_latest_onboarding
 from state import initial_state
 
 router = APIRouter()
@@ -15,6 +16,7 @@ router = APIRouter()
 
 class SessionStartRequest(BaseModel):
     user_id: str
+    exam_id: str | None = None
 
 
 class SessionSubmitRequest(BaseModel):
@@ -59,7 +61,9 @@ async def start_session(req: SessionStartRequest):
     graph = get_session_graph()
     thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
-    state = initial_state(user_id=req.user_id)
+    latest = await get_latest_onboarding(req.user_id) if not req.exam_id else None
+    exam_id = req.exam_id or (latest["exam_id"] if latest else "dva-c02")
+    state = initial_state(user_id=req.user_id, exam_id=exam_id)
 
     # Run graph until first interrupt (evaluate_answer)
     try:
@@ -70,6 +74,7 @@ async def start_session(req: SessionStartRequest):
     snapshot = await graph.aget_state(config)
     return {
         "thread_id": thread_id,
+        "exam_id": snapshot.values.get("exam_id"),
         "challenge": snapshot.values.get("current_challenge"),
     }
 
@@ -142,6 +147,7 @@ async def session_state(req: SessionStateRequest):
 
     return {
         "thread_id": req.thread_id,
+        "exam_id": snapshot.values.get("exam_id") or "dva-c02",
         "phase": _snapshot_phase(snapshot),
         "cycle": snapshot.values.get("cycle") or 1,
         "max_cycles": snapshot.values.get("max_cycles") or 2,

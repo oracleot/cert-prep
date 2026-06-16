@@ -115,7 +115,7 @@ async def get_artifact(exam_id: str) -> dict[str, Any] | None:
 async def list_supported_exams() -> list[dict[str, Any]]:
     """List every active artifact, ordered by exam_code."""
     if not has_pool():
-        return []
+        return _file_supported_exams()
     pool = get_pool()
     async with pool.connection() as conn:
         async with conn.cursor() as cur:
@@ -124,6 +124,20 @@ async def list_supported_exams() -> list[dict[str, Any]]:
                 "WHERE is_active = TRUE ORDER BY exam_code"
             )
             rows = await cur.fetchall()
+    if not rows:
+        return _file_supported_exams()
     return [
         {"exam_code": r[0], "canonical_name": r[1], "provider": r[2]} for r in rows
     ]
+
+
+def _file_supported_exams() -> list[dict[str, Any]]:
+    exams = []
+    for exam_id in list_artifact_files():
+        artifact = load_artifact_from_file(exam_id)
+        exams.append({
+            "exam_code": artifact["exam_code"],
+            "canonical_name": artifact["canonical_name"],
+            "provider": artifact["provider"],
+        })
+    return exams

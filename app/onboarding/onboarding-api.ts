@@ -29,3 +29,7 @@ export function dashboardSummaryRequest(userId: string) {
     body: JSON.stringify({ user_id: userId }),
   });
 }
+
+export function supportedExamsRequest() {
+  return fetch("/api/exams");
+}

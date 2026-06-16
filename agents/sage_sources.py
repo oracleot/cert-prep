@@ -18,6 +18,7 @@ class SageGrounding(TypedDict):
 SNIPPETS_DIR = Path(__file__).resolve().parent / "data" / "sage_snippets"
 EXAM_GUIDE_ROOTS = {
     "dva-c02": "https://docs.aws.amazon.com/aws-certification/latest/developer-associate-02",
+    "saa-c03": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03",
 }
 SERVICE_DOCS = {
     "AWS Lambda": (

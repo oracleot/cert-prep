@@ -7,10 +7,11 @@ import {
   dashboardSummaryRequest,
   onboardingStateRequest,
   startOnboardingRequest,
+  supportedExamsRequest,
 } from "./onboarding-api";
 import { loadOnboardingId, saveOnboardingId } from "./onboarding-persistence";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
-import type { AgentFeedEvent, DomainPlan, LearningStyle } from "@/lib/types";
+import type { AgentFeedEvent, DomainPlan, ExamOption, LearningStyle } from "@/lib/types";
 
 type Step = "welcome" | "exam" | "style" | "feed" | "plan";
 
@@ -34,10 +35,11 @@ function openFeed(
 export function useOnboarding() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("welcome");
-  const [examName, setExamName] = useState("DVA-C02");
+  const [examName, setExamName] = useState("");
   const [learningStyle, setLearningStyle] = useState<LearningStyle>("mixed_review");
   const [events, setEvents] = useState<AgentFeedEvent[]>([]);
   const [domains, setDomains] = useState<DomainPlan[]>([]);
+  const [examOptions, setExamOptions] = useState<ExamOption[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const feedRef = useRef<EventSource | null>(null);
@@ -71,6 +73,8 @@ export function useOnboarding() {
 
     async function restore() {
       try {
+        const examsRes = await supportedExamsRequest();
+        if (examsRes.ok) setExamOptions((await examsRes.json()).exams || []);
         const res = await onboardingStateRequest(userId);
         const data = res.ok ? await res.json() : null;
         if (!active) return;
@@ -130,6 +134,7 @@ export function useOnboarding() {
     setLearningStyle,
     events,
     domains,
+    examOptions,
     error,
     isLoading,
     start,

@@ -78,7 +78,14 @@ export type OnboardingRun = {
   curriculum_id: string | null;
 };
 
+export type ExamOption = {
+  exam_code: string;
+  canonical_name: string;
+  provider: string;
+};
+
 export type DashboardSummary = {
+  exam_id: string;
   readiness_score: number;
   today_domain: string;
   today_topic: string;

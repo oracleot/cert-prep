@@ -183,7 +183,7 @@ export function useSession() {
     phase,
     cycle,
     maxCycles: DEFAULT_CYCLES,
-    domain: challenge?.domain ?? "DVA-C02",
+    domain: challenge?.domain ?? "Exam",
     challenge,
     answer,
     setAnswer,

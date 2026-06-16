@@ -33,6 +33,7 @@ export default function OnboardingPage() {
           {onboarding.step === "exam" ? (
             <ExamStep
               examName={onboarding.examName}
+              examOptions={onboarding.examOptions}
               onChange={onboarding.setExamName}
               onBack={() => onboarding.setStep("welcome")}
               onContinue={() => onboarding.setStep("style")}

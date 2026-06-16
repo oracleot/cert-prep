@@ -143,6 +143,7 @@ async def dashboard_summary(user_id: str, exam_id: str) -> dict[str, Any]:
     readiness = round(sum(item["weight"] * item["performance_score"] for item in overview))
     today = await choose_today_target(user_id, exam_id)
     return {
+        "exam_id": exam_id,
         "readiness_score": readiness,
         "today_domain": today["domain"],
         "today_topic": today["topic"],

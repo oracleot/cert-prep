@@ -7,9 +7,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from blueprint import DEFAULT_EXAM_ID
 from curriculum_repository import get_active_curriculum
-from exam_artifacts import validate_exam_id
+from exam_artifacts import list_supported_exams, validate_exam_id
 from onboarding_repository import (
     add_feed_event,
     create_onboarding_run,
@@ -67,12 +66,17 @@ async def start_onboarding(req: OnboardingStartRequest):
 @router.post("/onboarding/state")
 async def onboarding_state(req: UserScopedRequest):
     run = await get_latest_onboarding(req.user_id)
-    curriculum = await get_active_curriculum(req.user_id, DEFAULT_EXAM_ID)
+    curriculum = await get_active_curriculum(req.user_id, run["exam_id"]) if run else None
     return {
         "has_onboarding": bool(run),
         "run": run,
         "curriculum": curriculum,
     }
+
+
+@router.get("/exams")
+async def supported_exams():
+    return {"exams": await list_supported_exams()}
 
 
 @router.get("/onboarding/{onboarding_id}/feed")
