@@ -17,6 +17,7 @@ router = APIRouter()
 class SessionStartRequest(BaseModel):
     user_id: str
     exam_id: str | None = None
+    timezone: str = "UTC"
 
 
 class SessionSubmitRequest(BaseModel):
@@ -63,7 +64,11 @@ async def start_session(req: SessionStartRequest):
     config = {"configurable": {"thread_id": thread_id}}
     latest = await get_latest_onboarding(req.user_id) if not req.exam_id else None
     exam_id = req.exam_id or (latest["exam_id"] if latest else "dva-c02")
-    state = initial_state(user_id=req.user_id, exam_id=exam_id)
+    state = initial_state(
+        user_id=req.user_id,
+        exam_id=exam_id,
+        local_timezone=req.timezone,
+    )
 
     # Run graph until first interrupt (evaluate_answer)
     try:

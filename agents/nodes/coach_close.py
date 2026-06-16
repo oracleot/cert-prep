@@ -10,6 +10,7 @@ from curriculum_repository import active_domains_for
 from performance_repository import persist_readiness_score, record_session_history
 from repositories import close_session
 from state import AppState
+from streak_repository import record_completed_session
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,13 @@ async def coach_close(state: AppState) -> dict:
             exam_id=state["exam_id"],
             domains=domains,
         )
+        await record_completed_session(
+            state["user_id"],
+            state["exam_id"],
+            state.get("local_timezone", "UTC"),
+        )
     except Exception:
-        logger.exception("Failed to update performance/readiness aggregates.")
+        logger.exception("Failed to update performance/readiness/streak aggregates.")
 
     return {
         "session_history": [

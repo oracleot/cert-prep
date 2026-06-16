@@ -12,6 +12,7 @@ router = APIRouter()
 class UserScopedRequest(BaseModel):
     user_id: str
     exam_id: str | None = None
+    timezone: str = "UTC"
 
 
 async def _exam_id_for(req: UserScopedRequest) -> str:
@@ -23,7 +24,7 @@ async def _exam_id_for(req: UserScopedRequest) -> str:
 
 @router.post("/dashboard/summary")
 async def summary(req: UserScopedRequest):
-    return await dashboard_summary(req.user_id, await _exam_id_for(req))
+    return await dashboard_summary(req.user_id, await _exam_id_for(req), req.timezone)
 
 
 @router.post("/progress")

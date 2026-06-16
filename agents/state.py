@@ -70,6 +70,7 @@ class AppState(TypedDict):
     max_cycles: int
     # "pressure_drills" | "guided_explanations" | "mixed_review" (default)
     learning_style: str
+    local_timezone: str
 
     # 1-indexed cycle counter, advanced by rex_rechallenge.
     cycle: int
@@ -91,7 +92,11 @@ class AppState(TypedDict):
     db_session_id: str
 
 
-def initial_state(user_id: str, exam_id: str = "dva-c02") -> dict[str, Any]:
+def initial_state(
+    user_id: str,
+    exam_id: str = "dva-c02",
+    local_timezone: str = "UTC",
+) -> dict[str, Any]:
     """Returns the initial state dict for a new session.
 
     `pending_user_answers` is removed in 2.6 as we now use LangGraph interrupts.
@@ -111,6 +116,7 @@ def initial_state(user_id: str, exam_id: str = "dva-c02") -> dict[str, Any]:
         "rex_difficulty": "medium",
         "max_cycles": 2,
         "learning_style": "",
+        "local_timezone": local_timezone,
         "cycle": 0,
         "current_challenge": {},
         "user_answer": "",

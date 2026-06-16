@@ -15,6 +15,7 @@ from db import get_pool, has_pool
 from exam_artifacts.loader import load_artifact_from_file
 from llm import get_llm
 from performance_repository import calculate_readiness, read_readiness_score, read_rex_record
+from streak_repository import read_session_streak
 from prompts.curriculum_builder import MODEL, build_curriculum_prompt
 
 
@@ -152,7 +153,11 @@ async def choose_rechallenge_target(
     )
 
 
-async def dashboard_summary(user_id: str, exam_id: str) -> dict[str, Any]:
+async def dashboard_summary(
+    user_id: str,
+    exam_id: str,
+    timezone_name: str = "UTC",
+) -> dict[str, Any]:
     curriculum = await get_active_curriculum(user_id, exam_id)
     domains = _active_domains(curriculum, exam_id)
     stats = await performance_map(user_id, exam_id)
@@ -161,6 +166,7 @@ async def dashboard_summary(user_id: str, exam_id: str) -> dict[str, Any]:
     persisted_score = await read_readiness_score(user_id, exam_id)
     readiness = persisted_score["score"] if persisted_score else calculate_readiness(domains, stats)[0]
     rex_record = await read_rex_record(user_id, exam_id)
+    streak = await read_session_streak(user_id, exam_id, timezone_name)
     today = await choose_today_target(user_id, exam_id)
     return {
         "exam_id": exam_id,
@@ -168,6 +174,7 @@ async def dashboard_summary(user_id: str, exam_id: str) -> dict[str, Any]:
         "today_domain": today["domain"],
         "today_topic": today["topic"],
         "rex_record": rex_record,
+        "streak": streak,
         "domains": overview,
     }
 
