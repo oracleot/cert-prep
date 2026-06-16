@@ -29,10 +29,20 @@ class Exchange(TypedDict):
     sage_response: str
 
 
+class Domain(TypedDict):
+    name: str
+    weight: int
+    topics: list[str]
+    study_order: int
+    performance_score: float
+
+
 class AppState(TypedDict):
-    # Identity (hardcoded "dev-user" in Phase 2; real Clerk ID in Phase 4)
+    # Identity comes from the Phase 3 anonymous browser user; Clerk replaces it in Phase 4.
     user_id: str
     exam_id: str
+    curriculum_id: str
+    curriculum: list[Domain]
 
     # Current session context — set by coach_open, updated by rex nodes
     current_domain: str
@@ -60,7 +70,7 @@ class AppState(TypedDict):
     db_session_id: str
 
 
-def initial_state(user_id: str = "dev-user") -> dict[str, Any]:
+def initial_state(user_id: str) -> dict[str, Any]:
     """Returns the initial state dict for a new session.
 
     `pending_user_answers` is removed in 2.6 as we now use LangGraph interrupts.
@@ -68,6 +78,8 @@ def initial_state(user_id: str = "dev-user") -> dict[str, Any]:
     return {
         "user_id": user_id,
         "exam_id": "dva-c02",
+        "curriculum_id": "",
+        "curriculum": [],
         "current_domain": "",
         "current_topic": "",
         "rex_difficulty": "medium",
