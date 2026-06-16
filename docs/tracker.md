@@ -21,6 +21,7 @@
 | P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.2, 2.3, 2.4, 2.5, 2.6 shipped; 2.7 remaining | 2026-06-15 |
 | P3 | Phase 3 — Onboarding + Curriculum | ✅ Complete | issues 3.1–3.8 shipped locally; E2E verified | 2026-06-16 |
 | P6 | Phase 6 — Dogfood-Driven UX Refinements | 🔄 In Progress | issues 6.1–6.7 shipped locally; 6.6 visual review + 6.8 real dogfood validation remain | 2026-06-16 |
+| P7 | Phase 7 — Exam Reliability + Grounded Content | ⏳ Planned | official-source blueprint coverage, Sage citations, and one second-cert smoke path | 2026-06-16 |
 | 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints
@@ -33,6 +34,10 @@
 - Auth (Clerk) added in Phase 4, not before
 - Diagnostic challenge, Coach, Gap Tracker, Boss Battles, RAG pipeline all deferred to v1.1
 - DATABASE_URL must be set in `.env.local` for Phase 2 (the agents service validates it on startup and the lifespan refuses to boot without it)
+- Current MVP is dogfood-ready, not exam-reliability complete: Rex can only cover the topic inventory and scheduler provided by the app.
+- No system can guarantee every possible exam question; Phase 7 targets full official exam guide coverage, source-traced topic maps, and broad scenario variation.
+- Sage is currently prompt-instructed to cite AWS concepts/docs, but not retrieval-grounded. Treat Sage as useful coaching until Phase 7 citation enforcement ships.
+- Multi-cert support remains blocked until official-source blueprint ingestion and DVA-C02 prompt/copy leakage are handled.
 
 ## Gaps to Grill (from handoff analysis)
 ### Session 1 gaps

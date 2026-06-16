@@ -13,7 +13,7 @@ Status: first-pass | Date: 2026-06-15
 - M — 0.5–2 days
 - L — 2–5 days
 
-**Phase:** 1 · 2 · 3 · 4 · 5
+**Phase:** 1 · 2 · 3 · 4 · 5 · 6 · 7
 
 **Area:** frontend · agents · infra · auth · gamification
 
@@ -410,9 +410,195 @@ Status: first-pass | Date: 2026-06-15
 
 ---
 
+## Phase 6: Dogfood-Driven UX Refinements — Issues 6.1 through 6.8
+
+**Done when:** The app feels like one coherent product. Returning users land on the dashboard, the visual language is consistent from onboarding through session, light/dark/system themes all look intentional, and the dashboard / session-summary reflect the user's actual state. No copy that contradicts reality.
+
+**Status:** 6.1–6.7 implementation shipped locally. Remaining validation: 6.6 visual review and 6.8 one-week dogfood revisit.
+
+---
+
+### 6.1 — Returning user redirects from onboarding to dashboard (P0, S, frontend)
+**Acceptance criteria:**
+- [x] Visiting `/onboarding` while a curriculum already exists for the current user redirects to `/dashboard` (server-side or via `useEffect` early return — server-side preferred)
+- [x] During the brief loading state, no flash of the welcome screen is shown to a returning user
+- [x] Visiting `/` (root) while a curriculum exists redirects to `/dashboard` instead of staying on the marketing page
+- [x] The same check works for the anonymous user ID used in dev (`getAnonymousUserId()` in `lib/anonymous-user.ts`)
+- [x] No new server endpoint required — reuse existing `onboardingStateRequest` / `dashboardSummaryRequest`
+
+---
+
+### 6.2 — Dashboard copy: "YOU vs REX" (P2, S, frontend)
+**Acceptance criteria:**
+- [x] In `components/dashboard/dashboard-client.tsx`, the line "User wins first, Rex wins second." is replaced with "YOU vs REX"
+- [x] Layout still works — `YOU vs REX` is shorter than the previous sentence and should not introduce awkward whitespace
+- [x] No other copy in the file changes
+
+---
+
+### 6.3 — Smart dashboard CTA + drop "TODAY" label (P1, M, frontend)
+**Acceptance criteria:**
+- [x] The "Today" label (`<p>Today</p>` block in the amber card) is removed — users can have multiple sessions on different topics in the same day, so "today" is misleading
+- [x] The amber card becomes a generic "Next up" / "Up next" card showing the next domain and topic the curriculum recommends
+- [x] The CTA button on that card changes state based on session status:
+  - [x] No prior session ever: "Start your first session"
+  - [x] In-progress session exists (server-side thread_id or in-progress marker): "Resume session" → `/session`
+  - [x] At least one completed session: "Start another session"
+- [x] "Resume session" hydrates the existing session thread via the same flow `useSession` already uses on mount (`loadThreadId` + `restoreSession`)
+- [x] CTA states are derived from data, not hardcoded — no client-side faking
+
+---
+
+### 6.4 — "Back to dashboard" button on session summary (P1, S, frontend)
+**Acceptance criteria:**
+- [x] `SummaryScreen` in `components/session/summary-screen.tsx` gains a secondary "Back to dashboard" button alongside the existing "Start another session" button
+- [x] "Start another session" remains the primary action; "Back to dashboard" is the secondary, visually de-emphasised
+- [x] "Back to dashboard" uses Next.js `Link` to `/dashboard`
+- [x] Both buttons are reachable and tappable on a 375px viewport (44×44 minimum touch target)
+- [x] No regression to the existing restart behavior
+
+---
+
+### 6.5 — Sage markdown → rich UI rendering (P1, M, frontend)
+**Acceptance criteria:**
+- [x] `SageCard` no longer renders Sage's response via `whitespace-pre-wrap` raw text — markdown (`**bold**`, `_italic_`, `## headings`, `- lists`, `>` blockquotes, `inline code`, fenced code blocks) renders as proper UI
+- [x] A markdown renderer is added (suggest `react-markdown` + `remark-gfm`, or equivalent lightweight lib) and kept in `components/session/` or `lib/`
+- [x] Streaming behavior is preserved: the response still streams token-by-token; partial markdown during streaming is still readable (no flickering/parsing thrash on every token)
+- [x] Sage's distinct visual treatment is preserved (correct → emerald border/bg, incorrect → muted)
+- [x] No `dangerouslySetInnerHTML` on raw model output — must be parsed and rendered safely
+- [x] Code blocks render with a monospace font and basic padding; blockquotes get a left border to match the Sage voice
+
+---
+
+### 6.6 — Design consistency: bring session surfaces to life (P1, M, frontend)
+**Acceptance criteria:**
+- [x] Onboarding uses `bg-black` with layered radial gradients (amber + sky) for a bold, vibrant feel — documented in `app/onboarding/page.tsx`
+- [x] Session screen, challenge card, answer form, Sage card, and summary screen adopt the same treatment so the app feels like one product (same gradient layer, same base color, same accent palette)
+- [x] Dashboard's amber card style is reused as the accent pattern across session surfaces
+- [x] Typography weight + tracking for the domain tag / "Cycle N of M" treatment matches the onboarding step indicator
+- [x] No regression: dark mode still looks intentional; all existing ACs for Phase 1 + 3 (mobile-first, 44×44 touch targets) still pass
+- [ ] Visual review with a designer / design-system owner before merge — the goal is "same app", not "session got louder"
+
+---
+
+### 6.7 — Theme toggle (light / dark / system) (P1, M, frontend)
+**Acceptance criteria:**
+- [x] Theme toggle is reachable from `AppNav` (small icon button — three states: light, dark, system) and / or the future settings screen
+- [x] Three states are persisted across reloads (localStorage or cookie)
+- [x] Default is "system" — uses `prefers-color-scheme` until the user explicitly chooses
+- [x] All routes (`/`, `/onboarding`, `/dashboard`, `/session`, `/progress`) look intentional in both light and dark
+- [x] Suggested implementation: `next-themes` with `attribute="class"` on `<html>` — already a de-facto pattern with shadcn/ui
+- [x] No FOUC (flash of unstyled content) on reload in dark or light mode
+- [x] Depends on 6.6 (design consistency) shipping first — light mode needs the unified visual system to look intentional
+
+---
+
+### 6.8 — Session length: investigate, justify, decide (P1, M, agents)
+**Context:** The session length now defaults to `DEFAULT_CYCLES = 2` in `app/session/use-session.ts`. This began as the Phase 1 hardcoded `MAX_CYCLES = 2` prototype setting to keep sessions short. For real dogfood usage, 2 cycles may be too few; ADR-0001 keeps it for MVP and requires dogfood validation before treating it as settled.
+
+**Acceptance criteria:**
+- [ ] Spike: 1-day investigation capturing (a) how long a typical 2-cycle session takes end-to-end, (b) Rex's record / Readiness Score signal per cycle, (c) user-reported energy level at the end of cycle 2
+- [x] Decision recorded in `docs/adr/0001-session-length.md`: stay at 2 cycles for MVP, with rationale (engagement vs. signal vs. time)
+- [x] If the decision is "stay at 2", the rationale is documented and `MAX_CYCLES` is renamed to `DEFAULT_CYCLES` to make the intent explicit
+- [x] If the decision is "increase" (likely 3–5): considered and rejected for MVP in ADR-0001; no config value needed yet
+- [x] "Next challenge" → "View session summary" boundary in `SageCard` and `SummaryScreen` updates to match the new count
+- [ ] Dogfood the 2-cycle length for at least one full week before treating it as settled
+
+---
+
+## Phase 7: Exam Reliability + Grounded Content — Issues 7.1 through 7.8
+
+**Done when:** Gauntlet can be used as serious AWS cert prep, not just an engaging prototype: the active exam is backed by an official-source blueprint, Rex samples across the full blueprint-derived topic map, Sage cites official AWS documentation in every substantive explanation, and a second allowlisted cert code can complete onboarding without DVA-C02 leakage.
+
+**Scope note:** This phase does not promise coverage of every possible exam question. The target is reliable coverage of official exam guide domains, task statements, and high-value AWS service concepts, with enough generated scenario variation to expose gaps.
+
+---
+
+### 7.1 — Exam reliability readiness rubric (P0, S, agents)
+**Acceptance criteria:**
+- [ ] Define the minimum bar for saying the app is "exam-prep reliable" versus "MVP dogfood-ready"
+- [ ] Rubric covers blueprint completeness, topic coverage, question quality, answer evaluation quality, Sage citation quality, and unsupported-cert behavior
+- [ ] Manual QA checklist exists for at least 20 DVA-C02 sessions across all domains
+- [ ] A failed rubric item blocks calling Phase 7 complete, even if the UI works
+
+---
+
+### 7.2 — Official exam artifact model (P0, M, infra)
+**Acceptance criteria:**
+- [ ] Add persistent exam artifact tables or JSON schema for exam code, canonical name, provider, official exam guide URL, captured_at, source version/checksum, domains, weights, task statements, and topic/concept mappings
+- [ ] Existing DVA-C02 curriculum references an exam artifact/version instead of anonymous hardcoded domain JSON
+- [ ] Artifact records preserve source metadata so later challenges and explanations can trace back to official inputs
+- [ ] Unknown or unsupported cert codes are represented explicitly as unsupported — never silently coerced to DVA-C02
+
+---
+
+### 7.3 — Blueprint Scout generalisation with official-source guardrails (P0, L, agents)
+**Acceptance criteria:**
+- [ ] Blueprint Scout accepts an exam code from onboarding and resolves it through an allowlist or official AWS source lookup
+- [ ] Extracts domains, weights, task statements, and knowledge areas from the official exam guide into structured JSON
+- [ ] Refuses to build a curriculum when the official source cannot be found or parsed confidently
+- [ ] Agent feed explains whether the blueprint was loaded from cache, refreshed from official source, or rejected as unsupported
+- [ ] DVA-C02 remains supported and keeps its current happy path
+
+---
+
+### 7.4 — DVA-C02 full blueprint topic expansion (P0, M, agents)
+**Acceptance criteria:**
+- [ ] Replace the current 4-domain / 16-topic DVA-C02 seed with a full blueprint-derived topic inventory
+- [ ] Each topic maps to the relevant domain, official task statement, AWS services, and one or more official source IDs
+- [ ] Coverage matrix shows all DVA-C02 domains and topics, including unattempted areas
+- [ ] Curriculum Builder preserves full topic coverage while still sequencing based on learning style and prior performance
+
+---
+
+### 7.5 — Rex coverage scheduler (P0, M, agents)
+**Acceptance criteria:**
+- [ ] `choose_today_target` selects from the blueprint-derived topic map using domain weights, prior coverage, and correctness history
+- [ ] Rex does not repeatedly sample the same narrow topic while untouched topics remain in the active curriculum
+- [ ] Generated challenges are tagged with domain, task statement/topic, difficulty, and source IDs used as context
+- [ ] Rechallenge stays in the same domain but can deliberately move to a related uncovered or weak topic
+- [ ] Session summary and dashboard reflect real topic coverage, not only domain-level totals
+
+---
+
+### 7.6 — Sage AWS documentation grounding + citations (P0, L, agents)
+**Acceptance criteria:**
+- [ ] Resource Gatherer or equivalent retrieval step collects official AWS docs, FAQs, exam guide references, and service guide snippets for each active topic
+- [ ] Sage receives retrieved source snippets/URLs in the prompt and must cite at least one official AWS source in every substantive response
+- [ ] If no acceptable source is available, Sage says the explanation is unverified instead of inventing a citation
+- [ ] Frontend renders Sage citations as clickable links below the explanation without breaking streaming readability
+- [ ] Stored exchanges include citation metadata for later audit
+
+---
+
+### 7.7 — Content quality evaluation harness (P1, M, agents)
+**Acceptance criteria:**
+- [ ] Add an offline eval harness that generates sample Rex challenges across all domains/topics for a selected exam artifact
+- [ ] Eval report checks JSON shape, domain/topic distribution, duplicate rate, official-source citation presence, and obvious DVA-C02 leakage in non-DVA exams
+- [ ] Include a human review rubric for challenge realism, exam relevance, and Sage correctness
+- [ ] Save eval outputs under a non-secret local reports path and summarize pass/fail criteria in docs
+
+---
+
+### 7.8 — Second-cert smoke path (P1, L, agents + frontend)
+**Acceptance criteria:**
+- [ ] Add one additional AWS cert code as an allowlisted smoke target after DVA-C02 is reliable
+- [ ] Onboarding autocomplete includes the smoke cert only after its official artifact exists
+- [ ] Session, dashboard, progress, prompts, and stored data use the selected exam_id end-to-end
+- [ ] No DVA-C02-specific copy, prompts, default topics, or domain weights leak into the smoke cert flow
+- [ ] Unsupported cert codes still fail clearly and quickly with no fake curriculum
+
+---
+
 ## Ready Queue
 Issues startable right now (no dependencies unmet):
-- **1.1** — Project scaffold
+- **2.7** — Railway deployment: Postgres + Redis + Python service
+- **4.1** — Clerk auth integration
+- **6.6** — Visual review for unified session surfaces (remaining validation)
+- **6.8** — One-week dogfood validation / session-length revisit
+- **7.1** — Exam reliability readiness rubric
+- **7.4** — DVA-C02 full blueprint topic expansion
+- **7.6** — Sage AWS documentation grounding + citations
 
 ---
 
@@ -420,9 +606,9 @@ Issues startable right now (no dependencies unmet):
 - Diagnostic challenge during onboarding (v1.1)
 - Coach agent with full personality (v1.1) — static summary screen in MVP
 - Gap Tracker (v1.1) — rule-based logic in MVP
-- Resource Gatherer + RAG pipeline (v1.1)
+- General-purpose RAG beyond official exam-prep grounding (v1.1)
 - Score decay / spaced repetition (v1.1)
-- Multi-exam support beyond DVA-C02 (Phase 3+ generalisation, not in backlog yet)
+- Broad multi-exam catalogue beyond the Phase 7 allowlisted smoke cert
 - Native iOS/Android apps (post-validation)
 - Leaderboard / social features (v2)
 - Notes feature (explicitly not in scope — antithetical to challenge-first model)
