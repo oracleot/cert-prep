@@ -564,11 +564,11 @@ Status: first-pass | Date: 2026-06-15
 
 ### 7.6 — Sage AWS documentation grounding + citations (P0, L, agents)
 **Acceptance criteria:**
-- [ ] Resource Gatherer or equivalent retrieval step collects official AWS docs, FAQs, exam guide references, and service guide snippets for each active topic
-- [ ] Sage receives retrieved source snippets/URLs in the prompt and must cite at least one official AWS source in every substantive response
-- [ ] If no acceptable source is available, Sage says the explanation is unverified instead of inventing a citation
-- [ ] Frontend renders Sage citations as clickable links below the explanation without breaking streaming readability
-- [ ] Stored exchanges include citation metadata for later audit
+- [x] Resource Gatherer or equivalent retrieval step collects official AWS docs, FAQs, exam guide references, and service guide snippets for each active topic
+- [x] Sage receives retrieved source snippets/URLs in the prompt and must cite at least one official AWS source in every substantive response
+- [x] If no acceptable source is available, Sage says the explanation is unverified instead of inventing a citation
+- [x] Frontend renders Sage citations as clickable links below the explanation without breaking streaming readability
+- [x] Stored exchanges include citation metadata for later audit
 
 ---
 
@@ -656,7 +656,7 @@ Status: first-pass | Date: 2026-06-15
 Issues startable right now (no dependencies unmet):
 - **2.7** — Railway deployment: Postgres + Redis + Python service
 - **4.1** — Clerk auth integration
-- **7.6** — Sage AWS documentation grounding + citations (blueprint-derived topic inventory is now in place)
+- **7.7** — Content quality evaluation harness (Sage citations and Rex coverage are now instrumented)
 - **8.1** — Choose test runners + record in docs (startable alongside Phase 7)
 
 ---

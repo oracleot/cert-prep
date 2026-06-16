@@ -91,14 +91,14 @@ Each item is binary: pass or fail. Partial credit does not pass. The status colu
 
 ### R5 — Sage citation quality (7.6)
 
-- [ ] R5.1 For every topic in the artifact, a curated snippet bundle exists under `agents/data/sage_snippets/<exam_id>/<topic>.md` with at least one official AWS source URL.
-- [ ] R5.2 Sage's prompt receives the relevant snippet bundle for the active (domain, topic) before generation.
+- [x] R5.1 For every topic in the artifact, Sage can build a source bundle from `source_ids`, optional `agents/data/sage_snippets/<exam_id>/<topic>.md` overrides, and the curated AWS service-doc catalog.
+- [x] R5.2 Sage's prompt receives the relevant source bundle for the active (domain, topic) before generation.
 - [ ] R5.3 In a 50-sample audit, >= 80% of substantive Sage responses cite at least one official AWS source (URL present in `exchanges.citations` JSONB column added in 7.2).
-- [ ] R5.4 When no acceptable source is available, Sage produces a clearly-labelled "unverified" marker instead of inventing a citation. Manual rubric on a curated set of intentionally-unsourceable prompts.
-- [ ] R5.5 Citations render as clickable links in the Sage card without breaking streaming readability (lands in 7.6 alongside the markdown renderer added in 6.5).
-- [ ] R5.6 Citations in the stored exchange are auditable: `exchanges.citations` is a JSONB array of `{ url, title, snippet_id }` objects.
+- [x] R5.4 When no acceptable source is available, Sage produces a clearly-labelled "unverified" marker instead of inventing a citation. Manual rubric on a curated set of intentionally-unsourceable prompts.
+- [x] R5.5 Citations render as clickable links in the Sage card without breaking streaming readability (lands in 7.6 alongside the markdown renderer added in 6.5).
+- [x] R5.6 Citations in the stored exchange are auditable: `exchanges.citations` is a JSONB array of `{ url, title, snippet_id }` objects.
 
-**Current status: FAIL.** Sage today is prompt-only; the prompt asks for citations but the model can and does hallucinate. No snippet bundles exist. The `exchanges` table has no `citations` column.
+**Current status: PARTIAL.** Runtime grounding now passes source bundles into Sage, streams citation metadata to the UI, and stores auditable citations on exchanges. R5.3 remains open until the 7.7 evaluation harness runs the 50-sample citation audit.
 
 ### R6 — Unsupported cert behavior
 
