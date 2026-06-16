@@ -36,22 +36,22 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 backdrop-blur-sm">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500">
+      <div className="rounded-2xl border border-zinc-200 bg-white/85 p-5 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-zinc-600 dark:text-zinc-500">
           Domain covered
         </p>
-        <p className="text-sm font-bold text-zinc-50">{domain}</p>
+        <p className="text-sm font-bold text-zinc-950 dark:text-zinc-50">{domain}</p>
 
         <div className="mt-3 space-y-2">
           {results.map((r, i) => (
             <div key={i} className="flex items-center justify-between text-sm">
-              <span className="text-zinc-500">Cycle {r.cycle}</span>
-              <span className="truncate px-2 text-zinc-200">{r.topic}</span>
+              <span className="text-zinc-600 dark:text-zinc-500">Cycle {r.cycle}</span>
+              <span className="truncate px-2 text-zinc-700 dark:text-zinc-200">{r.topic}</span>
               <span
                 className={
                   r.outcome === "correct"
-                    ? "font-bold text-emerald-300"
-                    : "text-zinc-500"
+                    ? "font-bold text-emerald-600 dark:text-emerald-300"
+                    : "text-zinc-600 dark:text-zinc-500"
                 }
               >
                 {r.outcome === "correct" ? "✓" : "✗"}
@@ -71,7 +71,7 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
         <Button
           asChild
           variant="outline"
-          className="w-full min-h-11 border-zinc-700 bg-transparent text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+          className="w-full min-h-11 border-zinc-300 bg-transparent text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
         >
           <Link href="/dashboard">Back to dashboard</Link>
         </Button>

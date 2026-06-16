@@ -10,18 +10,18 @@ import type { DashboardSummary, DomainPlan } from "@/lib/types";
 
 function DomainTile({ domain }: { domain: DomainPlan }) {
   return (
-    <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+    <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-black text-zinc-50">{domain.name}</h2>
-        <span className="text-sm font-black text-amber-300">{domain.weight}%</span>
+        <h2 className="font-black text-zinc-950 dark:text-zinc-50">{domain.name}</h2>
+        <span className="text-sm font-black text-amber-600 dark:text-amber-300">{domain.weight}%</span>
       </div>
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-800">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
         <div
-          className="h-full rounded-full bg-amber-300"
+          className="h-full rounded-full bg-amber-500 dark:bg-amber-300"
           style={{ width: `${domain.completion_percent || 0}%` }}
         />
       </div>
-      <p className="mt-3 text-sm text-zinc-400">
+      <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
         {domain.correct_count || 0}/{domain.total_count || 0} against Rex
       </p>
     </div>
@@ -71,23 +71,23 @@ export function DashboardClient() {
   }, []);
 
   if (error) {
-    return <main className="min-h-screen bg-black p-6 text-amber-200">{error}</main>;
+    return <main className="min-h-screen bg-background p-6 text-amber-700 dark:text-amber-200">{error}</main>;
   }
 
   if (!summary) {
-    return <main className="min-h-screen bg-black p-6 text-zinc-400">Loading dashboard...</main>;
+    return <main className="min-h-screen bg-background p-6 text-muted-foreground">Loading dashboard...</main>;
   }
 
   const ctaState = resolveCtaState(summary, hasInProgressThread);
   const ctaLabel = CTA_COPY[ctaState];
 
   return (
-    <main className="min-h-screen bg-black px-4 py-6 text-zinc-50 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <AppNav />
         <section className="mt-8 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-7 sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-300">
+          <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 sm:p-10 dark:border-zinc-800 dark:bg-zinc-950">
+            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-600 dark:text-amber-300">
               Readiness score
             </p>
             <div className="mt-6 flex items-end gap-3">
@@ -95,12 +95,12 @@ export function DashboardClient() {
                 {summary.readiness_score}%
               </span>
               {summary.readiness_score === 0 ? (
-                <span className="mb-3 rounded-full border border-zinc-700 px-3 py-1 text-xs font-bold text-zinc-400">
+                <span className="mb-3 rounded-full border border-zinc-300 px-3 py-1 text-xs font-bold text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
                   ghost baseline
                 </span>
               ) : null}
             </div>
-            <p className="mt-5 max-w-xl text-zinc-400">
+            <p className="mt-5 max-w-xl text-zinc-500 dark:text-zinc-400">
               Weighted from domain performance: weight times correct challenge rate.
             </p>
           </div>
@@ -112,21 +112,21 @@ export function DashboardClient() {
             <p className="mt-3 text-sm font-semibold opacity-80">{summary.today_topic}</p>
             <Link
               href="/session"
-              className="mt-8 inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-black text-zinc-50"
+              className="mt-8 inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-black text-zinc-50 dark:bg-zinc-950"
             >
               {ctaLabel}
             </Link>
           </div>
         </section>
         <section className="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-7">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500">
+          <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-950">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500 dark:text-zinc-500">
               Rex&apos;s record
             </p>
             <p className="mt-5 text-5xl font-black">
               {summary.rex_record.user_wins}-{summary.rex_record.rex_wins}
             </p>
-            <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">YOU vs REX</p>
+            <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">YOU vs REX</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {summary.domains.map((domain) => <DomainTile key={domain.name} domain={domain} />)}

@@ -13,16 +13,16 @@ export default function OnboardingPage() {
 
   if (onboarding.isLoading) {
     return (
-      <main className="min-h-screen bg-black px-4 py-6 text-zinc-50 sm:px-6 lg:px-8" />
+      <main className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8" />
     );
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-black px-4 py-6 text-zinc-50 sm:px-6 lg:px-8">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.22),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.16),transparent_30%)]" />
+    <main className="min-h-screen overflow-hidden bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_30%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.12),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.22),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.16),transparent_30%)]" />
       <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-5xl items-center">
         <div className="w-full">
-          <div className="mb-5 flex items-center justify-between text-xs uppercase tracking-[0.35em] text-zinc-500">
+          <div className="mb-5 flex items-center justify-between text-xs uppercase tracking-[0.35em] text-muted-foreground">
             <span>Gauntlet</span>
             <span>{onboarding.step}</span>
           </div>

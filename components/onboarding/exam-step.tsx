@@ -8,14 +8,14 @@ type Props = {
 
 export function ExamStep({ examName, onChange, onBack, onContinue, error }: Props) {
   return (
-    <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950/85 p-7 sm:p-10">
-      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sky-300">
+    <section className="rounded-[2rem] border border-zinc-200 bg-white/90 p-7 sm:p-10 dark:border-zinc-800 dark:bg-zinc-950/85">
+      <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sky-600 dark:text-sky-300">
         Exam signal
       </p>
-      <h1 className="mt-4 text-3xl font-black text-zinc-50 sm:text-5xl">
+      <h1 className="mt-4 text-3xl font-black text-zinc-950 sm:text-5xl dark:text-zinc-50">
         Which exam are we hunting?
       </h1>
-      <label className="mt-8 block text-sm font-semibold text-zinc-200" htmlFor="exam">
+      <label className="mt-8 block text-sm font-semibold text-zinc-700 dark:text-zinc-200" htmlFor="exam">
         Certification code
       </label>
       <input
@@ -23,19 +23,19 @@ export function ExamStep({ examName, onChange, onBack, onContinue, error }: Prop
         value={examName}
         onChange={(event) => onChange(event.target.value)}
         list="exam-options"
-        className="mt-3 min-h-12 w-full rounded-2xl border border-zinc-700 bg-black px-4 text-lg font-semibold text-zinc-50 outline-none transition focus:border-amber-300"
+        className="mt-3 min-h-12 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-950 outline-none transition focus:border-amber-300 dark:border-zinc-700 dark:bg-black dark:text-zinc-50"
         placeholder="DVA-C02"
       />
       <datalist id="exam-options">
         <option value="DVA-C02" />
         <option value="AWS Certified Developer - Associate (DVA-C02)" />
       </datalist>
-      {error ? <p className="mt-3 text-sm text-amber-200">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm text-amber-600 dark:text-amber-200">{error}</p> : null}
       <div className="mt-8 flex flex-wrap gap-3">
-        <button onClick={onBack} className="min-h-11 rounded-full border border-zinc-700 px-5 text-sm font-bold text-zinc-200">
+        <button onClick={onBack} className="min-h-11 rounded-full border border-zinc-300 px-5 text-sm font-bold text-zinc-700 dark:border-zinc-700 dark:text-zinc-200">
           Back
         </button>
-        <button onClick={onContinue} className="min-h-11 rounded-full bg-zinc-50 px-5 text-sm font-black text-zinc-950">
+        <button onClick={onContinue} className="min-h-11 rounded-full bg-zinc-950 px-5 text-sm font-black text-zinc-50 dark:bg-zinc-50 dark:text-zinc-950">
           Continue
         </button>
       </div>

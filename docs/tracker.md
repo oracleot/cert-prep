@@ -20,6 +20,7 @@
 | P1 | Phase 1 — Rex+Sage loop | ✅ Complete | issues 1.3–1.9 shipped | 2026-06-15 |
 | P2 | Phase 2 — LangGraph + state persistence | 🔄 In Progress | issues 2.1, 2.2, 2.3, 2.4, 2.5, 2.6 shipped; 2.7 remaining | 2026-06-15 |
 | P3 | Phase 3 — Onboarding + Curriculum | ✅ Complete | issues 3.1–3.8 shipped locally; E2E verified | 2026-06-16 |
+| P6 | Phase 6 — Dogfood-Driven UX Refinements | 🔄 In Progress | issues 6.1–6.7 shipped locally; 6.6 visual review + 6.8 real dogfood validation remain | 2026-06-16 |
 | 8 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints

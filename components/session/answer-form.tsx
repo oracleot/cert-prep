@@ -29,7 +29,7 @@ export function AnswerForm({
   return (
     <div className="flex flex-col gap-3">
       <textarea
-        className="min-h-[120px] w-full resize-none rounded-2xl border border-zinc-800 bg-zinc-950/80 px-4 py-3 text-sm text-zinc-50 placeholder:text-zinc-500 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300/40 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-sm"
+        className="min-h-[120px] w-full resize-none rounded-2xl border border-zinc-300 bg-white/85 px-4 py-3 text-sm text-zinc-950 placeholder:text-zinc-400 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300/40 disabled:cursor-not-allowed disabled:opacity-50 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80 dark:text-zinc-50 dark:placeholder:text-zinc-500"
         placeholder="Your answer… (⌘↵ to submit)"
         value={value}
         onChange={(e) => onChange(e.target.value)}
