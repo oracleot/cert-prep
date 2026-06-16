@@ -12,6 +12,7 @@ from curriculum_progress import domain_overview, performance_map, topic_performa
 from coverage_scheduler import select_rechallenge_target, select_today_target
 from curriculum_topics import coverage_matrix, valid_domains
 from db import get_pool, has_pool
+from exam_artifacts.loader import load_artifact_from_file
 from llm import get_llm
 from prompts.curriculum_builder import MODEL, build_curriculum_prompt
 
@@ -53,6 +54,17 @@ def build_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
     except Exception:
         pass
     return _fallback_curriculum(blueprint, learning_style)
+
+
+def _fallback_for_exam(exam_id: str) -> list[dict]:
+    try:
+        return _fallback_curriculum(load_artifact_from_file(exam_id)["domains"], "mixed_review")
+    except Exception:
+        return default_curriculum()
+
+
+def _active_domains(curriculum: dict[str, Any] | None, exam_id: str) -> list[dict]:
+    return curriculum["domains"] if curriculum else _fallback_for_exam(exam_id)
 
 
 async def create_curriculum(
@@ -101,7 +113,7 @@ async def get_active_curriculum(user_id: str, exam_id: str) -> dict[str, Any] | 
 
 async def choose_today_target(user_id: str, exam_id: str) -> dict[str, Any]:
     curriculum = await get_active_curriculum(user_id, exam_id)
-    domains = curriculum["domains"] if curriculum else default_curriculum()
+    domains = _active_domains(curriculum, exam_id)
     domain_stats = await performance_map(user_id, exam_id)
     topic_stats = await topic_performance_map(user_id, exam_id)
     return select_today_target(
@@ -120,7 +132,7 @@ async def choose_rechallenge_target(
     previous_task_statement_id: str = "",
 ) -> dict[str, Any]:
     curriculum = await get_active_curriculum(user_id, exam_id)
-    domains = curriculum["domains"] if curriculum else default_curriculum()
+    domains = _active_domains(curriculum, exam_id)
     topic_stats = await topic_performance_map(user_id, exam_id)
     return select_rechallenge_target(
         domains,
@@ -134,7 +146,7 @@ async def choose_rechallenge_target(
 
 async def dashboard_summary(user_id: str, exam_id: str) -> dict[str, Any]:
     curriculum = await get_active_curriculum(user_id, exam_id)
-    domains = curriculum["domains"] if curriculum else default_curriculum()
+    domains = _active_domains(curriculum, exam_id)
     stats = await performance_map(user_id, exam_id)
     topic_stats = await topic_performance_map(user_id, exam_id)
     overview = domain_overview(domains, stats, topic_stats)

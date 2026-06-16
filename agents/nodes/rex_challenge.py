@@ -20,7 +20,7 @@ def _strip_code_fences(text: str) -> str:
 def rex_challenge(state: AppState) -> dict:
     """Generate a challenge for the current exam domain + difficulty."""
     system, user = build_rex_challenge_prompt(
-        exam_id=state.get("exam_id", "dva-c02"),
+        exam_id=state["exam_id"],
         domain=state["current_domain"],
         topic=state.get("current_topic", ""),
         difficulty=state.get("rex_difficulty", "medium"),

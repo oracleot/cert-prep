@@ -19,7 +19,7 @@ async def coach_open(state: AppState) -> dict:
     exchanges and stamp ended_at to the same session.
     """
     user_id = state["user_id"]
-    exam_id = state.get("exam_id", "dva-c02")
+    exam_id = state["exam_id"]
     target = await choose_today_target(user_id=user_id, exam_id=exam_id)
     curriculum = await get_active_curriculum(user_id=user_id, exam_id=exam_id)
     domain = target["domain"]

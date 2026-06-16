@@ -32,7 +32,7 @@ async def _generate_sage_response(
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
     grounding = load_sage_grounding(
-        exam_id=state.get("exam_id", "dva-c02"),
+        exam_id=state["exam_id"],
         topic_id=challenge.get("topic_id", ""),
         topic=challenge["topic"],
         services=challenge.get("services", []),

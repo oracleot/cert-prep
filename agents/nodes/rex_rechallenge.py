@@ -22,13 +22,13 @@ async def rex_rechallenge(state: AppState) -> dict:
     """Generate a harder challenge on the same domain, increment the cycle."""
     target = await choose_rechallenge_target(
         user_id=state["user_id"],
-        exam_id=state.get("exam_id", "dva-c02"),
+        exam_id=state["exam_id"],
         domain=state["current_domain"],
         previous_topic=state["current_challenge"]["topic"],
         previous_task_statement_id=state["current_challenge"].get("task_statement_id", ""),
     )
     system, user = build_rex_rechallenge_prompt(
-        exam_id=state.get("exam_id", "dva-c02"),
+        exam_id=state["exam_id"],
         domain=state["current_domain"],
         previous_topic=state["current_challenge"]["topic"],
         topic=target.get("topic", ""),

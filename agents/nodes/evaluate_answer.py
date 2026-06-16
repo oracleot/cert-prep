@@ -26,7 +26,7 @@ def evaluate_answer(state: AppState) -> dict:
     challenge = state["current_challenge"]
 
     ev_input = EvaluatorInput(
-        exam_id=state.get("exam_id", "dva-c02"),
+        exam_id=state["exam_id"],
         domain=challenge["domain"],
         topic=challenge["topic"],
         scenario=challenge["scenario"],

@@ -147,7 +147,7 @@ async def session_state(req: SessionStateRequest):
 
     return {
         "thread_id": req.thread_id,
-        "exam_id": snapshot.values.get("exam_id") or "dva-c02",
+        "exam_id": snapshot.values.get("exam_id"),
         "phase": _snapshot_phase(snapshot),
         "cycle": snapshot.values.get("cycle") or 1,
         "max_cycles": snapshot.values.get("max_cycles") or 2,

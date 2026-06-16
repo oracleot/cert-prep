@@ -30,9 +30,10 @@ export function ExamStep({ examName, examOptions, onChange, onBack, onContinue, 
         placeholder="Certification code or name"
       />
       <datalist id="exam-options">
-        {examOptions.map((exam) => (
-          <option key={exam.exam_code} value={exam.canonical_name} />
-        ))}
+        {examOptions.flatMap((exam) => [
+          <option key={`${exam.exam_code}-code`} value={exam.exam_code.toUpperCase()} />,
+          <option key={`${exam.exam_code}-name`} value={exam.canonical_name} />,
+        ])}
       </datalist>
       {error ? <p className="mt-3 text-sm text-amber-600 dark:text-amber-200">{error}</p> : null}
       <div className="mt-8 flex flex-wrap gap-3">

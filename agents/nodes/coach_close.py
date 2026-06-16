@@ -28,7 +28,7 @@ async def coach_close(state: AppState) -> dict:
     try:
         await record_session_history(
             user_id=state["user_id"],
-            exam_id=state.get("exam_id", "dva-c02"),
+            exam_id=state["exam_id"],
             history=history,
         )
     except Exception:
