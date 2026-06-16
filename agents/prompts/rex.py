@@ -17,13 +17,16 @@ def build_rex_challenge_prompt(
     task_statement: str = "",
     services: list[str] | None = None,
     source_ids: list[str] | None = None,
+    learning_style: str = "",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a new challenge."""
     topic_instruction = f'Target topic: "{topic}".' if topic else "Choose a specific topic."
     context = _source_context(task_statement, services, source_ids)
+    style_directive = _style_directive(learning_style)
     user = f"""Generate a {exam_id.upper()} challenge for the "{domain}" domain at {difficulty} difficulty.
 {topic_instruction}
 {context}
+{style_directive}
 
 Return exactly this JSON shape — nothing else:
 {{
@@ -44,15 +47,18 @@ def build_rex_rechallenge_prompt(
     task_statement: str = "",
     services: list[str] | None = None,
     source_ids: list[str] | None = None,
+    learning_style: str = "",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a harder rechallenge."""
     topic_instruction = f'Target the next topic: "{topic}".' if topic else "Choose a different specific topic."
     context = _source_context(task_statement, services, source_ids)
+    style_directive = _style_directive(learning_style, rechallenge=True)
     user = f"""The challenger just saw Sage explain "{previous_topic}" in the "{domain}" domain. Now raise the stakes.
 
 Generate a harder {exam_id.upper()} challenge on the SAME domain — higher-pressure scenario, more nuanced question. Difficulty: {difficulty}.
 {topic_instruction}
 {context}
+{style_directive}
 
 Return exactly this JSON shape — nothing else:
 {{
@@ -62,6 +68,30 @@ Return exactly this JSON shape — nothing else:
   "question": "<harder, more nuanced question — avoid yes/no, demand specific AWS knowledge>"
 }}"""
     return REX_SYSTEM, user
+
+
+def _style_directive(learning_style: str, rechallenge: bool = False) -> str:
+    """Append a style-specific Rex directive. Empty string for mixed_review/""."""
+    if learning_style == "pressure_drills":
+        return (
+            "Style: pressure_drills. Production-scale stakes — call out AWS service "
+            "quotas, limits, throttling, and failure modes. Hard time or load "
+            "constraints. No safety nets. Demand exact service names and "
+            "operational detail. The user is being tested, not tutored."
+        )
+    if learning_style == "guided_explanations":
+        if rechallenge:
+            return (
+                "Style: guided_explanations. Keep the rechallenge grounded — the "
+                "user is still learning. Advance one new wrinkle beyond "
+                "previous_topic, not three. Don't trap."
+            )
+        return (
+            "Style: guided_explanations. Grounded scenario, one decision at a "
+            "time. Lead the question so the user can reason through it. Do not "
+            "trap. The point is to teach, not to catch them out."
+        )
+    return ""
 
 
 def _source_context(
