@@ -1,0 +1,75 @@
+{
+  "exam_code": "saa-c03",
+  "canonical_name": "AWS Certified Solutions Architect - Associate (SAA-C03)",
+  "provider": "aws",
+  "official_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
+  "captured_at": "2026-06-16",
+  "source_version": "SAA-C03-current",
+  "domains": [
+    {
+      "name": "Design Secure Architectures",
+      "weight": 30,
+      "task_statements": [
+        {"id": "1.1", "text": "Design secure access to AWS resources"},
+        {"id": "1.2", "text": "Design secure workloads and applications"},
+        {"id": "1.3", "text": "Determine appropriate data security controls"}
+      ],
+      "topics": [
+        {"id": "1.1.1", "name": "Cross-account access with IAM roles and policies", "task_statement_id": "1.1", "services": ["AWS Identity and Access Management (IAM)", "AWS Security Token Service (AWS STS)", "AWS Control Tower"], "source_ids": ["solutions-architect-associate-03-domain1.md#solutions-architect-associate-03-domain1-task1", "saa-03-in-scope-services.md#saa-03-in-scope-security"]},
+        {"id": "1.1.2", "name": "Federated access with IAM Identity Center", "task_statement_id": "1.1", "services": ["AWS IAM Identity Center", "AWS Directory Service", "AWS Organizations"], "source_ids": ["solutions-architect-associate-03-domain1.md#solutions-architect-associate-03-domain1-task1", "saa-03-in-scope-services.md#saa-03-in-scope-security"]},
+        {"id": "1.2.1", "name": "Secure VPC subnet and traffic control design", "task_statement_id": "1.2", "services": ["Amazon VPC", "AWS WAF", "AWS Shield"], "source_ids": ["solutions-architect-associate-03-domain1.md#solutions-architect-associate-03-domain1-task2", "saa-03-in-scope-services.md#saa-03-in-scope-networking"]},
+        {"id": "1.2.2", "name": "Application secret and credential protection", "task_statement_id": "1.2", "services": ["AWS Secrets Manager", "AWS Systems Manager", "Amazon Cognito"], "source_ids": ["solutions-architect-associate-03-domain1.md#solutions-architect-associate-03-domain1-task2", "saa-03-in-scope-services.md#saa-03-in-scope-security"]},
+        {"id": "1.3.1", "name": "Data encryption and key management controls", "task_statement_id": "1.3", "services": ["AWS Key Management Service (AWS KMS)", "AWS Certificate Manager", "Amazon S3"], "source_ids": ["solutions-architect-associate-03-domain1.md#solutions-architect-associate-03-domain1-task3", "saa-03-in-scope-services.md#saa-03-in-scope-security"]},
+        {"id": "1.3.2", "name": "Data backup retention and lifecycle protection", "task_statement_id": "1.3", "services": ["AWS Backup", "Amazon S3", "Amazon RDS"], "source_ids": ["solutions-architect-associate-03-domain1.md#solutions-architect-associate-03-domain1-task3", "saa-03-in-scope-services.md#saa-03-in-scope-storage"]}
+      ]
+    },
+    {
+      "name": "Design Resilient Architectures",
+      "weight": 26,
+      "task_statements": [
+        {"id": "2.1", "text": "Design scalable and loosely coupled architectures"},
+        {"id": "2.2", "text": "Design highly available and/or fault-tolerant architectures"}
+      ],
+      "topics": [
+        {"id": "2.1.1", "name": "Event-driven decoupling and queue-based integration", "task_statement_id": "2.1", "services": ["Amazon SQS", "Amazon SNS", "Amazon EventBridge"], "source_ids": ["solutions-architect-associate-03-domain2.md#solutions-architect-associate-03-domain2-task1", "saa-03-in-scope-services.md#saa-03-in-scope-application-integration"]},
+        {"id": "2.1.2", "name": "Serverless and container scaling patterns", "task_statement_id": "2.1", "services": ["AWS Lambda", "AWS Fargate", "Amazon ECS"], "source_ids": ["solutions-architect-associate-03-domain2.md#solutions-architect-associate-03-domain2-task1", "saa-03-in-scope-services.md#saa-03-in-scope-compute"]},
+        {"id": "2.2.1", "name": "Multi-AZ high availability and failover design", "task_statement_id": "2.2", "services": ["Elastic Load Balancing", "Amazon Route 53", "Amazon RDS"], "source_ids": ["solutions-architect-associate-03-domain2.md#solutions-architect-associate-03-domain2-task2", "saa-03-in-scope-services.md#saa-03-in-scope-networking"]},
+        {"id": "2.2.2", "name": "Disaster recovery strategy selection", "task_statement_id": "2.2", "services": ["AWS Backup", "Amazon Route 53", "Amazon S3"], "source_ids": ["solutions-architect-associate-03-domain2.md#solutions-architect-associate-03-domain2-task2", "saa-03-in-scope-services.md#saa-03-in-scope-management-governance"]}
+      ]
+    },
+    {
+      "name": "Design High-Performing Architectures",
+      "weight": 24,
+      "task_statements": [
+        {"id": "3.1", "text": "Determine high-performing and/or scalable storage solutions"},
+        {"id": "3.2", "text": "Design high-performing and elastic compute solutions"},
+        {"id": "3.3", "text": "Determine high-performing database solutions"},
+        {"id": "3.4", "text": "Determine high-performing and/or scalable network architectures"},
+        {"id": "3.5", "text": "Determine high-performing data ingestion and transformation solutions"}
+      ],
+      "topics": [
+        {"id": "3.1.1", "name": "Scalable storage service selection", "task_statement_id": "3.1", "services": ["Amazon S3", "Amazon EFS", "Amazon EBS"], "source_ids": ["solutions-architect-associate-03-domain3.md#solutions-architect-associate-03-domain3-task1", "saa-03-in-scope-services.md#saa-03-in-scope-storage"]},
+        {"id": "3.2.1", "name": "Elastic compute sizing and scaling decisions", "task_statement_id": "3.2", "services": ["Amazon EC2 Auto Scaling", "AWS Lambda", "AWS Fargate"], "source_ids": ["solutions-architect-associate-03-domain3.md#solutions-architect-associate-03-domain3-task2", "saa-03-in-scope-services.md#saa-03-in-scope-compute"]},
+        {"id": "3.3.1", "name": "Database performance and caching patterns", "task_statement_id": "3.3", "services": ["Amazon Aurora", "Amazon DynamoDB", "Amazon ElastiCache"], "source_ids": ["solutions-architect-associate-03-domain3.md#solutions-architect-associate-03-domain3-task3", "saa-03-in-scope-services.md#saa-03-in-scope-database"]},
+        {"id": "3.4.1", "name": "Global and hybrid network performance design", "task_statement_id": "3.4", "services": ["Amazon CloudFront", "AWS Global Accelerator", "AWS Direct Connect"], "source_ids": ["solutions-architect-associate-03-domain3.md#solutions-architect-associate-03-domain3-task4", "saa-03-in-scope-services.md#saa-03-in-scope-networking"]},
+        {"id": "3.5.1", "name": "Data ingestion and transformation architecture", "task_statement_id": "3.5", "services": ["Amazon Kinesis", "AWS Glue", "Amazon EMR"], "source_ids": ["solutions-architect-associate-03-domain3.md#solutions-architect-associate-03-domain3-task5", "saa-03-in-scope-services.md#saa-03-in-scope-analytics"]}
+      ]
+    },
+    {
+      "name": "Design Cost-Optimized Architectures",
+      "weight": 20,
+      "task_statements": [
+        {"id": "4.1", "text": "Design cost-optimized storage solutions"},
+        {"id": "4.2", "text": "Design cost-optimized compute solutions"},
+        {"id": "4.3", "text": "Design cost-optimized database solutions"},
+        {"id": "4.4", "text": "Design cost-optimized network architectures"}
+      ],
+      "topics": [
+        {"id": "4.1.1", "name": "Storage tiering lifecycle and migration cost controls", "task_statement_id": "4.1", "services": ["Amazon S3", "AWS DataSync", "AWS Storage Gateway"], "source_ids": ["solutions-architect-associate-03-domain4.md#solutions-architect-associate-03-domain4-task1", "saa-03-in-scope-services.md#saa-03-in-scope-storage"]},
+        {"id": "4.2.1", "name": "Compute purchase model and right-sizing choices", "task_statement_id": "4.2", "services": ["Amazon EC2", "AWS Lambda", "AWS Fargate"], "source_ids": ["solutions-architect-associate-03-domain4.md#solutions-architect-associate-03-domain4-task2", "saa-03-in-scope-services.md#saa-03-in-scope-compute"]},
+        {"id": "4.3.1", "name": "Cost-effective database engine and capacity design", "task_statement_id": "4.3", "services": ["Amazon Aurora", "Amazon RDS", "Amazon DynamoDB"], "source_ids": ["solutions-architect-associate-03-domain4.md#solutions-architect-associate-03-domain4-task3", "saa-03-in-scope-services.md#saa-03-in-scope-database"]},
+        {"id": "4.4.1", "name": "Network transfer NAT and endpoint cost optimization", "task_statement_id": "4.4", "services": ["Amazon VPC", "AWS Transit Gateway", "Amazon CloudFront"], "source_ids": ["solutions-architect-associate-03-domain4.md#solutions-architect-associate-03-domain4-task4", "saa-03-in-scope-services.md#saa-03-in-scope-networking"]}
+      ]
+    }
+  ]
+}
