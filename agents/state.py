@@ -68,6 +68,8 @@ class AppState(TypedDict):
     current_source_ids: list[str]
     rex_difficulty: str  # "easy" | "medium" | "hard"
     max_cycles: int
+    # "pressure_drills" | "guided_explanations" | "mixed_review" (default)
+    learning_style: str
 
     # 1-indexed cycle counter, advanced by rex_rechallenge.
     cycle: int
@@ -108,6 +110,7 @@ def initial_state(user_id: str, exam_id: str = "dva-c02") -> dict[str, Any]:
         "current_source_ids": [],
         "rex_difficulty": "medium",
         "max_cycles": 2,
+        "learning_style": "",
         "cycle": 0,
         "current_challenge": {},
         "user_answer": "",
