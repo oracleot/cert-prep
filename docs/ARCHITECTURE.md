@@ -14,7 +14,7 @@ Gauntlet is a three-process system:
 2. **Python LangGraph service** (FastAPI + uvicorn, port 8000) — agent runtime, Postgres checkpointer, exam-artifact store, background-job HTTP handlers.
 3. **Postgres + Redis** (Docker Compose, ports 5432 / 6379) — application state + LangGraph checkpointer tables in Postgres, BullMQ queues in Redis.
 
-The Next.js process and the Python service are **separate deployables** that communicate only over HTTP. There is no shared module, no shared process, no shared runtime. The browser is the only thing that talks to both.
+The Next.js process and the Python service are **separate deployables** that communicate only over HTTP. There is no shared module, no shared process, no shared runtime. The browser talks to Next.js `/api/*`; Next.js proxies the production agent requests to Python.
 
 ```
                           ┌────────────────────────────────────┐
@@ -24,8 +24,8 @@ The Next.js process and the Python service are **separate deployables** that com
                           │  - session thread (sessionStorage) │
                           │  - SSE consumer (lib/sse-reader)   │
                           └─────┬──────────────────────┬───────┘
-                                │ fetch + SSE           │ fetch + SSE
-                                ▼                       ▼
+                                │ fetch + SSE
+                                ▼
             ┌──────────────────────────────┐   ┌──────────────────────────┐
             │  Next.js server              │   │  Python LangGraph        │
             │  (App Router, nodejs)        │   │  service (uvicorn :8000) │
@@ -96,7 +96,7 @@ Plus `GET /health` (mounted on the app directly) which returns `{status, openrou
 
 ### Postgres + Redis
 
-`docker-compose.yml` runs `postgres:16-alpine` and `redis:7-alpine`. Both have healthchecks; the agents service and the Next.js worker refuse to start unhealthy.
+`docker-compose.yml` runs `postgres:16-alpine` and `redis:7-alpine`. Both have healthchecks for local operator visibility; the host-run agents service and Next.js worker do not block startup on Compose health.
 
 - **Postgres** holds application state (sessions, exchanges, curricula, onboarding runs, agent feed events, performance aggregates, exam artifacts) **and** the LangGraph checkpointer tables. One database, one pool.
 - **Redis** holds the BullMQ queue and events. The `agent-tasks` queue is the only queue.
@@ -798,8 +798,8 @@ Combined with the `exchanges` table, you have an immutable record of what happen
 
 ### Postgres
 
-- **Failure mode:** psycopg pool raises on connect / query error. Repository functions (`repositories.py`, `*_repository.py`) catch and log; the graph continues without persistence. This is the "degraded persistence" path.
-- **`coach_open`, `coach_close`, `sage_*`** all catch DB exceptions internally. A DB outage during a session means the session continues in-memory (the checkpointer also can't write, but the in-memory fallback in `InMemorySaver` is used).
+- **Failure mode:** psycopg pool raises on connect / query error. If the pool cannot open at boot, `init_checkpointer()` uses `InMemorySaver`; state does not survive restart.
+- **Runtime DB outage:** repository writes may log and continue where call sites catch them, but an active `AsyncPostgresSaver` can still fail checkpoint writes. The in-memory fallback is selected at boot, not after a live pool drops.
 
 ### Redis (BullMQ)
 

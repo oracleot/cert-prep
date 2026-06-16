@@ -75,9 +75,9 @@ cd ..
 # Option A — via the API on first boot (recommended; the lifespan runs them):
 #    skip this and let step 6 do it
 # Option B — manually:
-docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet < migrations/001_initial.sql
-docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet < migrations/002_phase3_onboarding_curriculum.sql
-docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet < migrations/003_phase7_exam_artifacts.sql
+docker compose exec -T postgres psql -U gauntlet -d gauntlet < migrations/001_initial.sql
+docker compose exec -T postgres psql -U gauntlet -d gauntlet < migrations/002_phase3_onboarding_curriculum.sql
+docker compose exec -T postgres psql -U gauntlet -d gauntlet < migrations/003_phase7_exam_artifacts.sql
 ```
 
 ### Run the two services
@@ -100,11 +100,11 @@ Open http://localhost:3000. The app should:
 2. Click **Start onboarding** → exam input defaults to `DVA-C02` → pick a learning style → **Build my plan**.
 3. The agent feed runs Blueprint Scout → Curriculum Builder (5–15s).
 4. Plan reveal → **Let's go** → dashboard with `0%` readiness.
-5. **Start your first session** → Rex's first challenge streams in.
+5. **Start your first session** → Rex's first challenge appears.
 6. Type an answer, **Submit** → evaluation → Sage's explanation streams back with citations.
 7. **Next challenge** → second cycle (harder) → Sage again → **View session summary** → score tally.
 
-If you see the dashboard `0%` → close the tab → reopen `/session`: the checkpointer should restore your last in-progress session via the saved `thread_id` in `sessionStorage`.
+If you see the dashboard `0%` → reload `/session` in the same tab: the checkpointer should restore your last in-progress session via the saved `thread_id` in `sessionStorage`. Closing the tab clears `sessionStorage`.
 
 ### Sanity checks
 
@@ -114,7 +114,7 @@ curl -s http://localhost:8000/health | jq
 # → { "status": "ok", "openrouter_configured": true, "database_configured": true }
 
 # Migrations applied?
-docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet -c '\dt'
+docker compose exec -T postgres psql -U gauntlet -d gauntlet -c '\dt'
 # → expect: agent_feed_events, curricula, exam_artifacts, exchanges,
 #           onboarding_runs, performance_aggregates, sessions,
 #           plus langgraph checkpointer tables (checkpoints, checkpoint_writes, checkpoint_migrations, checkpoint_blobs)
@@ -240,7 +240,7 @@ The two big custom hooks do all the work:
 ### Persistence primitives
 
 - **`getAnonymousUserId`** (`lib/anonymous-user.ts`) — localStorage-backed UUID. Generated on first call, read on every subsequent call. SSR-safe (returns `""` on the server).
-- **`loadThreadId` / `saveThreadId` / `clearThreadId`** (`app/session/session-persistence.ts`) — sessionStorage-backed LangGraph `thread_id`. Distinct from `localStorage` so closing the tab does not auto-restore a half-finished session.
+- **`loadThreadId` / `saveThreadId` / `clearThreadId`** (`app/session/session-persistence.ts`) — sessionStorage-backed LangGraph `thread_id`. It survives reloads in the same tab, but closing the tab clears it so a new tab does not auto-restore a half-finished session.
 - **`loadOnboardingId` / `saveOnboardingId`** (`app/onboarding/onboarding-persistence.ts`) — localStorage-backed `onboarding_id` so refreshing mid-onboarding doesn't lose the run.
 
 ### SSE plumbing
@@ -466,7 +466,7 @@ user clicks Restart → clearThreadId() → startSession()
 ### Anonymous user → thread_id → checkpointer
 
 - **Anonymous user** — `getAnonymousUserId()` in `lib/anonymous-user.ts` reads / writes a UUID under `localStorage["gauntlet.anonymous-user-id"]`. Server-side (SSR) it returns `""` and the API proxies always pass it through. When Phase 4 lands, this is the one place the Clerk `userId` plugs in.
-- **Thread ID** — every session is a LangGraph thread, identified by a UUID generated server-side in `agents/routes/session.py:start_session`. The browser persists it in `sessionStorage["gauntlet.session.thread-id"]` (not localStorage) so the next tab doesn't auto-restore a half-finished session. It survives page reloads and intentional navigation away; it's cleared on `restart`.
+- **Thread ID** — every session is a LangGraph thread, identified by a UUID generated server-side in `agents/routes/session.py:start_session`. The browser persists it in `sessionStorage["gauntlet.session.thread-id"]` (not localStorage) so the next tab doesn't auto-restore a half-finished session. It survives reloads and navigation within the same tab; it's cleared on `restart`.
 - **Checkpointer** — `AsyncPostgresSaver` in `agents/db.py` writes the full graph state to Postgres on every node boundary. A `thread_id` lets you resume from any checkpoint. This is why a page reload mid-Sage still works.
 
 ### LangGraph interrupt pattern
@@ -550,7 +550,7 @@ These are enforced (or expected to be enforced) by the codebase, lint, and AGENT
 - **TypeScript:** strict mode (`tsconfig.json:7`); use `type` not `interface` for shape-only types; prefer `as` assertions only at HTTP boundaries; no `any` unless there's a real reason (then comment why).
 - **Python:** typed throughout; `from __future__ import annotations` at the top of every module; `async def` only when actually awaiting something; `logger = logging.getLogger(__name__)` per module; never `print()`.
 - **Frontend components:** `"use client"` at the top of any file that uses hooks; server components by default in `app/`.
-- **Styling:** Tailwind v4 utility classes with the design tokens from `app/globals.css`. Use `<Button>` from `components/ui/`, not raw `<button>`, so focus rings and 44×44 touch targets stay consistent. Every interactive control on mobile should hit 44×44 minimum.
+- **Styling:** Tailwind v4 utility classes with the design tokens from `app/globals.css`. Prefer `<Button>` from `components/ui/` for new shared/session controls; existing onboarding/navigation controls still use raw `<button>` and must preserve 44×44 minimum touch targets when touched.
 
 ---
 
@@ -573,7 +573,9 @@ These are enforced (or expected to be enforced) by the codebase, lint, and AGENT
 4. If the node should pause for the user, add it to the `interrupt_before` list in `compile(...)`.
 5. Make sure the state field it returns is in `agents/state.py:AppState` and is mergeable (use `Annotated[list[X], operator.add]` for collections you want to grow).
 
-### Add a new exam
+### Stage a new exam artifact (scope-gated)
+
+V1 is DVA-C02 only. Do not enable another exam unless the 7.8 allowlist work is explicitly in scope. Adding a `*.json` file makes `validate_exam_id` accept that exam, so this recipe is a scope gate, not a casual extension path.
 
 1. Author `agents/data/exam_artifacts/<exam_id>.json` with the shape documented in `agents/exam_artifacts/loader.py:_REQUIRED_TOP_LEVEL` and `_REQUIRED_DOMAIN` and `_REQUIRED_TOPIC`. Sum of `domain.weight` must equal 100.
 2. Add an entry to `EXAM_GUIDE_ROOTS` in `agents/sage_sources.py:19` (key = `exam_id`, value = the public docs.aws.amazon.com root).
@@ -604,7 +606,7 @@ These are enforced (or expected to be enforced) by the codebase, lint, and AGENT
 - **Next.js** — `console.log` / `console.error`. The dev server prints to the terminal that ran `npm run dev`. Notable call sites: `[evaluate] Result: ...` (dev-only), `[rex/challenge] Generated: ...` (dev-only), `console.error("[sage] OpenRouter error:", ...)` on every OpenRouter failure.
 - **Python** — `logger = logging.getLogger(__name__)` per module. The lifespan in `agents/main.py` configures Python's logging; uvicorn's `--reload` keeps logs in the terminal that ran `python -m uvicorn main:app --reload`. Tail the `agents/uvicorn.log` file if you started it detached.
 - **BullMQ** — `[JobQueue] ...` lines. Connection errors and failed jobs both log here.
-- **Postgres** — `docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet` for ad-hoc queries. `\dt` lists tables; `SELECT * FROM exchanges ORDER BY created_at DESC LIMIT 5;` to spot-check.
+- **Postgres** — `docker compose exec -T postgres psql -U gauntlet -d gauntlet` for ad-hoc queries. `\dt` lists tables; `SELECT * FROM exchanges ORDER BY created_at DESC LIMIT 5;` to spot-check.
 
 ### The two big gotchas
 
@@ -624,7 +626,7 @@ It works fine, but you can't add anything more to it. If you need to add an Open
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `RuntimeError: DATABASE_URL is not set` on agents service boot | `.env.local` missing or empty | Copy from `.env.example` and re-source. |
+| Agents service logs `DATABASE_URL is not set. Falling back to in-memory sessions.` | `.env.local` missing or `DATABASE_URL` empty | Copy from `.env.example` and restart if you need persistence. |
 | `RuntimeError: OPENROUTER_API_KEY is not set` | Same | Same. |
 | Dashboard says "Dashboard is waiting for the agent service" | Agents service not running, or crashed | Check the uvicorn terminal; `curl http://localhost:8000/health`. |
 | Onboarding feed hangs on "Waiting for signal…" | BullMQ worker not running | The Next.js process must be running (`npm run dev`); `instrumentation.ts` boots the worker. |
@@ -636,7 +638,7 @@ It works fine, but you can't add anything more to it. If you need to add an Open
 ### Inspecting the database
 
 ```bash
-docker exec -it cert-prep-postgres-1 psql -U gauntlet -d gauntlet
+docker compose exec postgres psql -U gauntlet -d gauntlet
 
 # Inside psql:
 \dt                                  -- list tables
@@ -662,7 +664,7 @@ docker compose down -v
 docker compose up -d
 
 # Just clear application tables
-docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet -c "
+docker compose exec -T postgres psql -U gauntlet -d gauntlet -c "
   TRUNCATE exchanges, sessions, curricula, onboarding_runs,
            agent_feed_events, performance_aggregates, exam_artifacts
           RESTART IDENTITY CASCADE;
