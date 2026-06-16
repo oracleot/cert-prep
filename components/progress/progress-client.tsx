@@ -5,7 +5,11 @@ import { Lock } from "lucide-react";
 
 import { AppNav } from "@/components/navigation/app-nav";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
-import type { DomainPlan } from "@/lib/types";
+import type { DomainPlan, TopicPlan } from "@/lib/types";
+
+function toTopic(topic: string | TopicPlan): TopicPlan {
+  return typeof topic === "string" ? { id: topic, name: topic } : topic;
+}
 
 export function ProgressClient() {
   const [domains, setDomains] = useState<DomainPlan[]>([]);
@@ -36,7 +40,7 @@ export function ProgressClient() {
             Progress map
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">
-            Four domains. No hiding.
+            Full blueprint. No hiding.
           </h1>
           <div className="mt-8 grid gap-4">
             {domains.map((domain) => {
@@ -58,6 +62,32 @@ export function ProgressClient() {
                   </div>
                   <div className="mt-5 h-3 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
                     <div className="h-full bg-amber-300" style={{ width: `${completion}%` }} />
+                  </div>
+                  <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                    {domain.topics.map((rawTopic) => {
+                      const topic = toTopic(rawTopic);
+                      const covered = topic.status === "covered";
+                      const label = topic.status === "in_progress" ? "in progress" : covered ? "covered" : "untouched";
+                      return (
+                        <div
+                          key={topic.id}
+                          className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm font-bold leading-snug">{topic.name}</p>
+                            <span className={covered
+                              ? "rounded-full bg-emerald-100 px-2 py-1 text-[0.65rem] font-black uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                              : "rounded-full bg-zinc-200 px-2 py-1 text-[0.65rem] font-black uppercase tracking-wide text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400"
+                            }>
+                              {label}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                            Task {topic.task_statement_id || "n/a"} · {(topic.services || []).slice(0, 2).join(", ") || "source mapped"}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );

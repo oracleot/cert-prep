@@ -59,16 +59,16 @@ Each item is binary: pass or fail. Partial credit does not pass. The status colu
 - [ ] R1.4 The full topic inventory for each artifact covers every task statement with at least one topic; topic names align with AWS service names from the official short-name list.
 - [ ] R1.5 `validate_exam_id(exam_id)` returns `accepted: True` for every supported code and `accepted: False` (with a clear message) for everything else. No silent coercion.
 
-**Current status (2026-06-16): FAIL.** The DVA-C02 seed in `agents/blueprint.py:30-60` has wrong weights (Development 30% / Deployment 32% / Troubleshooting 12%) vs. the official guide (Development 32% / Deployment 24% / Troubleshooting and Optimization 18%). Domain "Troubleshooting" is missing the "and Optimization" suffix. 7.2 + 7.4 fix this. SAA-C03 not yet authored.
+**Current status (2026-06-16): PARTIAL.** DVA-C02 now uses the artifact-backed official weights and full 101-topic skill inventory from the four official domain pages. R1 remains open until every supported exam, including the SAA-C03 smoke artifact, has the same complete artifact coverage.
 
 ### R2 — Topic coverage
 
-- [ ] R2.1 `curriculum_repository.choose_today_target` uses the artifact-driven topic map (not the hardcoded 4×4 grid).
-- [ ] R2.2 Curriculum Builder prompt (lands in 7.4) preserves full topic coverage while still sequencing per learning style.
-- [ ] R2.3 `dashboard_summary` and `progress_map` expose per-topic coverage, not just per-domain totals.
-- [ ] R2.4 Coverage matrix (R1.4) renders for the user — every topic has a "covered / in progress / untouched" status visible from the dashboard or progress screen.
+- [x] R2.1 `curriculum_repository.choose_today_target` uses the artifact-driven topic map (not the hardcoded 4×4 grid).
+- [x] R2.2 Curriculum Builder prompt preserves full topic coverage while still sequencing per learning style.
+- [x] R2.3 `dashboard_summary` and `progress_map` expose per-topic coverage, not just per-domain totals.
+- [x] R2.4 Coverage matrix (R1.4) renders for the user — every topic has a "covered / in progress / untouched" status visible from the dashboard or progress screen.
 
-**Current status: FAIL.** Both topics-per-domain (16 total) and per-topic coverage are absent from the dashboard today.
+**Current status: PASS for DVA-C02.** DVA-C02 now has a full topic inventory, `choose_today_target` uses topic-level coverage/correctness with domain weights, and dashboard/progress views expose per-topic coverage.
 
 ### R3 — Question quality (Rex)
 

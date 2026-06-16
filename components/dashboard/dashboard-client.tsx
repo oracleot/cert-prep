@@ -9,6 +9,8 @@ import { loadThreadId } from "@/app/session/session-persistence";
 import type { DashboardSummary, DomainPlan } from "@/lib/types";
 
 function DomainTile({ domain }: { domain: DomainPlan }) {
+  const covered = domain.covered_topic_count || 0;
+  const topicCount = domain.topic_count || domain.topics.length;
   return (
     <div className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-4">
@@ -22,7 +24,7 @@ function DomainTile({ domain }: { domain: DomainPlan }) {
         />
       </div>
       <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
-        {domain.correct_count || 0}/{domain.total_count || 0} against Rex
+        {covered}/{topicCount} topics covered - {domain.correct_count || 0}/{domain.total_count || 0} vs Rex
       </p>
     </div>
   );
@@ -101,7 +103,7 @@ export function DashboardClient() {
               ) : null}
             </div>
             <p className="mt-5 max-w-xl text-zinc-500 dark:text-zinc-400">
-              Weighted from domain performance: weight times correct challenge rate.
+              Weighted from domain performance; coverage bars track blueprint topics actually answered correctly.
             </p>
           </div>
           <div className="rounded-[2rem] border border-zinc-800 bg-amber-300 p-7 text-zinc-950 sm:p-10">

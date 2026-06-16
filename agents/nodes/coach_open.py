@@ -41,6 +41,12 @@ async def coach_open(state: AppState) -> dict:
     return {
         "current_domain": domain,
         "current_topic": topic,
+        "current_topic_id": target.get("topic_id", ""),
+        "current_task_statement_id": target.get("task_statement_id", ""),
+        "current_task_statement": target.get("task_statement", ""),
+        "current_services": target.get("services", []),
+        "current_source_ids": target.get("source_ids", []),
+        "rex_difficulty": target.get("difficulty", "medium"),
         "curriculum_id": curriculum_id,
         "curriculum": curriculum["domains"] if curriculum else [],
         "cycle": 1,

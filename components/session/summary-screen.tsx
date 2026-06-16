@@ -14,6 +14,7 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
   const correct = results.filter((r) => r.outcome === "correct").length;
   const total = results.length;
   const allCorrect = correct === total;
+  const topicCount = new Set(results.map((r) => r.topic)).size;
 
   return (
     <div className="flex flex-col gap-5">
@@ -38,9 +39,11 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
 
       <div className="rounded-2xl border border-zinc-200 bg-white/85 p-5 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-zinc-600 dark:text-zinc-500">
-          Domain covered
+          Topic coverage
         </p>
-        <p className="text-sm font-bold text-zinc-950 dark:text-zinc-50">{domain}</p>
+        <p className="text-sm font-bold text-zinc-950 dark:text-zinc-50">
+          {topicCount} topic{topicCount === 1 ? "" : "s"} in {domain}
+        </p>
 
         <div className="mt-3 space-y-2">
           {results.map((r, i) => (

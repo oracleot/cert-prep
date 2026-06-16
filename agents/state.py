@@ -10,6 +10,12 @@ from typing import Annotated, Any, TypedDict
 class Challenge(TypedDict):
     domain: str
     topic: str
+    topic_id: str
+    task_statement_id: str
+    task_statement: str
+    difficulty: str
+    services: list[str]
+    source_ids: list[str]
     scenario: str
     question: str
 
@@ -32,7 +38,8 @@ class Exchange(TypedDict):
 class Domain(TypedDict):
     name: str
     weight: int
-    topics: list[str]
+    topics: list[Any]
+    task_statements: list[dict[str, str]]
     study_order: int
     performance_score: float
 
@@ -47,6 +54,11 @@ class AppState(TypedDict):
     # Current session context — set by coach_open, updated by rex nodes
     current_domain: str
     current_topic: str
+    current_topic_id: str
+    current_task_statement_id: str
+    current_task_statement: str
+    current_services: list[str]
+    current_source_ids: list[str]
     rex_difficulty: str  # "easy" | "medium" | "hard"
     max_cycles: int
 
@@ -82,6 +94,11 @@ def initial_state(user_id: str) -> dict[str, Any]:
         "curriculum": [],
         "current_domain": "",
         "current_topic": "",
+        "current_topic_id": "",
+        "current_task_statement_id": "",
+        "current_task_statement": "",
+        "current_services": [],
+        "current_source_ids": [],
         "rex_difficulty": "medium",
         "max_cycles": 2,
         "cycle": 0,

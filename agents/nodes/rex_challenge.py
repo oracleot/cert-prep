@@ -24,6 +24,9 @@ def rex_challenge(state: AppState) -> dict:
         domain=state["current_domain"],
         topic=state.get("current_topic", ""),
         difficulty=state.get("rex_difficulty", "medium"),
+        task_statement=state.get("current_task_statement", ""),
+        services=state.get("current_services", []),
+        source_ids=state.get("current_source_ids", []),
     )
 
     llm = get_llm(MODEL)
@@ -39,6 +42,12 @@ def rex_challenge(state: AppState) -> dict:
         "current_challenge": {
             "domain": state["current_domain"],
             "topic": state.get("current_topic") or challenge["topic"],
+            "topic_id": state.get("current_topic_id", ""),
+            "task_statement_id": state.get("current_task_statement_id", ""),
+            "task_statement": state.get("current_task_statement", ""),
+            "difficulty": state.get("rex_difficulty", "medium"),
+            "services": state.get("current_services", []),
+            "source_ids": state.get("current_source_ids", []),
             "scenario": challenge["scenario"],
             "question": challenge["question"],
         },

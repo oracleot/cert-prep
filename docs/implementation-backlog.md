@@ -545,20 +545,20 @@ Status: first-pass | Date: 2026-06-15
 
 ### 7.4 — DVA-C02 full blueprint topic expansion (P0, M, agents)
 **Acceptance criteria:**
-- [ ] Replace the current 4-domain / 16-topic DVA-C02 seed with a full blueprint-derived topic inventory
-- [ ] Each topic maps to the relevant domain, official task statement, AWS services, and one or more official source IDs
-- [ ] Coverage matrix shows all DVA-C02 domains and topics, including unattempted areas
-- [ ] Curriculum Builder preserves full topic coverage while still sequencing based on learning style and prior performance
+- [x] Replace the current 4-domain / 16-topic DVA-C02 seed with a full blueprint-derived topic inventory
+- [x] Each topic maps to the relevant domain, official task statement, AWS services, and one or more official source IDs
+- [x] Coverage matrix shows all DVA-C02 domains and topics, including unattempted areas
+- [x] Curriculum Builder preserves full topic coverage while still sequencing based on learning style and prior performance
 
 ---
 
 ### 7.5 — Rex coverage scheduler (P0, M, agents)
 **Acceptance criteria:**
-- [ ] `choose_today_target` selects from the blueprint-derived topic map using domain weights, prior coverage, and correctness history
-- [ ] Rex does not repeatedly sample the same narrow topic while untouched topics remain in the active curriculum
-- [ ] Generated challenges are tagged with domain, task statement/topic, difficulty, and source IDs used as context
-- [ ] Rechallenge stays in the same domain but can deliberately move to a related uncovered or weak topic
-- [ ] Session summary and dashboard reflect real topic coverage, not only domain-level totals
+- [x] `choose_today_target` selects from the blueprint-derived topic map using domain weights, prior coverage, and correctness history
+- [x] Rex does not repeatedly sample the same narrow topic while untouched topics remain in the active curriculum
+- [x] Generated challenges are tagged with domain, task statement/topic, difficulty, and source IDs used as context
+- [x] Rechallenge stays in the same domain but can deliberately move to a related uncovered or weak topic
+- [x] Session summary and dashboard reflect real topic coverage, not only domain-level totals
 
 ---
 
@@ -656,8 +656,7 @@ Status: first-pass | Date: 2026-06-15
 Issues startable right now (no dependencies unmet):
 - **2.7** — Railway deployment: Postgres + Redis + Python service
 - **4.1** — Clerk auth integration
-- **7.4** — DVA-C02 full blueprint topic expansion (artifact + Scout guardrails are in place)
-- **7.6** — Sage AWS documentation grounding + citations (awaits 7.4)
+- **7.6** — Sage AWS documentation grounding + citations (blueprint-derived topic inventory is now in place)
 - **8.1** — Choose test runners + record in docs (startable alongside Phase 7)
 
 ---
