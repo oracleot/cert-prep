@@ -9,12 +9,14 @@ The experience follows a simple loop:
 1. Gauntlet builds your study route during onboarding.
 2. The dashboard presents your current focus area.
 3. Rex delivers scenario-based challenges.
-4. Sage explains the result of each response.
+4. Sage explains the result of each response, formatted for clarity.
 5. Your readiness and domain progress update over time.
 
 ## Getting Started
 
 Before beginning, open the application in your browser and select `Start onboarding` from the home page.
+
+If you have already completed onboarding, the app will send you straight to the dashboard instead of showing the welcome screen. The same redirect applies to the home page once your curriculum is built.
 
 During onboarding, leave the page open until your curriculum has been generated.
 
@@ -77,19 +79,23 @@ The `Readiness score` appears at the top left of the dashboard.
 - New users begin at `0%`.
 - The score increases based on performance across weighted domains.
 
-### Today's Target
+### Next Up
 
-The panel on the right highlights your current study target, including:
+The amber panel on the right shows what your curriculum recommends next, including:
 
-- today's domain
-- today's topic
+- the next domain to focus on
+- the next topic to cover
 - the main action button to begin studying
 
-Select `Start your first session` to begin.
+The action button adapts to your state:
 
-### Rex's Record
+- `Start your first session` if you have never run a session.
+- `Resume session` if a session is already in progress in this browser.
+- `Start another session` once you have completed at least one session.
 
-The dashboard also shows `Rex's record`.
+### YOU vs REX
+
+The dashboard also shows your head-to-head record with Rex, labelled `YOU vs REX`.
 
 - The first number represents your wins.
 - The second number represents Rex's wins.
@@ -104,6 +110,16 @@ Each domain tile shows:
 - your correct answers compared with total Rex challenges
 
 Use these tiles to identify stronger and weaker areas across the exam blueprint.
+
+### Theme
+
+The main navigation includes a theme switcher with three options:
+
+- `Light`
+- `Dark`
+- `System`
+
+Your selection is remembered across reloads. `System` follows your operating system's appearance.
 
 ## Step 3: Complete a Study Session
 
@@ -152,6 +168,8 @@ Your response will be marked as either:
 - `correct`
 - `incorrect`
 
+Sage's response is rendered with formatted headings, lists, inline code, code blocks, and blockquotes, so explanations stay scannable even when they are detailed. Responses still stream in token-by-token as Rex's evaluation is produced.
+
 Read Sage's explanation carefully. Even correct answers often include additional context that strengthens exam readiness.
 
 ### Continuing the Session
@@ -169,7 +187,10 @@ At the end of each session, Gauntlet displays a summary screen showing:
 - the domain covered during the session
 - the result of each cycle
 
-If you want to continue practicing, select `Start another session`.
+Two actions are available:
+
+- `Start another session` (primary) - begin a new session on the next topic.
+- `Back to dashboard` (secondary) - return to the dashboard without starting a new session.
 
 ## Step 5: Review Your Progress
 
@@ -191,6 +212,7 @@ Outside of an active session, the main navigation provides access to:
 - `Dashboard`
 - `Progress`
 - `Start session`
+- `Theme` (light, dark, or system)
 
 During an active session, the interface becomes more focused to reduce distractions.
 
@@ -240,7 +262,8 @@ For the best experience:
 4. Wait for the curriculum build to finish.
 5. Review the plan reveal.
 6. Open the dashboard.
-7. Start a session.
+7. Start, resume, or begin another session from the `Next up` card.
 8. Answer Rex's challenge.
-9. Review Sage's feedback.
-10. Check your progress.
+9. Review Sage's formatted feedback.
+10. Choose to start another session or return to the dashboard.
+11. Check your progress.
