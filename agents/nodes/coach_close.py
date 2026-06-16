@@ -1,12 +1,12 @@
 # coach_close node — wraps up a session, marks it complete.
 # Phase 2: returns the final session_history count and a simple outcome tally.
-# Phase 4 will persist aggregates to Postgres (readiness score, rex record).
-# 2.4: stamps ended_at on the session row in Postgres.
+# Phase 3: stamps ended_at and updates domain performance aggregates.
 
 from __future__ import annotations
 
 import logging
 
+from performance_repository import record_session_history
 from repositories import close_session
 from state import AppState
 
@@ -24,6 +24,15 @@ async def coach_close(state: AppState) -> dict:
             await close_session(session_id)
         except Exception:
             logger.exception("Failed to close sessions row; continuing without DB persistence.")
+
+    try:
+        await record_session_history(
+            user_id=state["user_id"],
+            exam_id=state.get("exam_id", "dva-c02"),
+            history=history,
+        )
+    except Exception:
+        logger.exception("Failed to update performance aggregates.")
 
     return {
         "session_history": [

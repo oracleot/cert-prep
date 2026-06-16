@@ -1,9 +1,12 @@
+import { getAnonymousUserId } from "@/lib/anonymous-user";
+
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
 export function startSessionRequest() {
   return fetch("/api/session/start", {
     method: "POST",
     headers: JSON_HEADERS,
+    body: JSON.stringify({ user_id: getAnonymousUserId() }),
   });
 }
 

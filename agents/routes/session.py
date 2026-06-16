@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 class SessionStartRequest(BaseModel):
-    user_id: str = "dev-user"
+    user_id: str
 
 
 class SessionSubmitRequest(BaseModel):
@@ -93,6 +93,9 @@ async def submit_answer(req: SessionSubmitRequest):
                 name = event["name"]
 
                 if kind == "on_chat_model_stream":
+                    node = event.get("metadata", {}).get("langgraph_node")
+                    if node not in {"sage_depth", "sage_explain"}:
+                        continue
                     chunk = event["data"]["chunk"]
                     if hasattr(chunk, "content") and chunk.content:
                         # Make sure to handle newlines properly for SSE

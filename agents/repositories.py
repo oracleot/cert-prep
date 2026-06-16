@@ -11,7 +11,13 @@ from typing import Any
 from db import get_pool, has_pool
 
 
-async def create_session(user_id: str, exam_id: str, domain: str) -> str:
+async def create_session(
+    user_id: str,
+    exam_id: str,
+    domain: str,
+    topic: str,
+    curriculum_id: str = "",
+) -> str:
     """Insert a sessions row, return the new UUID as a string."""
     if not has_pool():
         return ""
@@ -20,9 +26,9 @@ async def create_session(user_id: str, exam_id: str, domain: str) -> str:
     async with pool.connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute(
-                "INSERT INTO sessions (user_id, exam_id, domain) "
-                "VALUES (%s, %s, %s) RETURNING id",
-                (user_id, exam_id, domain),
+                "INSERT INTO sessions (user_id, exam_id, domain, topic, curriculum_id) "
+                "VALUES (%s, %s, %s, %s, NULLIF(%s, '')::uuid) RETURNING id",
+                (user_id, exam_id, domain, topic, curriculum_id),
             )
             row = await cur.fetchone()
         await conn.commit()

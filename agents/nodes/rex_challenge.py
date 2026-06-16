@@ -21,6 +21,7 @@ def rex_challenge(state: AppState) -> dict:
     """Generate a DVA-C02 challenge for the current domain + difficulty."""
     system, user = build_rex_challenge_prompt(
         domain=state["current_domain"],
+        topic=state.get("current_topic", ""),
         difficulty=state.get("rex_difficulty", "medium"),
     )
 
@@ -35,8 +36,8 @@ def rex_challenge(state: AppState) -> dict:
 
     return {
         "current_challenge": {
-            "domain": challenge["domain"],
-            "topic": challenge["topic"],
+            "domain": state["current_domain"],
+            "topic": state.get("current_topic") or challenge["topic"],
             "scenario": challenge["scenario"],
             "question": challenge["question"],
         },

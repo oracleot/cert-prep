@@ -1,19 +1,14 @@
 # coach_open node — opens a session, picks domain + topic, creates DB session row.
-# Phase 2: domain hardcoded to "Deployment" (Phase 1 default).
-# Phase 3 will pull curriculum from Postgres and select today's domain.
 
 from __future__ import annotations
 
 import logging
 
+from curriculum_repository import choose_today_target, get_active_curriculum
 from repositories import create_session
 from state import AppState
 
 logger = logging.getLogger(__name__)
-
-
-HARDCODED_DOMAIN = "Deployment"
-HARDCODED_TOPIC = "CodeDeploy deployment strategies"
 
 
 async def coach_open(state: AppState) -> dict:
@@ -23,19 +18,31 @@ async def coach_open(state: AppState) -> dict:
     state so downstream nodes (sage_respond, coach_close) can attach
     exchanges and stamp ended_at to the same session.
     """
-    domain = HARDCODED_DOMAIN
-    user_id = state.get("user_id", "dev-user")
+    user_id = state["user_id"]
     exam_id = state.get("exam_id", "dva-c02")
+    target = await choose_today_target(user_id=user_id, exam_id=exam_id)
+    curriculum = await get_active_curriculum(user_id=user_id, exam_id=exam_id)
+    domain = target["domain"]
+    topic = target["topic"]
+    curriculum_id = target.get("curriculum_id", "")
 
     db_session_id = ""
     try:
-        db_session_id = await create_session(user_id=user_id, exam_id=exam_id, domain=domain)
+        db_session_id = await create_session(
+            user_id=user_id,
+            exam_id=exam_id,
+            domain=domain,
+            topic=topic,
+            curriculum_id=curriculum_id,
+        )
     except Exception:
         logger.exception("Failed to create sessions row; continuing without DB persistence.")
 
     return {
         "current_domain": domain,
-        "current_topic": HARDCODED_TOPIC,
+        "current_topic": topic,
+        "curriculum_id": curriculum_id,
+        "curriculum": curriculum["domains"] if curriculum else [],
         "cycle": 1,
         "db_session_id": db_session_id,
     }

@@ -7,7 +7,6 @@ import { clearThreadId, loadThreadId, type RestoredSession, saveThreadId } from 
 import { readSessionStream } from "./session-stream";
 
 export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
-const DOMAIN = "Deployment";
 const MAX_CYCLES = 2;
 type SessionAction = "start" | "resume" | "submit" | "next";
 export function useSession() {
@@ -182,7 +181,7 @@ export function useSession() {
     phase,
     cycle,
     maxCycles: MAX_CYCLES,
-    domain: DOMAIN,
+    domain: challenge?.domain ?? "DVA-C02",
     challenge,
     answer,
     setAnswer,

@@ -40,7 +40,7 @@ def rex_rechallenge(state: AppState) -> dict:
 
     return {
         "current_challenge": {
-            "domain": challenge["domain"],
+            "domain": state["current_domain"],
             "topic": challenge["topic"],
             "scenario": challenge["scenario"],
             "question": challenge["question"],

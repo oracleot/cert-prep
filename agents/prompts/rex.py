@@ -9,14 +9,20 @@ You generate scenario-based AWS DVA-C02 exam questions grounded in real operatio
 You respond ONLY with valid JSON. No preamble. No explanation. No markdown fences. No trailing text. Just the raw JSON object."""
 
 
-def build_rex_challenge_prompt(domain: str, difficulty: str = "medium") -> tuple[str, str]:
+def build_rex_challenge_prompt(
+    domain: str,
+    topic: str = "",
+    difficulty: str = "medium",
+) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a new challenge."""
+    topic_instruction = f'Target topic: "{topic}".' if topic else "Choose a specific topic."
     user = f"""Generate a DVA-C02 challenge for the "{domain}" domain at {difficulty} difficulty.
+{topic_instruction}
 
 Return exactly this JSON shape — nothing else:
 {{
   "domain": "{domain}",
-  "topic": "<specific topic within the domain, e.g. 'CodeDeploy deployment strategies'>",
+  "topic": "{topic or '<specific topic within the domain>'}",
   "scenario": "<2-4 sentence operational scenario a developer would actually face>",
   "question": "<precise question about what the developer should do or what will happen>"
 }}"""

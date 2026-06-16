@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const backendUrl = process.env.LANGGRAPH_URL || "http://localhost:8000";
   try {
+    const { user_id } = await req.json();
     const res = await fetch(`${backendUrl}/session/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: "dev-user" }),
+      body: JSON.stringify({ user_id }),
     });
 
     if (!res.ok) {
