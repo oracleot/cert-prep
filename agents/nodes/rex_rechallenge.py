@@ -36,6 +36,7 @@ async def rex_rechallenge(state: AppState) -> dict:
         task_statement=target.get("task_statement", ""),
         services=target.get("services", []),
         source_ids=target.get("source_ids", []),
+        learning_style=state.get("learning_style", ""),
     )
 
     llm = get_llm(MODEL)
