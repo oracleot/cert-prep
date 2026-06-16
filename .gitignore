@@ -12,6 +12,14 @@
 
 # testing
 /coverage
+/.playwright-mcp/
+/console-localhost.txt
+/*network*.txt
+/onboarding-*.png
+/plan-reveal-*.png
+/sage-citations.png
+/unsupported-*.png
+/unsupported-*.txt
 
 # next.js
 /.next/
