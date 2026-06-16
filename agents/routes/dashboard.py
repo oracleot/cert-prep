@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from blueprint import DEFAULT_EXAM_ID
 from curriculum_repository import dashboard_summary, progress_map
 
 router = APIRouter()
@@ -10,7 +11,7 @@ router = APIRouter()
 
 class UserScopedRequest(BaseModel):
     user_id: str
-    exam_id: str = "dva-c02"
+    exam_id: str = DEFAULT_EXAM_ID
 
 
 @router.post("/dashboard/summary")

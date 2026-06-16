@@ -16,6 +16,7 @@ from db import (
     run_migrations,
     setup_checkpointer_tables,
 )
+from exam_artifacts import ensure_seeded
 from routes.dashboard import router as dashboard_router
 from routes.jobs import router as jobs_router
 from routes.onboarding import router as onboarding_router
@@ -45,6 +46,12 @@ async def lifespan(app: FastAPI):
         await setup_checkpointer_tables()
     except Exception:
         logger.exception("Database setup failed. Continuing with degraded persistence.")
+    try:
+        seeded = await ensure_seeded()
+        if seeded:
+            logger.info("Seeded %d exam artifact(s) into the DB cache.", seeded)
+    except Exception:
+        logger.exception("Exam artifact seeding failed; continuing with file-only reads.")
     try:
         yield
     finally:

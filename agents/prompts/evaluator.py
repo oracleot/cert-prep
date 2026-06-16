@@ -1,5 +1,5 @@
 # Evaluator agent prompt — Python port of agents/prompts/evaluator.ts
-# Strict answer assessment for DVA-C02 challenges
+# Strict answer assessment for active certification challenges.
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 MODEL = "anthropic/claude-sonnet-4.6"
 
-EVALUATOR_SYSTEM = """You are a strict AWS DVA-C02 exam evaluator. Your job is to assess whether a user's answer demonstrates correct understanding of the AWS service, concept, or behaviour in question.
+EVALUATOR_SYSTEM = """You are a strict AWS certification evaluator. Your job is to assess whether a user's answer demonstrates correct understanding of the AWS service, concept, or behaviour in question for the active exam.
 
 Rules:
 - Partial credit counts as INCORRECT. The user must get the core concept right.
@@ -20,6 +20,7 @@ You respond ONLY with valid JSON. No preamble. No explanation. No markdown fence
 
 @dataclass
 class EvaluatorInput:
+    exam_id: str
     domain: str
     topic: str
     scenario: str
@@ -28,7 +29,8 @@ class EvaluatorInput:
 
 
 def build_evaluator_prompt(ev: EvaluatorInput) -> tuple[str, str]:
-    user = f"""Domain: {ev.domain} — {ev.topic}
+    user = f"""Exam: {ev.exam_id.upper()}
+Domain: {ev.domain} — {ev.topic}
 
 Scenario: {ev.scenario}
 

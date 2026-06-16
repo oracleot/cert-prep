@@ -20,6 +20,7 @@ def _strip_code_fences(text: str) -> str:
 def rex_rechallenge(state: AppState) -> dict:
     """Generate a harder challenge on the same domain, increment the cycle."""
     system, user = build_rex_rechallenge_prompt(
+        exam_id=state.get("exam_id", "dva-c02"),
         domain=state["current_domain"],
         previous_topic=state["current_challenge"]["topic"],
         difficulty="hard",

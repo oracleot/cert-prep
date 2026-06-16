@@ -7,8 +7,9 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from blueprint import validate_exam_name
+from blueprint import DEFAULT_EXAM_ID
 from curriculum_repository import get_active_curriculum
+from exam_artifacts import validate_exam_id
 from onboarding_repository import (
     add_feed_event,
     create_onboarding_run,
@@ -32,12 +33,12 @@ class UserScopedRequest(BaseModel):
 
 @router.post("/onboarding/start")
 async def start_onboarding(req: OnboardingStartRequest):
-    accepted, exam_id, canonical_name = validate_exam_name(req.exam_name)
-    if not accepted:
-        return {
-            "accepted": False,
-            "message": "Gauntlet only supports DVA-C02 while the MVP curriculum is being calibrated.",
-        }
+    result = validate_exam_id(req.exam_name)
+    if not result.accepted:
+        return {"accepted": False, "message": result.message}
+
+    exam_id = result.exam_id
+    canonical_name = result.canonical_name
 
     onboarding_id = await create_onboarding_run(
         user_id=req.user_id,
@@ -52,7 +53,7 @@ async def start_onboarding(req: OnboardingStartRequest):
         onboarding_id,
         "Onboarding Agent",
         "complete",
-        "Exam and learning style captured. Dispatching the build crew.",
+        f"{canonical_name} captured. Dispatching the build crew.",
     )
     return {
         "accepted": True,
@@ -66,7 +67,7 @@ async def start_onboarding(req: OnboardingStartRequest):
 @router.post("/onboarding/state")
 async def onboarding_state(req: UserScopedRequest):
     run = await get_latest_onboarding(req.user_id)
-    curriculum = await get_active_curriculum(req.user_id, "dva-c02")
+    curriculum = await get_active_curriculum(req.user_id, DEFAULT_EXAM_ID)
     return {
         "has_onboarding": bool(run),
         "run": run,

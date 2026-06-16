@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from blueprint import default_blueprint
 from curriculum_repository import build_curriculum, create_curriculum
+from exam_artifacts import load_artifact_from_file
 from onboarding_repository import (
     add_feed_event,
     complete_onboarding,
@@ -21,6 +22,19 @@ class JobRequest(BaseModel):
     onboarding_id: str
 
 
+def _blueprint_for(exam_id: str) -> list[dict]:
+    """Load the artifact's domain list. Falls back to the sync shim on miss."""
+    try:
+        artifact = load_artifact_from_file(exam_id)
+        return artifact.get("domains", [])
+    except FileNotFoundError:
+        return default_blueprint()
+
+
+def _weights_summary(domains: list[dict]) -> str:
+    return ", ".join(f"{d['name']} {d['weight']}%" for d in domains)
+
+
 @router.post("/jobs/blueprint-scout")
 async def run_blueprint_scout(req: JobRequest):
     run = await get_onboarding_run(req.onboarding_id)
@@ -28,20 +42,21 @@ async def run_blueprint_scout(req: JobRequest):
         raise HTTPException(status_code=404, detail="Onboarding run not found")
 
     try:
+        exam_id = run["exam_id"]
         await update_run_status(req.onboarding_id, "blueprint_running", "agent_feed")
         await add_feed_event(
             req.onboarding_id,
             "Blueprint Scout",
             "running",
-            "Reading the DVA-C02 blueprint and carving it into exam domains.",
+            f"Reading the {exam_id.upper()} blueprint and carving it into exam domains.",
         )
-        blueprint = default_blueprint()
+        blueprint = _blueprint_for(exam_id)
         await save_blueprint(req.onboarding_id, blueprint)
         await add_feed_event(
             req.onboarding_id,
             "Blueprint Scout",
             "complete",
-            "Blueprint locked: Deployment 32%, Security 26%, Development 30%, Troubleshooting 12%.",
+            f"Blueprint locked: {_weights_summary(blueprint)}.",
         )
         return {"ok": True, "blueprint": blueprint}
     except Exception as exc:
@@ -63,11 +78,12 @@ async def run_curriculum_builder(req: JobRequest):
             "running",
             "Sequencing the domains around your selected learning style.",
         )
-        blueprint = run.get("blueprint") or default_blueprint()
+        exam_id = run["exam_id"]
+        blueprint = run.get("blueprint") or _blueprint_for(exam_id)
         domains = build_curriculum(blueprint, run["learning_style"])
         curriculum_id = await create_curriculum(
             user_id=run["user_id"],
-            exam_id=run["exam_id"],
+            exam_id=exam_id,
             onboarding_id=req.onboarding_id,
             domains=domains,
         )

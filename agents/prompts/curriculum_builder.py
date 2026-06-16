@@ -5,12 +5,12 @@ import json
 MODEL = "anthropic/claude-sonnet-4.6"
 
 SYSTEM = """You are the Curriculum Builder for Gauntlet. You create compact,
-exam-relevant DVA-C02 study sequences. Return only valid JSON with no markdown."""
+exam-relevant study sequences for the active certification. Return only valid JSON with no markdown."""
 
 
 def build_curriculum_prompt(blueprint: list[dict], learning_style: str) -> tuple[str, str]:
     payload = json.dumps(blueprint, indent=2)
-    user = f"""Create a personalised curriculum from this DVA-C02 blueprint.
+    user = f"""Create a personalised curriculum from this blueprint.
 
 Learning style: {learning_style}
 Blueprint: {payload}
