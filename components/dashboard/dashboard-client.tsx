@@ -102,7 +102,7 @@ export function DashboardClient() {
             <p className="mt-5 text-5xl font-black">
               {summary.rex_record.user_wins}-{summary.rex_record.rex_wins}
             </p>
-            <p className="mt-3 text-sm text-zinc-400">User wins first, Rex wins second.</p>
+            <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-400">YOU vs REX</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {summary.domains.map((domain) => <DomainTile key={domain.name} domain={domain} />)}
