@@ -1,4 +1,4 @@
-import type { Challenge, EvaluationResult, SessionResult } from "@/lib/types";
+import type { Challenge, Citation, EvaluationResult, SessionResult } from "@/lib/types";
 
 const SESSION_THREAD_KEY = "gauntlet.session.thread-id";
 
@@ -11,6 +11,7 @@ export type RestoredSession = {
   user_answer: string;
   evaluation: EvaluationResult | null;
   sage_text: string;
+  sage_citations: Citation[];
   results: SessionResult[];
 };
 

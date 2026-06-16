@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Challenge, EvaluationResult, SessionResult } from "@/lib/types";
+import type { Challenge, Citation, EvaluationResult, SessionResult } from "@/lib/types";
 import { nextSessionRequest, restoreSessionRequest, startSessionRequest, submitSessionRequest } from "./session-api";
 import { clearThreadId, loadThreadId, type RestoredSession, saveThreadId } from "./session-persistence";
 import { readSessionStream } from "./session-stream";
@@ -16,6 +16,7 @@ export function useSession() {
   const [answer, setAnswer] = useState("");
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [sageText, setSageText] = useState("");
+  const [sageCitations, setSageCitations] = useState<Citation[]>([]);
   const [results, setResults] = useState<SessionResult[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -28,6 +29,7 @@ export function useSession() {
     setAnswer(snapshot.user_answer);
     setEvaluation(snapshot.evaluation);
     setSageText(snapshot.sage_text);
+    setSageCitations(snapshot.sage_citations ?? []);
     setResults(snapshot.results);
     setErrorMsg("");
     setPhase(snapshot.phase);
@@ -39,6 +41,7 @@ export function useSession() {
     setAnswer("");
     setEvaluation(null);
     setSageText("");
+    setSageCitations([]);
     const res = await startSessionRequest();
     if (!res.ok) {
       setErrorMsg("Rex couldn't generate a challenge. Try again.");
@@ -53,11 +56,7 @@ export function useSession() {
     setChallenge(data.challenge);
     setPhase("ready");
   }, []);
-  const restoreSession = useCallback(
-    async (
-      sessionThreadId: string,
-      showLoading = true,
-    ): Promise<RestoredSession["phase"] | null> => {
+  const restoreSession = useCallback(async (sessionThreadId: string, showLoading = true): Promise<RestoredSession["phase"] | null> => {
       lastActionRef.current = "resume";
       if (showLoading) setPhase("loading_challenge");
       const res = await restoreSessionRequest(sessionThreadId);
@@ -85,6 +84,7 @@ export function useSession() {
     setAnswer("");
     setEvaluation(null);
     setSageText("");
+    setSageCitations([]);
     const res = await nextSessionRequest(threadId);
     if (!res.ok) {
       setErrorMsg("Rex couldn't generate a rechallenge. Try again.");
@@ -109,6 +109,7 @@ export function useSession() {
 
     let currentEvaluation: EvaluationResult | null = null;
     let accumulatedSageText = "";
+    setSageCitations([]);
     await readSessionStream(res.body, {
       onEvaluation: (nextEvaluation) => {
         currentEvaluation = nextEvaluation;
@@ -119,6 +120,7 @@ export function useSession() {
         accumulatedSageText += token;
         setSageText(accumulatedSageText);
       },
+      onCitations: setSageCitations,
       onDone: () => {
         const completedEvaluation = currentEvaluation;
         if (completedEvaluation) {
@@ -187,6 +189,7 @@ export function useSession() {
     setAnswer,
     evaluation,
     sageText,
+    sageCitations,
     results,
     errorMsg,
     submitAnswer,

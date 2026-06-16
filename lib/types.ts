@@ -18,6 +18,12 @@ export type EvaluationResult = {
   reasoning: string;
 };
 
+export type Citation = {
+  url: string;
+  title: string;
+  snippet_id: string;
+};
+
 export type SessionResult = {
   cycle: number;
   topic: string;

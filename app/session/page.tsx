@@ -17,6 +17,7 @@ export default function SessionPage() {
     setAnswer,
     evaluation,
     sageText,
+    sageCitations,
     results,
     errorMsg,
     submitAnswer,
@@ -85,6 +86,7 @@ export default function SessionPage() {
         {(sageText || isStreaming) && (
           <SageCard
             text={sageText}
+            citations={sageCitations}
             isStreaming={isStreaming}
             outcome={evaluation?.outcome ?? null}
             cycle={cycle}

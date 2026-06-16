@@ -1,10 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import type { Citation } from "@/lib/types";
 import { MarkdownStream } from "./markdown-stream";
 
 type Props = {
   text: string;
+  citations: Citation[];
   isStreaming: boolean;
   outcome: "correct" | "incorrect" | null;
   cycle: number;
@@ -14,6 +16,7 @@ type Props = {
 
 export function SageCard({
   text,
+  citations,
   isStreaming,
   outcome,
   cycle,
@@ -55,6 +58,27 @@ export function SageCard({
           <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-zinc-900 align-middle dark:bg-zinc-100" />
         )}
       </div>
+
+      {!isStreaming && citations.length > 0 && (
+        <div className="mt-4 rounded-xl border border-zinc-200 bg-white/60 p-3 dark:border-zinc-800 dark:bg-zinc-900/60">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-zinc-500">
+            AWS sources
+          </p>
+          <div className="mt-2 space-y-2">
+            {citations.map((citation) => (
+              <a
+                key={`${citation.snippet_id}-${citation.url}`}
+                href={citation.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded-lg border border-transparent px-2 py-1 text-xs font-medium text-zinc-700 underline-offset-4 hover:border-amber-300/50 hover:text-zinc-950 hover:underline dark:text-zinc-300 dark:hover:text-amber-100"
+              >
+                {citation.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!isStreaming && text && (
         <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800">
