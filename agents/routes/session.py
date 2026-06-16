@@ -108,6 +108,13 @@ async def submit_answer(req: SessionSubmitRequest):
                         eval_result = outputs["last_evaluation"]
                         yield f"data: {json.dumps({'type': 'evaluation', 'data': json.dumps(eval_result)})}\n\n"
 
+                elif kind == "on_chain_end" and name in {"sage_depth", "sage_explain"}:
+                    outputs = event["data"].get("output") or {}
+                    history = outputs.get("session_history") or []
+                    if history:
+                        citations = history[-1].get("citations", [])
+                        yield f"data: {json.dumps({'type': 'citations', 'data': citations})}\n\n"
+
                 elif kind == "on_chain_end" and name == "LangGraph":
                     yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
@@ -142,6 +149,7 @@ async def session_state(req: SessionStateRequest):
         "user_answer": snapshot.values.get("user_answer") or "",
         "evaluation": evaluation,
         "sage_text": latest_exchange.get("sage_response", "") if latest_exchange else "",
+        "sage_citations": latest_exchange.get("citations", []) if latest_exchange else [],
         "results": _session_results(history),
     }
 

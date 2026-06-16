@@ -23,10 +23,27 @@ class SageInput:
     question: str
     user_answer: str
     reasoning: str
+    source_context: str
+    has_verified_sources: bool
+
+
+def _grounding_rules(sage: SageInput) -> str:
+    if sage.has_verified_sources:
+        return """Use the verified AWS sources below for any source-backed claim.
+Do not invent citations or URLs. Do not paste raw URLs inline; citation links render below the response.
+Mention at least one source title naturally when it supports the explanation."""
+    return """No verified AWS source was available for this topic.
+Begin exactly with "Unverified explanation:". Do not invent citations, URLs, or documentation names."""
 
 
 def build_sage_depth_prompt(sage: SageInput) -> tuple[str, str]:
     user = f"""Topic: {sage.topic} ({sage.domain})
+
+Grounding:
+{_grounding_rules(sage)}
+
+Source material:
+{sage.source_context}
 
 The challenge:
 {sage.scenario}
@@ -41,6 +58,12 @@ They got it right. Now go deeper. What else is worth knowing about this topic th
 
 def build_sage_explain_prompt(sage: SageInput) -> tuple[str, str]:
     user = f"""Topic: {sage.topic} ({sage.domain})
+
+Grounding:
+{_grounding_rules(sage)}
+
+Source material:
+{sage.source_context}
 
 The challenge:
 {sage.scenario}

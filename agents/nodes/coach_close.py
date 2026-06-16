@@ -44,6 +44,7 @@ async def coach_close(state: AppState) -> dict:
                 "user_answer": "",
                 "outcome": "summary",
                 "sage_response": f"Session complete: {correct}/{len(history)} correct",
+                "citations": [],
             }
         ],
     }

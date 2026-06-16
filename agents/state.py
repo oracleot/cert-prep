@@ -25,6 +25,12 @@ class EvaluationResult(TypedDict):
     reasoning: str
 
 
+class Citation(TypedDict):
+    url: str
+    title: str
+    snippet_id: str
+
+
 class Exchange(TypedDict):
     cycle: int
     domain: str
@@ -33,6 +39,7 @@ class Exchange(TypedDict):
     user_answer: str
     outcome: str
     sage_response: str
+    citations: list[Citation]
 
 
 class Domain(TypedDict):

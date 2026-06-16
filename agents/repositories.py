@@ -44,6 +44,7 @@ async def create_exchange(
     user_answer: str,
     outcome: str,
     sage_response: str,
+    citations: list[Any],
 ) -> None:
     """Append a completed cycle to the exchanges table."""
     if not has_pool():
@@ -53,8 +54,8 @@ async def create_exchange(
     async with pool.connection() as conn:
         await conn.execute(
             "INSERT INTO exchanges (session_id, cycle, domain, topic, "
-            "challenge, user_answer, outcome, sage_response) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            "challenge, user_answer, outcome, sage_response, citations) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
                 session_id,
                 cycle,
@@ -64,6 +65,7 @@ async def create_exchange(
                 user_answer,
                 outcome,
                 sage_response,
+                json.dumps(citations),
             ),
         )
         await conn.commit()

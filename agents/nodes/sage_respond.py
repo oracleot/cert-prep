@@ -18,14 +18,26 @@ from langchain_core.runnables import RunnableConfig
 from llm import get_llm
 from prompts.sage import MODEL, SageInput, build_sage_depth_prompt, build_sage_explain_prompt
 from repositories import create_exchange
+from sage_sources import Citation, load_sage_grounding
 from state import AppState
 
 logger = logging.getLogger(__name__)
 
 
-async def _generate_sage_response(state: AppState, kind: str, config: RunnableConfig) -> str:
+async def _generate_sage_response(
+    state: AppState,
+    kind: str,
+    config: RunnableConfig,
+) -> tuple[str, list[Citation]]:
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
+    grounding = load_sage_grounding(
+        exam_id=state.get("exam_id", "dva-c02"),
+        topic_id=challenge.get("topic_id", ""),
+        topic=challenge["topic"],
+        services=challenge.get("services", []),
+        source_ids=challenge.get("source_ids", []),
+    )
 
     sage_input = SageInput(
         domain=challenge["domain"],
@@ -34,6 +46,8 @@ async def _generate_sage_response(state: AppState, kind: str, config: RunnableCo
         question=challenge["question"],
         user_answer=state["user_answer"],
         reasoning=evaluation["reasoning"],
+        source_context=grounding["source_context"],
+        has_verified_sources=bool(grounding["citations"]),
     )
 
     if kind == "depth":
@@ -46,10 +60,11 @@ async def _generate_sage_response(state: AppState, kind: str, config: RunnableCo
         [SystemMessage(content=system), HumanMessage(content=user)],
         config=config,
     )
-    return response.content if isinstance(response.content, str) else str(response.content)
+    content = response.content if isinstance(response.content, str) else str(response.content)
+    return content, grounding["citations"]
 
 
-def _build_exchange(state: AppState, sage_text: str) -> dict:
+def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) -> dict:
     """Assemble the per-cycle exchange record (in-memory, not yet persisted)."""
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
@@ -61,6 +76,7 @@ def _build_exchange(state: AppState, sage_text: str) -> dict:
         "user_answer": state["user_answer"],
         "outcome": evaluation["outcome"],
         "sage_response": sage_text,
+        "citations": citations,
     }
 
 
@@ -81,6 +97,7 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
             user_answer=exchange["user_answer"],
             outcome=exchange["outcome"],
             sage_response=exchange["sage_response"],
+            citations=exchange["citations"],
         )
     except Exception:
         logger.exception("Failed to persist exchange; continuing without DB persistence.")
@@ -88,15 +105,15 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
 
 async def sage_depth(state: AppState, config: RunnableConfig) -> dict:
     """Sage adds depth beyond a correct answer."""
-    sage_text = await _generate_sage_response(state, "depth", config)
-    exchange = _build_exchange(state, sage_text)
+    sage_text, citations = await _generate_sage_response(state, "depth", config)
+    exchange = _build_exchange(state, sage_text, citations)
     await _persist_exchange_if_db(state, exchange)
     return {"session_history": [exchange]}
 
 
 async def sage_explain(state: AppState, config: RunnableConfig) -> dict:
     """Sage corrects the misconception behind an incorrect answer."""
-    sage_text = await _generate_sage_response(state, "explain", config)
-    exchange = _build_exchange(state, sage_text)
+    sage_text, citations = await _generate_sage_response(state, "explain", config)
+    exchange = _build_exchange(state, sage_text, citations)
     await _persist_exchange_if_db(state, exchange)
     return {"session_history": [exchange]}
