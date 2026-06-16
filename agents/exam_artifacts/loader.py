@@ -22,6 +22,7 @@ _REQUIRED_TOP_LEVEL = {
     "domains",
 }
 _REQUIRED_DOMAIN = {"name", "weight", "task_statements", "topics"}
+_REQUIRED_TOPIC = {"id", "name", "task_statement_id", "services", "source_ids"}
 
 
 def _artifact_path(exam_id: str) -> Path:
@@ -80,6 +81,37 @@ def validate_artifact_shape(artifact: dict) -> list[str]:
                     errors.append(f"domains[{i}].task_statements[{j}] must include id and text")
         if not isinstance(topics, list) or not topics:
             errors.append(f"domains[{i}].topics must be a list")
+        else:
+            task_ids = {
+                task.get("id") for task in task_statements if isinstance(task, dict)
+            }
+            for j, topic in enumerate(topics):
+                errors.extend(_validate_topic(topic, task_ids, i, j))
     if total_weight != 100:
         errors.append(f"domain weights sum to {total_weight}, expected 100")
+    return errors
+
+
+def _validate_topic(topic: Any, task_ids: set[Any], domain_index: int, topic_index: int) -> list[str]:
+    prefix = f"domains[{domain_index}].topics[{topic_index}]"
+    if isinstance(topic, str):
+        return []
+    if not isinstance(topic, dict):
+        return [f"{prefix} must be a string or object"]
+
+    errors: list[str] = []
+    missing = _REQUIRED_TOPIC - set(topic.keys())
+    if missing:
+        errors.append(f"{prefix} missing keys: {sorted(missing)}")
+        return errors
+    for key in ("id", "name", "task_statement_id"):
+        if not isinstance(topic[key], str) or not topic[key].strip():
+            errors.append(f"{prefix}.{key} must be a non-empty string")
+    if topic.get("task_statement_id") not in task_ids:
+        errors.append(f"{prefix}.task_statement_id must match a domain task statement")
+    for key in ("services", "source_ids"):
+        if not isinstance(topic[key], list) or not topic[key]:
+            errors.append(f"{prefix}.{key} must be a non-empty list")
+        elif not all(isinstance(item, str) and item.strip() for item in topic[key]):
+            errors.append(f"{prefix}.{key} must contain only non-empty strings")
     return errors

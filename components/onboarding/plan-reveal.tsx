@@ -1,10 +1,14 @@
 import Link from "next/link";
 
-import type { DomainPlan } from "@/lib/types";
+import type { DomainPlan, TopicPlan } from "@/lib/types";
 
 type Props = {
   domains: DomainPlan[];
 };
+
+function topicName(topic: string | TopicPlan | undefined) {
+  return typeof topic === "string" ? topic : topic?.name;
+}
 
 export function PlanReveal({ domains }: Props) {
   return (
@@ -25,7 +29,7 @@ export function PlanReveal({ domains }: Props) {
               </span>
             </div>
             <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
-              Order {domain.study_order}. First topic: {domain.topics?.[0] || "calibration"}
+              Order {domain.study_order}. {domain.topics.length} official topics. First: {topicName(domain.topics?.[0]) || "calibration"}
             </p>
           </div>
         ))}

@@ -17,7 +17,9 @@ Blueprint: {payload}
 
 Rules:
 - Keep the same four domains and weights.
-- Preserve 3-5 high-value topics per domain.
+- Preserve every task_statement exactly as provided.
+- Preserve every topic object exactly as provided, including id, name, task_statement_id, services, and source_ids.
+- Do not summarize, merge, rename, remove, or add topics.
 - Add study_order from 1 to 4.
 - Put the best first domain for this learning style at study_order 1.
 - Return exactly a JSON array of domain objects.
@@ -26,8 +28,9 @@ Shape:
 [
   {{
     "name": "Deployment",
-    "weight": 32,
-    "topics": ["..."],
+    "weight": 24,
+    "task_statements": [{{"id": "...", "text": "..."}}],
+    "topics": [{{"id": "...", "name": "...", "task_statement_id": "...", "services": ["..."], "source_ids": ["..."]}}],
     "study_order": 1,
     "performance_score": 0
   }}

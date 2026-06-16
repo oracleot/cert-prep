@@ -3,6 +3,12 @@
 export type Challenge = {
   domain: string;
   topic: string;
+  topic_id?: string;
+  task_statement_id?: string;
+  task_statement?: string;
+  difficulty?: "easy" | "medium" | "hard";
+  services?: string[];
+  source_ids?: string[];
   scenario: string;
   question: string;
 };
@@ -23,14 +29,28 @@ export type LearningStyle =
   | "guided_explanations"
   | "mixed_review";
 
+export type TopicPlan = {
+  id: string;
+  name: string;
+  task_statement_id?: string;
+  services?: string[];
+  source_ids?: string[];
+  status?: "covered" | "in_progress" | "untouched";
+  correct_count?: number;
+  total_count?: number;
+};
+
 export type DomainPlan = {
   name: string;
   weight: number;
-  topics: string[];
+  topics: Array<string | TopicPlan>;
+  task_statements?: Array<{ id: string; text: string }>;
   study_order: number;
   performance_score: number;
   correct_count?: number;
   total_count?: number;
+  topic_count?: number;
+  covered_topic_count?: number;
   completion_percent?: number;
 };
 
