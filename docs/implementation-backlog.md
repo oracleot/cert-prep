@@ -377,18 +377,18 @@ Status: reshuffled | Date: 2026-06-16
 
 ### 5.3 — Streaks (P1, M, gamification)
 **Acceptance criteria:**
-- [ ] Streak counter tracks consecutive days with at least one completed session
-- [ ] Displayed on dashboard
-- [ ] Streak broken if no session completed on a calendar day (user's local timezone)
-- [ ] No streak celebration animation — display update only
+- [x] Streak counter tracks consecutive days with at least one completed session
+- [x] Displayed on dashboard
+- [x] Streak broken if no session completed on a calendar day (user's local timezone)
+- [x] No streak celebration animation — display update only
 
 ---
 
 ### 5.4 — Rex's record on session screen (P1, S, gamification)
 **Acceptance criteria:**
-- [ ] Rex's running record displayed during session (compact, not distracting)
-- [ ] Updates live as each cycle completes
-- [ ] Matches the record on dashboard
+- [x] Rex's running record displayed during session (compact, not distracting)
+- [x] Updates live as each cycle completes
+- [x] Matches the record on dashboard
 
 ---
 
