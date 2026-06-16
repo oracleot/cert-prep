@@ -70,9 +70,15 @@ def validate_artifact_shape(artifact: dict) -> list[str]:
         if not isinstance(domain["weight"], int) or not 0 < domain["weight"] <= 100:
             errors.append(f"domains[{i}].weight must be int 1..100")
         total_weight += domain["weight"]
-        if not isinstance(domain["task_statements"], list):
+        task_statements = domain["task_statements"]
+        topics = domain["topics"]
+        if not isinstance(task_statements, list) or not task_statements:
             errors.append(f"domains[{i}].task_statements must be a list")
-        if not isinstance(domain["topics"], list):
+        else:
+            for j, task in enumerate(task_statements):
+                if not isinstance(task, dict) or not {"id", "text"}.issubset(task):
+                    errors.append(f"domains[{i}].task_statements[{j}] must include id and text")
+        if not isinstance(topics, list) or not topics:
             errors.append(f"domains[{i}].topics must be a list")
     if total_weight != 100:
         errors.append(f"domain weights sum to {total_weight}, expected 100")

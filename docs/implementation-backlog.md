@@ -517,29 +517,29 @@ Status: first-pass | Date: 2026-06-15
 
 ### 7.1 — Exam reliability readiness rubric (P0, S, agents)
 **Acceptance criteria:**
-- [ ] Define the minimum bar for saying the app is "exam-prep reliable" versus "MVP dogfood-ready"
-- [ ] Rubric covers blueprint completeness, topic coverage, question quality, answer evaluation quality, Sage citation quality, and unsupported-cert behavior
-- [ ] Manual QA checklist exists for at least 20 DVA-C02 sessions across all domains
-- [ ] A failed rubric item blocks calling Phase 7 complete, even if the UI works
+- [x] Define the minimum bar for saying the app is "exam-prep reliable" versus "MVP dogfood-ready"
+- [x] Rubric covers blueprint completeness, topic coverage, question quality, answer evaluation quality, Sage citation quality, and unsupported-cert behavior
+- [x] Manual QA checklist exists for at least 20 DVA-C02 sessions across all domains
+- [x] A failed rubric item blocks calling Phase 7 complete, even if the UI works
 
 ---
 
 ### 7.2 — Official exam artifact model (P0, M, infra)
 **Acceptance criteria:**
-- [ ] Add persistent exam artifact tables or JSON schema for exam code, canonical name, provider, official exam guide URL, captured_at, source version/checksum, domains, weights, task statements, and topic/concept mappings
-- [ ] Existing DVA-C02 curriculum references an exam artifact/version instead of anonymous hardcoded domain JSON
-- [ ] Artifact records preserve source metadata so later challenges and explanations can trace back to official inputs
-- [ ] Unknown or unsupported cert codes are represented explicitly as unsupported — never silently coerced to DVA-C02
+- [x] Add persistent exam artifact tables or JSON schema for exam code, canonical name, provider, official exam guide URL, captured_at, source version/checksum, domains, weights, task statements, and topic/concept mappings
+- [x] Existing DVA-C02 curriculum references an exam artifact/version instead of anonymous hardcoded domain JSON
+- [x] Artifact records preserve source metadata so later challenges and explanations can trace back to official inputs
+- [x] Unknown or unsupported cert codes are represented explicitly as unsupported — never silently coerced to DVA-C02
 
 ---
 
 ### 7.3 — Blueprint Scout generalisation with official-source guardrails (P0, L, agents)
 **Acceptance criteria:**
-- [ ] Blueprint Scout accepts an exam code from onboarding and resolves it through an allowlist or official AWS source lookup
-- [ ] Extracts domains, weights, task statements, and knowledge areas from the official exam guide into structured JSON
-- [ ] Refuses to build a curriculum when the official source cannot be found or parsed confidently
-- [ ] Agent feed explains whether the blueprint was loaded from cache, refreshed from official source, or rejected as unsupported
-- [ ] DVA-C02 remains supported and keeps its current happy path
+- [x] Blueprint Scout accepts an exam code from onboarding and resolves it through an allowlist or official AWS source lookup
+- [x] Extracts domains, weights, task statements, and knowledge areas from the official exam guide into structured JSON
+- [x] Refuses to build a curriculum when the official source cannot be found or parsed confidently
+- [x] Agent feed explains whether the blueprint was loaded from cache, refreshed from official source, or rejected as unsupported
+- [x] DVA-C02 remains supported and keeps its current happy path
 
 ---
 
@@ -656,11 +656,9 @@ Status: first-pass | Date: 2026-06-15
 Issues startable right now (no dependencies unmet):
 - **2.7** — Railway deployment: Postgres + Redis + Python service
 - **4.1** — Clerk auth integration
-- **7.1** — Exam reliability readiness rubric (in flight)
-- **7.2** — Official exam artifact model (design-locked; awaits 7.1 sign-off)
-- **7.4** — DVA-C02 full blueprint topic expansion (awaits 7.2)
+- **7.4** — DVA-C02 full blueprint topic expansion (artifact + Scout guardrails are in place)
 - **7.6** — Sage AWS documentation grounding + citations (awaits 7.4)
-- **8.1** — Choose test runners + record in docs (startable alongside 7.1)
+- **8.1** — Choose test runners + record in docs (startable alongside Phase 7)
 
 ---
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from copy import deepcopy
 from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -16,17 +17,25 @@ def _strip_code_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\n?|```$", "", text, flags=re.MULTILINE).strip()
 
 
-def _fallback_curriculum(learning_style: str) -> list[dict]:
-    domains = default_curriculum()
+def _fallback_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
+    domains = deepcopy(blueprint) if blueprint else default_curriculum()
     if learning_style == "pressure_drills":
-        order = ["Development", "Deployment", "Security", "Troubleshooting"]
+        order = ["development", "deployment", "security", "troubleshooting"]
     elif learning_style == "guided_explanations":
-        order = ["Security", "Development", "Deployment", "Troubleshooting"]
+        order = ["security", "development", "deployment", "troubleshooting"]
     else:
-        order = ["Deployment", "Development", "Security", "Troubleshooting"]
-    rank = {name: index for index, name in enumerate(order, start=1)}
+        order = ["deployment", "development", "security", "troubleshooting"]
+
+    def rank_for(name: str) -> int:
+        lower = name.lower()
+        for index, token in enumerate(order, start=1):
+            if token in lower:
+                return index
+        return 99
+
     for domain in domains:
-        domain["study_order"] = rank.get(domain["name"], 99)
+        domain["study_order"] = rank_for(domain["name"])
+        domain.setdefault("performance_score", 0)
     return sorted(domains, key=lambda item: item["study_order"])
 
 
@@ -40,7 +49,7 @@ def build_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
             return sorted(domains, key=lambda item: item["study_order"])
     except Exception:
         pass
-    return _fallback_curriculum(learning_style)
+    return _fallback_curriculum(blueprint, learning_style)
 
 
 async def create_curriculum(

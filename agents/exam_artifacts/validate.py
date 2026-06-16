@@ -40,6 +40,14 @@ def _canonical_name_for(exam_id: str) -> str:
         return exam_id.upper()
 
 
+def _exam_id_for_canonical_name(norm: str) -> str | None:
+    for exam_id in sorted(_file_supported_ids()):
+        artifact = load_artifact_from_file(exam_id)
+        if _normalize(artifact.get("canonical_name", "")) == norm:
+            return exam_id
+    return None
+
+
 def validate_exam_id(raw: str) -> ExamValidation:
     """Return ExamValidation. ``accepted=False`` for unknown / empty codes.
 
@@ -51,6 +59,9 @@ def validate_exam_id(raw: str) -> ExamValidation:
     norm = _normalize(raw)
     if norm in _file_supported_ids():
         return ExamValidation(True, norm, _canonical_name_for(norm))
+    canonical_exam_id = _exam_id_for_canonical_name(norm)
+    if canonical_exam_id:
+        return ExamValidation(True, canonical_exam_id, _canonical_name_for(canonical_exam_id))
     supported = sorted(_file_supported_ids())
     suffix = f" Supported: {', '.join(supported)}." if supported else " No exams configured."
     return ExamValidation(False, norm, "", f"Gauntlet does not support '{raw}'.{suffix}")

@@ -1,7 +1,7 @@
 """Back-compat shims for the DVA-C02 curriculum pipeline.
 
 The hardcoded ``_DVA_C02_DOMAINS`` literal that used to live here is now in
-``agents/data/exam_artifacts/dva_c02.json`` (see ``agents/exam_artifacts``).
+``agents/data/exam_artifacts/dva-c02.json`` (see ``agents/exam_artifacts``).
 The JSON file is the source of truth; this module is the sync read path used
 by code that has not been migrated to async artifact lookups yet.
 """

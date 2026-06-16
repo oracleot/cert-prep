@@ -3,9 +3,8 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from blueprint import default_blueprint
+from blueprint_scout import BlueprintScoutResult, resolve_blueprint
 from curriculum_repository import build_curriculum, create_curriculum
-from exam_artifacts import load_artifact_from_file
 from onboarding_repository import (
     add_feed_event,
     complete_onboarding,
@@ -22,17 +21,15 @@ class JobRequest(BaseModel):
     onboarding_id: str
 
 
-def _blueprint_for(exam_id: str) -> list[dict]:
-    """Load the artifact's domain list. Falls back to the sync shim on miss."""
-    try:
-        artifact = load_artifact_from_file(exam_id)
-        return artifact.get("domains", [])
-    except FileNotFoundError:
-        return default_blueprint()
-
-
 def _weights_summary(domains: list[dict]) -> str:
     return ", ".join(f"{d['name']} {d['weight']}%" for d in domains)
+
+
+async def _require_blueprint(exam_id: str) -> BlueprintScoutResult:
+    result = await resolve_blueprint(exam_id)
+    if result.accepted:
+        return result
+    raise HTTPException(status_code=422, detail=result.message)
 
 
 @router.post("/jobs/blueprint-scout")
@@ -48,17 +45,22 @@ async def run_blueprint_scout(req: JobRequest):
             req.onboarding_id,
             "Blueprint Scout",
             "running",
-            f"Reading the {exam_id.upper()} blueprint and carving it into exam domains.",
+            f"Resolving {exam_id.upper()} against the official-source allowlist.",
         )
-        blueprint = _blueprint_for(exam_id)
+        result = await _require_blueprint(exam_id)
+        blueprint = result.domains
         await save_blueprint(req.onboarding_id, blueprint)
         await add_feed_event(
             req.onboarding_id,
             "Blueprint Scout",
             "complete",
-            f"Blueprint locked: {_weights_summary(blueprint)}.",
+            f"{result.message} Domains: {_weights_summary(blueprint)}.",
         )
-        return {"ok": True, "blueprint": blueprint}
+        return {"ok": True, "blueprint": blueprint, "source": result.source}
+    except HTTPException as exc:
+        await add_feed_event(req.onboarding_id, "Blueprint Scout", "failed", str(exc.detail))
+        await fail_onboarding(req.onboarding_id, "Blueprint Scout rejected this exam.")
+        raise
     except Exception as exc:
         await fail_onboarding(req.onboarding_id, "Blueprint Scout could not finish.")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -79,7 +81,11 @@ async def run_curriculum_builder(req: JobRequest):
             "Sequencing the domains around your selected learning style.",
         )
         exam_id = run["exam_id"]
-        blueprint = run.get("blueprint") or _blueprint_for(exam_id)
+        if run.get("blueprint"):
+            blueprint = run["blueprint"]
+        else:
+            result = await _require_blueprint(exam_id)
+            blueprint = result.domains
         domains = build_curriculum(blueprint, run["learning_style"])
         curriculum_id = await create_curriculum(
             user_id=run["user_id"],
@@ -95,6 +101,10 @@ async def run_curriculum_builder(req: JobRequest):
             "Your first route through the exam is ready.",
         )
         return {"ok": True, "curriculum_id": curriculum_id, "domains": domains}
+    except HTTPException as exc:
+        await add_feed_event(req.onboarding_id, "Curriculum Builder", "failed", str(exc.detail))
+        await fail_onboarding(req.onboarding_id, "Curriculum Builder rejected this exam.")
+        raise
     except Exception as exc:
         await fail_onboarding(req.onboarding_id, "Curriculum Builder could not finish.")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
