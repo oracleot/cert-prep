@@ -76,11 +76,8 @@ export function useOnboarding() {
         if (!active) return;
 
         if (data?.curriculum) {
-          const loaded = await loadPlan(userId);
-          if (active && loaded) {
-            router.replace("/dashboard");
-            return;
-          }
+          router.replace("/dashboard");
+          return;
         }
 
         const onboardingId = data?.run?.id || loadOnboardingId();
