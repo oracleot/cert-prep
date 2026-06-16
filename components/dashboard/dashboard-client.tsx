@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { AppNav } from "@/components/navigation/app-nav";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { loadThreadId } from "@/app/session/session-persistence";
 import type { DashboardSummary, DomainPlan } from "@/lib/types";
 
 function DomainTile({ domain }: { domain: DomainPlan }) {
@@ -27,9 +28,29 @@ function DomainTile({ domain }: { domain: DomainPlan }) {
   );
 }
 
+type CtaState = "first" | "resume" | "another";
+
+function resolveCtaState(
+  summary: DashboardSummary,
+  hasInProgressThread: boolean,
+): CtaState {
+  if (hasInProgressThread) return "resume";
+  const totalPlayed =
+    summary.rex_record.user_wins + summary.rex_record.rex_wins;
+  if (totalPlayed === 0) return "first";
+  return "another";
+}
+
+const CTA_COPY: Record<CtaState, string> = {
+  first: "Start your first session",
+  resume: "Resume session",
+  another: "Start another session",
+};
+
 export function DashboardClient() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState("");
+  const [hasInProgressThread] = useState<boolean>(() => Boolean(loadThreadId()));
 
   useEffect(() => {
     async function load() {
@@ -57,6 +78,9 @@ export function DashboardClient() {
     return <main className="min-h-screen bg-black p-6 text-zinc-400">Loading dashboard...</main>;
   }
 
+  const ctaState = resolveCtaState(summary, hasInProgressThread);
+  const ctaLabel = CTA_COPY[ctaState];
+
   return (
     <main className="min-h-screen bg-black px-4 py-6 text-zinc-50 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -81,7 +105,7 @@ export function DashboardClient() {
             </p>
           </div>
           <div className="rounded-[2rem] border border-zinc-800 bg-amber-300 p-7 text-zinc-950 sm:p-10">
-            <p className="text-xs font-black uppercase tracking-[0.35em]">Today</p>
+            <p className="text-xs font-black uppercase tracking-[0.35em]">Next up</p>
             <h1 className="mt-4 text-4xl font-black tracking-tight">
               {summary.today_domain}
             </h1>
@@ -90,7 +114,7 @@ export function DashboardClient() {
               href="/session"
               className="mt-8 inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-black text-zinc-50"
             >
-              Start your first session
+              {ctaLabel}
             </Link>
           </div>
         </section>
