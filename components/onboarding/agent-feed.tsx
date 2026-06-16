@@ -18,7 +18,7 @@ export function AgentFeed({ events }: Props) {
       <div className="mt-8 space-y-3">
         {AGENTS.map((agent) => {
           const event = [...events].reverse().find((item) => item.agent === agent);
-          const status = event?.status || "running";
+          const status = event?.status || (event?.message ? "running" : "waiting");
           return (
             <div key={agent} className="rounded-3xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-black/60">
               <div className="flex items-center justify-between gap-3">
