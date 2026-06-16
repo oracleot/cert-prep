@@ -11,6 +11,12 @@ import { useOnboarding } from "./use-onboarding";
 export default function OnboardingPage() {
   const onboarding = useOnboarding();
 
+  if (onboarding.isLoading) {
+    return (
+      <main className="min-h-screen bg-black px-4 py-6 text-zinc-50 sm:px-6 lg:px-8" />
+    );
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-black px-4 py-6 text-zinc-50 sm:px-6 lg:px-8">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.22),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.16),transparent_30%)]" />

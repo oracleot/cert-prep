@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -31,6 +32,7 @@ function openFeed(
 }
 
 export function useOnboarding() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>("welcome");
   const [examName, setExamName] = useState("DVA-C02");
   const [learningStyle, setLearningStyle] = useState<LearningStyle>("mixed_review");
@@ -42,10 +44,11 @@ export function useOnboarding() {
 
   const loadPlan = useCallback(async (userId: string) => {
     const res = await dashboardSummaryRequest(userId);
-    if (!res.ok) return;
+    if (!res.ok) return false;
     const summary = await res.json();
     setDomains(summary.domains || []);
     setStep("plan");
+    return true;
   }, []);
 
   const connectFeed = useCallback((onboardingId: string, userId: string) => {
@@ -73,8 +76,11 @@ export function useOnboarding() {
         if (!active) return;
 
         if (data?.curriculum) {
-          await loadPlan(userId);
-          return;
+          const loaded = await loadPlan(userId);
+          if (active && loaded) {
+            router.replace("/dashboard");
+            return;
+          }
         }
 
         const onboardingId = data?.run?.id || loadOnboardingId();
@@ -93,7 +99,7 @@ export function useOnboarding() {
       active = false;
       feedRef.current?.close();
     };
-  }, [connectFeed, loadPlan]);
+  }, [connectFeed, loadPlan, router]);
 
   async function start() {
     setError("");

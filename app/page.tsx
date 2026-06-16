@@ -1,6 +1,47 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { getAnonymousUserId } from "@/lib/anonymous-user";
 
 export default function Home() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function checkCurriculum() {
+      try {
+        const userId = getAnonymousUserId();
+        const res = await fetch("/api/onboarding/state", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId }),
+        });
+        if (!active) return;
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.curriculum) {
+            router.replace("/dashboard");
+            return;
+          }
+        }
+      } finally {
+        if (active) setChecking(false);
+      }
+    }
+    void checkCurriculum();
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
+  if (checking) {
+    return <main className="min-h-screen bg-black" />;
+  }
+
   return (
     <main className="min-h-screen bg-black text-zinc-50">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-16">
