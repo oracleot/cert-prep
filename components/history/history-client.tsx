@@ -90,8 +90,8 @@ export function HistoryClient() {
         {items.length === 0 ? (
           <EmptyHistory />
         ) : (
-          <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(260px,1fr)_3fr]">
-            <aside className="rounded-[2rem] border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 lg:max-h-[calc(100vh-15rem)] lg:overflow-y-auto">
+          <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(260px,1fr)_3fr] lg:gap-0">
+            <aside className="overflow-hidden rounded-[2rem] border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950 lg:max-h-[calc(100vh-15rem)] lg:overflow-y-auto lg:rounded-r-none">
               <div className="px-2 pb-3 pt-2">
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">
                   Sessions
@@ -106,8 +106,8 @@ export function HistoryClient() {
                       onClick={() => selectSession(item.id)}
                       className={
                         isSelected
-                          ? "flex w-full items-start justify-between gap-3 rounded-3xl border border-zinc-900 bg-zinc-950 p-4 text-left text-zinc-50 dark:border-amber-300 dark:bg-amber-300 dark:text-zinc-950"
-                          : "flex w-full items-start justify-between gap-3 rounded-3xl border border-transparent p-4 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                          ? "grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-3xl border border-zinc-900 bg-zinc-950 p-4 text-left text-zinc-50 dark:border-amber-300 dark:bg-amber-300 dark:text-zinc-950"
+                          : "grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-3xl border border-transparent p-4 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
                       }
                       aria-pressed={isSelected}
                     >
@@ -126,8 +126,11 @@ export function HistoryClient() {
                           {item.topic}
                         </p>
                       </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-xl font-black">{item.correct_count}/{item.total_cycles}</p>
+                      <div className={isSelected
+                        ? "rounded-2xl bg-white/10 px-2.5 py-2 text-right dark:bg-zinc-950/10"
+                        : "rounded-2xl bg-zinc-100 px-2.5 py-2 text-right dark:bg-zinc-900/80"
+                      }>
+                        <p className="whitespace-nowrap text-base font-black">{item.correct_count}/{item.total_cycles}</p>
                         <p className={isSelected
                           ? "text-xs font-semibold uppercase tracking-[0.2em] opacity-70"
                           : "text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400"
@@ -140,7 +143,7 @@ export function HistoryClient() {
                 })}
               </div>
             </aside>
-            <section className="min-h-[28rem] rounded-[2rem] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950 sm:p-7">
+            <section className="min-h-[28rem] rounded-[2rem] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950 sm:p-7 lg:rounded-l-none lg:border-l-0">
               {!selectedId ? (
                 <div className="flex min-h-[22rem] items-center justify-center rounded-3xl border border-dashed border-zinc-200 p-8 text-center dark:border-zinc-800">
                   <div>
