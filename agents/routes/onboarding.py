@@ -50,7 +50,7 @@ async def start_onboarding(req: OnboardingStartRequest):
 
     await add_feed_event(
         onboarding_id,
-        "Onboarding Agent",
+        "Onboarding",
         "complete",
         f"{canonical_name} captured. Dispatching the build crew.",
     )

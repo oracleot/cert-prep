@@ -167,7 +167,7 @@ async def complete_onboarding(onboarding_id: str, curriculum_id: str) -> None:
 
 async def fail_onboarding(onboarding_id: str, message: str) -> None:
     await update_run_status(onboarding_id, "failed", "agent_feed")
-    await add_feed_event(onboarding_id, "Onboarding Agent", "failed", message)
+    await add_feed_event(onboarding_id, "Onboarding", "failed", message)
 
 
 def _run_from_row(row) -> dict[str, Any]:
