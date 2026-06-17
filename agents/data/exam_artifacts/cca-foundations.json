@@ -3,8 +3,8 @@
   "canonical_name": "Claude Certified Architect - Foundations",
   "provider": "anthropic",
   "official_guide_url": "https://claudecertifications.com/claude-certified-architect/exam-guide",
-  "captured_at": "2026-06-16",
-  "source_version": "Claude-Certified-Architect-Foundations-current",
+  "captured_at": "2026-06-17",
+  "source_version": "Claude-Certified-Architect-Foundations-2026-06-17",
   "aliases": [
     "Claude Certified Architect",
     "Claude Architect Foundations",
@@ -15,65 +15,82 @@
       "name": "Agentic Architecture & Orchestration",
       "weight": 25,
       "task_statements": [
-        {"id": "1.1", "text": "Design agentic loops that terminate from model stop reasons and tool results"},
-        {"id": "1.2", "text": "Orchestrate multi-agent workflows with clear decomposition and session boundaries"},
-        {"id": "1.3", "text": "Apply hooks, escalation, and compliance controls in production agent systems"}
+        {"id": "1.1", "text": "Implement agentic loops that terminate from stop_reason and tool results"},
+        {"id": "1.2", "text": "Orchestrate multi-agent systems using hub-and-spoke decomposition"},
+        {"id": "1.3", "text": "Apply programmatic hooks for deterministic policy enforcement"},
+        {"id": "1.4", "text": "Manage agent sessions, forking, and task decomposition strategies"}
       ],
       "topics": [
-        {"id": "1.1.1", "name": "Agentic loop termination with stop_reason", "task_statement_id": "1.1", "services": ["Claude Agent SDK", "Messages API", "Tool use"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#domain-1", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
-        {"id": "1.2.1", "name": "Hub-and-spoke multi-agent orchestration", "task_statement_id": "1.2", "services": ["Claude Agent SDK", "Subagents", "Session isolation"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#scenario-3", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
-        {"id": "1.3.1", "name": "Programmatic hooks for deterministic policy enforcement", "task_statement_id": "1.3", "services": ["Hooks", "Escalation patterns", "Compliance checks"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#anti-patterns", "https://docs.anthropic.com/en/docs/claude-code/overview"]}
+        {"id": "1.1.1", "name": "Agentic Loops & Core API", "task_statement_id": "1.1", "services": ["Claude Agent SDK", "Messages API", "stop_reason", "Tool use"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/agentic-architecture#d1.1", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
+        {"id": "1.2.1", "name": "Multi-Agent Orchestration", "task_statement_id": "1.2", "services": ["Claude Agent SDK", "Task tool", "Subagents", "fork_session", "Context isolation"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/agentic-architecture#d1.2", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "1.3.1", "name": "Hooks & Programmatic Enforcement", "task_statement_id": "1.3", "services": ["PreToolUse", "PostToolUse", "Compliance enforcement", "Escalation patterns"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/agentic-architecture#d1.3", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "1.4.1", "name": "Session Management & Workflows", "task_statement_id": "1.4", "services": ["Claude Code CLI", "--resume", "fork_session", "Named sessions", "Prompt chaining", "Dynamic adaptive decomposition"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/agentic-architecture#d1.4", "https://docs.anthropic.com/en/docs/claude-code/overview"]}
       ]
     },
     {
       "name": "Tool Design & MCP Integration",
       "weight": 20,
       "task_statements": [
-        {"id": "2.1", "text": "Design focused tool interfaces with clear descriptions and structured errors"},
-        {"id": "2.2", "text": "Integrate MCP servers and distribute tools across agents appropriately"}
+        {"id": "2.1", "text": "Write tool descriptions that enable correct tool selection"},
+        {"id": "2.2", "text": "Design structured error responses for tool results"},
+        {"id": "2.3", "text": "Distribute tools across agents for optimal selection quality"},
+        {"id": "2.4", "text": "Configure MCP servers for project and user contexts"},
+        {"id": "2.5", "text": "Select appropriate built-in tools for file and shell operations"}
       ],
       "topics": [
-        {"id": "2.1.1", "name": "Tool descriptions and selection boundaries", "task_statement_id": "2.1", "services": ["Tool use", "Tool descriptions", "Built-in tools"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#domain-2", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
-        {"id": "2.1.2", "name": "Structured error responses for tool results", "task_statement_id": "2.1", "services": ["Tool results", "isError", "Retryability"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#anti-patterns", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
-        {"id": "2.2.1", "name": "MCP server configuration and integration", "task_statement_id": "2.2", "services": ["Model Context Protocol (MCP)", "MCP servers", "Claude Code"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#domain-2", "https://modelcontextprotocol.io/introduction"]}
+        {"id": "2.1.1", "name": "Tool Description Best Practices", "task_statement_id": "2.1", "services": ["Tool descriptions", "Input schemas", "Edge cases", "Boundary conditions"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/tool-design-mcp#d2.1", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
+        {"id": "2.2.1", "name": "Structured Error Responses", "task_statement_id": "2.2", "services": ["isError", "errorCategory", "isRetryable", "Access failure vs empty result"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/tool-design-mcp#d2.2", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
+        {"id": "2.3.1", "name": "Tool Distribution & Selection", "task_statement_id": "2.3", "services": ["Scoped tool access", "tool_choice", "Tool grouping", "Subagent specialization"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/tool-design-mcp#d2.3", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
+        {"id": "2.4.1", "name": "MCP Server Configuration", "task_statement_id": "2.4", "services": [".mcp.json", "~/.claude.json", "MCP servers", "Environment variable expansion"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/tool-design-mcp#d2.4", "https://modelcontextprotocol.io/introduction"]},
+        {"id": "2.5.1", "name": "Built-in Tools", "task_statement_id": "2.5", "services": ["Read", "Write", "Edit", "Bash", "Grep", "Glob"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/tool-design-mcp#d2.5", "https://docs.anthropic.com/en/docs/claude-code/overview"]}
       ]
     },
     {
       "name": "Claude Code Configuration & Workflows",
       "weight": 20,
       "task_statements": [
-        {"id": "3.1", "text": "Configure Claude Code memory, commands, skills, and plan-mode workflows"},
-        {"id": "3.2", "text": "Automate development, CI/CD, and batch workflows with session boundaries"}
+        {"id": "3.1", "text": "Configure the CLAUDE.md hierarchy for personal and team use"},
+        {"id": "3.2", "text": "Define and invoke custom slash commands and skills"},
+        {"id": "3.3", "text": "Use plan mode and iterative refinement for complex tasks"},
+        {"id": "3.4", "text": "Integrate Claude Code into CI/CD with -p flag and batch API"}
       ],
       "topics": [
-        {"id": "3.1.1", "name": "CLAUDE.md hierarchy and persistent instructions", "task_statement_id": "3.1", "services": ["Claude Code", "CLAUDE.md", "Memory"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#domain-3", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
-        {"id": "3.1.2", "name": "Plan mode, slash commands, and reusable skills", "task_statement_id": "3.1", "services": ["Claude Code", "Plan mode", "Skills"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#scenario-2", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
-        {"id": "3.2.1", "name": "Non-interactive Claude Code in CI/CD", "task_statement_id": "3.2", "services": ["Claude Code CLI", "JSON output", "Message Batches"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#scenario-5", "https://docs.anthropic.com/en/docs/claude-code/overview"]}
+        {"id": "3.1.1", "name": "CLAUDE.md Hierarchy & Configuration", "task_statement_id": "3.1", "services": ["CLAUDE.md", "User-level config", "Project-level config", "Directory-level config", ".claude/rules/"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/claude-code-config#d3.1", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "3.2.1", "name": "Custom Commands & Skills", "task_statement_id": "3.2", "services": ["Slash commands", "Skills", "context: fork", "Reusable skills"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/claude-code-config#d3.2", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "3.3.1", "name": "Plan Mode & Iterative Refinement", "task_statement_id": "3.3", "services": ["Plan mode", "TDD iteration", "Direct execution", "Multi-file migrations"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/claude-code-config#d3.3", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "3.4.1", "name": "CI/CD Integration & Batch Processing", "task_statement_id": "3.4", "services": ["-p flag", "JSON output", "Message Batches", "Non-interactive mode", "Session isolation"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/claude-code-config#d3.4", "https://docs.anthropic.com/en/docs/claude-code/overview"]}
       ]
     },
     {
       "name": "Prompt Engineering & Structured Output",
       "weight": 20,
       "task_statements": [
-        {"id": "4.1", "text": "Design prompts with explicit criteria, examples, and review passes"},
-        {"id": "4.2", "text": "Use structured output, schemas, and validation-retry loops reliably"}
+        {"id": "4.1", "text": "Design prompts with explicit criteria and categorical instructions"},
+        {"id": "4.2", "text": "Apply few-shot prompting for consistent output"},
+        {"id": "4.3", "text": "Use tool_use with JSON schema for structured output"},
+        {"id": "4.4", "text": "Implement validation-retry loops and multi-pass review"}
       ],
       "topics": [
-        {"id": "4.1.1", "name": "Explicit criteria and few-shot prompting", "task_statement_id": "4.1", "services": ["Prompt engineering", "Few-shot prompting", "Evaluation criteria"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#domain-4", "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"]},
-        {"id": "4.2.1", "name": "tool_use schemas for structured output", "task_statement_id": "4.2", "services": ["Tool use", "JSON schema", "Structured output"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#scenario-6", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
-        {"id": "4.2.2", "name": "Validation-retry loops and field confidence", "task_statement_id": "4.2", "services": ["Validation-retry loops", "Human review", "Structured extraction"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#scenario-6", "https://docs.anthropic.com/en/api/messages"]}
+        {"id": "4.1.1", "name": "Explicit Criteria & Instruction Design", "task_statement_id": "4.1", "services": ["Categorical criteria", "Explicit constraints", "Instruction design"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/prompt-engineering#d4.1", "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"]},
+        {"id": "4.2.1", "name": "Few-Shot Prompting", "task_statement_id": "4.2", "services": ["Few-shot examples", "Input/output pairs", "Example selection"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/prompt-engineering#d4.2", "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"]},
+        {"id": "4.3.1", "name": "Tool Use for Structured Output", "task_statement_id": "4.3", "services": ["tool_use", "JSON schema", "Structured output", "Nullable fields"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/prompt-engineering#d4.3", "https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview"]},
+        {"id": "4.4.1", "name": "Validation-Retry Loops & Multi-Pass Review", "task_statement_id": "4.4", "services": ["Validation-retry loops", "Multi-pass review", "Separate-session review", "Field-level confidence"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/prompt-engineering#d4.4", "https://docs.anthropic.com/en/api/messages"]}
       ]
     },
     {
       "name": "Context Management & Reliability",
       "weight": 15,
       "task_statements": [
-        {"id": "5.1", "text": "Manage context windows, summaries, positioning, and provenance"},
-        {"id": "5.2", "text": "Design reliability controls for escalation, review, and error propagation"}
+        {"id": "5.1", "text": "Optimize context positioning and case-facts blocks"},
+        {"id": "5.2", "text": "Design escalation triggers and structured error propagation"},
+        {"id": "5.3", "text": "Handle context degradation with scratchpads and /compact"},
+        {"id": "5.4", "text": "Implement human review and information provenance"}
       ],
       "topics": [
-        {"id": "5.1.1", "name": "Progressive summarization and context degradation risks", "task_statement_id": "5.1", "services": ["Context windows", "Progressive summarization", "Information provenance"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#domain-5", "https://docs.anthropic.com/en/api/messages"]},
-        {"id": "5.2.1", "name": "Separate-session review and error propagation", "task_statement_id": "5.2", "services": ["Session isolation", "Error propagation", "Human review"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/exam-guide#anti-patterns", "https://docs.anthropic.com/en/docs/claude-code/overview"]}
+        {"id": "5.1.1", "name": "Context Optimization & Positioning", "task_statement_id": "5.1", "services": ["Case facts blocks", "Lost in the middle", "Progressive summarization risks", "Position-aware ordering", "Trimming"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/context-management#d5.1", "https://docs.anthropic.com/en/api/messages"]},
+        {"id": "5.2.1", "name": "Escalation & Error Propagation", "task_statement_id": "5.2", "services": ["Escalation triggers", "Structured error context", "Local recovery", "Access failure vs empty result"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/context-management#d5.2", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "5.3.1", "name": "Context Degradation & Extended Sessions", "task_statement_id": "5.3", "services": ["Scratchpad files", "/compact", "Subagent delegation", "Crash recovery manifests", "Stratified metrics"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/context-management#d5.3", "https://docs.anthropic.com/en/docs/claude-code/overview"]},
+        {"id": "5.4.1", "name": "Human Review & Information Provenance", "task_statement_id": "5.4", "services": ["Stratified sampling", "Claim-source mappings", "Temporal data", "Conflict annotation", "Human-in-the-loop checkpoints"], "source_ids": ["https://claudecertifications.com/claude-certified-architect/domains/context-management#d5.4", "https://docs.anthropic.com/en/api/messages"]}
       ]
     }
   ]
