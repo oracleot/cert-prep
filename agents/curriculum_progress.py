@@ -1,9 +1,34 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from curriculum_topics import topic_label
 from db import get_pool, has_pool
+
+
+def domain_readiness(
+    domain: Mapping[str, Any],
+    stat: Mapping[str, int],
+    topic_stats: Mapping[str, Mapping[str, int]],
+) -> float:
+    """Readiness for a single domain: coverage * performance.
+
+    coverage    = topics_attempted / topics_in_domain
+    performance = correct / total on attempted topics
+    Multiplying by coverage stops a single correct answer in one topic
+    from contributing the full weight of the domain to the score.
+    """
+    topics = domain.get("topics", []) or []
+    total_topics = max(len(topics), 1)
+    attempted = sum(
+        1 for topic in topics
+        if topic_stats.get(topic_label(topic), {}).get("total_count", 0) > 0
+    )
+    coverage = attempted / total_topics
+    total = stat.get("total_count", 0)
+    performance = stat.get("correct_count", 0) / total if total else 0
+    return coverage * performance
 
 
 async def performance_map(user_id: str, exam_id: str) -> dict[str, dict[str, int]]:
@@ -58,7 +83,8 @@ def domain_overview(
         topic_count = max(len(topics), 1)
         covered_topics = _covered_topic_count(topics, topic_stats)
         performance = stat["correct_count"] / total if total else 0
-        contribution = domain["weight"] * performance
+        readiness = domain_readiness(domain, stat, topic_stats)
+        contribution = domain["weight"] * readiness
         overview.append({
             **domain,
             "correct_count": stat["correct_count"],

@@ -154,7 +154,7 @@ async def dashboard_summary(
     topic_stats = await topic_performance_map(user_id, exam_id)
     overview = domain_overview(domains, stats, topic_stats)
     persisted_score = await read_readiness_score(user_id, exam_id)
-    readiness = persisted_score["score"] if persisted_score else calculate_readiness(domains, stats)[0]
+    readiness = persisted_score["score"] if persisted_score else calculate_readiness(domains, stats, topic_stats)[0]
     rex_record = await read_rex_record(user_id, exam_id)
     streak = await read_session_streak(user_id, exam_id, timezone_name)
     today = await choose_today_target(user_id, exam_id)

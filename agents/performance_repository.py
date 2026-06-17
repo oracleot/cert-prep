@@ -5,19 +5,31 @@ from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from curriculum_progress import domain_readiness, topic_performance_map
 from db import get_pool, has_pool
 
 
 def calculate_readiness(
     domains: Sequence[Mapping[str, Any]],
     stats: dict[str, dict[str, int]],
+    topic_stats: dict[str, dict[str, int]] | None = None,
 ) -> tuple[int, list[dict]]:
+    """Top-level readiness score and per-domain breakdown.
+
+    Each domain contributes:  weight * coverage * performance
+    where coverage    = topics_attempted / topics_in_domain
+          performance = correct / total on attempted topics
+    Multiplying by coverage stops a single lucky answer from counting
+    for the full weight of a domain.
+    """
+    topic_stats = topic_stats or {}
     breakdown = []
     for domain in domains:
         stat = stats.get(domain["name"], {"correct_count": 0, "total_count": 0})
         total = stat["total_count"]
         performance = stat["correct_count"] / total if total else 0
-        contribution = domain["weight"] * performance
+        readiness = domain_readiness(domain, stat, topic_stats)
+        contribution = domain["weight"] * readiness
         breakdown.append({
             "domain": domain["name"],
             "weight": domain["weight"],
@@ -90,7 +102,9 @@ async def persist_readiness_score(
     if not has_pool() or not domains:
         return
 
-    score, breakdown = calculate_readiness(domains, await _domain_stats(user_id, exam_id))
+    stats = await _domain_stats(user_id, exam_id)
+    topic_stats = await topic_performance_map(user_id, exam_id)
+    score, breakdown = calculate_readiness(domains, stats, topic_stats)
     pool = get_pool()
     async with pool.connection() as conn:
         await conn.execute(
