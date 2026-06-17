@@ -106,8 +106,8 @@ export function HistoryClient() {
                       onClick={() => selectSession(item.id)}
                       className={
                         isSelected
-                          ? "grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-3xl border border-zinc-900 bg-zinc-950 p-4 text-left text-zinc-50 dark:border-amber-300 dark:bg-amber-300 dark:text-zinc-950"
-                          : "grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-3xl border border-transparent p-4 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                          ? "block w-full min-w-0 rounded-3xl border border-zinc-900 bg-zinc-950 p-4 text-left text-zinc-50 dark:border-amber-300 dark:bg-amber-300 dark:text-zinc-950"
+                          : "block w-full min-w-0 rounded-3xl border border-transparent p-4 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
                       }
                       aria-pressed={isSelected}
                     >
@@ -124,18 +124,6 @@ export function HistoryClient() {
                           : "mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400"
                         }>
                           {item.topic}
-                        </p>
-                      </div>
-                      <div className={isSelected
-                        ? "rounded-2xl bg-white/10 px-2.5 py-2 text-right dark:bg-zinc-950/10"
-                        : "rounded-2xl bg-zinc-100 px-2.5 py-2 text-right dark:bg-zinc-900/80"
-                      }>
-                        <p className="whitespace-nowrap text-base font-black">{item.correct_count}/{item.total_cycles}</p>
-                        <p className={isSelected
-                          ? "text-xs font-semibold uppercase tracking-[0.2em] opacity-70"
-                          : "text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400"
-                        }>
-                          vs Rex
                         </p>
                       </div>
                     </button>
@@ -175,9 +163,14 @@ export function HistoryClient() {
                           {selectedDetail.topic}
                         </p>
                       </div>
-                      <p className="text-3xl font-black">
-                        {selectedItem?.correct_count}/{selectedItem?.total_cycles}
-                      </p>
+                      <div className="rounded-2xl bg-zinc-100 px-4 py-3 text-right dark:bg-zinc-900">
+                        <p className="text-3xl font-black">
+                          {selectedItem?.correct_count}/{selectedItem?.total_cycles}
+                        </p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">
+                          vs Rex
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <SessionDetail detail={selectedDetail} />
