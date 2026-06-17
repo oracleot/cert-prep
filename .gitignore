@@ -14,6 +14,7 @@
 /coverage
 agents/reports/
 /.playwright-mcp/
+agents/.playwright-mcp/
 /console-localhost.txt
 /*network*.txt
 /onboarding-*.png

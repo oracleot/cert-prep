@@ -14,6 +14,12 @@ export function AppNav() {
       <div className="flex flex-wrap items-center gap-2">
         <ThemeToggle />
         <Link
+          href="/history"
+          className="rounded-full border border-zinc-200 px-4 py-2 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
+        >
+          History
+        </Link>
+        <Link
           href="/progress"
           className="rounded-full border border-zinc-200 px-4 py-2 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
         >

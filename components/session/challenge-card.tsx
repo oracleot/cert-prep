@@ -35,14 +35,11 @@ export function ChallengeCard({ challenge, isLoading }: Props) {
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white/85 p-6 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80">
       <div className="mb-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-amber-300/15 px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
-          {challenge.domain}
-        </span>
         <span className="rounded-full border border-zinc-300 px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
           {challenge.topic}
         </span>
         <span className="rounded-full border border-sky-300 bg-sky-300/10 px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-700 dark:border-sky-700 dark:text-sky-300">
-          {difficulty} difficulty
+          {difficulty}
         </span>
       </div>
 

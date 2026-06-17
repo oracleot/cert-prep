@@ -101,3 +101,35 @@ export type DashboardSummary = {
   streak: SessionStreak;
   domains: DomainPlan[];
 };
+
+export type SessionHistoryItem = {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  exam_id: string;
+  domain: string;
+  topic: string;
+  total_cycles: number;
+  correct_count: number;
+};
+
+export type SessionHistoryExchange = {
+  cycle: number;
+  domain: string;
+  topic: string;
+  challenge: Challenge;
+  user_answer: string;
+  outcome: "correct" | "incorrect";
+  sage_response: string;
+  citations: Citation[];
+};
+
+export type SessionHistoryDetail = {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  exam_id: string;
+  domain: string;
+  topic: string;
+  exchanges: SessionHistoryExchange[];
+};

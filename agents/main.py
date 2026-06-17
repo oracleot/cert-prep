@@ -18,6 +18,7 @@ from db import (
 )
 from exam_artifacts import ensure_seeded
 from routes.dashboard import router as dashboard_router
+from routes.history import router as history_router
 from routes.jobs import router as jobs_router
 from routes.onboarding import router as onboarding_router
 from routes.session import router as session_router
@@ -60,6 +61,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Gauntlet LangGraph Service", lifespan=lifespan)
 app.include_router(dashboard_router)
+app.include_router(history_router)
 app.include_router(jobs_router)
 app.include_router(onboarding_router)
 app.include_router(session_router)
