@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-MODEL = "anthropic/claude-sonnet-4.6"
+MODEL = "anthropic/claude-haiku-4.5"
 
 EVALUATOR_SYSTEM = """You are a strict certification evaluator. Your job is to assess whether a user's answer demonstrates correct understanding of the service, concept, or behaviour in question for the active exam.
 
