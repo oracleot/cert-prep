@@ -1,27 +1,18 @@
 from __future__ import annotations
 
 import json
-import re
 from copy import deepcopy
 from typing import Any
-
-from langchain_core.messages import HumanMessage, SystemMessage
 
 from blueprint import default_curriculum
 from curriculum_progress import domain_overview, performance_map, topic_performance_map
 from coverage_scheduler import select_rechallenge_target, select_today_target
-from curriculum_topics import coverage_matrix, valid_domains
+from curriculum_topics import coverage_matrix
 from db import get_pool, has_pool
 from domain_difficulty_repository import read_domain_difficulties
 from exam_artifacts.loader import load_artifact_from_file
-from llm import get_llm
 from performance_repository import calculate_readiness, read_readiness_score, read_rex_record
 from streak_repository import read_session_streak
-from prompts.curriculum_builder import MODEL, build_curriculum_prompt
-
-
-def _strip_code_fences(text: str) -> str:
-    return re.sub(r"^```(?:json)?\n?|```$", "", text, flags=re.MULTILINE).strip()
 
 
 def _fallback_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
@@ -47,15 +38,11 @@ def _fallback_curriculum(blueprint: list[dict], learning_style: str) -> list[dic
 
 
 def build_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
-    try:
-        system, user = build_curriculum_prompt(blueprint, learning_style)
-        response = get_llm(MODEL).invoke([SystemMessage(content=system), HumanMessage(content=user)])
-        raw = response.content if isinstance(response.content, str) else str(response.content)
-        domains = json.loads(_strip_code_fences(raw))
-        if valid_domains(domains, blueprint):
-            return sorted(domains, key=lambda item: item["study_order"])
-    except Exception:
-        pass
+    """Order the four blueprint domains for this learning_style.
+
+    The blueprint is static and the LLM had no signal beyond learning_style —
+    the deterministic fallback does the same job without a roundtrip.
+    """
     return _fallback_curriculum(blueprint, learning_style)
 
 
