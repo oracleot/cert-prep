@@ -9,6 +9,10 @@ import { getBrowserTimezone } from "@/lib/browser-timezone";
 import { loadThreadId } from "@/app/session/session-persistence";
 import type { DashboardSummary, DomainPlan } from "@/lib/types";
 
+function formatPercent(value: number) {
+  return Number.isInteger(value) ? value.toString() : value.toFixed(2).replace(/\.?0+$/, "");
+}
+
 function DomainTile({ domain }: { domain: DomainPlan }) {
   const covered = domain.covered_topic_count || 0;
   const topicCount = domain.topic_count || domain.topics.length;
@@ -28,7 +32,7 @@ function DomainTile({ domain }: { domain: DomainPlan }) {
         {covered}/{topicCount} topics covered - {domain.correct_count || 0}/{domain.total_count || 0} vs Rex
       </p>
       <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
-        {domain.weight}% weight x {Math.round(domain.performance_score * 100)}% performance = {domain.readiness_contribution || 0}%
+        {domain.weight}% weight x {formatPercent(domain.performance_score * 100)}% topic mastery = {formatPercent(domain.readiness_contribution || 0)}%
       </p>
     </div>
   );
@@ -98,7 +102,7 @@ export function DashboardClient() {
             </p>
             <div className="mt-6 flex items-end gap-3">
               <span className="text-7xl font-black tracking-tighter sm:text-8xl">
-                {summary.readiness_score}%
+                {formatPercent(summary.readiness_score)}%
               </span>
               {summary.readiness_score === 0 ? (
                 <span className="mb-3 rounded-full border border-zinc-300 px-3 py-1 text-xs font-bold text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">

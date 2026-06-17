@@ -13,32 +13,30 @@ def calculate_readiness(
     domains: Sequence[Mapping[str, Any]],
     stats: dict[str, dict[str, int]],
     topic_stats: dict[str, dict[str, int]] | None = None,
-) -> tuple[int, list[dict]]:
+) -> tuple[float, list[dict]]:
     """Top-level readiness score and per-domain breakdown.
 
-    Each domain contributes:  weight * coverage * performance
-    where coverage    = topics_attempted / topics_in_domain
-          performance = correct / total on attempted topics
-    Multiplying by coverage stops a single lucky answer from counting
-    for the full weight of a domain.
+    Each domain contributes: domain_weight * average_topic_mastery.
+    Untouched topics contribute 0 to the average.
     """
     topic_stats = topic_stats or {}
     breakdown = []
+    total_score = 0.0
     for domain in domains:
         stat = stats.get(domain["name"], {"correct_count": 0, "total_count": 0})
         total = stat["total_count"]
-        performance = stat["correct_count"] / total if total else 0
         readiness = domain_readiness(domain, stat, topic_stats)
         contribution = domain["weight"] * readiness
+        total_score += contribution
         breakdown.append({
             "domain": domain["name"],
             "weight": domain["weight"],
             "correct_count": stat["correct_count"],
             "total_count": total,
-            "performance_score": round(performance, 2),
-            "readiness_contribution": round(contribution),
+            "performance_score": round(readiness, 4),
+            "readiness_contribution": round(contribution, 2),
         })
-    return round(sum(item["readiness_contribution"] for item in breakdown)), breakdown
+    return round(total_score, 2), breakdown
 
 
 async def _domain_stats(user_id: str, exam_id: str) -> dict[str, dict[str, int]]:
@@ -131,7 +129,7 @@ async def read_readiness_score(user_id: str, exam_id: str) -> dict[str, Any] | N
             row = await cur.fetchone()
     if not row:
         return None
-    return {"score": row[0], "breakdown": json.loads(row[1]) if isinstance(row[1], str) else row[1]}
+    return {"score": float(row[0]), "breakdown": json.loads(row[1]) if isinstance(row[1], str) else row[1]}
 
 
 async def record_rex_result(user_id: str, exam_id: str, outcome: str) -> None:

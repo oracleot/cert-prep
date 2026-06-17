@@ -9,26 +9,17 @@ from db import get_pool, has_pool
 
 def domain_readiness(
     domain: Mapping[str, Any],
-    stat: Mapping[str, int],
+    _stat: Mapping[str, int],
     topic_stats: Mapping[str, Mapping[str, int]],
 ) -> float:
-    """Readiness for a single domain: coverage * performance.
+    """Readiness for a single domain: average topic mastery.
 
-    coverage    = topics_attempted / topics_in_domain
-    performance = correct / total on attempted topics
-    Multiplying by coverage stops a single correct answer in one topic
-    from contributing the full weight of the domain to the score.
+    Each topic gets an equal slice of the domain weight. Untouched topics
+    contribute 0, so one partially-mastered topic cannot fill a domain.
     """
     topics = domain.get("topics", []) or []
     total_topics = max(len(topics), 1)
-    attempted = sum(
-        1 for topic in topics
-        if topic_stats.get(topic_label(topic), {}).get("total_count", 0) > 0
-    )
-    coverage = attempted / total_topics
-    total = stat.get("total_count", 0)
-    performance = stat.get("correct_count", 0) / total if total else 0
-    return coverage * performance
+    return sum(_topic_mastery(topic, topic_stats) for topic in topics) / total_topics
 
 
 async def performance_map(user_id: str, exam_id: str) -> dict[str, dict[str, int]]:
@@ -82,20 +73,25 @@ def domain_overview(
         topics = domain.get("topics", [])
         topic_count = max(len(topics), 1)
         covered_topics = _covered_topic_count(topics, topic_stats)
-        performance = stat["correct_count"] / total if total else 0
         readiness = domain_readiness(domain, stat, topic_stats)
         contribution = domain["weight"] * readiness
         overview.append({
             **domain,
             "correct_count": stat["correct_count"],
             "total_count": total,
-            "performance_score": round(performance, 2),
-            "readiness_contribution": round(contribution),
+            "performance_score": round(readiness, 4),
+            "readiness_contribution": round(contribution, 2),
             "topic_count": topic_count,
             "covered_topic_count": covered_topics,
             "completion_percent": min(100, round((covered_topics / topic_count) * 100)),
         })
     return overview
+
+
+def _topic_mastery(topic: Any, stats: Mapping[str, Mapping[str, int]]) -> float:
+    stat = stats.get(topic_label(topic), {})
+    total = stat.get("total_count", 0)
+    return stat.get("correct_count", 0) / total if total else 0
 
 
 def _covered_topic_count(topics: list[Any], stats: dict[str, dict[str, int]]) -> int:
