@@ -1,12 +1,20 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { useSession } from "./use-session";
 import { ChallengeCard } from "@/components/session/challenge-card";
 import { AnswerForm } from "@/components/session/answer-form";
 import { SageCard } from "@/components/session/sage-card";
 import { SummaryScreen } from "@/components/session/summary-screen";
+import { clearThreadId } from "./session-persistence";
 
 export default function SessionPage() {
+  const router = useRouter();
+  const endSession = () => {
+    clearThreadId();
+    router.push("/dashboard");
+  };
   const {
     phase,
     cycle,
@@ -81,6 +89,13 @@ export default function SessionPage() {
                   {domain}
                 </h1>
               </div>
+              <button
+                type="button"
+                onClick={endSession}
+                className="min-h-10 shrink-0 rounded-full border border-zinc-300 px-4 text-xs font-black uppercase tracking-wider text-zinc-600 hover:border-zinc-950 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-100 dark:hover:text-zinc-100"
+              >
+                End session
+              </button>
 
               <div className="shrink-0 rounded-2xl bg-zinc-950 px-4 py-3 text-right text-zinc-50 shadow-lg shadow-zinc-950/10 dark:bg-zinc-50 dark:text-zinc-950">
                 <p className="text-[0.6rem] font-semibold uppercase tracking-[0.25em] opacity-60">
