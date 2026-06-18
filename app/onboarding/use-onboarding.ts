@@ -11,26 +11,12 @@ import {
 } from "./onboarding-api";
 import { loadOnboardingId, saveOnboardingId } from "./onboarding-persistence";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { openOnboardingFeed, type FeedIssue } from "@/lib/onboarding-feed";
 import type { AgentFeedEvent, DomainPlan, ExamOption, LearningStyle } from "@/lib/types";
 
 type Step = "welcome" | "exam" | "style" | "feed" | "plan";
 
-function openFeed(
-  onboardingId: string,
-  onEvent: (event: AgentFeedEvent) => void,
-  onComplete: () => void,
-) {
-  const source = new EventSource(`/api/onboarding/feed?onboarding_id=${onboardingId}`);
-  source.onmessage = (message) => {
-    const event = JSON.parse(message.data) as AgentFeedEvent;
-    onEvent(event);
-    if (event.agent === "Curriculum Builder" && event.status === "complete") {
-      source.close();
-      onComplete();
-    }
-  };
-  return source;
-}
+const STALE_FEED_MS = 60_000;
 
 export function useOnboarding() {
   const router = useRouter();
@@ -41,31 +27,82 @@ export function useOnboarding() {
   const [domains, setDomains] = useState<DomainPlan[]>([]);
   const [examOptions, setExamOptions] = useState<ExamOption[]>([]);
   const [error, setError] = useState("");
+  const [feedIssue, setFeedIssue] = useState<FeedIssue | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const feedRef = useRef<EventSource | null>(null);
+  const staleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearStaleTimer = useCallback(() => {
+    if (!staleTimerRef.current) return;
+    clearTimeout(staleTimerRef.current);
+    staleTimerRef.current = null;
+  }, []);
 
   const loadPlan = useCallback(async (userId: string) => {
     const res = await dashboardSummaryRequest(userId);
-    if (!res.ok) return false;
+    if (!res.ok) {
+      setFeedIssue({
+        message: "Your plan was built, but the summary could not load.",
+        action: "plan",
+      });
+      return false;
+    }
     const summary = await res.json();
     setDomains(summary.domains || []);
+    setFeedIssue(null);
     setStep("plan");
     return true;
   }, []);
 
+  const reconcileFeed = useCallback(async (onboardingId: string, userId: string) => {
+    const res = await onboardingStateRequest(userId);
+    const data = res.ok ? await res.json() : null;
+    if (data?.run?.id === onboardingId && data.run.status === "complete") {
+      await loadPlan(userId);
+      return;
+    }
+    setFeedIssue({
+      message: data?.run?.status === "failed"
+        ? "The build failed. Try again with the same choices."
+        : "The build is taking longer than expected. Try again.",
+      action: "build",
+    });
+  }, [loadPlan]);
+
   const connectFeed = useCallback((onboardingId: string, userId: string) => {
+    const resetStaleTimer = () => {
+      clearStaleTimer();
+      staleTimerRef.current = setTimeout(() => {
+        feedRef.current?.close();
+        void reconcileFeed(onboardingId, userId);
+      }, STALE_FEED_MS);
+    };
+
     feedRef.current?.close();
-    feedRef.current = openFeed(
-      onboardingId,
-      (event) => {
+    resetStaleTimer();
+    feedRef.current = openOnboardingFeed(onboardingId, {
+      onEvent: (event) => {
+        setFeedIssue(null);
+        resetStaleTimer();
         setEvents((current) => {
           if (event.id && current.some((item) => item.id === event.id)) return current;
           return [...current, event];
         });
       },
-      () => void loadPlan(userId),
-    );
-  }, [loadPlan]);
+      onComplete: () => {
+        clearStaleTimer();
+        void loadPlan(userId);
+      },
+      onFailure: (message) => {
+        clearStaleTimer();
+        setFeedIssue({ message, action: "build" });
+      },
+      onError: () => {
+        clearStaleTimer();
+        void reconcileFeed(onboardingId, userId);
+      },
+    });
+  }, [clearStaleTimer, loadPlan, reconcileFeed]);
 
   useEffect(() => {
     let active = true;
@@ -79,16 +116,27 @@ export function useOnboarding() {
         const data = res.ok ? await res.json() : null;
         if (!active) return;
 
-        if (data?.curriculum) {
-          router.replace("/dashboard");
-          return;
+        const savedOnboardingId = loadOnboardingId();
+        const onboardingId = data?.run?.id || savedOnboardingId;
+        if (data?.run) {
+          setExamName(data.run.exam_name || "");
+          setLearningStyle(data.run.learning_style || "mixed_review");
         }
-
-        const onboardingId = data?.run?.id || loadOnboardingId();
-        if (onboardingId) {
+        if (data?.run && onboardingId && data.run.status !== "complete") {
           saveOnboardingId(onboardingId);
           setStep("feed");
           connectFeed(onboardingId, userId);
+          return;
+        }
+
+        if (data?.run?.id === savedOnboardingId && data?.curriculum) {
+          await loadPlan(userId);
+          return;
+        }
+
+        if (data?.curriculum) {
+          router.replace("/dashboard");
+          return;
         }
       } finally {
         if (active) setIsLoading(false);
@@ -99,11 +147,14 @@ export function useOnboarding() {
     return () => {
       active = false;
       feedRef.current?.close();
+      clearStaleTimer();
     };
-  }, [connectFeed, loadPlan, router]);
+  }, [clearStaleTimer, connectFeed, loadPlan, router]);
 
   async function start() {
     setError("");
+    setFeedIssue(null);
+    clearStaleTimer();
     setIsLoading(true);
     const userId = getAnonymousUserId();
     const res = await startOnboardingRequest({
@@ -125,6 +176,11 @@ export function useOnboarding() {
     connectFeed(data.onboarding_id, userId);
   }
 
+  function retryPlan() {
+    setFeedIssue(null);
+    void loadPlan(getAnonymousUserId());
+  }
+
   return {
     step,
     setStep,
@@ -136,7 +192,9 @@ export function useOnboarding() {
     domains,
     examOptions,
     error,
+    feedIssue,
     isLoading,
     start,
+    retryPlan,
   };
 }

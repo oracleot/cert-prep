@@ -49,7 +49,15 @@ export default function OnboardingPage() {
               isLoading={onboarding.isLoading}
             />
           ) : null}
-          {onboarding.step === "feed" ? <AgentFeed events={onboarding.events} /> : null}
+          {onboarding.step === "feed" ? (
+            <AgentFeed
+              events={onboarding.events}
+              issue={onboarding.feedIssue}
+              onRetryBuild={onboarding.start}
+              onRetryPlan={onboarding.retryPlan}
+              onBack={() => onboarding.setStep("style")}
+            />
+          ) : null}
           {onboarding.step === "plan" ? <PlanReveal domains={onboarding.domains} /> : null}
         </div>
       </div>
