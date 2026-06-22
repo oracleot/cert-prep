@@ -9,6 +9,9 @@ from typing import Any
 
 from fastapi import HTTPException
 from langchain_core.messages import HumanMessage, SystemMessage
+
+# Top-level import so test patches on this module name succeed.
+from concepts.selector import NoReadyConcept, select_rechallenge_concept  # noqa: F401
 from llm import get_llm, model_for
 from prompts.rex import MODEL, build_rex_rechallenge_prompt
 from state import AppState
@@ -31,8 +34,6 @@ async def rex_rechallenge(state: AppState) -> dict:
 
     Raises HTTPException(422) if no ready concept exists for rechallenge.
     """
-    from concepts.selector import NoReadyConcept, select_rechallenge_concept
-
     current = state["current_challenge"]
     if state.get("answer_intent") == "knowledge_gap":
         target: dict[str, Any] = dict(current)
@@ -41,7 +42,7 @@ async def rex_rechallenge(state: AppState) -> dict:
         )
     else:
         try:
-            target = await select_rechallenge_concept(
+            target = select_rechallenge_concept(
                 exam_id=state["exam_id"],
                 domain=state["current_domain"],
                 previous_concept_id=state.get("current_concept_id", ""),

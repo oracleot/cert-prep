@@ -12,15 +12,25 @@ You respond ONLY with valid JSON. No preamble. No explanation. No markdown fence
 export type RexChallengeInput = {
   domain: string;
   difficulty?: "easy" | "medium" | "hard";
+  task_statement?: string;
+  services?: string[];
+  source_ids?: string[];
+  concept_id?: string;
 };
 
 export function buildRexChallengePrompt(input: RexChallengeInput): {
   system: string;
   user: string;
 } {
+  const sourceContext = _sourceContext(
+    input.task_statement,
+    input.services,
+    input.source_ids,
+    input.concept_id
+  );
   return {
     system: REX_SYSTEM,
-    user: `Generate a certification challenge for the "${input.domain}" domain at ${input.difficulty ?? "medium"} difficulty.
+    user: `Generate a certification challenge for the "${input.domain}" domain at ${input.difficulty ?? "medium"} difficulty.${sourceContext ? `\n\nSource grounding:\n${sourceContext}` : ""}
 
 Return exactly this JSON shape — nothing else:
 {
@@ -35,18 +45,28 @@ Return exactly this JSON shape — nothing else:
 export type RexRechallengeInput = {
   domain: string;
   previousTopic: string;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty?: "easy" | "medium" | "hard";
+  task_statement?: string;
+  services?: string[];
+  source_ids?: string[];
+  concept_id?: string;
 };
 
 export function buildRexRechallengePrompt(input: RexRechallengeInput): {
   system: string;
   user: string;
 } {
+  const sourceContext = _sourceContext(
+    input.task_statement,
+    input.services,
+    input.source_ids,
+    input.concept_id
+  );
   return {
     system: REX_SYSTEM,
     user: `The challenger just saw Sage explain "${input.previousTopic}" in the "${input.domain}" domain. Now raise the stakes.
 
-Generate a harder challenge on the SAME domain — different topic, higher-pressure scenario, more nuanced question. Difficulty: ${input.difficulty}.
+Generate a harder challenge on the SAME domain — different topic, higher-pressure scenario, more nuanced question. Difficulty: ${input.difficulty ?? "medium"}.${sourceContext ? `\n\nSource grounding:\n${sourceContext}` : ""}
 
 Return exactly this JSON shape — nothing else:
 {
@@ -56,4 +76,20 @@ Return exactly this JSON shape — nothing else:
   "question": "<harder, more nuanced question — avoid yes/no, demand specific exam knowledge>"
 }`,
   };
+}
+
+function _sourceContext(
+  task_statement?: string,
+  services?: string[],
+  source_ids?: string[],
+  concept_id?: string
+): string {
+  const lines: string[] = [];
+  if (concept_id) lines.push(`Concept ID for grounding: "${concept_id}".`);
+  if (task_statement) lines.push(`Official task statement: "${task_statement}".`);
+  if (services && services.length > 0)
+    lines.push(`Use these services or concepts as context: ${services.join(", ")}.`);
+  if (source_ids && source_ids.length > 0)
+    lines.push(`Source IDs for traceability: ${source_ids.join(", ")}.`);
+  return lines.join("\n");
 }

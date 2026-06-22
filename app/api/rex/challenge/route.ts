@@ -10,19 +10,38 @@ import type { Challenge } from "@/lib/types";
 export async function POST(req: NextRequest) {
   let domain = "Deployment";
   let difficulty: "easy" | "medium" | "hard" = "medium";
+  let task_statement = "";
+  let services: string[] = [];
+  let source_ids: string[] = [];
+  let concept_id = "";
 
   try {
     const body = (await req.json()) as {
       domain?: string;
       difficulty?: "easy" | "medium" | "hard";
+      task_statement?: string;
+      services?: string[];
+      source_ids?: string[];
+      concept_id?: string;
     };
     if (body.domain) domain = body.domain;
     if (body.difficulty) difficulty = body.difficulty;
+    if (body.task_statement) task_statement = body.task_statement;
+    if (body.services) services = body.services;
+    if (body.source_ids) source_ids = body.source_ids;
+    if (body.concept_id) concept_id = body.concept_id;
   } catch {
     // Use defaults if body is absent or malformed
   }
 
-  const { system, user } = buildRexChallengePrompt({ domain, difficulty });
+  const { system, user } = buildRexChallengePrompt({
+    domain,
+    difficulty,
+    task_statement,
+    services,
+    source_ids,
+    concept_id,
+  });
 
   const result = await callOpenRouterJson<Challenge>({
     model: MODEL,
@@ -55,6 +74,12 @@ export async function POST(req: NextRequest) {
       { status: 502 },
     );
   }
+
+  // Stamp concept fields if provided; they are advisory.
+  if (concept_id) challenge.concept_id = concept_id;
+  if (task_statement) challenge.task_statement = task_statement;
+  if (services.length > 0) challenge.services = services;
+  if (source_ids.length > 0) challenge.source_ids = source_ids;
 
   // Dev logging per AC 1.3
   if (process.env.NODE_ENV === "development") {

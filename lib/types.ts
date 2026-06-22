@@ -1,6 +1,7 @@
 // Shared domain types for the app and API proxy boundaries.
 
 export type Challenge = {
+  concept_id?: string;
   domain: string;
   topic: string;
   topic_id?: string;

@@ -9,6 +9,9 @@ from onboarding_repository import get_learning_style
 from repositories import create_session
 from state import AppState
 
+# Top-level import so test patches on this module name succeed.
+from concepts.selector import NoReadyConcept, select_initial_concept  # noqa: F401
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +45,6 @@ async def coach_open(state: AppState) -> dict:
 
     Raises HTTPException(422) if no ready concept exists for the requested domain.
     """
-    from concepts.selector import NoReadyConcept, select_initial_concept
     from curriculum_repository import get_active_curriculum
 
     user_id = state["user_id"]

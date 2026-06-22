@@ -70,6 +70,8 @@ async def start_session(req: SessionStartRequest):
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):
             await graph.ainvoke(state, config=config)
+    except HTTPException:
+        raise  # Let FastAPI handle HTTPExceptions (e.g. 422 from NoReadyConcept)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -181,6 +183,8 @@ async def next_challenge(req: SessionNextRequest):
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):
             await graph.ainvoke(None, config=config)
+    except HTTPException:
+        raise  # Let FastAPI handle HTTPExceptions (e.g. 422 from NoReadyConcept)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 

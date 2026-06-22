@@ -96,16 +96,97 @@ def build_session_graph() -> StateGraph:
     return graph
 
 
-_cached_graph: CompiledStateGraph | None = None
+_cached_graph: "NodeAwareGraph" | None = None
 
 
-def get_session_graph() -> CompiledStateGraph:
+class NodeAwareGraph:
+    """Thin wrapper around CompiledStateGraph that supports ``invoke(input, node='name')``.
+
+    When ``node`` is passed as a keyword argument, runs only that single node
+    and returns the merged state dict — matching the test contract for
+    task 9.3 integration tests.
+
+    The wrapper is transparent for normal invocations (no ``node`` kwarg).
+    """
+
+    __slots__ = ("_graph",)
+
+    def __init__(self, graph: CompiledStateGraph) -> None:
+        object.__setattr__(self, "_graph", graph)
+
+    def __getattr__(self, name: str):
+        return getattr(self._graph, name)
+
+    def __repr__(self) -> str:
+        return f"NodeAwareGraph({self._graph!r})"
+
+    def invoke(
+        self,
+        input: dict,
+        config=None,
+        *,
+        node: str | None = None,
+        **kwargs,
+    ):
+        if node is None:
+            return self._graph.invoke(input, config, **kwargs)
+        return _run_single_node(self._graph, node, input)
+
+    async def ainvoke(self, input: dict, config=None, *, node: str | None = None, **kwargs):
+        if node is None:
+            return await self._graph.ainvoke(input, config, **kwargs)
+        return await _arun_single_node(self._graph, node, input)
+
+
+def _run_single_node(graph: CompiledStateGraph, node_name: str, state: dict) -> dict:
+    """Run a single named node synchronously and return the merged state.
+
+    Uses ainvoke internally since all session graph nodes are async.
+    Detects whether there is a running event loop and uses the appropriate
+    strategy: asyncio.run() for sync contexts, loop.run_until_complete() for
+    async contexts (e.g. pytest-asyncio).
+    """
+    import asyncio
+
+    raw = graph.nodes[node_name]
+
+    async def _invoke(s: dict) -> dict:
+        if hasattr(raw, "ainvoke"):
+            result = await raw.ainvoke(s)
+        else:
+            result = await raw.invoke(s)
+        merged = dict(s)
+        merged.update(result)
+        return merged
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        # No running loop — safe to use asyncio.run().
+        return asyncio.run(_invoke(state))
+
+    # Running loop exists (pytest-asyncio scenario) — use run_until_complete.
+    fut = asyncio.ensure_future(_invoke(state))
+    return loop.run_until_complete(fut)
+
+
+async def _arun_single_node(graph: CompiledStateGraph, node_name: str, state: dict) -> dict:
+    """Async version: run a single named node and return the merged state."""
+    node_fn = graph.nodes[node_name].fn
+    result = node_fn(state) if not asyncio.iscoroutinefunction(node_fn) else await node_fn(state)
+    merged = dict(state)
+    merged.update(result)
+    return merged
+
+
+def get_session_graph() -> NodeAwareGraph:
     """Lazily compile the graph with the Postgres checkpointer.
     First call wires it; subsequent calls return the cached instance."""
     global _cached_graph
     if _cached_graph is None:
-        _cached_graph = build_session_graph().compile(
+        raw = build_session_graph().compile(
             checkpointer=get_checkpointer(),
             interrupt_before=["evaluate_answer", "rex_rechallenge"]
         )
+        _cached_graph = NodeAwareGraph(raw)
     return _cached_graph
