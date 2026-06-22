@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LangGraph Interrupts in Rex/Sage</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>LangGraph Interrupts in Rex/Sage</h1>
+  <p class="subtitle">Where the session graph intentionally pauses, what state exists there, and which API route resumes it.</p>
+
+  <section class="card">
+    <h2>The compile line</h2>
+    <pre><code>raw = build_session_graph().compile(
+    checkpointer=get_checkpointer(),
+    interrupt_before=["evaluate_answer", "rex_rechallenge"]
+)</code></pre>
+    <p><code>interrupt_before</code> means: when execution reaches one of those nodes, LangGraph saves the checkpoint and stops <em>before</em> running the node.</p>
+  </section>
+
+  <section>
+    <h2>Pause points</h2>
+    <ul>
+      <li><strong>Before <code>evaluate_answer</code></strong>: Rex has produced a challenge; the graph waits for the user answer.</li>
+      <li><strong>Before <code>rex_rechallenge</code></strong>: Sage has responded; the graph waits for the user to request the next challenge.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Route responsibilities</h2>
+    <ul>
+      <li><code>/session/start</code>: starts the graph; it pauses before <code>evaluate_answer</code>.</li>
+      <li><code>/session/submit</code>: writes <code>user_answer</code>, then resumes from <code>evaluate_answer</code>.</li>
+      <li><code>/session/state</code>: reads the checkpoint snapshot and reports UI phase.</li>
+      <li><code>/session/next</code>: resumes from <code>rex_rechallenge</code>, then pauses before the next <code>evaluate_answer</code>.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Phase detector</h2>
+    <pre><code>def _snapshot_phase(snapshot):
+    nodes = set(snapshot.next or [])
+    if not nodes:
+        return "summary"
+    return "sage_done" if "rex_rechallenge" in nodes else "ready"</code></pre>
+    <p>The UI phase is inferred from the next node LangGraph is waiting to run.</p>
+  </section>
+
+  <section>
+    <h2>Memory hook</h2>
+    <p><strong>An interrupt is a bookmark before a node.</strong> The checkpointer remembers the page. The API route writes the missing state. Calling <code>ainvoke(None, config)</code> continues from the bookmark.</p>
+  </section>
+</main>
+</body>
+</html>
