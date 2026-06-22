@@ -22,6 +22,7 @@ agents/.playwright-mcp/
 /sage-citations.png
 /unsupported-*.png
 /unsupported-*.txt
+/pi-session-*.html
 
 # next.js
 /.next/
