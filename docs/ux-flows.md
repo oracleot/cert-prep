@@ -97,6 +97,14 @@ Daily re-entry pattern:
 | First Rex challenge | "This is relevant to the real exam" | Challenge card shows domain + topic tag (e.g. "DVA-C02 · Deployment") |
 | Sage explanation after wrong answer | "This is accurate — I can trust it for the exam" | Sage is confident, specific, never hedges, cites relevant AWS service/concept directly |
 | Exam Readiness Score | "This number means something" | Score formula is visible — weighted by official domain weights shown in UI, not a black box |
+| Sage explanation | "This is grounded, not invented" | Sage cites only resources attached to the selected concept; if no real URL exists, it shows no link instead of inventing one. |
+
+### Review next block
+After Sage's explanation, show a compact `Review next` block with 1–3 resources.
+
+- Official AWS docs links are allowed when present in the curated concept record.
+- Skill Builder lessons without URLs appear as source references, not clickable links.
+- Missed concepts prioritize docs; hands-on gaps prioritize labs or SimuLearn when available.
 
 ## Destructive Actions
 | Action | Risk | Prevention |
