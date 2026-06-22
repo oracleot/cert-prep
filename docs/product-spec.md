@@ -20,6 +20,16 @@ An AI-powered certification prep app that replaces passive reading with scenario
 ## Core Promise
 Replace passive reading with an engaging challenge loop that is fun enough to open daily and effective enough to measurably increase exam readiness.
 
+## Grounded Resource Strategy
+DVA-C02 content should be grounded in curated Skill Builder lesson notes, SimuLearn scenarios, AWS Builder Labs, and official AWS documentation links from `docs/aws dva-c02.md`.
+
+- Curate at concept level, not transcript level.
+- App code selects the `conceptId`; Rex, Sage, and Evaluator do not pick unsupported topics.
+- Rex generates only from the selected concept's facts, traps, and expected-answer criteria.
+- Sage explains from the same concept packet and appends a `Review next` block with only real URLs.
+- Lesson transcript claims may inform grounding, but only official docs / real Skill Builder or lab URLs are shown as links.
+- Concept misses are tracked internally; V1 UI remains domain-level unless explicitly expanded.
+
 ## V1 Scope
 ### In scope
 - Onboarding Agent (exam input + learning style selection only)
