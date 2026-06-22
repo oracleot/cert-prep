@@ -7,9 +7,8 @@ import json
 import re
 from typing import Any
 
+from fastapi import HTTPException
 from langchain_core.messages import HumanMessage, SystemMessage
-
-from curriculum_repository import choose_rechallenge_target
 from llm import get_llm, model_for
 from prompts.rex import MODEL, build_rex_rechallenge_prompt
 from state import AppState
@@ -28,19 +27,29 @@ def _gap_followup_difficulty(current: str, learning_style: str) -> str:
 
 
 async def rex_rechallenge(state: AppState) -> dict:
-    """Generate a harder challenge on the same domain, increment the cycle."""
+    """Generate a harder challenge on the same domain, increment the cycle.
+
+    Raises HTTPException(422) if no ready concept exists for rechallenge.
+    """
+    from concepts.selector import NoReadyConcept, select_rechallenge_concept
+
     current = state["current_challenge"]
     if state.get("answer_intent") == "knowledge_gap":
         target: dict[str, Any] = dict(current)
-        target["difficulty"] = _gap_followup_difficulty(current.get("difficulty", "medium"), state.get("learning_style", ""))
-    else:
-        target = await choose_rechallenge_target(
-            user_id=state["user_id"],
-            exam_id=state["exam_id"],
-            domain=state["current_domain"],
-            previous_topic=current["topic"],
-            previous_task_statement_id=current.get("task_statement_id", ""),
+        target["difficulty"] = _gap_followup_difficulty(
+            current.get("difficulty", "medium"), state.get("learning_style", "")
         )
+    else:
+        try:
+            target = await select_rechallenge_concept(
+                exam_id=state["exam_id"],
+                domain=state["current_domain"],
+                previous_concept_id=state.get("current_concept_id", ""),
+                user_id=state["user_id"],
+            )
+        except NoReadyConcept as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     system, user = build_rex_rechallenge_prompt(
         exam_id=state["exam_id"],
         domain=state["current_domain"],
@@ -68,7 +77,9 @@ async def rex_rechallenge(state: AppState) -> dict:
         raise ValueError(f"rex_rechallenge returned invalid shape: {challenge}")
 
     return {
+        "current_concept_id": target.get("id", state.get("current_concept_id", "")),
         "current_challenge": {
+            "concept_id": target.get("id", state.get("current_concept_id", "")),
             "domain": state["current_domain"],
             "topic": target.get("topic") or challenge["topic"],
             "topic_id": target.get("topic_id", ""),
