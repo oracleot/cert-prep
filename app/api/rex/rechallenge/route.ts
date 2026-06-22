@@ -37,6 +37,13 @@ export async function POST(req: NextRequest) {
     // Use defaults
   }
 
+  if (!concept_id || !task_statement || source_ids.length === 0) {
+    return NextResponse.json(
+      { error: "Rex rechallenge requires a selected concept packet" },
+      { status: 422 },
+    );
+  }
+
   const { system, user } = buildRexRechallengePrompt({
     domain,
     previousTopic,

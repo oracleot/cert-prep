@@ -28,6 +28,7 @@ def rex_challenge(state: AppState, config: RunnableConfig) -> dict:
         task_statement=state.get("current_task_statement", ""),
         services=state.get("current_services", []),
         source_ids=state.get("current_source_ids", []),
+        concept_id=state.get("current_concept_id", ""),
         learning_style=state.get("learning_style", ""),
         familiarity_level=state.get("familiarity_level", "new"),
     )

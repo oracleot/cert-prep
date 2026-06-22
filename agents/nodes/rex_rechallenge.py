@@ -10,6 +10,7 @@ from typing import Any
 from fastapi import HTTPException
 from langchain_core.messages import HumanMessage, SystemMessage
 
+from concepts.packet import concept_packet_fields
 from concepts.selector import NoReadyConcept, select_rechallenge_concept
 from llm import get_llm, llm_runtime, model_for
 from prompts.rex import MODEL, build_rex_rechallenge_prompt
@@ -56,20 +57,21 @@ async def rex_rechallenge(state: AppState) -> dict:
         except NoReadyConcept as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    concept_id = target.get("id", state.get("current_concept_id", ""))
+    concept_id = target.get("id", target.get("concept_id", state.get("current_concept_id", "")))
+    packet = concept_packet_fields({**target, "id": concept_id})
 
     system, user = build_rex_rechallenge_prompt(
         exam_id=state["exam_id"],
         domain=state["current_domain"],
         concept_id=concept_id,
         previous_topic=current["topic"],
-        topic=target.get("topic", ""),
-        difficulty=target.get("difficulty", "hard"),
+        topic=packet["topic"],
+        difficulty=packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard"),
         task_statement=target.get("task_statement", ""),
-        services=target.get("services", []),
-        source_ids=target.get("source_ids", []),
+        services=packet["services"],
+        source_ids=packet["source_ids"],
         learning_style=state.get("learning_style", ""),
-        familiarity_level=target.get("familiarity_level", state.get("familiarity_level", "new")),
+        familiarity_level=packet["familiarity_level"],
     )
 
     # Set the API key in the runtime context so get_llm finds it.
@@ -96,25 +98,25 @@ async def rex_rechallenge(state: AppState) -> dict:
         "current_challenge": {
             "concept_id": concept_id,
             "domain": state["current_domain"],
-            "topic": target.get("topic") or challenge["topic"],
-            "topic_id": target.get("topic_id", ""),
-            "task_statement_id": target.get("task_statement_id", ""),
+            "topic": packet["topic"],
+            "topic_id": packet["topic_id"],
+            "task_statement_id": packet["task_statement_id"],
             "task_statement": target.get("task_statement", ""),
-            "difficulty": target.get("difficulty", "hard"),
-            "services": target.get("services", []),
-            "source_ids": target.get("source_ids", []),
-            "familiarity_level": target.get("familiarity_level", state.get("familiarity_level", "new")),
+            "difficulty": packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard"),
+            "services": packet["services"],
+            "source_ids": packet["source_ids"],
+            "familiarity_level": packet["familiarity_level"],
             "scenario": challenge["scenario"],
             "question": challenge["question"],
         },
-        "current_topic": target.get("topic") or challenge["topic"],
-        "current_topic_id": target.get("topic_id", ""),
-        "current_task_statement_id": target.get("task_statement_id", ""),
+        "current_topic": packet["topic"],
+        "current_topic_id": packet["topic_id"],
+        "current_task_statement_id": packet["task_statement_id"],
         "current_task_statement": target.get("task_statement", ""),
-        "current_services": target.get("services", []),
-        "current_source_ids": target.get("source_ids", []),
-        "familiarity_level": target.get("familiarity_level", state.get("familiarity_level", "new")),
-        "rex_difficulty": target.get("difficulty", "hard"),
+        "current_services": packet["services"],
+        "current_source_ids": packet["source_ids"],
+        "familiarity_level": packet["familiarity_level"],
+        "rex_difficulty": packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard"),
         "answer_intent": "attempt",
         "cycle": state.get("cycle", 1) + 1,
     }

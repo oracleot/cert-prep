@@ -17,12 +17,17 @@ def build_rex_challenge_prompt(
     task_statement: str = "",
     services: list[str] | None = None,
     source_ids: list[str] | None = None,
+    concept_id: str = "",
     learning_style: str = "",
     familiarity_level: str = "new",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a new challenge."""
-    topic_instruction = f'Target topic: "{topic}".' if topic else "Choose a specific topic."
-    context = _source_context(task_statement, services, source_ids)
+    topic_instruction = (
+        f'Target the selected concept/topic: "{topic}". Do not choose outside it.'
+        if topic else
+        "Use only the selected domain/task/source context. Do not invent unsupported topics."
+    )
+    context = _source_context(task_statement, services, source_ids, concept_id)
     style_directive = _style_directive(learning_style)
     familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""Generate a {exam_id.upper()} challenge for the "{domain}" domain at {difficulty} difficulty.
@@ -34,7 +39,7 @@ def build_rex_challenge_prompt(
 Return exactly this JSON shape — nothing else:
 {{
   "domain": "{domain}",
-  "topic": "{topic or '<specific topic within the domain>'}",
+  "topic": "{topic or '<topic label from the selected concept packet>'}",
   "scenario": "<2-4 sentence operational scenario an engineer would actually face>",
   "question": "<precise question about what the engineer should do or what will happen>"
 }}"""
@@ -55,13 +60,17 @@ def build_rex_rechallenge_prompt(
     familiarity_level: str = "new",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a harder rechallenge."""
-    topic_instruction = f'Target the next topic: "{topic}".' if topic else "Choose a different specific topic."
+    topic_instruction = (
+        f'Target the selected next concept/topic: "{topic}". Do not choose outside it.'
+        if topic else
+        "Use only the selected next concept packet. Do not invent unsupported topics."
+    )
     context = _source_context(task_statement, services, source_ids, concept_id)
     style_directive = _style_directive(learning_style, rechallenge=True)
     familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""The challenger just saw Sage explain "{previous_topic}" in the "{domain}" domain. Now raise the stakes.
 
-Generate a harder {exam_id.upper()} challenge on the SAME domain — higher-pressure scenario, more nuanced question. Difficulty: {difficulty}.
+Generate a harder {exam_id.upper()} challenge on the SAME domain — different topic, selected next concept only, higher-pressure scenario, more nuanced question. Difficulty: {difficulty}.
 {topic_instruction}
 {context}
 {style_directive}
@@ -70,7 +79,7 @@ Generate a harder {exam_id.upper()} challenge on the SAME domain — higher-pres
 Return exactly this JSON shape — nothing else:
 {{
   "domain": "{domain}",
-  "topic": "{topic or f'<different specific topic within {domain}>'}",
+  "topic": "{topic or '<topic label from the selected concept packet>'}",
   "scenario": "<2-4 sentence scenario with higher stakes and less obvious answer>",
   "question": "<harder, more nuanced question — avoid yes/no, demand specific exam knowledge>"
 }}"""

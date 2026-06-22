@@ -28,14 +28,18 @@ export function buildRexChallengePrompt(input: RexChallengeInput): {
     input.source_ids,
     input.concept_id
   );
+  const topicRule = input.concept_id
+    ? "Use only the selected concept packet. Do not invent unsupported topics."
+    : "Reject ungrounded use at the route layer before calling Rex.";
   return {
     system: REX_SYSTEM,
-    user: `Generate a certification challenge for the "${input.domain}" domain at ${input.difficulty ?? "medium"} difficulty.${sourceContext ? `\n\nSource grounding:\n${sourceContext}` : ""}
+    user: `Generate a certification challenge for the "${input.domain}" domain at ${input.difficulty ?? "medium"} difficulty.
+${topicRule}${sourceContext ? `\n\nSource grounding:\n${sourceContext}` : ""}
 
 Return exactly this JSON shape — nothing else:
 {
   "domain": "${input.domain}",
-  "topic": "<specific topic within the domain>",
+  "topic": "<topic label from the selected concept packet>",
   "scenario": "<2-4 sentence operational scenario a practitioner would actually face>",
   "question": "<precise question about what the practitioner should do or what will happen>"
 }`,
@@ -62,16 +66,20 @@ export function buildRexRechallengePrompt(input: RexRechallengeInput): {
     input.source_ids,
     input.concept_id
   );
+  const topicRule = input.concept_id
+    ? "Use only the selected next concept packet. Do not invent unsupported topics."
+    : "Reject ungrounded use at the route layer before calling Rex.";
   return {
     system: REX_SYSTEM,
     user: `The challenger just saw Sage explain "${input.previousTopic}" in the "${input.domain}" domain. Now raise the stakes.
 
-Generate a harder challenge on the SAME domain — different topic, higher-pressure scenario, more nuanced question. Difficulty: ${input.difficulty ?? "medium"}.${sourceContext ? `\n\nSource grounding:\n${sourceContext}` : ""}
+Generate a harder challenge on the SAME domain — different topic, selected next concept only, higher-pressure scenario, more nuanced question. Difficulty: ${input.difficulty ?? "medium"}.
+${topicRule}${sourceContext ? `\n\nSource grounding:\n${sourceContext}` : ""}
 
 Return exactly this JSON shape — nothing else:
 {
   "domain": "${input.domain}",
-  "topic": "<different specific topic within ${input.domain}>",
+  "topic": "<topic label from the selected concept packet>",
   "scenario": "<2-4 sentence scenario with higher stakes and less obvious answer>",
   "question": "<harder, more nuanced question — avoid yes/no, demand specific exam knowledge>"
 }`,

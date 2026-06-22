@@ -9,6 +9,7 @@ from onboarding_repository import get_learning_style
 from repositories import create_session
 from state import AppState
 
+from concepts.packet import concept_packet_fields
 # Top-level import so test patches on this module name succeed.
 from concepts.selector import NoReadyConcept, select_initial_concept  # noqa: F401
 
@@ -57,16 +58,16 @@ async def coach_open(state: AppState) -> dict:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     domain = concept["domain"]
-    # topic is the short human-readable label; concept_id is the stable key.
-    topic = concept.get("topic", concept["id"])
     concept_id = concept["id"]
+    packet = concept_packet_fields(concept)
+    topic = packet["topic"]
 
     curriculum = await get_active_curriculum(user_id=user_id, exam_id=exam_id)
     learning_style = state.get("learning_style") or await get_learning_style(user_id)
     if learning_style not in {"pressure_drills", "guided_explanations", "mixed_review"}:
         learning_style = "mixed_review"
 
-    base_difficulty = concept.get("difficulty", "medium") if concept.get("difficulty") else "medium"
+    base_difficulty = packet["difficulty"]
     difficulty = _style_adjusted_difficulty(base_difficulty, learning_style)
 
     db_session_id = ""
@@ -86,12 +87,12 @@ async def coach_open(state: AppState) -> dict:
         "current_concept_id": concept_id,
         "current_domain": domain,
         "current_topic": topic,
-        "current_topic_id": concept.get("topic_id", concept_id),
-        "current_task_statement_id": concept.get("task_statement_id", concept_id),
+        "current_topic_id": packet["topic_id"],
+        "current_task_statement_id": packet["task_statement_id"],
         "current_task_statement": concept.get("task_statement", ""),
-        "current_services": concept.get("services", []),
-        "current_source_ids": concept.get("source_ids", []),
-        "familiarity_level": concept.get("familiarity_level", "new"),
+        "current_services": packet["services"],
+        "current_source_ids": packet["source_ids"],
+        "familiarity_level": packet["familiarity_level"],
         "rex_difficulty": difficulty,
         "curriculum_id": curriculum["id"] if curriculum else "",
         "curriculum": curriculum["domains"] if curriculum else [],

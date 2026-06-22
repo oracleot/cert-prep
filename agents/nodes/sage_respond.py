@@ -77,6 +77,7 @@ def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) 
         "domain": challenge["domain"],
         "topic": challenge["topic"],
         "challenge": challenge,
+        "concept_id": challenge.get("concept_id", state.get("current_concept_id", "")),
         "user_answer": state["user_answer"],
         "outcome": evaluation["outcome"],
         "answer_intent": state.get("answer_intent", "attempt"),
@@ -104,6 +105,7 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
             answer_intent=exchange.get("answer_intent", "attempt"),
             sage_response=exchange["sage_response"],
             citations=exchange["citations"],
+            concept_id=exchange.get("concept_id", ""),
         )
         await record_rex_result(state["user_id"], state["exam_id"], exchange["outcome"])
     except Exception:
