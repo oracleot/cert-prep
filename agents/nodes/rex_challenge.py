@@ -43,6 +43,7 @@ def rex_challenge(state: AppState, config: RunnableConfig) -> dict:
 
     return {
         "current_challenge": {
+            "concept_id": state.get("current_concept_id", ""),
             "domain": state["current_domain"],
             "topic": state.get("current_topic") or challenge["topic"],
             "topic_id": state.get("current_topic_id", ""),
