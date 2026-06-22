@@ -1,0 +1,112 @@
+:root {
+  color-scheme: light;
+  --ink: #171717;
+  --muted: #66615c;
+  --paper: #fffdf8;
+  --panel: #f5efe4;
+  --line: #ded4c3;
+  --accent: #8f3f21;
+  --ok: #256d3d;
+  --bad: #9f2d20;
+  --code: #292522;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 18px/1.55 ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+
+h1, h2, h3 {
+  line-height: 1.1;
+  margin: 0 0 16px;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+h1 { font-size: clamp(2.4rem, 6vw, 4.8rem); }
+h2 { margin-top: 44px; font-size: 1.7rem; }
+h3 { margin-top: 28px; font-size: 1.15rem; }
+
+p, li { max-width: 72ch; }
+a { color: var(--accent); text-underline-offset: 3px; }
+
+.subtitle {
+  color: var(--muted);
+  font-size: 1.2rem;
+  max-width: 58ch;
+}
+
+.card, .quiz, .diagram {
+  border: 1px solid var(--line);
+  background: rgba(245, 239, 228, 0.72);
+  border-radius: 18px;
+  padding: 22px;
+  margin: 24px 0;
+}
+
+.diagram {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+pre {
+  background: var(--code);
+  color: #fff8ed;
+  border-radius: 14px;
+  padding: 18px;
+  overflow-x: auto;
+  font-size: 0.88rem;
+}
+
+.kicker {
+  color: var(--accent);
+  font: 700 0.78rem/1 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+button {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.choice {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  border-color: var(--line);
+  background: #fffaf0;
+  color: var(--ink);
+  text-align: left;
+}
+
+.feedback { font-weight: 700; }
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+
+@media print {
+  body { background: white; }
+  main { max-width: none; padding: 20mm; }
+  button, .quiz { break-inside: avoid; }
+  a::after { content: " (" attr(href) ")"; font-size: 0.8em; color: var(--muted); }
+}
