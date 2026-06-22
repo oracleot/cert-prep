@@ -1,0 +1,24 @@
+# Minimal valid DVA-C02 concept record for testing.
+# Used by agents/concepts/ tests and the loader smoke suite.
+id: deploy-codepipeline-basics
+domain: Deployment
+task_statement: >-
+  Deploy application updates using CI/CD pipelines.
+lesson_reference: sb-deploy-pipelines
+facts:
+  - "AWS CodePipeline orchestrates source, build, test, and deploy stages."
+  - "CodePipeline can ingest source from CodeCommit, S3, GitHub, or Bitbucket."
+  - "Each pipeline stage can contain one or more actions, such as CodeBuild."
+  - "Pipeline executions are tracked as discrete runs with unique IDs."
+traps:
+  - "CodePipeline itself does not run build commands; that is CodeBuild's responsibility."
+expected_answer_criteria: >-
+  Identify a pipeline stage that contains an action that handles compilation or
+  test execution. The answer should reference CodeBuild, not CodePipeline directly.
+official_docs:
+  - https://docs.aws.amazon.com/codepipeline/latest/userguide/
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+lab_links:
+  - https://aws.amazon.com/getting-started/hands-on/set-up-continuous-deployment-pipeline/
+ready: true

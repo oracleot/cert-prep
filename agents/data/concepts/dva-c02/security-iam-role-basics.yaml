@@ -1,0 +1,21 @@
+# Minimal valid DVA-C02 concept record — Security domain.
+id: security-iam-role-basics
+domain: Security
+task_statement: >-
+  Use AWS Identity and Access Management (IAM) to manage access to AWS services securely.
+lesson_reference: sb-iam-roles
+facts:
+  - "An IAM role is an identity with specific permissions that can be assumed by trusted entities."
+  - "When a role is assumed, temporary security credentials are returned via STS AssumeRole."
+  - "Roles eliminate the need to share long-term credentials across services."
+traps:
+  - "IAM users are for humans; IAM roles are for workloads and services."
+  - "A role's trust policy determines who can assume it — not the permissions policy alone."
+expected_answer_criteria: >-
+  The answer must identify a situation where services need to access each other's
+  resources and must therefore use IAM roles rather than IAM users.
+official_docs:
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/83/
+ready: true

@@ -1,0 +1,13 @@
+# Intentionally invalid: only 1 fact (quality gate requires 2–4).
+id: invalid-too-few-facts
+domain: Deployment
+task_statement: Deploy via CI/CD pipelines.
+lesson_reference: sb-deploy
+facts:
+  - "CodePipeline orchestrates the deployment workflow."
+traps:
+  - "CodePipeline is not a compute service."
+expected_answer_criteria: Identify the correct orchestration service.
+official_docs:
+  - https://docs.aws.amazon.com/codepipeline/latest/userguide/
+ready: true

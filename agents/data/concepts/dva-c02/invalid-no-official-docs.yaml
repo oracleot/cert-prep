@@ -1,0 +1,13 @@
+# Intentionally invalid: no official_docs URLs.
+id: invalid-no-official-docs
+domain: Deployment
+task_statement: Deploy via CI/CD pipelines.
+lesson_reference: sb-deploy
+facts:
+  - "CodePipeline orchestrates the deployment workflow."
+  - "Each stage can contain multiple parallel actions."
+traps:
+  - "CodePipeline does not execute build commands itself."
+expected_answer_criteria: Identify the correct orchestration service.
+official_docs: []
+ready: true

@@ -1,0 +1,15 @@
+# Intentionally invalid: traps list is empty.
+id: invalid-no-traps
+domain: Troubleshooting
+task_statement: Troubleshoot application deployment failures.
+lesson_reference: sb-troubleshoot-deploy
+facts:
+  - "CloudWatch Logs can be used to inspect deployment failures."
+  - "CodePipeline API calls are logged in CloudTrail."
+  - "Failed pipeline actions retain artifacts in S3 for inspection."
+  - "Pipeline execution history provides a step-by-step log."
+traps: []
+expected_answer_criteria: Identify the correct log destination to inspect a failed deployment.
+official_docs:
+  - https://docs.aws.amazon.com/codepipeline/latest/userguide/
+ready: true

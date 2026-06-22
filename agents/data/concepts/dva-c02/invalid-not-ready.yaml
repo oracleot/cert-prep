@@ -1,0 +1,21 @@
+# Intentionally invalid: ready=false — should be excluded from loader helpers.
+id: invalid-not-ready
+domain: Development
+task_statement: >-
+  Build applications with container image support.
+lesson_reference: sb-ecs-basics
+facts:
+  - "Amazon ECS lets you run Docker containers on AWS infrastructure."
+  - "ECS tasks use a task definition as their blueprint."
+  - "ECS services maintain a desired count of running tasks."
+  - "EC2 launch type gives you more control over the underlying compute."
+traps:
+  - "ECS is not Kubernetes; EKS provides a managed Kubernetes experience."
+expected_answer_criteria: >-
+  Answer must correctly distinguish ECS from EKS and reference task definitions
+  or the ECS scheduler when appropriate.
+official_docs:
+  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/111/
+ready: false

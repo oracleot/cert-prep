@@ -1,0 +1,8 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
+testpaths = ["agents"]
+# Skip the evals/reporting scripts and any __main__ entry points
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
