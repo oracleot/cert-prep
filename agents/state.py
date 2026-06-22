@@ -8,6 +8,7 @@ from typing import Annotated, Any, TypedDict
 
 
 class Challenge(TypedDict):
+    concept_id: str
     domain: str
     topic: str
     topic_id: str
@@ -62,6 +63,7 @@ class AppState(TypedDict):
     curriculum: list[Domain]
 
     # Current session context — set by coach_open, updated by rex nodes
+    current_concept_id: str
     current_domain: str
     current_topic: str
     current_topic_id: str
@@ -115,6 +117,7 @@ def initial_state(
         "exam_id": exam_id,
         "curriculum_id": "",
         "curriculum": [],
+        "current_concept_id": "",
         "current_domain": "",
         "current_topic": "",
         "current_topic_id": "",
