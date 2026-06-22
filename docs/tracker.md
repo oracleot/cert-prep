@@ -4,8 +4,9 @@
 - **Name:** AI Certification Prep App (working name: Gauntlet)
 - **Type:** greenfield
 - **Started:** 2026-06-15
-- **Last updated:** 2026-06-16
+- **Last updated:** 2026-06-22
 - **Phase 6 closed 2026-06-16** — all dogfood-driven UX refinements shipped; 2-cycle default kept (ADR-0001).
+- **Skill Builder grounding planned 2026-06-22** — `docs/aws dva-c02.md` becomes the seed for a curated concept-level resource graph.
 
 ## Sessions
 | # | Session | Status | Output Doc | Last Updated |
@@ -24,6 +25,7 @@
 | P6 | Phase 6 — Dogfood-Driven UX Refinements | ✅ Complete | issues 6.1–6.8 shipped locally; dogfood validation done | 2026-06-16 |
 | P7 | Phase 7 — Exam Reliability + Grounded Content | 🔄 In Progress | issues 7.1–7.8 shipped locally; eval/manual sign-off remains | 2026-06-16 |
 | P8 | Phase 8 — Testing Infrastructure | ⏳ Planned | test runners for Next.js + agents, smoke tests for highest-value targets, CI wiring | 2026-06-16 |
+| P9 | Phase 9 — Skill Builder Resource Graph + Closed-Book Grounding | ⏳ Planned | curated DVA-C02 concept records, app-selected `conceptId`, Sage `Review next`, concept miss tracking | 2026-06-22 |
 | 9 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints
@@ -39,6 +41,8 @@
 - Current MVP is dogfood-ready, not exam-reliability complete: Rex can only cover the topic inventory and scheduler provided by the app.
 - No system can guarantee every possible exam question; Phase 7 targets full official exam guide coverage, source-traced topic maps, and broad scenario variation.
 - Sage is currently prompt-instructed to cite AWS concepts/docs, but not retrieval-grounded. Treat Sage as useful coaching until Phase 7 citation enforcement ships.
+- Skill Builder resources should be curated into concept records before being used at runtime; do not let Rex/Sage invent topics or citations outside the selected concept packet.
+- App code, not Rex, selects the active `conceptId`; prompts should operate closed-book over that concept's facts, traps, expected criteria, and URLs.
 - Additional cert support remains blocked until each cert has an official-source artifact and no selected-exam leakage.
 
 ## Gaps to Grill (from handoff analysis)
