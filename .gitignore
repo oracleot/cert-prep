@@ -23,6 +23,7 @@ agents/.playwright-mcp/
 /unsupported-*.png
 /unsupported-*.txt
 /pi-session-*.html
+**.png
 
 # next.js
 /.next/
