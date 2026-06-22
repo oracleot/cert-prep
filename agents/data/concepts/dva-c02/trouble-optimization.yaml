@@ -1,0 +1,26 @@
+# Domain 4: Troubleshooting — Task Statement 4.3
+id: trouble-optimization
+domain: Troubleshooting
+task_statement: >-
+  Optimize applications by using AWS services and features.
+lesson_reference: sb-d4-ts3-optimization
+facts:
+  - "AWS Lambda Power Tuning (Step Functions) automatically tests Lambda functions across memory allocations and returns cost/performance curves."
+  - "CloudFront cache behaviors based on request headers enable per-user or per-version object variants without backend changes."
+  - "Amazon CodeGuru Profiler identifies the most expensive code paths in running applications using continuous profiling."
+  - "SNS message filtering with SQS FIFO fanout routes topic messages to only the matching subscriber queues."
+traps:
+  - "Lambda provisioned concurrency has a warm-up period; it is not immediately available when first configured."
+  - "CloudFront cache-by-header settings can cause cache fragmentation if too many unique header combinations are used."
+  - "Compute Optimizer recommendations for Lambda memory are based on historical invocation data; new functions need sufficient traffic first."
+expected_answer_criteria: >-
+  Match optimization techniques (Power Tuning, CloudFront caching, CodeGuru, SNS filtering)
+  to specific performance or cost problems described in a scenario.
+official_docs:
+  - https://docs.aws.amazon.com/lambda/latest/dg/lambda-tuning-tools.html
+  - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+lab_links:
+  - https://explore.skillbuilder.aws/learn/course/134/play/15685/serverless-architectures-using-amazon-cloudwatch-events-and-scheduled-events-with-aws-lambda/D2B8JXUZ9M
+ready: true

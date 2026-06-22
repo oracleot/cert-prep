@@ -1,0 +1,24 @@
+# Domain 1: Development — Task Statement 1.1
+id: dev-serverless-api-patterns
+domain: Development
+task_statement: >-
+  Develop code for applications hosted on AWS.
+lesson_reference: sb-d1-ts1-serverless-patterns
+facts:
+  - "Event-driven architectures decouple services; loosely coupled components fail independently."
+  - "Exponential backoff with jitter prevents retry storms on throttled services."
+  - "Dead-letter queues capture failed messages for later inspection or replay."
+  - "Step Functions replaces complex Lambda orchestration with durable state machines."
+traps:
+  - "Synchronous REST APIs lose data on crash; SQS queues provide durability by persisting messages."
+  - "Idempotency keys must be used to prevent duplicate processing on Lambda retries."
+  - "Step Functions can run workflows up to 1 year; direct Lambda chaining cannot."
+expected_answer_criteria: >-
+  Identify event-driven design patterns (fanout, dead-letter queues, Step Functions)
+  versus tightly-coupled synchronous calls. Recognize retry strategies and durability requirements.
+official_docs:
+  - https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
+  - https://docs.aws.amazon.com/step-functions/latest/dg/concepts-amazon-states-language.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/87/play/15673/introduction-to-amazon-api-gateway/3S1482KMEZ
+ready: true

@@ -1,0 +1,24 @@
+# Domain 3: Deployment — Task Statement 3.1
+id: deploy-artifact-preparation
+domain: Deployment
+task_statement: >-
+  Prepare application artifacts to be deployed to AWS.
+lesson_reference: sb-d3-ts1-artifact-prep
+facts:
+  - "SAM package zips code artifacts, uploads them to S3, and produces a packaged CloudFormation template for deployment."
+  - "Lambda layers extend deployment packages with shared libraries without rebuilding the function archive."
+  - "Container image packaging for Lambda bundles runtime, dependencies, and code into a single ECR image."
+  - "CodeArtifact provides a managed artifact repository compatible with npm, pip, Maven, and NuGet."
+traps:
+  - "SAM build --use-container is required when deployment packages contain native binaries incompatible with the local OS."
+  - "Lambda layers cannot be added to container image functions; all dependencies must be in the image itself."
+  - "CloudFormation helper scripts (cfn-init, cfn-signal) require ec2-metadata package installed on EC2 instances."
+expected_answer_criteria: >-
+  Identify the correct artifact packaging approach (zip + layers, container image, SAM package)
+  for a given function size, dependency type, and deployment target.
+official_docs:
+  - https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-deploying.html
+  - https://docs.aws.amazon.com/lambda/latest/dg/configuration-package.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/play/15669/introduction-to-aws-cloudformation/485ZYHEYK2
+ready: true

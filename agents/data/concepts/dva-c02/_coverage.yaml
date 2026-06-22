@@ -1,0 +1,90 @@
+# Phase 9.2 coverage matrix for DVA-C02 concept records.
+# Excludes invalid-* QA fixtures.
+# Flags concepts with missing or incomplete optional resource links.
+
+# ── Development ─────────────────────────────────────────────────────────────
+Development:
+  # Task Statement 1.1: Develop code for applications hosted on AWS
+  - id: dev-serverless-api-patterns
+    skill_builder_links: yes
+    lab_links: no
+  - id: dev-api-gateway-integration
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 1.2: Develop code for AWS Lambda
+  - id: dev-lambda-configuration
+    skill_builder_links: yes
+    lab_links: yes
+  - id: dev-lambda-error-handling
+    status: missing_official_docs
+
+  # Task Statement 1.3: Use data stores in application development
+  - id: dev-dynamodb-data-modeling
+    skill_builder_links: yes
+    lab_links: yes
+  - id: dev-data-storage-patterns
+    skill_builder_links: no
+    note: official docs curated; Skill Builder link TBD
+
+# ── Security ─────────────────────────────────────────────────────────────────
+Security:
+  # Task Statement 2.1: Implement authentication and/or authorization
+  - id: sec-iam-authentication
+    skill_builder_links: yes
+    lab_links: no
+  - id: security-iam-role-basics
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 2.2: Implement encryption by using AWS services
+  - id: sec-kms-encryption
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 2.3: Manage sensitive data in application code
+  - id: sec-sensitive-data
+    skill_builder_links: no
+    note: official docs curated; Skill Builder link TBD
+
+# ── Deployment ───────────────────────────────────────────────────────────────
+Deployment:
+  # Task Statement 3.1: Prepare application artifacts to be deployed to AWS
+  - id: deploy-artifact-preparation
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 3.2: Test applications in development environments
+  - id: deploy-testing-environments
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 3.3: Automate deployment testing
+  - id: deploy-automation-testing
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 3.4: Deploy code by using AWS CI/CD services
+  - id: deploy-codepipeline-basics
+    skill_builder_links: yes
+    lab_links: yes
+  - id: deploy-cicd-services
+    skill_builder_links: yes
+    lab_links: yes
+
+# ── Troubleshooting ──────────────────────────────────────────────────────────
+Troubleshooting:
+  # Task Statement 4.1: Assist in a root cause analysis
+  - id: trouble-root-cause-analysis
+    skill_builder_links: yes
+    lab_links: yes
+
+  # Task Statement 4.2: Instrument code for observability
+  - id: trouble-code-instrumentation
+    skill_builder_links: yes
+    lab_links: no
+
+  # Task Statement 4.3: Optimize applications by using AWS services
+  - id: trouble-optimization
+    skill_builder_links: yes
+    lab_links: yes

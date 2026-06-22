@@ -1,0 +1,22 @@
+# Domain 2: Security — Task Statement 2.3
+id: sec-sensitive-data
+domain: Security
+task_statement: >-
+  Manage sensitive data in application code.
+lesson_reference: sb-d2-ts3-sensitive-data
+facts:
+  - "Secrets Manager stores and auto-rotates secrets encrypted with KMS; supports resource-level IAM policies."
+  - "SSM Parameter Store SecureString encrypts parameters but lacks native rotation and resource-level policies."
+  - "Amazon Macie discovers and classifies sensitive data (PII, IP) in S3 using machine learning."
+  - "CloudWatch embedded metric format (EMF) generates custom metrics from ephemeral Lambda/ECS logs without persistent metrics."
+traps:
+  - "Lambda environment variables encrypted with KMS cannot be shared across multiple Lambda functions."
+  - "ECS task definition parameters referencing Secrets Manager are injected as environment variables at container start."
+  - "Macie findings can trigger EventBridge rules for automated remediation workflows."
+expected_answer_criteria: >-
+  Select the appropriate secrets management service (Secrets Manager vs Parameter Store)
+  and recognize when Macie, CloudWatch EMF, or container injection patterns apply.
+official_docs:
+  - https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html
+  - https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format.html
+ready: true

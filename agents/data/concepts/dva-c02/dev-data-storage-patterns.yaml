@@ -1,0 +1,22 @@
+# Domain 1: Development — Task Statement 1.3 (storage patterns)
+id: dev-data-storage-patterns
+domain: Development
+task_statement: >-
+  Use data stores in application development.
+lesson_reference: sb-d1-ts3-storage-patterns
+facts:
+  - "Ephemeral storage (Lambda / EC2 instance store) suits ETL and scratch-space workloads; data is lost on termination."
+  - "Persistent storage (EFS, EBS, RDS, DynamoDB) is required for stateful microservices and durable data."
+  - "S3 provides strong read-after-write consistency and supports lifecycle policies for cost-effective retention."
+  - "Caching strategies include lazy loading (read-through) and write-through; each has different latency vs durability trade-offs."
+traps:
+  - "S3's strong read-after-write consistency applies only to new writes; overwrite PUTs may still return stale data briefly."
+  - "DynamoDB on-demand mode has different pricing and scaling behavior than provisioned mode; switch is not instantaneous."
+  - "ElastiCache is not a durable store; cache misses always require a database round-trip."
+expected_answer_criteria: >-
+  Match storage patterns (ephemeral vs persistent, caching strategies, consistency models)
+  to application requirements for durability, latency, and cost.
+official_docs:
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
+ready: true

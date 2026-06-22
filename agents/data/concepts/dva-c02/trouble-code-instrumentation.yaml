@@ -1,0 +1,24 @@
+# Domain 4: Troubleshooting — Task Statement 4.2
+id: trouble-code-instrumentation
+domain: Troubleshooting
+task_statement: >-
+  Instrument code for observability.
+lesson_reference: sb-d4-ts2-instrumentation
+facts:
+  - "X-Ray SDK annotations are key-value metadata on trace segments; custom attributes require adding them as segment fields."
+  - "CloudWatch Contributor Insights builds time-series rankings of top contributors using CloudTrail events."
+  - "CloudWatch Synthetics runs canary scripts against API endpoints on a schedule to detect regressions before users do."
+  - "CodeStar Notifications route build, deploy, and pipeline events to SNS, Chatbot, or Lambda for automated responses."
+traps:
+  - "Lambda Powertools structured logging standardizes log format across functions but is not required for CloudWatch Logs Insights."
+  - "X-Ray sampling controls how much trace data is collected; default sampling may miss low-traffic endpoints."
+  - "CloudWatch alarms on custom metrics require the metric to be published before the alarm can evaluate."
+expected_answer_criteria: >-
+  Identify the correct instrumentation approach (structured logging, X-Ray annotations, CloudWatch Synthetics)
+  to gather observable data from a distributed serverless or container application.
+official_docs:
+  - https://docs.aws.amazon.com/xray/latest/devguide/xray-api-segment-documents.html
+  - https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Synthetics_Canaries.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+ready: true

@@ -1,0 +1,24 @@
+# Domain 3: Deployment — Task Statement 3.3
+id: deploy-automation-testing
+domain: Deployment
+task_statement: >-
+  Automate deployment testing.
+lesson_reference: sb-d3-ts3-auto-testing
+facts:
+  - "CodePipeline orchestrates source, build, test, and deploy stages; each stage contains actions executed in sequence or parallel."
+  - "CodeDeploy linear deployment shifts traffic in equal increments; canary shifts in two steps; all-at-once shifts immediately."
+  - "SAM CLI sam local generate-event creates realistic test event payloads for local Lambda invocation."
+  - "CloudFormation stack sets deploy across multiple accounts and regions from a single template."
+traps:
+  - "CodeDeploy deployment configurations (linear, canary, all-at-once) apply only to Lambda and ECS; EC2 uses different configs."
+  - "SAM local invoke requires Docker running locally; it does not substitute for cloud-based integration tests."
+  - "Cross-account Lambda deployment via CodePipeline requires IAM AssumeRole in each target account."
+expected_answer_criteria: >-
+  Identify the correct CI/CD automation pattern for multi-account or multi-environment
+  Lambda/API deployments, including deployment configuration choices and test event generation.
+official_docs:
+  - https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html
+  - https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/play/15671/working-with-amazon-elastic-container-service/X989GB8H74
+ready: true

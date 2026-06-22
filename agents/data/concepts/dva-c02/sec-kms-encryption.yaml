@@ -1,0 +1,24 @@
+# Domain 2: Security — Task Statement 2.2
+id: sec-kms-encryption
+domain: Security
+task_statement: >-
+  Implement encryption by using AWS services.
+lesson_reference: sb-d2-ts2-kms-encryption
+facts:
+  - "KMS CMKs never leave the HSM boundary; cryptographic operations are performed inside KMS."
+  - "SSE-KMS uses per-object KMS keys; SSE-S3 uses a shared S3-managed key; SSE-C lets customers supply their own key."
+  - "Envelope encryption uses a data key (encrypted by CMK) to encrypt large payloads; plaintext data key is erased after use."
+  - "CloudHSM provides dedicated FIPS 140-2 Level 3 hardware; the customer manages the HSM client and key lifecycle independently."
+traps:
+  - "AWS-managed CMKs cannot have their key policy modified; customer-managed CMKs support key rotation and custom policies."
+  - "RDS and EBS encryption use KMS under the hood; enabling encryption after creation requires recreating the resource from a snapshot."
+  - "Secrets Manager auto-rotates secrets on a schedule using Lambda; SSM Parameter Store does not auto-rotate."
+expected_answer_criteria: >-
+  Differentiate SSE-KMS, SSE-S3, SSE-C, and client-side KMS encryption patterns.
+  Identify when CloudHSM vs KMS applies and recognize the envelope encryption flow.
+official_docs:
+  - https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+ready: true

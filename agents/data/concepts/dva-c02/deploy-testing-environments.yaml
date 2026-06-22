@@ -1,0 +1,24 @@
+# Domain 3: Deployment — Task Statement 3.2
+id: deploy-testing-environments
+domain: Deployment
+task_statement: >-
+  Test applications in development environments.
+lesson_reference: sb-d3-ts2-testing-envs
+facts:
+  - "API Gateway mock integrations return static responses without calling a backend, enabling offline development testing."
+  - "Lambda function versions ($LATEST) are immutable; aliases point to specific versions for safe promotion through dev, beta, prod."
+  - "Step Functions Local uses mocked service integrations to test state machine logic without calling real AWS services."
+  - "CloudFormation change sets preview stack updates before execution to validate resource changes."
+traps:
+  - "Changing an alias to point to a new Lambda version updates the function called by event sources without changing the ARN in the trigger."
+  - "API Gateway stage variables pass config to Lambda; they differ from Lambda environment variables which are per-function."
+  - "In-place deployments replace all instances simultaneously; blue/green deployments maintain parallel environments for zero-downtime updates."
+expected_answer_criteria: >-
+  Select the appropriate testing mechanism (mock integrations, versioning/aliases, change sets)
+  for a given development or staging scenario and recognize deployment strategy trade-offs.
+official_docs:
+  - https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integrations.html
+  - https://docs.aws.amazon.com/lambda/latest/dg/configuration-versions.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+ready: true

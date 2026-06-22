@@ -1,0 +1,22 @@
+# Domain 1: Development — Task Statement 1.2 (error handling)
+id: dev-lambda-error-handling
+domain: Development
+task_statement: >-
+  Develop code for AWS Lambda.
+lesson_reference: sb-d1-ts2-lambda-errors
+facts:
+  - "Async invocation retries failed function errors twice before sending to DLQ or destination."
+  - "Lambda destinations route success and failure events to SQS, SNS, Lambda, or EventBridge independently."
+  - "Event source mappings use the source queue's visibility timeout to control retry intervals."
+  - "Synchronous invocation returns errors directly to the caller; no automatic retry occurs."
+traps:
+  - "DLQ configuration on a Lambda function applies only to async invocations, not event source mappings."
+  - "Idempotent function code is required to safely handle retry deliveries from event source mappings."
+  - "Lambda VPC ENI creation adds 5–10 seconds of cold start latency when first accessing private VPC resources."
+expected_answer_criteria: >-
+  Identify the correct retry behavior for each Lambda invocation type and determine
+  when DLQ, destinations, or visibility timeout apply to a failure-handling scenario.
+official_docs:
+  - https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html
+  - https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html
+ready: true

@@ -1,0 +1,24 @@
+# Domain 1: Development — Task Statement 1.1 (API Gateway depth)
+id: dev-api-gateway-integration
+domain: Development
+task_statement: >-
+  Develop code for applications hosted on AWS.
+lesson_reference: sb-d1-ts1-api-gateway
+facts:
+  - "API Gateway method requests define validation; integration requests route to backends."
+  - "Mapping templates transform payloads between API Gateway and backend services."
+  - "Stage variables pass environment-specific config to Lambda functions at runtime."
+  - "Cache settings and throttling quotas protect backend services from traffic spikes."
+traps:
+  - "Environment variables in Lambda cannot be shared across functions; stage variables are required for multi-stage Lambda configs."
+  - "Non-proxy Lambda integrations require explicit method response configuration."
+  - "S3 does not natively emit events to Lambda in all regions without event source mapping."
+expected_answer_criteria: >-
+  Differentiate API Gateway integration types (AWS_PROXY vs HTTP, VTL mapping) and
+  recognize when stage variables, caching, or throttling apply to a scenario.
+official_docs:
+  - https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-basic-concept.html
+  - https://docs.aws.amazon.com/apigateway/latest/developerguide/stage-variables.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/87/play/15673/introduction-to-amazon-api-gateway/3S1482KMEZ
+ready: true

@@ -1,0 +1,26 @@
+# Domain 1: Development — Task Statement 1.2
+id: dev-lambda-configuration
+domain: Development
+task_statement: >-
+  Develop code for AWS Lambda.
+lesson_reference: sb-d1-ts2-lambda-config
+facts:
+  - "Lambda execution environment includes runtime, extensions, and lifecycle hooks (init, invoke, shutdown)."
+  - "Reserved concurrency splits the shared Lambda pool and guarantees capacity for critical functions."
+  - "Lambda processes each Kinesis or DynamoDB stream shard sequentially, giving shard-level concurrency."
+  - "Cold starts add latency before handler runs; provisioned concurrency eliminates cold starts."
+traps:
+  - "Reserved concurrency prevents a function from consuming all available pool; it does not guarantee a minimum."
+  - "Increasing Lambda memory also increases CPU allocation proportionally."
+  - "Lambda layers cannot be used with container image packaging; dependencies must be in the image."
+expected_answer_criteria: >-
+  Match Lambda configuration options (memory, concurrency, layers, timeouts, destinations)
+  to a given scenario's requirements. Recognize cold start vs warm start behavior.
+official_docs:
+  - https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html
+  - https://docs.aws.amazon.com/lambda/latest/dg/invocation-sync.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+lab_links:
+  - https://aws.amazon.com/getting-started/hands-on/run-serverless-code/
+ready: true

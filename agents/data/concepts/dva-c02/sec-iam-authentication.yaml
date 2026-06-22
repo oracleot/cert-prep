@@ -1,0 +1,24 @@
+# Domain 2: Security — Task Statement 2.1
+id: sec-iam-authentication
+domain: Security
+task_statement: >-
+  Implement authentication and/or authorization for applications and AWS services.
+lesson_reference: sb-d2-ts1-iam-auth
+facts:
+  - "IAM roles use STS AssumeRole to grant temporary credentials; no long-term keys are shared."
+  - "Cognito User Pools provide sign-up/sign-in and issue JWT tokens; Identity Pools exchange them for AWS temp credentials."
+  - "SAML 2.0 and OIDC federation enable SSO with enterprise identity providers without creating IAM users."
+  - "Service control policies (SCPs) in AWS Organizations limit permissions but never grant them."
+traps:
+  - "Cognito Identity Pools do not authenticate users; they only provide AWS credentials mapped to IAM roles."
+  - "SCPs restrict what identity-based and resource-based policies can grant, but do not add permissions themselves."
+  - "Lambda authorizers receive identity in bearer tokens (JWT/OAuth) or in request parameters; know which to use per scenario."
+expected_answer_criteria: >-
+  Choose the correct IAM identity mechanism (roles, Cognito, federation) for a given
+  authentication scenario. Recognize SCP limits vs grants and Cognito User Pool vs Identity Pool roles.
+official_docs:
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+  - https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/play/15563/introduction-to-aws-identity-and-access-management-iam/DQJ3N5QRRU
+ready: true

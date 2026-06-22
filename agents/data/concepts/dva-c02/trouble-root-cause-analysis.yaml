@@ -1,0 +1,26 @@
+# Domain 4: Troubleshooting — Task Statement 4.1
+id: trouble-root-cause-analysis
+domain: Troubleshooting
+task_statement: >-
+  Assist in a root cause analysis.
+lesson_reference: sb-d4-ts1-rca
+facts:
+  - "CloudWatch Logs Insights uses a structured query language to search and aggregate log entries."
+  - "X-Ray trace maps visualize the request path across services; filter expressions narrow traces by path, user, or annotation."
+  - "CloudWatch embedded metric format (EMF) generates custom metrics from Lambda logs without persistent metric ingestion."
+  - "CodeDeploy deployment logs in CloudWatch and the CodeDeploy API show lifecycle event failures and agent status."
+traps:
+  - "X-Ray daemon must be running on EC2/Beanstalk hosts to send trace data; it is not enabled by default on custom AMIs."
+  - "DynamoDB streams must be explicitly enabled to capture item-level change data for Kinesis or Lambda triggers."
+  - "CloudWatch integration latency vs latency metrics distinguish API Gateway processing time from the backend response time."
+expected_answer_criteria: >-
+  Select the correct log, trace, or metric source (CloudWatch Logs, X-Ray, CloudWatch Metrics)
+  to isolate the root cause of a given application failure scenario.
+official_docs:
+  - https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html
+  - https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+lab_links:
+  - https://explore.skillbuilder.aws/learn/course/134/play/15683/troubleshooting-api-gateway-with-lambda-proxy-integration/WTSRTDN7AU
+ready: true

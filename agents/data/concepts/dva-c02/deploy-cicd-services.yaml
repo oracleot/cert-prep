@@ -1,0 +1,26 @@
+# Domain 3: Deployment — Task Statement 3.4
+id: deploy-cicd-services
+domain: Deployment
+task_statement: >-
+  Deploy code by using AWS CI/CD services.
+lesson_reference: sb-d3-ts4-cicd
+facts:
+  - "CodePipeline is the orchestration layer; CodeBuild runs build/test commands; CodeDeploy handles target deployments."
+  - "Blue/green deployments shift traffic between environments; immutable deployments replace the entire auto-scaling group."
+  - "CloudFormation stack sets update stacks across accounts and regions from a single operation."
+  - "SAM deploy combines packaging and deployment into one command using CloudFormation as the underlying engine."
+traps:
+  - "CodePipeline cannot execute build commands directly; a CodeBuild action is required in the pipeline."
+  - "ECS blue/green deployments use CodeDeploy with linear, canary, or all-at-once traffic shifting, not CodePipeline alone."
+  - "Parameter Store parameter labels (not versions) are used for alias-style promotion through environments."
+expected_answer_criteria: >-
+  Select the correct CI/CD service combination (CodePipeline, CodeBuild, CodeDeploy, SAM)
+  for a given deployment scenario and identify when rollback strategies (blue/green, canary) apply.
+official_docs:
+  - https://docs.aws.amazon.com/codepipeline/latest/userguide/
+  - https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+lab_links:
+  - https://aws.amazon.com/getting-started/hands-on/set-up-continuous-deployment-pipeline/
+ready: true

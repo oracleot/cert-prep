@@ -1,0 +1,25 @@
+# Domain 1: Development — Task Statement 1.3
+id: dev-dynamodb-data-modeling
+domain: Development
+task_statement: >-
+  Use data stores in application development.
+lesson_reference: sb-d1-ts3-dynamodb-modeling
+facts:
+  - "DynamoDB partition keys with high cardinality distribute write load evenly and avoid hot partitions."
+  - "1 RCU = 4 KB/second for eventual consistency; 1 RCU = 2 reads of 4 KB for strong consistency."
+  - "1 WCU = 1 KB/second of writes; items larger than 1 KB consume proportionally more WCU."
+  - "Global secondary indexes inherit the base table's read/write capacity mode and support eventual consistency only."
+traps:
+  - "Scanning DynamoDB reads the entire table and consumes RCU from the base table, not indexes."
+  - "GSI write throughput is charged against the base table's write capacity."
+  - "DynamoDB DAX reduces read latency for hot items but does not reduce consumed RCU on the base table."
+expected_answer_criteria: >-
+  Calculate provisioned RCU/WCU requirements for a given item size and access pattern.
+  Choose between query, scan, GSI, or DAX based on consistency and throughput needs.
+official_docs:
+  - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html
+skill_builder_links:
+  - https://explore.skillbuilder.aws/learn/course/134/
+lab_links:
+  - https://explore.skillbuilder.aws/learn/course/134/lab--introduction-to-amazon-dynamodb/GZ3EU55RYJ
+ready: true
