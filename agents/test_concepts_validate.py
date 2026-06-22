@@ -51,6 +51,7 @@ class TestValidateConcept_HappyPath:
             task_statement="Deploy via CI/CD pipelines.",
             facts=["F1 is true.", "F2 is true.", "F3 is true."],
             traps=["T1 is a common misconception."],
+            lesson_reference="sb-deploy",
             expected_answer_criteria="Answer must mention CodePipeline.",
             official_docs=["https://docs.aws.amazon.com/codepipeline/latest/userguide/"],
             ready=True,
