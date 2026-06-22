@@ -4,12 +4,10 @@
 
 from __future__ import annotations
 
-import asyncio
 import random
 from typing import Any
 
 from .loader import filter_ready, load_all_concepts
-from repositories import exchange_history_for_user
 
 
 class NoReadyConcept(Exception):
@@ -38,24 +36,41 @@ def select_initial_concept(exam_id: str, domain: str | None = None) -> dict[str,
     return random.choice(candidates)
 
 
-def _sync_exchange_history(exam_id: str, user_id: str) -> list[dict[str, Any]]:
-    """Synchronous wrapper around exchange_history_for_user.
+def _prioritise_concepts(
+    candidates: list[dict[str, Any]],
+    history_by_concept: dict[str, str],
+    previous_concept_id: str,
+) -> dict[str, Any]:
+    """Apply weak > uncovered > any priority and return the selected concept.
 
-    Uses asyncio.run() so this function is safe to call from sync code.
-    When exchange_history_for_user is monkeypatched to a sync function (tests),
-    the wrapper still calls it directly without creating an event loop.
+    Raises NoReadyConcept if no qualifying concept remains.
     """
-    import inspect
-    if inspect.iscoroutinefunction(exchange_history_for_user):
-        return asyncio.run(exchange_history_for_user(exam_id, user_id))
-    return exchange_history_for_user(exam_id, user_id)
+    # Priority 1: weak (prior incorrect).
+    weak = [c for c in candidates if history_by_concept.get(c["id"]) == "incorrect"]
+    if weak:
+        return random.choice(weak)
+
+    # Priority 2: uncovered (no prior exchange) — exclude previous_concept_id.
+    uncovered = [
+        c for c in candidates
+        if c["id"] not in history_by_concept and c["id"] != previous_concept_id
+    ]
+    if uncovered:
+        return uncovered[0]  # deterministic: first uncovered in file order
+
+    # Priority 3: any ready concept — exclude previous.
+    others = [c for c in candidates if c["id"] != previous_concept_id]
+    if not others:
+        raise NoReadyConcept(domain=None)
+    return random.choice(others)
 
 
 def select_rechallenge_concept(
     exam_id: str,
     domain: str,
     previous_concept_id: str,
-    user_id: str,
+    history: list[dict[str, Any]],
+    concept_id: str = "",
 ) -> dict[str, Any]:
     """Return a ready concept in the same domain, excluding the previous one.
 
@@ -68,25 +83,9 @@ def select_rechallenge_concept(
     if not candidates:
         raise NoReadyConcept(exam_id=exam_id, domain=domain)
 
-    history = _sync_exchange_history(exam_id, user_id)
     history_by_concept: dict[str, str] = {
         row["concept_id"]: row["outcome"]
         for row in history
         if row["concept_id"] is not None
     }
-
-    # Priority 1: weak (prior incorrect) — includes previous if weak.
-    weak = [c for c in candidates if history_by_concept.get(c["id"]) == "incorrect"]
-    if weak:
-        return random.choice(weak)
-
-    # Priority 2: uncovered (no prior exchange) — exclude previous_concept_id.
-    uncovered = [c for c in candidates if c["id"] not in history_by_concept and c["id"] != previous_concept_id]
-    if uncovered:
-        return uncovered[0]  # deterministic: first uncovered in file order
-
-    # Priority 3: any ready concept — exclude previous.
-    others = [c for c in candidates if c["id"] != previous_concept_id]
-    if not others:
-        raise NoReadyConcept(exam_id=exam_id, domain=domain)
-    return random.choice(others)
+    return _prioritise_concepts(candidates, history_by_concept, previous_concept_id)

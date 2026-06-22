@@ -24,6 +24,9 @@
 
 from __future__ import annotations
 
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
@@ -142,12 +145,12 @@ def _run_single_node(graph: CompiledStateGraph, node_name: str, state: dict) -> 
     """Run a single named node synchronously and return the merged state.
 
     Uses ainvoke internally since all session graph nodes are async.
-    Detects whether there is a running event loop and uses the appropriate
-    strategy: asyncio.run() for sync contexts, loop.run_until_complete() for
-    async contexts (e.g. pytest-asyncio).
+    Always delegates to a fresh thread with its own event loop so that:
+      - In sync contexts (plain pytest): no running loop → asyncio.run() works.
+      - In async contexts (pytest-asyncio, nest_asyncio): avoids calling
+        loop.run() on a potentially patched outer loop — no dependency on
+        nest_asyncio monkey-patching for re-entrancy.
     """
-    import asyncio
-
     raw = graph.nodes[node_name]
 
     async def _invoke(s: dict) -> dict:
@@ -159,15 +162,11 @@ def _run_single_node(graph: CompiledStateGraph, node_name: str, state: dict) -> 
         merged.update(result)
         return merged
 
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # No running loop — safe to use asyncio.run().
-        return asyncio.run(_invoke(state))
-
-    # Running loop exists (pytest-asyncio scenario) — use run_until_complete.
-    fut = asyncio.ensure_future(_invoke(state))
-    return loop.run_until_complete(fut)
+    # Dedicated thread + ThreadPoolExecutor propagates exceptions cleanly
+    # back to the calling thread without relying on nest_asyncio re-entrancy.
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(asyncio.run, _invoke(state))
+        return future.result()
 
 
 async def _arun_single_node(graph: CompiledStateGraph, node_name: str, state: dict) -> dict:

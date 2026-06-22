@@ -44,7 +44,8 @@ Return exactly this JSON shape — nothing else:
 def build_rex_rechallenge_prompt(
     exam_id: str,
     domain: str,
-    previous_topic: str,
+    concept_id: str = "",
+    previous_topic: str = "",
     topic: str = "",
     difficulty: str = "hard",
     task_statement: str = "",
@@ -55,7 +56,7 @@ def build_rex_rechallenge_prompt(
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a harder rechallenge."""
     topic_instruction = f'Target the next topic: "{topic}".' if topic else "Choose a different specific topic."
-    context = _source_context(task_statement, services, source_ids)
+    context = _source_context(task_statement, services, source_ids, concept_id)
     style_directive = _style_directive(learning_style, rechallenge=True)
     familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""The challenger just saw Sage explain "{previous_topic}" in the "{domain}" domain. Now raise the stakes.
@@ -112,6 +113,7 @@ def _source_context(
     task_statement: str,
     services: list[str] | None,
     source_ids: list[str] | None,
+    concept_id: str = "",
 ) -> str:
     lines = []
     if task_statement:
@@ -120,4 +122,6 @@ def _source_context(
         lines.append(f"Use these services or concepts as context: {', '.join(services)}.")
     if source_ids:
         lines.append(f"Source IDs for traceability: {', '.join(source_ids)}.")
+    if concept_id:
+        lines.append(f"Selected concept ID: {concept_id}.")
     return "\n".join(lines)

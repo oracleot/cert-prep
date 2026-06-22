@@ -10,10 +10,10 @@ from typing import Any
 from fastapi import HTTPException
 from langchain_core.messages import HumanMessage, SystemMessage
 
-# Top-level import so test patches on this module name succeed.
-from concepts.selector import NoReadyConcept, select_rechallenge_concept  # noqa: F401
-from llm import get_llm, model_for
+from concepts.selector import NoReadyConcept, select_rechallenge_concept
+from llm import get_llm, llm_runtime, model_for
 from prompts.rex import MODEL, build_rex_rechallenge_prompt
+from repositories import exchange_history_for_user
 from state import AppState
 
 
@@ -41,19 +41,27 @@ async def rex_rechallenge(state: AppState) -> dict:
             current.get("difficulty", "medium"), state.get("learning_style", "")
         )
     else:
+        history = await exchange_history_for_user(
+            state["exam_id"],
+            state["user_id"],
+        )
         try:
             target = select_rechallenge_concept(
                 exam_id=state["exam_id"],
                 domain=state["current_domain"],
                 previous_concept_id=state.get("current_concept_id", ""),
-                user_id=state["user_id"],
+                history=history,
+                concept_id=current.get("concept_id", ""),
             )
         except NoReadyConcept as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+    concept_id = target.get("id", state.get("current_concept_id", ""))
+
     system, user = build_rex_rechallenge_prompt(
         exam_id=state["exam_id"],
         domain=state["current_domain"],
+        concept_id=concept_id,
         previous_topic=current["topic"],
         topic=target.get("topic", ""),
         difficulty=target.get("difficulty", "hard"),
@@ -64,12 +72,18 @@ async def rex_rechallenge(state: AppState) -> dict:
         familiarity_level=target.get("familiarity_level", state.get("familiarity_level", "new")),
     )
 
-    llm = get_llm(model_for("rex", MODEL))
-    response = llm.invoke(
-        [SystemMessage(content=system), HumanMessage(content=user)],
-        temperature=0.8,
-        max_tokens=512,
-    )
+    # Set the API key in the runtime context so get_llm finds it.
+    # llm_runtime uses a ContextVar; nest_asyncio's loop.run() creates a fresh
+    # event loop per call, so we set the context var inside this node's own
+    # execution rather than relying on cross-loop inheritance.
+    api_key = state.get("openrouter_api_key") or ""
+    with llm_runtime(api_key):
+        llm = get_llm(model_for("rex", MODEL))
+        response = llm.invoke(
+            [SystemMessage(content=system), HumanMessage(content=user)],
+            temperature=0.8,
+            max_tokens=512,
+        )
 
     raw = response.content if isinstance(response.content, str) else str(response.content)
     challenge = json.loads(_strip_code_fences(raw))
@@ -78,9 +92,9 @@ async def rex_rechallenge(state: AppState) -> dict:
         raise ValueError(f"rex_rechallenge returned invalid shape: {challenge}")
 
     return {
-        "current_concept_id": target.get("id", state.get("current_concept_id", "")),
+        "current_concept_id": concept_id,
         "current_challenge": {
-            "concept_id": target.get("id", state.get("current_concept_id", "")),
+            "concept_id": concept_id,
             "domain": state["current_domain"],
             "topic": target.get("topic") or challenge["topic"],
             "topic_id": target.get("topic_id", ""),

@@ -18,17 +18,18 @@ from state import initial_state
 
 router = APIRouter()
 
+
 def _session_results(history: list[dict], feedback: dict[int, dict]) -> list[dict]:
-    results = []
+    out = []
     for item in history:
         if item.get("outcome") not in {"correct", "incorrect"}:
             continue
-        result = {"cycle": item["cycle"], "topic": item["topic"], "outcome": item["outcome"], "answer_intent": item.get("answer_intent", "attempt")}
+        res = {"cycle": item["cycle"], "topic": item["topic"], "outcome": item["outcome"], "answer_intent": item.get("answer_intent", "attempt")}
         if item["cycle"] in feedback:
-            result["feedback"] = feedback[item["cycle"]]
-            result["review_status"] = feedback[item["cycle"]]["review_status"]
-        results.append(result)
-    return results
+            res["feedback"] = feedback[item["cycle"]]
+            res["review_status"] = feedback[item["cycle"]]["review_status"]
+        out.append(res)
+    return out
 
 
 def _latest_exchange(history: list[dict]) -> dict | None:
@@ -39,16 +40,14 @@ def _latest_exchange(history: list[dict]) -> dict | None:
 
 
 def _snapshot_phase(snapshot) -> str:
-    next_nodes = set(snapshot.next or [])
-    if not next_nodes:
+    nodes = set(snapshot.next or [])
+    if not nodes:
         return "summary"
-    if "rex_rechallenge" in next_nodes:
-        return "sage_done"
-    return "ready"
+    return "sage_done" if "rex_rechallenge" in nodes else "ready"
 
 
-def _clamp_cycles(value: int) -> int:
-    return min(5, max(1, value))
+def _clamp_cycles(v: int) -> int:
+    return min(5, max(1, v))
 
 
 @router.post("/session/start")
@@ -59,137 +58,117 @@ async def start_session(req: SessionStartRequest):
     latest = await get_latest_onboarding(req.user_id) if not req.exam_id else None
     exam_id = req.exam_id or (latest["exam_id"] if latest else "dva-c02")
     state = initial_state(
-        user_id=req.user_id,
-        exam_id=exam_id,
-        local_timezone=req.timezone,
+        user_id=req.user_id, exam_id=exam_id, local_timezone=req.timezone,
         max_cycles=_clamp_cycles(req.max_cycles),
-        learning_style=req.learning_style,
-        focus_domain=req.focus_domain,
+        learning_style=req.learning_style, focus_domain=req.focus_domain,
     )
+    state["openrouter_api_key"] = req.openrouter_api_key
 
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):
             await graph.ainvoke(state, config=config)
     except HTTPException:
-        raise  # Let FastAPI handle HTTPExceptions (e.g. 422 from NoReadyConcept)
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    snapshot = await graph.aget_state(config)
-    return {
-        "thread_id": thread_id,
-        "exam_id": snapshot.values.get("exam_id"),
-        "max_cycles": snapshot.values.get("max_cycles") or 2,
-        "challenge": snapshot.values.get("current_challenge"),
-    }
+    snap = await graph.aget_state(config)
+    return {"thread_id": thread_id, "exam_id": snap.values.get("exam_id"),
+            "max_cycles": snap.values.get("max_cycles") or 2,
+            "challenge": snap.values.get("current_challenge")}
 
 
 @router.post("/session/submit")
 async def submit_answer(req: SessionSubmitRequest):
     graph = get_session_graph()
     config = cast(RunnableConfig, {"configurable": {"thread_id": req.thread_id}})
-
-    snapshot = await graph.aget_state(config)
-    if not snapshot or not snapshot.values:
+    snap = await graph.aget_state(config)
+    if not snap or not snap.values:
         raise HTTPException(status_code=404, detail="Session not found")
 
     answer_intent = normalize_answer_intent(req.user_answer, req.answer_intent)
     user_answer = req.user_answer or (KNOWLEDGE_GAP_ANSWER if answer_intent == "knowledge_gap" else "")
-    await graph.aupdate_state(config, {"user_answer": user_answer, "answer_intent": answer_intent})
+    upd = {"user_answer": user_answer, "answer_intent": answer_intent}
+    if req.openrouter_api_key:
+        upd["openrouter_api_key"] = req.openrouter_api_key
+    await graph.aupdate_state(config, upd)
 
-    async def sse_generator():
+    async def sse():
         try:
             with llm_runtime(req.openrouter_api_key, req.model_overrides):
                 async for event in graph.astream_events(None, config=config, version="v2"):
-                    kind = event["event"]
-                    name = event["name"]
-
+                    kind, name = event["event"], event["name"]
                     if kind == "on_chat_model_stream":
                         node = event.get("metadata", {}).get("langgraph_node")
-                        if node not in {"sage_depth", "sage_explain"}:
-                            continue
-                        chunk = event["data"].get("chunk")
-                        if chunk is not None and hasattr(chunk, "content") and chunk.content:
-                            content = json.dumps({"type": "token", "token": chunk.content})
-                            yield f"data: {content}\n\n"
-
+                        if node in {"sage_depth", "sage_explain"}:
+                            chunk = event["data"].get("chunk")
+                            if chunk and hasattr(chunk, "content") and chunk.content:
+                                yield f"data: {json.dumps({'type': 'token', 'token': chunk.content})}\n\n"
                     elif kind == "on_chain_end" and name == "evaluate_answer":
-                        outputs = event["data"].get("output")
-                        if outputs and "last_evaluation" in outputs:
-                            eval_result = outputs["last_evaluation"]
-                            yield f"data: {json.dumps({'type': 'evaluation', 'data': json.dumps(eval_result)})}\n\n"
-
+                        out = event["data"].get("output")
+                        if out and "last_evaluation" in out:
+                            yield f"data: {json.dumps({'type': 'evaluation', 'data': json.dumps(out['last_evaluation'])})}\n\n"
                     elif kind == "on_chain_end" and name in {"sage_depth", "sage_explain"}:
-                        outputs = event["data"].get("output") or {}
-                        history = outputs.get("session_history") or []
-                        if history:
-                            citations = history[-1].get("citations", [])
-                            yield f"data: {json.dumps({'type': 'citations', 'data': citations})}\n\n"
-
+                        out = event["data"].get("output") or {}
+                        h = out.get("session_history") or []
+                        if h:
+                            yield f"data: {json.dumps({'type': 'citations', 'data': h[-1].get('citations', [])})}\n\n"
                     elif kind == "on_chain_end" and name == "LangGraph":
                         yield f"data: {json.dumps({'type': 'done'})}\n\n"
         except Exception as e:
-            err_msg = json.dumps({"type": "error", "error": {"message": str(e)}})
-            yield f"data: {err_msg}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'error': {'message': str(e)}})}\n\n"
 
-    return StreamingResponse(sse_generator(), media_type="text/event-stream")
+    return StreamingResponse(sse(), media_type="text/event-stream")
 
 
 @router.post("/session/state")
 async def session_state(req: SessionStateRequest):
     graph = get_session_graph()
     config = cast(RunnableConfig, {"configurable": {"thread_id": req.thread_id}})
-
-    snapshot = await graph.aget_state(config)
-    if not snapshot or not snapshot.values:
+    snap = await graph.aget_state(config)
+    if not snap or not snap.values:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    history = snapshot.values.get("session_history", [])
-    latest_exchange = _latest_exchange(history)
-    session_id = snapshot.values.get("db_session_id", "")
+    history = snap.values.get("session_history", [])
+    last = _latest_exchange(history)
+    session_id = snap.values.get("db_session_id", "")
     feedback = await feedback_by_cycle(session_id)
-    latest_feedback = feedback.get(latest_exchange["cycle"]) if latest_exchange else None
+    latest_fb = feedback.get(last["cycle"]) if last else None
 
-    evaluation = snapshot.values.get("last_evaluation") or None
+    evaluation = snap.values.get("last_evaluation") or None
     if evaluation and evaluation.get("outcome") not in {"correct", "incorrect"}:
         evaluation = None
 
-    return {
-        "thread_id": req.thread_id,
-        "exam_id": snapshot.values.get("exam_id"),
-        "phase": _snapshot_phase(snapshot),
-        "cycle": snapshot.values.get("cycle") or 1,
-        "max_cycles": snapshot.values.get("max_cycles") or 2,
-        "challenge": snapshot.values.get("current_challenge") or None,
-        "user_answer": snapshot.values.get("user_answer") or "",
-        "answer_intent": snapshot.values.get("answer_intent") or "attempt",
-        "evaluation": evaluation,
-        "sage_text": latest_exchange.get("sage_response", "") if latest_exchange else "",
-        "sage_citations": latest_exchange.get("citations", []) if latest_exchange else [],
-        "sage_feedback": latest_feedback,
-        "results": _session_results(history, feedback),
-    }
+    return {"thread_id": req.thread_id, "exam_id": snap.values.get("exam_id"),
+            "phase": _snapshot_phase(snap), "cycle": snap.values.get("cycle") or 1,
+            "max_cycles": snap.values.get("max_cycles") or 2,
+            "challenge": snap.values.get("current_challenge") or None,
+            "user_answer": snap.values.get("user_answer") or "",
+            "answer_intent": snap.values.get("answer_intent") or "attempt",
+            "evaluation": evaluation,
+            "sage_text": last.get("sage_response", "") if last else "",
+            "sage_citations": last.get("citations", []) if last else [],
+            "sage_feedback": latest_fb, "results": _session_results(history, feedback)}
 
 
 @router.post("/session/next")
 async def next_challenge(req: SessionNextRequest):
     graph = get_session_graph()
     config = cast(RunnableConfig, {"configurable": {"thread_id": req.thread_id}})
-
-    snapshot = await graph.aget_state(config)
-    if not snapshot or not snapshot.values:
+    snap = await graph.aget_state(config)
+    if not snap or not snap.values:
         raise HTTPException(status_code=404, detail="Session not found")
+
+    if req.openrouter_api_key:
+        await graph.aupdate_state(config, {"openrouter_api_key": req.openrouter_api_key})
 
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):
             await graph.ainvoke(None, config=config)
     except HTTPException:
-        raise  # Let FastAPI handle HTTPExceptions (e.g. 422 from NoReadyConcept)
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-    snapshot = await graph.aget_state(config)
-    return {
-        "challenge": snapshot.values.get("current_challenge"),
-        "cycle": snapshot.values.get("cycle"),
-    }
+    snap = await graph.aget_state(config)
+    return {"challenge": snap.values.get("current_challenge"), "cycle": snap.values.get("cycle")}

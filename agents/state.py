@@ -88,16 +88,15 @@ class AppState(TypedDict):
     answer_intent: str
     last_evaluation: EvaluationResult
 
-    # 2.3 affordance: pre-seeded user answers so the graph runs end-to-end.
-    # Removed in 2.6 when LangGraph interrupts wait for real user input.
-    # pending_user_answers: list[str]
-
     # Accumulated per-session — appended by sage_respond after each cycle
-    # Annotated with operator.add so each append is additive, not overwriting
     session_history: Annotated[list[Exchange], operator.add]
 
     # Written by coach_open when a Postgres session row is created (2.4)
     db_session_id: str
+
+    # Runtime API key — set by routes/session.py when invoking graph, propagated
+    # into async nodes so get_llm can find it without crossing event-loop boundaries.
+    openrouter_api_key: str
 
 
 def initial_state(
@@ -108,10 +107,7 @@ def initial_state(
     learning_style: str = "",
     focus_domain: str = "",
 ) -> dict[str, Any]:
-    """Returns the initial state dict for a new session.
-
-    `pending_user_answers` is removed in 2.6 as we now use LangGraph interrupts.
-    """
+    """Returns the initial state dict for a new session."""
     return {
         "user_id": user_id,
         "exam_id": exam_id,
@@ -138,4 +134,5 @@ def initial_state(
         "last_evaluation": {},
         "session_history": [],
         "db_session_id": "",
+        "openrouter_api_key": "",
     }
