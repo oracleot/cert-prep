@@ -9,6 +9,7 @@ export type Challenge = {
   difficulty?: "easy" | "medium" | "hard";
   services?: string[];
   source_ids?: string[];
+  familiarity_level?: "new" | "building" | "review";
   scenario: string;
   question: string;
 };
@@ -16,6 +17,7 @@ export type Challenge = {
 export type EvaluationResult = {
   outcome: "correct" | "incorrect";
   reasoning: string;
+  answer_intent?: AnswerIntent;
 };
 
 export type Citation = {
@@ -28,6 +30,20 @@ export type SessionResult = {
   cycle: number;
   topic: string;
   outcome: "correct" | "incorrect";
+  answer_intent?: AnswerIntent;
+  review_status?: ExchangeReviewStatus;
+  feedback?: SageFeedback | null;
+};
+
+export type AnswerIntent = "attempt" | "knowledge_gap";
+export type ExchangeReviewStatus = "active" | "excluded_pending_review" | "confirmed_hallucination" | "dismissed";
+export type SageFeedbackType = "factual_error" | "bad_source" | "confusing_explanation";
+export type SageFeedbackStatus = "pending_review" | "confirmed_hallucination" | "dismissed";
+export type SageFeedback = {
+  feedback_type: SageFeedbackType;
+  status: SageFeedbackStatus;
+  excludes_metrics: boolean;
+  review_status: ExchangeReviewStatus;
 };
 
 export type LearningStyle =
@@ -120,6 +136,9 @@ export type SessionHistoryExchange = {
   challenge: Challenge;
   user_answer: string;
   outcome: "correct" | "incorrect";
+  answer_intent?: AnswerIntent;
+  review_status?: ExchangeReviewStatus;
+  feedback?: SageFeedback | null;
   sage_response: string;
   citations: Citation[];
 };

@@ -7,8 +7,10 @@ import json
 import re
 
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
-from llm import get_llm
+from answer_intent import normalize_answer_intent
+from llm import get_llm, model_for
 from prompts.evaluator import MODEL, EvaluatorInput, build_evaluator_prompt
 from state import AppState
 
@@ -17,11 +19,22 @@ def _strip_code_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\n?|```$", "", text, flags=re.MULTILINE).strip()
 
 
-def evaluate_answer(state: AppState) -> dict:
+def evaluate_answer(state: AppState, config: RunnableConfig) -> dict:
     """Evaluate the user's answer against the current challenge."""
     user_answer = state.get("user_answer")
     if not user_answer:
         raise ValueError("No user answer provided.")
+
+    answer_intent = normalize_answer_intent(user_answer, state.get("answer_intent", "attempt"))
+    if answer_intent == "knowledge_gap":
+        return {
+            "last_evaluation": {
+                "outcome": "incorrect",
+                "reasoning": "Knowledge gap: user indicated they do not know yet.",
+                "answer_intent": "knowledge_gap",
+            },
+            "answer_intent": "knowledge_gap",
+        }
 
     challenge = state["current_challenge"]
 
@@ -35,7 +48,7 @@ def evaluate_answer(state: AppState) -> dict:
     )
     system, user = build_evaluator_prompt(ev_input)
 
-    llm = get_llm(MODEL)
+    llm = get_llm(model_for("evaluator", MODEL))
     response = llm.invoke(
         [SystemMessage(content=system), HumanMessage(content=user)],
         temperature=0.2,
@@ -52,5 +65,7 @@ def evaluate_answer(state: AppState) -> dict:
         "last_evaluation": {
             "outcome": result["outcome"],
             "reasoning": result["reasoning"],
+            "answer_intent": "attempt",
         },
+        "answer_intent": "attempt",
     }

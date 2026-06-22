@@ -108,19 +108,36 @@ async def get_active_curriculum(user_id: str, exam_id: str) -> dict[str, Any] | 
     return {"id": str(row[0]), "domains": _coerce_domains(row[1])}
 
 
-async def choose_today_target(user_id: str, exam_id: str) -> dict[str, Any]:
+async def choose_today_target(user_id: str, exam_id: str, focus_domain: str = "") -> dict[str, Any]:
     curriculum = await get_active_curriculum(user_id, exam_id)
     domains = _active_domains(curriculum, exam_id)
     domain_stats = await performance_map(user_id, exam_id)
     topic_stats = await topic_performance_map(user_id, exam_id)
     domain_difficulties = await read_domain_difficulties(user_id, exam_id)
-    return select_today_target(
+    target = select_today_target(
         domains,
         domain_stats,
         topic_stats,
         curriculum["id"] if curriculum else "",
         domain_difficulties,
+        focus_domain,
     )
+    target["familiarity_level"] = _familiarity_level(target["domain"], target["topic"], domain_stats, topic_stats)
+    return target
+
+
+def _familiarity_level(
+    domain: str,
+    topic: str,
+    domain_stats: dict[str, dict[str, int]],
+    topic_stats: dict[str, dict[str, int]],
+) -> str:
+    domain_total = domain_stats.get(domain, {}).get("total_count", 0)
+    topic_total = topic_stats.get(topic, {}).get("total_count", 0)
+    if domain_total < 2 or topic_total == 0:
+        return "new"
+    correct = topic_stats.get(topic, {}).get("correct_count", 0)
+    return "building" if correct / topic_total < 0.7 else "review"
 
 
 async def choose_rechallenge_target(

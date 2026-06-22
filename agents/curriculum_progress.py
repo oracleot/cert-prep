@@ -47,6 +47,7 @@ async def topic_performance_map(user_id: str, exam_id: str) -> dict[str, dict[st
                 "SELECT e.topic, e.outcome, COUNT(*) FROM exchanges e "
                 "JOIN sessions s ON s.id = e.session_id "
                 "WHERE s.user_id = %s AND s.exam_id = %s "
+                "AND e.review_status = 'active' "
                 "GROUP BY e.topic, e.outcome",
                 (user_id, exam_id),
             )

@@ -1,4 +1,4 @@
-import type { Challenge, Citation, EvaluationResult, SessionResult } from "@/lib/types";
+import type { AnswerIntent, Challenge, Citation, EvaluationResult, SageFeedback, SessionResult } from "@/lib/types";
 
 const SESSION_THREAD_KEY = "gauntlet.session.thread-id";
 
@@ -9,9 +9,11 @@ export type RestoredSession = {
   max_cycles: number;
   challenge: Challenge | null;
   user_answer: string;
+  answer_intent?: AnswerIntent;
   evaluation: EvaluationResult | null;
   sage_text: string;
   sage_citations: Citation[];
+  sage_feedback?: SageFeedback | null;
   results: SessionResult[];
 };
 

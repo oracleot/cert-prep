@@ -25,6 +25,8 @@ function CitationList({ citations }: { citations: Citation[] }) {
 
 function ExchangeBlock({ exchange }: { exchange: SessionHistoryDetail["exchanges"][number] }) {
   const isCorrect = exchange.outcome === "correct";
+  const isKnowledgeGap = exchange.answer_intent === "knowledge_gap";
+  const isExcluded = exchange.review_status === "excluded_pending_review";
   return (
     <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-900/50">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -33,14 +35,23 @@ function ExchangeBlock({ exchange }: { exchange: SessionHistoryDetail["exchanges
         </p>
         <span
           className={
-            isCorrect
+            isExcluded
+              ? "rounded-full bg-amber-100 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wide text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+              : isCorrect
               ? "rounded-full bg-emerald-100 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+              : isKnowledgeGap
+                ? "rounded-full bg-amber-100 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wide text-amber-800 dark:bg-amber-950 dark:text-amber-300"
               : "rounded-full bg-zinc-200 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wide text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400"
           }
         >
-          {isCorrect ? "You won" : "Rex won"}
+          {isExcluded ? "Excluded from progress" : isCorrect ? "You won" : isKnowledgeGap ? "Knowledge gap" : "Rex won"}
         </span>
       </div>
+      {exchange.feedback && (
+        <p className="mt-3 rounded-xl border border-amber-300/40 bg-amber-300/10 p-3 text-xs font-semibold text-amber-800 dark:text-amber-200">
+          Flagged for review{exchange.feedback.excludes_metrics ? " - excluded pending review" : ""}
+        </p>
+      )}
       <h3 className="mt-4 text-lg font-black tracking-tight">Rex&apos;s challenge</h3>
       <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
         {exchange.challenge.scenario}

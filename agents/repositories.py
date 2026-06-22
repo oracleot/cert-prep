@@ -43,6 +43,7 @@ async def create_exchange(
     challenge: dict[str, Any],
     user_answer: str,
     outcome: str,
+    answer_intent: str,
     sage_response: str,
     citations: list[Any],
 ) -> None:
@@ -54,8 +55,8 @@ async def create_exchange(
     async with pool.connection() as conn:
         await conn.execute(
             "INSERT INTO exchanges (session_id, cycle, domain, topic, "
-            "challenge, user_answer, outcome, sage_response, citations) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            "challenge, user_answer, outcome, answer_intent, sage_response, citations) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             (
                 session_id,
                 cycle,
@@ -64,6 +65,7 @@ async def create_exchange(
                 json.dumps(challenge),
                 user_answer,
                 outcome,
+                answer_intent,
                 sage_response,
                 json.dumps(citations),
             ),

@@ -11,9 +11,10 @@ type Props = {
 };
 
 export function SummaryScreen({ results, domain, onRestart }: Props) {
-  const correct = results.filter((r) => r.outcome === "correct").length;
-  const total = results.length;
-  const allCorrect = correct === total;
+  const scoredResults = results.filter((r) => r.review_status !== "excluded_pending_review");
+  const correct = scoredResults.filter((r) => r.outcome === "correct").length;
+  const total = scoredResults.length;
+  const allCorrect = total > 0 && correct === total;
   const topicCount = new Set(results.map((r) => r.topic)).size;
 
   return (
@@ -29,7 +30,9 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
         </p>
 
         <p className="mt-3 text-sm font-semibold">
-          {allCorrect
+          {total === 0
+            ? "No scored cycles. Review is pending."
+            : allCorrect
             ? "Rex had nothing on you today."
             : correct === 0
               ? "Rex won this one. Come back ready."
@@ -52,12 +55,16 @@ export function SummaryScreen({ results, domain, onRestart }: Props) {
               <span className="truncate px-2 text-zinc-700 dark:text-zinc-200">{r.topic}</span>
               <span
                 className={
-                  r.outcome === "correct"
+                  r.review_status === "excluded_pending_review"
+                    ? "font-bold text-amber-700 dark:text-amber-300"
+                    : r.outcome === "correct"
                     ? "font-bold text-emerald-600 dark:text-emerald-300"
+                    : r.answer_intent === "knowledge_gap"
+                      ? "font-bold text-amber-700 dark:text-amber-300"
                     : "text-zinc-600 dark:text-zinc-500"
                 }
               >
-                {r.outcome === "correct" ? "✓" : "✗"}
+                {r.review_status === "excluded_pending_review" ? "Excluded" : r.outcome === "correct" ? "✓" : r.answer_intent === "knowledge_gap" ? "Gap" : "✗"}
               </span>
             </div>
           ))}

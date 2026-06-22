@@ -130,7 +130,7 @@ export function useOnboarding() {
         }
 
         if (data?.run?.id === savedOnboardingId && data?.curriculum) {
-          await loadPlan(userId);
+          if (!(await loadPlan(userId))) setStep("feed");
           return;
         }
 

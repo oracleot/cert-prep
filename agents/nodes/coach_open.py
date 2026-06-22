@@ -42,9 +42,9 @@ async def coach_open(state: AppState) -> dict:
     """
     user_id = state["user_id"]
     exam_id = state["exam_id"]
-    target = await choose_today_target(user_id=user_id, exam_id=exam_id)
+    target = await choose_today_target(user_id=user_id, exam_id=exam_id, focus_domain=state.get("focus_domain", ""))
     curriculum = await get_active_curriculum(user_id=user_id, exam_id=exam_id)
-    learning_style = await get_learning_style(user_id)
+    learning_style = state.get("learning_style") or await get_learning_style(user_id)
     if learning_style not in {"pressure_drills", "guided_explanations", "mixed_review"}:
         learning_style = "mixed_review"
     domain = target["domain"]
@@ -74,6 +74,7 @@ async def coach_open(state: AppState) -> dict:
         "current_task_statement": target.get("task_statement", ""),
         "current_services": target.get("services", []),
         "current_source_ids": target.get("source_ids", []),
+        "familiarity_level": target.get("familiarity_level", "new"),
         "rex_difficulty": difficulty,
         "curriculum_id": curriculum_id,
         "curriculum": curriculum["domains"] if curriculum else [],

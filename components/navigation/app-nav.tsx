@@ -10,6 +10,7 @@ export function AppNav() {
   const isDashboard = pathname === "/dashboard";
   const isHistory = pathname === "/history";
   const isProgress = pathname === "/progress";
+  const isSettings = pathname === "/settings";
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3 text-sm">
@@ -43,6 +44,14 @@ export function AppNav() {
             className="rounded-full border border-zinc-200 px-4 py-2 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
           >
             Progress
+          </Link>
+        ) : null}
+        {!isSettings ? (
+          <Link
+            href="/settings"
+            className="rounded-full border border-zinc-200 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"
+          >
+            Settings
           </Link>
         ) : null}
         {!isDashboard ? (

@@ -41,6 +41,11 @@ export function ChallengeCard({ challenge, isLoading }: Props) {
         <span className="rounded-full border border-sky-300 bg-sky-300/10 px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-700 dark:border-sky-700 dark:text-sky-300">
           {difficulty}
         </span>
+        {challenge.familiarity_level === "new" && (
+          <span className="rounded-full border border-amber-300 bg-amber-300/15 px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+            New domain ramp
+          </span>
+        )}
       </div>
 
       <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">

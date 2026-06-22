@@ -1,5 +1,5 @@
 # Application route: list past sessions and load a session's exchanges.
-# Reads from the existing `sessions` and `exchanges` tables - no schema change.
+# Reads from the existing `sessions` and `exchanges` tables.
 
 from __future__ import annotations
 
@@ -39,8 +39,8 @@ async def history_list(req: HistoryListRequest):
 
     base_sql = (
         "SELECT s.id::text, s.started_at, s.ended_at, s.exam_id, s.domain, s.topic, "
-        "COUNT(e.id) AS total_cycles, "
-        "COALESCE(SUM(CASE WHEN e.outcome = 'correct' THEN 1 ELSE 0 END), 0) AS correct_count "
+        "COALESCE(SUM(CASE WHEN e.review_status = 'active' THEN 1 ELSE 0 END), 0) AS total_cycles, "
+        "COALESCE(SUM(CASE WHEN e.review_status = 'active' AND e.outcome = 'correct' THEN 1 ELSE 0 END), 0) AS correct_count "
         "FROM sessions s LEFT JOIN exchanges e ON e.session_id = s.id "
         "WHERE s.user_id = %s "
     )
@@ -95,8 +95,10 @@ async def history_session(req: HistorySessionRequest):
 
             await cur.execute(
                 "SELECT cycle, domain, topic, challenge, user_answer, outcome, "
-                "sage_response, citations FROM exchanges "
-                "WHERE session_id = %s ORDER BY cycle",
+                "answer_intent, sage_response, citations, e.review_status, "
+                "f.feedback_type, f.status, f.excludes_metrics FROM exchanges e "
+                "LEFT JOIN sage_feedback f ON f.exchange_id = e.id "
+                "WHERE e.session_id = %s ORDER BY cycle",
                 (req.session_id,),
             )
             exchange_rows = await cur.fetchall()
@@ -116,8 +118,16 @@ async def history_session(req: HistorySessionRequest):
                 "challenge": e[3],
                 "user_answer": e[4],
                 "outcome": e[5],
-                "sage_response": e[6],
-                "citations": e[7] or [],
+                "answer_intent": e[6] or "attempt",
+                "sage_response": e[7],
+                "citations": e[8] or [],
+                "review_status": e[9],
+                "feedback": {
+                    "feedback_type": e[10],
+                    "status": e[11],
+                    "excludes_metrics": bool(e[12]),
+                    "review_status": e[9],
+                } if e[10] else None,
             }
             for e in exchange_rows
         ],

@@ -18,15 +18,18 @@ def build_rex_challenge_prompt(
     services: list[str] | None = None,
     source_ids: list[str] | None = None,
     learning_style: str = "",
+    familiarity_level: str = "new",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a new challenge."""
     topic_instruction = f'Target topic: "{topic}".' if topic else "Choose a specific topic."
     context = _source_context(task_statement, services, source_ids)
     style_directive = _style_directive(learning_style)
+    familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""Generate a {exam_id.upper()} challenge for the "{domain}" domain at {difficulty} difficulty.
 {topic_instruction}
 {context}
 {style_directive}
+{familiarity_directive}
 
 Return exactly this JSON shape — nothing else:
 {{
@@ -48,17 +51,20 @@ def build_rex_rechallenge_prompt(
     services: list[str] | None = None,
     source_ids: list[str] | None = None,
     learning_style: str = "",
+    familiarity_level: str = "new",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a harder rechallenge."""
     topic_instruction = f'Target the next topic: "{topic}".' if topic else "Choose a different specific topic."
     context = _source_context(task_statement, services, source_ids)
     style_directive = _style_directive(learning_style, rechallenge=True)
+    familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""The challenger just saw Sage explain "{previous_topic}" in the "{domain}" domain. Now raise the stakes.
 
 Generate a harder {exam_id.upper()} challenge on the SAME domain — higher-pressure scenario, more nuanced question. Difficulty: {difficulty}.
 {topic_instruction}
 {context}
 {style_directive}
+{familiarity_directive}
 
 Return exactly this JSON shape — nothing else:
 {{
@@ -92,6 +98,14 @@ def _style_directive(learning_style: str, rechallenge: bool = False) -> str:
             "trap. The point is to teach, not to catch them out."
         )
     return ""
+
+
+def _familiarity_directive(familiarity_level: str) -> str:
+    if familiarity_level == "new":
+        return "Familiarity: new. Use one core decision and avoid unnecessary multi-service traps unless the selected style explicitly raises pressure."
+    if familiarity_level == "building":
+        return "Familiarity: building. Test the core rule plus one realistic wrinkle."
+    return "Familiarity: review. The user has prior signal here; normal exam nuance is fair game."
 
 
 def _source_context(

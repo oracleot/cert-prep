@@ -5,11 +5,12 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from curriculum_repository import choose_rechallenge_target
-from llm import get_llm
+from llm import get_llm, model_for
 from prompts.rex import MODEL, build_rex_rechallenge_prompt
 from state import AppState
 
@@ -18,28 +19,42 @@ def _strip_code_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\n?|```$", "", text, flags=re.MULTILINE).strip()
 
 
+def _gap_followup_difficulty(current: str, learning_style: str) -> str:
+    if learning_style == "guided_explanations":
+        return "easy"
+    if learning_style == "pressure_drills":
+        return current or "hard"
+    return "medium"
+
+
 async def rex_rechallenge(state: AppState) -> dict:
     """Generate a harder challenge on the same domain, increment the cycle."""
-    target = await choose_rechallenge_target(
-        user_id=state["user_id"],
-        exam_id=state["exam_id"],
-        domain=state["current_domain"],
-        previous_topic=state["current_challenge"]["topic"],
-        previous_task_statement_id=state["current_challenge"].get("task_statement_id", ""),
-    )
+    current = state["current_challenge"]
+    if state.get("answer_intent") == "knowledge_gap":
+        target: dict[str, Any] = dict(current)
+        target["difficulty"] = _gap_followup_difficulty(current.get("difficulty", "medium"), state.get("learning_style", ""))
+    else:
+        target = await choose_rechallenge_target(
+            user_id=state["user_id"],
+            exam_id=state["exam_id"],
+            domain=state["current_domain"],
+            previous_topic=current["topic"],
+            previous_task_statement_id=current.get("task_statement_id", ""),
+        )
     system, user = build_rex_rechallenge_prompt(
         exam_id=state["exam_id"],
         domain=state["current_domain"],
-        previous_topic=state["current_challenge"]["topic"],
+        previous_topic=current["topic"],
         topic=target.get("topic", ""),
         difficulty=target.get("difficulty", "hard"),
         task_statement=target.get("task_statement", ""),
         services=target.get("services", []),
         source_ids=target.get("source_ids", []),
         learning_style=state.get("learning_style", ""),
+        familiarity_level=target.get("familiarity_level", state.get("familiarity_level", "new")),
     )
 
-    llm = get_llm(MODEL)
+    llm = get_llm(model_for("rex", MODEL))
     response = llm.invoke(
         [SystemMessage(content=system), HumanMessage(content=user)],
         temperature=0.8,
@@ -62,6 +77,7 @@ async def rex_rechallenge(state: AppState) -> dict:
             "difficulty": target.get("difficulty", "hard"),
             "services": target.get("services", []),
             "source_ids": target.get("source_ids", []),
+            "familiarity_level": target.get("familiarity_level", state.get("familiarity_level", "new")),
             "scenario": challenge["scenario"],
             "question": challenge["question"],
         },
@@ -71,6 +87,8 @@ async def rex_rechallenge(state: AppState) -> dict:
         "current_task_statement": target.get("task_statement", ""),
         "current_services": target.get("services", []),
         "current_source_ids": target.get("source_ids", []),
+        "familiarity_level": target.get("familiarity_level", state.get("familiarity_level", "new")),
         "rex_difficulty": target.get("difficulty", "hard"),
+        "answer_intent": "attempt",
         "cycle": state.get("cycle", 1) + 1,
     }

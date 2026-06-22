@@ -343,10 +343,11 @@ Status: reshuffled | Date: 2026-06-16
 
 ### 4.5 — Settings screen (P2, S, frontend, deferred)
 **Acceptance criteria:**
-- [ ] Accessible from nav (not prominent — tucked away)
-- [ ] "Change learning style" option — warns curriculum will rebuild
-- [ ] "Reset exam progress" option — buried, 3s delay confirmation modal per UX spec
+- [x] Accessible from nav (not prominent — tucked away)
+- [x] "Change learning style" option — warns curriculum will rebuild
+- [x] "Reset exam progress" option — buried, 3s delay confirmation modal per UX spec
 - [ ] Sign out option
+- [x] Agent model selection, BYOK OpenRouter key, and session cycle count controls
 
 ---
 
@@ -457,6 +458,18 @@ Status: reshuffled | Date: 2026-06-16
 - [x] "Back to dashboard" uses Next.js `Link` to `/dashboard`
 - [x] Both buttons are reachable and tappable on a 375px viewport (44×44 minimum touch target)
 - [x] No regression to the existing restart behavior
+
+---
+
+### 6.4a — One-shot dashboard domain focus (P1, S, frontend + agents)
+**Acceptance criteria:**
+- [x] Dashboard `Next up` card offers a `Recommended` option plus one pill per active curriculum domain
+- [x] Selecting a domain changes the card heading to `Focus drill`, shows the selected domain, and uses generic topic copy: Rex chooses a weak or uncovered topic in that domain
+- [x] CTA changes to `Start focused session` and navigates to `/session?focus_domain=<domain>`
+- [x] Session start consumes `focus_domain`, clears it from the URL, and sends it to the LangGraph service as a one-shot override
+- [x] Backend restricts the first target selection to the requested domain using existing weak/uncovered topic priority; invalid focus values fall back to normal curriculum recommendation
+- [x] Rechallenge remains in the same domain via the existing session loop; focused sessions count normally toward progress, history, streaks, readiness, and Rex's record
+- [x] Focus picker is visible but disabled while a saved in-progress session is resumable
 
 ---
 

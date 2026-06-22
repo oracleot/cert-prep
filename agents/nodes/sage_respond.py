@@ -15,7 +15,7 @@ import logging
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 
-from llm import get_llm
+from llm import get_llm, model_for
 from performance_repository import record_rex_result
 from prompts.sage import MODEL, SageInput, build_sage_depth_prompt, build_sage_explain_prompt
 from repositories import create_exchange
@@ -50,6 +50,8 @@ async def _generate_sage_response(
         source_context=grounding["source_context"],
         has_verified_sources=bool(grounding["citations"]),
         learning_style=state.get("learning_style", ""),
+        answer_intent=state.get("answer_intent", "attempt"),
+        familiarity_level=challenge.get("familiarity_level", state.get("familiarity_level", "new")),
     )
 
     if kind == "depth":
@@ -57,7 +59,7 @@ async def _generate_sage_response(
     else:
         system, user = build_sage_explain_prompt(sage_input)
 
-    llm = get_llm(MODEL)
+    llm = get_llm(model_for("sage", MODEL))
     response = await llm.ainvoke(
         [SystemMessage(content=system), HumanMessage(content=user)],
         config=config,
@@ -77,6 +79,7 @@ def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) 
         "challenge": challenge,
         "user_answer": state["user_answer"],
         "outcome": evaluation["outcome"],
+        "answer_intent": state.get("answer_intent", "attempt"),
         "sage_response": sage_text,
         "citations": citations,
     }
@@ -98,6 +101,7 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
             challenge=exchange["challenge"],
             user_answer=exchange["user_answer"],
             outcome=exchange["outcome"],
+            answer_intent=exchange.get("answer_intent", "attempt"),
             sage_response=exchange["sage_response"],
             citations=exchange["citations"],
         )

@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AppNav } from "@/components/navigation/app-nav";
+import { FocusDomainPicker } from "@/components/dashboard/focus-domain-picker";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
 import { getBrowserTimezone } from "@/lib/browser-timezone";
-import { loadThreadId } from "@/app/session/session-persistence";
+import { clearThreadId, loadThreadId } from "@/app/session/session-persistence";
 import type { DashboardSummary, DomainPlan } from "@/lib/types";
 
 function formatPercent(value: number) {
@@ -60,7 +61,13 @@ const CTA_COPY: Record<CtaState, string> = {
 export function DashboardClient() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState("");
-  const [hasInProgressThread] = useState<boolean>(() => Boolean(loadThreadId()));
+  const [focusDomain, setFocusDomain] = useState("");
+  const [hasInProgressThread, setHasInProgressThread] = useState<boolean>(() => Boolean(loadThreadId()));
+
+  function endSession() {
+    clearThreadId();
+    setHasInProgressThread(false);
+  }
 
   useEffect(() => {
     async function load() {
@@ -89,7 +96,9 @@ export function DashboardClient() {
   }
 
   const ctaState = resolveCtaState(summary, hasInProgressThread);
-  const ctaLabel = CTA_COPY[ctaState];
+  const hasFocus = Boolean(focusDomain) && !hasInProgressThread;
+  const ctaLabel = hasFocus ? "Start focused session" : CTA_COPY[ctaState];
+  const sessionHref = hasFocus ? `/session?focus_domain=${encodeURIComponent(focusDomain)}` : "/session";
 
   return (
     <main className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">
@@ -115,17 +124,36 @@ export function DashboardClient() {
             </p>
           </div>
           <div className="rounded-[2rem] border border-zinc-800 bg-amber-300 p-7 text-zinc-950 sm:p-10">
-            <p className="text-xs font-black uppercase tracking-[0.35em]">Next up</p>
+            <p className="text-xs font-black uppercase tracking-[0.35em]">{hasFocus ? "Focus drill" : "Next up"}</p>
             <h1 className="mt-4 text-4xl font-black tracking-tight">
-              {summary.today_domain}
+              {hasFocus ? focusDomain : summary.today_domain}
             </h1>
-            <p className="mt-3 text-sm font-semibold opacity-80">{summary.today_topic}</p>
-            <Link
-              href="/session"
-              className="mt-8 inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-black text-zinc-50 dark:bg-zinc-950"
-            >
-              {ctaLabel}
-            </Link>
+            <p className="mt-3 text-sm font-semibold opacity-80">
+              {hasFocus ? "Rex will pick a weak or uncovered topic in this domain." : summary.today_topic}
+            </p>
+            <FocusDomainPicker
+              domains={summary.domains}
+              value={focusDomain}
+              disabled={hasInProgressThread}
+              onChange={setFocusDomain}
+            />
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href={sessionHref}
+                className="inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-black text-zinc-50 dark:bg-zinc-950"
+              >
+                {ctaLabel}
+              </Link>
+              {hasInProgressThread ? (
+                <button
+                  type="button"
+                  onClick={endSession}
+                  className="min-h-11 rounded-full border border-zinc-950/30 px-5 text-sm font-black text-zinc-950 hover:border-zinc-950"
+                >
+                  End session
+                </button>
+              ) : null}
+            </div>
           </div>
         </section>
         <section className="mt-5 grid gap-5 lg:grid-cols-2">

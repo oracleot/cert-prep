@@ -11,8 +11,11 @@ def select_today_target(
     topic_stats: dict[str, dict[str, int]],
     curriculum_id: str = "",
     domain_difficulties: dict[str, str] | None = None,
+    focus_domain: str = "",
 ) -> dict[str, Any]:
-    candidates = _candidates(domains, topic_stats)
+    candidates = _focus_candidates(domains, topic_stats, focus_domain)
+    if not candidates:
+        candidates = _candidates(domains, topic_stats)
     if not candidates:
         return _empty_target(curriculum_id)
 
@@ -22,6 +25,15 @@ def select_today_target(
         key=lambda item: _coverage_key(item, domain_stats, total_attempts),
     )
     return _target_payload(selected, curriculum_id, domain_difficulties or {})
+
+
+def _focus_candidates(domains: list[dict], topic_stats: dict[str, dict[str, int]], focus_domain: str) -> list[dict[str, Any]]:
+    candidates = _candidates(domains, topic_stats)
+    normalized = focus_domain.strip().casefold()
+    if not normalized:
+        return candidates
+    focused = [item for item in candidates if item["domain"].strip().casefold() == normalized]
+    return focused or candidates
 
 
 def select_rechallenge_target(

@@ -4,25 +4,17 @@ export async function POST(req: NextRequest) {
   const backendUrl = process.env.LANGGRAPH_URL || "http://localhost:8000";
   try {
     const body = await req.json();
-
-    const res = await fetch(`${backendUrl}/session/submit`, {
+    const res = await fetch(`${backendUrl}/session/feedback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
     if (!res.ok) {
-      return NextResponse.json({ error: "Backend error" }, { status: res.status });
+      return NextResponse.json(await res.json(), { status: res.status });
     }
 
-    // Proxy the SSE stream directly back to the client
-    return new NextResponse(res.body, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
-        "Connection": "keep-alive",
-      },
-    });
+    return NextResponse.json(await res.json());
   } catch {
     return NextResponse.json({ error: "Failed to connect to backend" }, { status: 503 });
   }

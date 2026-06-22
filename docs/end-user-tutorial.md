@@ -87,6 +87,8 @@ The amber panel on the right shows what your curriculum recommends next, includi
 - the next topic to cover
 - the main action button to begin studying
 
+You can also choose a one-session `Focus domain` from the same card. Choose `Recommended` to follow the curriculum, or choose a domain if you want Rex and Sage to grill you on that area next.
+
 The action button adapts to your state:
 
 - `Start your first session` if you have never run a session.
@@ -189,7 +191,7 @@ At the end of each session, Gauntlet displays a summary screen showing:
 
 Two actions are available:
 
-- `Start another session` (primary) - begin a new session on the next topic.
+- `Start another session` (primary) - begin a new curriculum-recommended session.
 - `Back to dashboard` (secondary) - return to the dashboard without starting a new session.
 
 ## Step 5: Review Your Progress
@@ -262,7 +264,7 @@ For the best experience:
 4. Wait for the curriculum build to finish.
 5. Review the plan reveal.
 6. Open the dashboard.
-7. Start, resume, or begin another session from the `Next up` card.
+7. Start, resume, begin another session, or choose a one-session focus domain from the `Next up` card.
 8. Answer Rex's challenge.
 9. Review Sage's formatted feedback.
 10. Choose to start another session or return to the dashboard.

@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { Citation } from "@/lib/types";
+import type { AnswerIntent, Citation, SageFeedback, SageFeedbackType } from "@/lib/types";
+import { SageFeedbackControl } from "./sage-feedback-control";
 import { MarkdownStream } from "./markdown-stream";
 
 type Props = {
@@ -9,9 +10,12 @@ type Props = {
   citations: Citation[];
   isStreaming: boolean;
   outcome: "correct" | "incorrect" | null;
+  answerIntent: AnswerIntent;
   cycle: number;
   maxCycles: number;
+  feedback: SageFeedback | null;
   onNext: () => void;
+  onFeedbackSubmit: (feedbackType: SageFeedbackType, comment: string) => Promise<void>;
 };
 
 export function SageCard({
@@ -19,13 +23,17 @@ export function SageCard({
   citations,
   isStreaming,
   outcome,
+  answerIntent,
   cycle,
   maxCycles,
+  feedback,
   onNext,
+  onFeedbackSubmit,
 }: Props) {
   if (!text && !isStreaming) return null;
 
   const isLastCycle = cycle >= maxCycles;
+  const isKnowledgeGap = answerIntent === "knowledge_gap";
 
   return (
     <div
@@ -44,10 +52,12 @@ export function SageCard({
             className={`text-xs font-semibold uppercase tracking-wider ${
               outcome === "correct"
                 ? "text-emerald-600 dark:text-emerald-300"
+                : isKnowledgeGap
+                  ? "text-amber-700 dark:text-amber-300"
                 : "text-zinc-500 dark:text-zinc-400"
             }`}
           >
-            {outcome === "correct" ? "correct" : "incorrect"}
+            {outcome === "correct" ? "correct" : isKnowledgeGap ? "knowledge gap" : "incorrect"}
           </span>
         )}
       </div>
@@ -78,6 +88,10 @@ export function SageCard({
             ))}
           </div>
         </div>
+      )}
+
+      {!isStreaming && text && (
+        <SageFeedbackControl feedback={feedback} onSubmit={onFeedbackSubmit} />
       )}
 
       {!isStreaming && text && (

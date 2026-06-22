@@ -28,8 +28,9 @@ Mobile-primary, desktop-capable. Card UI designed mobile-first from day one. Dai
 
 Daily re-entry pattern:
 - Dashboard shows **"Continue"** as primary CTA — picks up current domain from curriculum
+- Optional dashboard focus override lets a user pick one active domain for the next session only
 - One tap → session screen → session begins immediately
-- No domain selection — curriculum decides, Rex delivers
+- Default path remains curriculum-decided; focused sessions still let Rex choose a weak or uncovered topic inside the selected domain
 - Coach open recap: yesterday's performance, today's domain + topic, time estimate
 
 ## Key User Journeys
@@ -49,6 +50,7 @@ Daily re-entry pattern:
 
 ### Session screen behaviour
 - Full-focus mode: nav hidden on entry
+- No focus picker appears on the session screen; domain focus is chosen before entry from the dashboard
 - Each challenge is a focused card
 - Sage response animates in below the challenge card
 - Distraction-free — no notifications, no nav, no escape routes mid-session

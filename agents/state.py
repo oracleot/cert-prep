@@ -16,6 +16,7 @@ class Challenge(TypedDict):
     difficulty: str
     services: list[str]
     source_ids: list[str]
+    familiarity_level: str
     scenario: str
     question: str
 
@@ -23,6 +24,7 @@ class Challenge(TypedDict):
 class EvaluationResult(TypedDict):
     outcome: str  # "correct" | "incorrect"
     reasoning: str
+    answer_intent: str
 
 
 class Citation(TypedDict):
@@ -38,6 +40,7 @@ class Exchange(TypedDict):
     challenge: Challenge
     user_answer: str
     outcome: str
+    answer_intent: str
     sage_response: str
     citations: list[Citation]
 
@@ -66,8 +69,10 @@ class AppState(TypedDict):
     current_task_statement: str
     current_services: list[str]
     current_source_ids: list[str]
+    familiarity_level: str
     rex_difficulty: str  # "easy" | "medium" | "hard"
     max_cycles: int
+    focus_domain: str
     # "pressure_drills" | "guided_explanations" | "mixed_review" (default)
     learning_style: str
     local_timezone: str
@@ -78,6 +83,7 @@ class AppState(TypedDict):
     # Per-cycle working state — overwritten each cycle
     current_challenge: Challenge
     user_answer: str
+    answer_intent: str
     last_evaluation: EvaluationResult
 
     # 2.3 affordance: pre-seeded user answers so the graph runs end-to-end.
@@ -96,6 +102,9 @@ def initial_state(
     user_id: str,
     exam_id: str = "dva-c02",
     local_timezone: str = "UTC",
+    max_cycles: int = 2,
+    learning_style: str = "",
+    focus_domain: str = "",
 ) -> dict[str, Any]:
     """Returns the initial state dict for a new session.
 
@@ -113,13 +122,16 @@ def initial_state(
         "current_task_statement": "",
         "current_services": [],
         "current_source_ids": [],
+        "familiarity_level": "new",
         "rex_difficulty": "medium",
-        "max_cycles": 2,
-        "learning_style": "",
+        "max_cycles": max_cycles,
+        "focus_domain": focus_domain,
+        "learning_style": learning_style,
         "local_timezone": local_timezone,
         "cycle": 0,
         "current_challenge": {},
         "user_answer": "",
+        "answer_intent": "attempt",
         "last_evaluation": {},
         "session_history": [],
         "db_session_id": "",

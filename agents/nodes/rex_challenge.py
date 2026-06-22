@@ -7,8 +7,9 @@ import json
 import re
 
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
-from llm import get_llm
+from llm import get_llm, model_for
 from prompts.rex import MODEL, build_rex_challenge_prompt
 from state import AppState
 
@@ -17,7 +18,7 @@ def _strip_code_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\n?|```$", "", text, flags=re.MULTILINE).strip()
 
 
-def rex_challenge(state: AppState) -> dict:
+def rex_challenge(state: AppState, config: RunnableConfig) -> dict:
     """Generate a challenge for the current exam domain + difficulty."""
     system, user = build_rex_challenge_prompt(
         exam_id=state["exam_id"],
@@ -28,9 +29,10 @@ def rex_challenge(state: AppState) -> dict:
         services=state.get("current_services", []),
         source_ids=state.get("current_source_ids", []),
         learning_style=state.get("learning_style", ""),
+        familiarity_level=state.get("familiarity_level", "new"),
     )
 
-    llm = get_llm(MODEL)
+    llm = get_llm(model_for("rex", MODEL))
     response = llm.invoke([SystemMessage(content=system), HumanMessage(content=user)])
 
     raw = response.content if isinstance(response.content, str) else str(response.content)
@@ -49,6 +51,7 @@ def rex_challenge(state: AppState) -> dict:
             "difficulty": state.get("rex_difficulty", "medium"),
             "services": state.get("current_services", []),
             "source_ids": state.get("current_source_ids", []),
+            "familiarity_level": state.get("familiarity_level", "new"),
             "scenario": challenge["scenario"],
             "question": challenge["question"],
         },

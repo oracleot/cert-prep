@@ -26,6 +26,8 @@ class SageInput:
     source_context: str
     has_verified_sources: bool
     learning_style: str = ""
+    answer_intent: str = "attempt"
+    familiarity_level: str = "new"
 
 
 def _grounding_rules(sage: SageInput) -> str:
@@ -50,9 +52,19 @@ def _style_directive(learning_style: str, kind: str) -> str:
     return ""
 
 
+def _context_directive(sage: SageInput) -> str:
+    lines = [f"Familiarity: {sage.familiarity_level}."]
+    if sage.answer_intent == "knowledge_gap":
+        lines.append("They did not attempt an answer. Teach the foundation, then the exact exam rule, then one concrete AWS example. Do not diagnose a misconception.")
+    elif sage.familiarity_level == "new":
+        lines.append("Assume this is early exposure to the topic; make the mental model explicit before adding exam nuance.")
+    return "\n".join(lines)
+
+
 def build_sage_depth_prompt(sage: SageInput) -> tuple[str, str]:
     style_line = _style_directive(sage.learning_style, "depth")
     style_block = f"\n{style_line}" if style_line else ""
+    context_directive = _context_directive(sage)
     user = f"""Topic: {sage.topic} ({sage.domain})
 
 Grounding:
@@ -67,6 +79,7 @@ The challenge:
 
 They answered: "{sage.user_answer}"
 Evaluator note: {sage.reasoning}
+{context_directive}
 
 They got it right. Now go deeper. What else is worth knowing about this topic that the question didn't test? What separates a 750 from an 850 on this domain? Cite the specific behaviour, edge case, or gotcha that most practitioners miss. Be specific. Be direct. Be useful.{style_block}"""
     return SAGE_SYSTEM, user
@@ -75,6 +88,8 @@ They got it right. Now go deeper. What else is worth knowing about this topic th
 def build_sage_explain_prompt(sage: SageInput) -> tuple[str, str]:
     style_line = _style_directive(sage.learning_style, "explain")
     style_block = f"\n{style_line}" if style_line else ""
+    context_directive = _context_directive(sage)
+    instruction = "Teach the missing foundation, state the exact exam rule, then give one concrete AWS example." if sage.answer_intent == "knowledge_gap" else "Correct the misconception. Cite the specific service or concept directly. Tell them exactly what the right mental model is and why it matters in a real deployment."
     user = f"""Topic: {sage.topic} ({sage.domain})
 
 Grounding:
@@ -89,6 +104,7 @@ The challenge:
 
 They answered: "{sage.user_answer}"
 The gap: {sage.reasoning}
+{context_directive}
 
-Correct the misconception. Cite the specific service or concept directly. Tell them exactly what the right mental model is and why it matters in a real deployment. No hedging. No "it depends". Give them the knowledge they were missing.{style_block}"""
+{instruction} No hedging. No "it depends". Give them the knowledge they were missing.{style_block}"""
     return SAGE_SYSTEM, user
