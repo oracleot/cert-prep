@@ -1,10 +1,10 @@
-# coach_open node — opens a session, picks domain + topic, creates DB session row.
+# coach_open node — opens a session, selects concept, creates DB session row.
 
 from __future__ import annotations
 
 import logging
 
-from curriculum_repository import choose_today_target, get_active_curriculum
+from fastapi import HTTPException
 from onboarding_repository import get_learning_style
 from repositories import create_session
 from state import AppState
@@ -34,24 +34,37 @@ def _style_adjusted_difficulty(base: str, learning_style: str) -> str:
 
 
 async def coach_open(state: AppState) -> dict:
-    """Initialise session: domain, topic, cycle counter, db_session_id.
+    """Initialise session: select concept, domain, topic, cycle counter, db_session_id.
 
     Persists a `sessions` row in Postgres and stashes the returned UUID in
     state so downstream nodes (sage_respond, coach_close) can attach
     exchanges and stamp ended_at to the same session.
+
+    Raises HTTPException(422) if no ready concept exists for the requested domain.
     """
+    from concepts.selector import NoReadyConcept, select_initial_concept
+    from curriculum_repository import get_active_curriculum
+
     user_id = state["user_id"]
     exam_id = state["exam_id"]
-    target = await choose_today_target(user_id=user_id, exam_id=exam_id, focus_domain=state.get("focus_domain", ""))
+    focus_domain = state.get("focus_domain") or None
+
+    try:
+        concept = select_initial_concept(exam_id, domain=focus_domain)
+    except NoReadyConcept as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    domain = concept["domain"]
+    # topic is the short human-readable label; concept_id is the stable key.
+    topic = concept.get("topic", concept["id"])
+    concept_id = concept["id"]
+
     curriculum = await get_active_curriculum(user_id=user_id, exam_id=exam_id)
     learning_style = state.get("learning_style") or await get_learning_style(user_id)
     if learning_style not in {"pressure_drills", "guided_explanations", "mixed_review"}:
         learning_style = "mixed_review"
-    domain = target["domain"]
-    topic = target["topic"]
-    curriculum_id = target.get("curriculum_id", "")
 
-    base_difficulty = target.get("difficulty", "medium")
+    base_difficulty = concept.get("difficulty", "medium") if concept.get("difficulty") else "medium"
     difficulty = _style_adjusted_difficulty(base_difficulty, learning_style)
 
     db_session_id = ""
@@ -61,22 +74,24 @@ async def coach_open(state: AppState) -> dict:
             exam_id=exam_id,
             domain=domain,
             topic=topic,
-            curriculum_id=curriculum_id,
+            curriculum_id=curriculum["id"] if curriculum else "",
+            concept_id=concept_id,
         )
     except Exception:
         logger.exception("Failed to create sessions row; continuing without DB persistence.")
 
     return {
+        "current_concept_id": concept_id,
         "current_domain": domain,
         "current_topic": topic,
-        "current_topic_id": target.get("topic_id", ""),
-        "current_task_statement_id": target.get("task_statement_id", ""),
-        "current_task_statement": target.get("task_statement", ""),
-        "current_services": target.get("services", []),
-        "current_source_ids": target.get("source_ids", []),
-        "familiarity_level": target.get("familiarity_level", "new"),
+        "current_topic_id": concept.get("topic_id", concept_id),
+        "current_task_statement_id": concept.get("task_statement_id", concept_id),
+        "current_task_statement": concept.get("task_statement", ""),
+        "current_services": concept.get("services", []),
+        "current_source_ids": concept.get("source_ids", []),
+        "familiarity_level": concept.get("familiarity_level", "new"),
         "rex_difficulty": difficulty,
-        "curriculum_id": curriculum_id,
+        "curriculum_id": curriculum["id"] if curriculum else "",
         "curriculum": curriculum["domains"] if curriculum else [],
         "cycle": 1,
         "db_session_id": db_session_id,
