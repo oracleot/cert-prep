@@ -5,8 +5,6 @@ FROM python:3.11-slim
 
 WORKDIR /app/agents
 
-
-
 # Install Python deps
 COPY agents/requirements.txt /app/agents/requirements.txt
 RUN pip install --no-cache-dir -r /app/agents/requirements.txt

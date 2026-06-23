@@ -16,7 +16,7 @@ Both services are provisioned as independent Railway services sharing managed Po
 3. Add a **Redis** instance (note the connection string).
 4. Connect the repo and add each service:
    - **Next.js**: repo root, Railway auto-detects Nixpacks → select the root `railway.toml`.
-   - **Agents**: repo root, set the **build command** to `docker build -f agents/Dockerfile .` or link `agents/Dockerfile` directly so Railway uses it.
+   - **Agents**: repo root, Railway auto-detects the `dockerfilePath = "agents/Dockerfile"` from `agents/railway.toml` and uses it automatically.
 5. Set environment variables on each service (see below).
 6. Deploy both services.
 

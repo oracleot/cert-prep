@@ -6,7 +6,7 @@ deployment_strategy = "duplicate"
 # python | fastapi | uvicorn
 [build]
 builder = "DOCKERFILE"
-dockerfile_path = "agents/Dockerfile"
+dockerfilePath = "agents/Dockerfile"
 
 [deploy]
 healthcheckPath = "/health"
