@@ -41,79 +41,126 @@ Debug / trace / measure / optimize   → Domain 4</div>
   <h2>Practice: classify first</h2>
   <p>Do not answer from memory of a service. First classify the domain.</p>
 
-  <section class="quiz" data-quiz>
-    <h3>1. A Lambda function must use different DynamoDB tables for dev and prod API stages.</h3>
-    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 1')">Domain 1</button>
-    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 1')">Domain 2</button>
-    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 1')">Domain 3</button>
-    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 1')">Domain 4</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. A serverless application uses <strong>different DynamoDB tables</strong> for each API stage. <mark>Which domain classifies this integration work?</mark></h3>
+    <button class="choice" data-correct>A) Domain 1</button>
+    <button class="choice">B) Domain 2</button>
+    <button class="choice">C) Domain 3</button>
+    <button class="choice">D) Domain 4</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Domain 1 covers AWS service integration—DynamoDB tables for dev/prod stages is code-to-data-store work, not auth, deployment, or observability.</aside>
+    <aside data-rationale-for="B">Domain 2 focuses on authentication, authorization, and encryption controls—not on data store selection.</aside>
+    <aside data-rationale-for="C">Domain 3 covers packaging and deployment pipelines, not table selection per API stage.</aside>
+    <aside data-rationale-for="D">Domain 4 addresses debugging and optimization; this scenario is about building the app flow.</aside>
+    <aside class="explanation">Domain 1 (Development) is the correct answer. The scenario describes integrating Lambda with DynamoDB—application code connecting to AWS services.</aside>
+    <aside class="knowledge-gap">Review the <a href="0002-lambda-invocation-and-failures.html">Lambda invocation lesson</a> for the Domain 1 service cluster. See also <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-services.html">Lambda supported services</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. A mobile app needs temporary AWS credentials mapped to least-privilege roles.</h3>
-    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 2')">Domain 1</button>
-    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 2')">Domain 2</button>
-    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 2')">Domain 3</button>
-    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 2')">Domain 4</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A mobile app needs <strong>temporary AWS credentials</strong> mapped to least-privilege roles. <mark>Which domain handles identity delegation?</mark></h3>
+    <button class="choice">A) Domain 1</button>
+    <button class="choice" data-correct>B) Domain 2</button>
+    <button class="choice">C) Domain 3</button>
+    <button class="choice">D) Domain 4</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Domain 1 covers service integration and data stores—not identity or credential management.</aside>
+    <aside data-rationale-for="B">Domain 2 includes authentication, authorization, and temporary credential handling via IAM/STS.</aside>
+    <aside data-rationale-for="C">Domain 3 focuses on CI/CD pipelines and deployment, not identity delegation.</aside>
+    <aside data-rationale-for="D">Domain 4 addresses observability and optimization, not credential issuance.</aside>
+    <aside class="explanation">Domain 2 (Security) is correct. Temporary credentials mapped to roles is an IAM/STS pattern covered under authentication and authorization.</aside>
+    <aside class="knowledge-gap">Study <a href="0014-authentication-and-authorization-selection.html">Lesson 0014</a> for IAM role patterns. <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html">IAM documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. A SAM application must zip artifacts, upload them to S3, and produce a deployable template.</h3>
-    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 3')">Domain 1</button>
-    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 3')">Domain 2</button>
-    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 3')">Domain 3</button>
-    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 3')">Domain 4</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A SAM application must <strong>zip artifacts</strong>, upload to S3, and produce a deployable template. <mark>Which domain covers build automation?</mark></h3>
+    <button class="choice">A) Domain 1</button>
+    <button class="choice">B) Domain 2</button>
+    <button class="choice" data-correct>C) Domain 3</button>
+    <button class="choice">D) Domain 4</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Domain 1 is about service integration, not about packaging or deployment workflows.</aside>
+    <aside data-rationale-for="B">Domain 2 covers security controls, not artifact management or SAM workflows.</aside>
+    <aside data-rationale-for="C">Domain 3 covers SAM package/deploy, CloudFormation, and CI/CD artifact workflows.</aside>
+    <aside data-rationale-for="D">Domain 4 is about debugging and performance—not about artifact packaging.</aside>
+    <aside class="explanation">Domain 3 (Deployment) is correct. SAM package/upload is a core Task 3.1 artifact preparation workflow.</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Lesson 0020</a> for SAM commands. <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference.html">SAM CLI reference</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. An API Gateway and Lambda integration is slower than expected; you must compare responsiveness metrics.</h3>
-    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 4')">Domain 1</button>
-    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 4')">Domain 2</button>
-    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 4')">Domain 3</button>
-    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 4')">Domain 4</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. An API Gateway and Lambda integration is <strong>slower than expected</strong>; you must compare responsiveness metrics. <mark>Which domain measures performance?</mark></h3>
+    <button class="choice">A) Domain 1</button>
+    <button class="choice">B) Domain 2</button>
+    <button class="choice">C) Domain 3</button>
+    <button class="choice" data-correct>D) Domain 4</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Domain 1 covers service integration and data stores, not performance measurement.</aside>
+    <aside data-rationale-for="B">Domain 2 is about security controls, not latency analysis.</aside>
+    <aside data-rationale-for="C">Domain 3 handles packaging and deployment, not runtime observability.</aside>
+    <aside data-rationale-for="D">Domain 4 covers debugging, tracing, and performance measurement.</aside>
+    <aside class="explanation">Domain 4 (Troubleshooting and Optimization) is correct. Comparing responsiveness metrics is a core observability task.</aside>
+    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html">CloudWatch metrics</a> and <a href="https://docs.aws.amazon.com/xray/latest/devguide/whatisxray.html">AWS X-Ray</a>. <a href="0019-domain-3-observability-and-monitoring.html">Lesson 0019</a>.</aside>
   </section>
 
   <h2>Practice: service family</h2>
-  <section class="quiz" data-quiz>
-    <h3>5. Which Lambda feature shares libraries without putting them in every zip package?</h3>
-    <button class="choice" data-answer="Lambda aliases" onclick="choose(this, 'Lambda layers')">Lambda aliases</button>
-    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Lambda layers')">Lambda layers</button>
-    <button class="choice" data-answer="Lambda triggers" onclick="choose(this, 'Lambda layers')">Lambda triggers</button>
-    <button class="choice" data-answer="Lambda metrics" onclick="choose(this, 'Lambda layers')">Lambda metrics</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A team needs to <strong>share libraries</strong> across multiple Lambda functions without duplicating code in each deployment package. <mark>Which Lambda feature enables this?</mark></h3>
+    <button class="choice">A) Lambda aliases</button>
+    <button class="choice" data-correct>B) Lambda layers</button>
+    <button class="choice">C) Lambda triggers</button>
+    <button class="choice">D) Lambda metrics</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Aliases point to specific versions—they do not package shared code.</aside>
+    <aside data-rationale-for="B">Lambda layers are mounted into the execution environment and shared across functions.</aside>
+    <aside data-rationale-for="C">Triggers invoke functions—they do not package or share libraries.</aside>
+    <aside data-rationale-for="D">Metrics are monitoring data—they have no role in code sharing.</aside>
+    <aside class="explanation">Lambda layers is correct. Layers mount libraries, custom runtimes, or config files into function execution environments.</aside>
+    <aside class="knowledge-gap">See <a href="0005-lambda-configuration-traps.html">Lesson 0005</a> for more Lambda configuration patterns. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">Lambda layers documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>6. Which deployment shifts Lambda traffic in equal increments every fixed interval?</h3>
-    <button class="choice" data-answer="Canary shift" onclick="choose(this, 'Linear shift')">Canary shift</button>
-    <button class="choice" data-answer="Linear shift" onclick="choose(this, 'Linear shift')">Linear shift</button>
-    <button class="choice" data-answer="Rolling batch" onclick="choose(this, 'Linear shift')">Rolling batch</button>
-    <button class="choice" data-answer="Immutable swap" onclick="choose(this, 'Linear shift')">Immutable swap</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. A deployment strategy must <strong>shift Lambda traffic in equal increments</strong> every fixed interval. <mark>Which CodeDeploy configuration matches this pattern?</mark></h3>
+    <button class="choice">A) Canary shift</button>
+    <button class="choice" data-correct>B) Linear shift</button>
+    <button class="choice">C) Rolling batch</button>
+    <button class="choice">D) Immutable swap</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Canary shifts a small percentage first, then the remainder—not equal increments.</aside>
+    <aside data-rationale-for="B">Linear shift moves equal traffic percentages at fixed intervals, matching the requirement.</aside>
+    <aside data-rationale-for="C">Rolling batch replaces instances in groups, not traffic percentage shifts.</aside>
+    <aside data-rationale-for="D">Immutable swap deploys to a new fleet entirely before cutting over.</aside>
+    <aside class="explanation">Linear shift is correct. Equal increments at fixed intervals is the defining characteristic of CodeDeploy linear configuration.</aside>
+    <aside class="knowledge-gap">Review <a href="0023-deploy-code-using-ci-cd-services.html">Lesson 0023</a> for deployment strategies. <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>7. Which observability service gives distributed traces and service maps?</h3>
-    <button class="choice" data-answer="AWS X-Ray" onclick="choose(this, 'AWS X-Ray')">AWS X-Ray</button>
-    <button class="choice" data-answer="AWS Config" onclick="choose(this, 'AWS X-Ray')">AWS Config</button>
-    <button class="choice" data-answer="AWS Macie" onclick="choose(this, 'AWS X-Ray')">AWS Macie</button>
-    <button class="choice" data-answer="AWS KMS" onclick="choose(this, 'AWS X-Ray')">AWS KMS</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>7. A distributed system requires <strong>distributed traces and service maps</strong> to visualize request flow. <mark>Which AWS service provides this capability?</mark></h3>
+    <button class="choice" data-correct>A) AWS X-Ray</button>
+    <button class="choice">B) AWS Config</button>
+    <button class="choice">C) AWS Macie</button>
+    <button class="choice">D) AWS KMS</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">X-Ray provides distributed tracing, service maps, and request timing analysis.</aside>
+    <aside data-rationale-for="B">Config records resource changes—it does not trace request paths.</aside>
+    <aside data-rationale-for="C">Macie discovers sensitive data in S3—it does not provide traces.</aside>
+    <aside data-rationale-for="D">KMS manages encryption keys—it does not trace requests.</aside>
+    <aside class="explanation">AWS X-Ray is correct. It is the primary observability tool for distributed tracing and service maps.</aside>
+    <aside class="knowledge-gap"><a href="0019-domain-3-observability-and-monitoring.html">Lesson 0019</a> covers X-Ray service maps. See also <a href="https://docs.aws.amazon.com/xray/latest/devguide/whatisxray.html">X-Ray documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>8. Which service should store database credentials that need automatic rotation?</h3>
-    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Secrets Manager')">Secrets Manager</button>
-    <button class="choice" data-answer="Parameter Store" onclick="choose(this, 'Secrets Manager')">Parameter Store</button>
-    <button class="choice" data-answer="Certificate Manager" onclick="choose(this, 'Secrets Manager')">Certificate Manager</button>
-    <button class="choice" data-answer="Identity Center" onclick="choose(this, 'Secrets Manager')">Identity Center</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>8. An application requires <strong>automatic rotation</strong> of database credentials that are stored securely. <mark>Which AWS service manages credential rotation natively?</mark> A team is evaluating AWS Secrets Manager for a PostgreSQL password that must rotate every 30 days without downtime.</h3>
+    <button class="choice" data-correct>A) Secrets Manager</button>
+    <button class="choice">B) Parameter Store</button>
+    <button class="choice">C) Certificate Manager</button>
+    <button class="choice">D) Identity Center</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Secrets Manager provides built-in automatic rotation for credentials like RDS passwords.</aside>
+    <aside data-rationale-for="B">Parameter Store stores parameters but does not rotate credentials automatically.</aside>
+    <aside data-rationale-for="C">Certificate Manager handles TLS certificates, not database credentials.</aside>
+    <aside data-rationale-for="D">Identity Center provides SSO federation, not credential rotation.</aside>
+    <aside class="explanation">Secrets Manager is correct. Automatic rotation is a key differentiator from Parameter Store for credentials.</aside>
+    <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">Lesson 0016</a>. <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">Secrets Manager documentation</a>.</aside>
   </section>
-
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0002-lambda-invocation-and-failures.html">Next: Lesson 0002 →</a>
@@ -121,7 +168,7 @@ Debug / trace / measure / optimize   → Domain 4</div>
 
   <h2>Read next</h2>
   <p>Primary source: <a href="https://aws.amazon.com/certification/certified-developer-associate/">AWS Certified Developer - Associate certification page</a>. Then review Domain 1 in <a href="../docs/aws%20dva-c02.md">the local curriculum</a>, especially Lambda, API Gateway, and DynamoDB.</p>
-  <p>If any answer felt fuzzy, ask me a follow-up and I’ll drill that exact pattern.</p>
+  <p>If any answer felt fuzzy, ask me a follow-up and I'll drill that exact pattern.</p>
 </main>
 <script src="../assets/quiz.js"></script>
 </body>
