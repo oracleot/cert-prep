@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0019 — Domain 3 Deployment Introduction</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0019</p>
+  <h1>Classify Domain 3 deployment clues.</h1>
+  <p class="subtitle">Domain 3 is Deployment: about <strong>20%</strong> of DVA-C02, or roughly <strong>13 questions</strong>. Your job is to pick the right lifecycle service cluster before the answer choices blur together.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will recognize whether a scenario is asking about artifacts, development testing, automated testing, or CI/CD deployment.</p>
+    <p>Related review: <a href="0018-security-best-practices-patterns.html">Domain 2 security patterns</a> and the Domain 3 intro in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
+  </section>
+
+  <h2>Domain 3 deployment overview</h2>
+  <p>Deployment questions are about the full application lifecycle: provision resources, manage configuration, package and release code, update software, monitor rollout health, control access, and recover safely.</p>
+  <p>Exam scenarios often combine services. The clue is not just “deploy”; it is what part of deployment needs control: artifact packaging, environment testing, IaC automation, traffic shifting, rollback, or release orchestration.</p>
+
+  <h2>The four task statements</h2>
+  <section class="card">
+    <ol>
+      <li><strong>3.1 Prepare application artifacts:</strong> dependencies, package structure, repositories, resource requirements, and configuration data.</li>
+      <li><strong>3.2 Test in development environments:</strong> deployed-code testing, mock API integrations, development endpoints, and stack updates.</li>
+      <li><strong>3.3 Automate deployment testing:</strong> test events, API environments, approved versions, IaC templates, and service-managed environments.</li>
+      <li><strong>3.4 Deploy with CI/CD services:</strong> pipelines, deployment strategies, rollbacks, branches, labels, and dynamic runtime configuration.</li>
+    </ol>
+  </section>
+
+  <h2>Deployment service cluster selector</h2>
+  <div class="diagram">Artifact repository or package storage     → CodeArtifact, S3, ECR
+Serverless packaging and local build       → SAM, Lambda layers, container images
+Infrastructure as code and stack updates   → CloudFormation, SAM, CDK
+Application configuration lifecycle        → AppConfig, Parameter Store, Secrets Manager
+Development endpoints and mock testing     → API Gateway stages/mocks, Step Functions Local
+Version promotion without changing triggers→ Lambda versions and aliases
+Release orchestration across environments  → CodePipeline, CodeBuild, CodeDeploy
+Traffic shifting, rollback, safe rollout   → CodeDeploy, Elastic Beanstalk, ECS, CloudFormation</div>
+
+  <h2>Fast distractor cuts</h2>
+  <ul>
+    <li>If the clue says package, dependency, layer, image, or repository, start in Task 3.1.</li>
+    <li>If the clue says mock endpoint, stage variable, dev endpoint, or stack update, start in Task 3.2.</li>
+    <li>If the clue says automated test event, approved version, IaC test environment, or API environment, start in Task 3.3.</li>
+    <li>If the clue says commit, branch, build, deploy stage, rollback, canary, linear, or blue/green, start in Task 3.4.</li>
+  </ul>
+
+  <h2>Retrieval drill: choose the best answer</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. How much of DVA-C02 is Domain 3?</h3>
+    <button class="choice" data-answer="20 percent" onclick="choose(this, '20 percent')">20 percent</button>
+    <button class="choice" data-answer="12 percent" onclick="choose(this, '20 percent')">12 percent</button>
+    <button class="choice" data-answer="26 percent" onclick="choose(this, '20 percent')">26 percent</button>
+    <button class="choice" data-answer="32 percent" onclick="choose(this, '20 percent')">32 percent</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. A scenario asks where to store versioned packages.</h3>
+    <button class="choice" data-answer="Artifacts" onclick="choose(this, 'Artifacts')">Artifacts</button>
+    <button class="choice" data-answer="Mock APIs" onclick="choose(this, 'Artifacts')">Mock APIs</button>
+    <button class="choice" data-answer="Rollbacks" onclick="choose(this, 'Artifacts')">Rollbacks</button>
+    <button class="choice" data-answer="Branches" onclick="choose(this, 'Artifacts')">Branches</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. The clue says API Gateway mock integrations.</h3>
+    <button class="choice" data-answer="Dev testing" onclick="choose(this, 'Dev testing')">Dev testing</button>
+    <button class="choice" data-answer="Code storage" onclick="choose(this, 'Dev testing')">Code storage</button>
+    <button class="choice" data-answer="Key control" onclick="choose(this, 'Dev testing')">Key control</button>
+    <button class="choice" data-answer="DNS routing" onclick="choose(this, 'Dev testing')">DNS routing</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A pipeline must build, test, then deploy on commit.</h3>
+    <button class="choice" data-answer="CodePipeline" onclick="choose(this, 'CodePipeline')">CodePipeline</button>
+    <button class="choice" data-answer="CloudTrail" onclick="choose(this, 'CodePipeline')">CloudTrail</button>
+    <button class="choice" data-answer="CloudFront" onclick="choose(this, 'CodePipeline')">CloudFront</button>
+    <button class="choice" data-answer="CodeGuru" onclick="choose(this, 'CodePipeline')">CodeGuru</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A Lambda trigger should keep using “prod” while versions change.</h3>
+    <button class="choice" data-answer="Alias" onclick="choose(this, 'Alias')">Alias</button>
+    <button class="choice" data-answer="Layer" onclick="choose(this, 'Alias')">Layer</button>
+    <button class="choice" data-answer="Image" onclick="choose(this, 'Alias')">Image</button>
+    <button class="choice" data-answer="Queue" onclick="choose(this, 'Alias')">Queue</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. CodeDeploy shifts traffic every 15 minutes equally.</h3>
+    <button class="choice" data-answer="Linear" onclick="choose(this, 'Linear')">Linear</button>
+    <button class="choice" data-answer="Canary" onclick="choose(this, 'Linear')">Canary</button>
+    <button class="choice" data-answer="Inplace" onclick="choose(this, 'Linear')">Inplace</button>
+    <button class="choice" data-answer="Allonce" onclick="choose(this, 'Linear')">Allonce</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. The clue says controlled app configuration rollout.</h3>
+    <button class="choice" data-answer="AppConfig" onclick="choose(this, 'AppConfig')">AppConfig</button>
+    <button class="choice" data-answer="CodeBuild" onclick="choose(this, 'AppConfig')">CodeBuild</button>
+    <button class="choice" data-answer="CodeArtifact" onclick="choose(this, 'AppConfig')">CodeArtifact</button>
+    <button class="choice" data-answer="CloudFront" onclick="choose(this, 'AppConfig')">CloudFront</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0018-security-best-practices-patterns.html">← Previous: Lesson 0018</a><a href="0020-prepare-application-artifacts.html">Next: Lesson 0020 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://aws.amazon.com/certification/certified-developer-associate/">AWS Certified Developer - Associate exam guide</a>. Then read AWS docs for <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>, <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html">CodeDeploy</a>, <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS SAM</a>, and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a>.</p>
+  <p>Ask me for a Domain 3 service-selection drill if any cluster still feels fuzzy.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
