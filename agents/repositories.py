@@ -48,8 +48,17 @@ async def create_exchange(
     sage_response: str,
     citations: list[Any],
     concept_id: str | None = None,
+    missed_criteria: list[str] | None = None,
+    triggered_traps: list[str] | None = None,
+    official_docs: list[str] | None = None,
+    skill_builder_links: list[str] | None = None,
+    lab_links: list[str] | None = None,
 ) -> None:
-    """Append a completed cycle to the exchanges table."""
+    """Append a completed cycle to the exchanges table.
+
+    Miss/resource metadata columns are additive (Phase 9.6 / 9.5) and default
+    to an empty list when not provided so older callers keep working.
+    """
     if not has_pool():
         return
 
@@ -57,8 +66,10 @@ async def create_exchange(
     async with pool.connection() as conn:
         await conn.execute(
             "INSERT INTO exchanges (session_id, cycle, domain, topic, "
-            "challenge, user_answer, outcome, answer_intent, sage_response, citations, concept_id) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULLIF(%s, ''))",
+            "challenge, user_answer, outcome, answer_intent, sage_response, citations, concept_id, "
+            "missed_criteria, triggered_traps, official_docs, skill_builder_links, lab_links) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULLIF(%s, ''), "
+            "%s, %s, %s, %s, %s)",
             (
                 session_id,
                 cycle,
@@ -71,6 +82,11 @@ async def create_exchange(
                 sage_response,
                 json.dumps(citations),
                 concept_id or "",
+                json.dumps(missed_criteria or []),
+                json.dumps(triggered_traps or []),
+                json.dumps(official_docs or []),
+                json.dumps(skill_builder_links or []),
+                json.dumps(lab_links or []),
             ),
         )
         await conn.commit()
@@ -112,3 +128,56 @@ async def close_session(session_id: str) -> None:
             (datetime.now(timezone.utc), session_id),
         )
         await conn.commit()
+
+
+async def concept_misses_for_user(
+    exam_id: str,
+    user_id: str,
+    concept_id: str | None = None,
+) -> list[dict[str, Any]]:
+    """Internal concept-miss audit (Phase 9.6).
+
+    Returns active exchanges for ``user_id``/``exam_id`` (optionally scoped to
+    a single ``concept_id``) that carry a non-empty ``missed_criteria`` or
+    ``triggered_traps`` payload. Excluded / pending-review / dismissed
+    exchanges are skipped — readiness math is unaffected, this feed is for
+    future routing and coaching use only.
+    """
+    if not has_pool():
+        return []
+
+    params: list[Any] = [user_id, exam_id]
+    sql = (
+        "SELECT e.id, e.concept_id, e.domain, e.topic, e.cycle, e.outcome, "
+        "e.missed_criteria, e.triggered_traps, e.created_at "
+        "FROM exchanges e "
+        "JOIN sessions s ON s.id = e.session_id "
+        "WHERE s.user_id = %s AND s.exam_id = %s "
+        "AND e.review_status = 'active' "
+        "AND (jsonb_array_length(e.missed_criteria) > 0 "
+        "     OR jsonb_array_length(e.triggered_traps) > 0)"
+    )
+    if concept_id:
+        sql += " AND e.concept_id = %s"
+        params.append(concept_id)
+    sql += " ORDER BY e.created_at DESC"
+
+    pool = get_pool()
+    async with pool.connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(sql, params)
+            rows = await cur.fetchall()
+    return [
+        {
+            "exchange_id": row[0],
+            "concept_id": row[1],
+            "domain": row[2],
+            "topic": row[3],
+            "cycle": row[4],
+            "outcome": row[5],
+            "missed_criteria": row[6] or [],
+            "triggered_traps": row[7] or [],
+            "created_at": row[8],
+        }
+        for row in rows
+    ]
