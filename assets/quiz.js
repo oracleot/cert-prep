@@ -35,7 +35,20 @@ function choose(button, expected) {
   });
 }
 
+function addDashboardLink() {
+  if (document.querySelector('[data-dashboard-link]')) return;
+
+  const link = document.createElement('a');
+  link.href = '/dashboard';
+  link.textContent = '← Dashboard';
+  link.className = 'dashboard-link';
+  link.dataset.dashboardLink = 'true';
+  document.body.prepend(link);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  addDashboardLink();
+
   // ── 1. Hide walkthrough asides on load ─────────────────────────────────
   const asideSelector =
     'section[data-quiz][data-walkthrough="true"] aside[data-rationale-for], ' +
