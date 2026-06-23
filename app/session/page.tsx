@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useSession } from "./use-session";
@@ -8,6 +8,7 @@ import { ChallengeCard } from "@/components/session/challenge-card";
 import { AnswerForm } from "@/components/session/answer-form";
 import { SageCard } from "@/components/session/sage-card";
 import { SummaryScreen } from "@/components/session/summary-screen";
+import { deriveReviewNext } from "@/lib/review-next";
 
 export default function SessionPage() {
   return (
@@ -45,6 +46,11 @@ function SessionContent() {
     retry,
     restart,
   } = useSession(focusDomain, clearFocusDomain);
+
+  // Phase 9.5 — derive the compact `Review next` block from the challenge's
+  // closed-book concept packet (official_docs, skill_builder_links, lab_links).
+  // Returns null when the packet has no links, so the SageCard omits the block.
+  const reviewNext = useMemo(() => deriveReviewNext(challenge), [challenge]);
 
   if (phase === "summary") {
     return (
@@ -154,6 +160,7 @@ function SessionContent() {
               cycle={cycle}
               maxCycles={maxCycles}
               feedback={sageFeedback}
+              reviewNext={reviewNext}
               onNext={nextChallenge}
               onFeedbackSubmit={submitSageFeedback}
             />
