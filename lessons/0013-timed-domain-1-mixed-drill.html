@@ -27,152 +27,152 @@
 
   <h2>Timed drill</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A <mark>public HTTPS API invokes Lambda and returns JSON</mark>. <mark>What is the serverless API pattern?</mark></h3>
+    <h3>1. A startup is building a public HTTPS endpoint for a checkout service. The endpoint must invoke application code, return JSON responses, and scale without provisioning servers. Which architecture should the developer choose?</h3>
     <button class="choice" data-correct>A) API Gateway + Lambda</button>
     <button class="choice">B) S3 + Data Firehose</button>
     <button class="choice">C) DAX + DynamoDB</button>
     <button class="choice">D) SNS + EventBridge</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway receives HTTP; Lambda runs logic and returns JSON.</aside>
-    <aside data-rationale-for="B">S3 + Firehose handles streaming—not HTTP APIs.</aside>
-    <aside data-rationale-for="C">DAX caches DynamoDB reads—it does not handle APIs.</aside>
-    <aside data-rationale-for="D">SNS + EventBridge routes events—not an API pattern.</aside>
-    <aside class="explanation">API Gateway + Lambda is the standard serverless API pattern.</aside>
+    <aside data-rationale-for="A">Correct. API Gateway accepts HTTPS requests and Lambda runs the serverless business logic.</aside>
+    <aside data-rationale-for="B">S3 and Firehose are for object storage and streaming delivery, not request-response APIs.</aside>
+    <aside data-rationale-for="C">DAX accelerates DynamoDB reads, but it does not expose a public HTTPS API.</aside>
+    <aside data-rationale-for="D">SNS and EventBridge route events, but they are not the primary synchronous API pattern.</aside>
+    <aside class="explanation">Option A is the correct answer. Public HTTPS requests with serverless compute and JSON responses are the classic API Gateway plus Lambda pattern.</aside>
     <aside class="knowledge-gap"><a href="0007-api-gateway-request-response-mapping.html">Lesson 0007</a>. <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html">API Gateway HTTP API</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A media processing application receives <mark>image uploads via Amazon S3</mark> that must automatically trigger a Lambda resize job each time a new object is created. The resize function must run serverlessly with no dedicated infrastructure. <mark>Which event-driven pattern fits this workflow?</mark></h3>
+    <h3>2. A photo-sharing application stores uploads in Amazon S3. Every new image must automatically invoke code that creates a thumbnail, and the company does not want to manage any servers. Which event-driven design best meets the requirement?</h3>
     <button class="choice">A) API cache to DAX</button>
     <button class="choice" data-correct>B) S3 event to Lambda</button>
     <button class="choice">C) Glue crawler job</button>
     <button class="choice">D) MSK topic replay</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DAX caches DynamoDB reads—not for image processing.</aside>
-    <aside data-rationale-for="B">S3 triggers Lambda on object creation; Lambda resizes the image.</aside>
-    <aside data-rationale-for="C">Glue crawlers discover schemas—not for image processing.</aside>
-    <aside data-rationale-for="D">MSK is Kafka-managed—overkill for single image processing.</aside>
-    <aside class="explanation">S3 event to Lambda is correct. S3 object-created events trigger Lambda.</aside>
+    <aside data-rationale-for="A">DAX improves DynamoDB read performance and is unrelated to S3 image processing.</aside>
+    <aside data-rationale-for="B">Correct. S3 ObjectCreated events can invoke Lambda to run image-processing code.</aside>
+    <aside data-rationale-for="C">Glue crawlers discover data schemas; they are not used for per-image thumbnail generation.</aside>
+    <aside data-rationale-for="D">MSK is a managed Kafka service and is unnecessary for a direct S3-triggered workflow.</aside>
+    <aside class="explanation">Option B is the correct answer. The stem describes the native S3 event notification to Lambda pattern.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html">Lambda with S3</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. An order processing microservice requires <mark>durable message buffering and automatic retry behavior between the order intake Lambda and the fulfillment service</mark>. The queue must survive Lambda failures and maintain message ordering. <mark>Which AWS queue service provides this durability?</mark></h3>
+    <h3>3. An order API sends work to a fulfillment service that sometimes becomes unavailable. The company needs a durable buffer between the two components so messages are retained and retried until the consumer succeeds. Which AWS service should the developer use?</h3>
     <button class="choice">A) Amazon DAX</button>
     <button class="choice">B) Amazon EFS</button>
     <button class="choice" data-correct>C) Amazon SQS</button>
-    <button class="choice">D) Amazon X-Ray</button>
+    <button class="choice">D) AWS X-Ray</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DAX caches DynamoDB reads—not for message buffering.</aside>
-    <aside data-rationale-for="B">EFS is a shared file system—not a message queue.</aside>
-    <aside data-rationale-for="C">SQS provides durable message queuing with visibility timeout and retry support.</aside>
-    <aside data-rationale-for="D">X-Ray traces requests—not message buffering.</aside>
-    <aside class="explanation">Amazon SQS is correct. SQS buffers messages between services with built-in retry behavior.</aside>
+    <aside data-rationale-for="A">DAX is an in-memory cache for DynamoDB and does not buffer work between services.</aside>
+    <aside data-rationale-for="B">EFS provides shared file storage, not a durable message queue with retries.</aside>
+    <aside data-rationale-for="C">Correct. SQS is designed for durable decoupling and retry-driven message processing.</aside>
+    <aside data-rationale-for="D">X-Ray traces request paths, but it does not hold messages for later processing.</aside>
+    <aside class="explanation">Option C is the correct answer. Durable buffering with retries between components is the core SQS use case.</aside>
     <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html">SQS</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. <mark>One event must fan out to email, Lambda, and queues</mark>. <mark>Which AWS service broadcasts?</mark></h3>
+    <h3>4. A commerce platform publishes one event when a customer places an order. That single event must trigger email notifications, invoke a Lambda fraud check, and send copies to multiple queues. Which AWS service is the best fit?</h3>
     <button class="choice">A) Amazon SQS</button>
     <button class="choice">B) Amazon DAX</button>
     <button class="choice">C) Amazon EBS</button>
     <button class="choice" data-correct>D) Amazon SNS</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS delivers to one consumer—not fan out to multiple.</aside>
-    <aside data-rationale-for="B">DAX is a DynamoDB cache—not a fanout service.</aside>
-    <aside data-rationale-for="C">EBS is a block volume—not a fanout service.</aside>
-    <aside data-rationale-for="D">SNS pub/sub fans out one message to email, Lambda, SQS, HTTP endpoints, and more.</aside>
-    <aside class="explanation">Amazon SNS is correct. SNS broadcasts to multiple subscribers simultaneously.</aside>
+    <aside data-rationale-for="A">SQS delivers a message to consumers, but it does not provide broadcast fanout to many targets by itself.</aside>
+    <aside data-rationale-for="B">DAX is a DynamoDB cache and has nothing to do with pub/sub fanout.</aside>
+    <aside data-rationale-for="C">EBS is block storage for EC2 instances, not an event-broadcast service.</aside>
+    <aside data-rationale-for="D">Correct. SNS publishes one message to many subscribers such as email, Lambda, and SQS.</aside>
+    <aside class="explanation">Option D is the correct answer. One message sent to many subscribers is the defining SNS pattern.</aside>
     <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html">SNS</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. An ISV's multi-tenant SaaS platform emits events that must <mark>route to different AWS Lambda functions based on the event source and detail-type field values</mark>. The routing rules must be configurable without changing application code. <mark>Which AWS service routes events by content?</mark></h3>
+    <h3>5. A SaaS platform emits events from several subsystems. Different Lambda functions must receive events based on values in the source and detail-type fields, and the routing rules must be changeable without modifying application code. Which AWS service should the developer choose?</h3>
     <button class="choice">A) DynamoDB stream</button>
     <button class="choice" data-correct>B) EventBridge rule</button>
     <button class="choice">C) Lambda layer</button>
     <button class="choice">D) S3 lifecycle</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DynamoDB Streams capture item changes—not route SaaS events.</aside>
-    <aside data-rationale-for="B">EventBridge rules route events to targets based on content patterns.</aside>
-    <aside data-rationale-for="C">Lambda layers share code—they do not route events.</aside>
-    <aside data-rationale-for="D">S3 lifecycle expires objects—it does not route events.</aside>
-    <aside class="explanation">EventBridge rule is correct. Routes based on content, source, and detail fields.</aside>
+    <aside data-rationale-for="A">DynamoDB Streams publish table item changes, not arbitrary event-bus routing by content fields.</aside>
+    <aside data-rationale-for="B">Correct. EventBridge rules match on event content such as source and detail-type.</aside>
+    <aside data-rationale-for="C">Lambda layers share code and dependencies; they do not route events.</aside>
+    <aside data-rationale-for="D">S3 lifecycle manages object transitions and expiration, not event routing.</aside>
+    <aside class="explanation">Option B is the correct answer. Content-based routing without code changes is exactly what EventBridge rules provide.</aside>
     <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html">EventBridge rules</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. An expense approval workflow requires <mark>conditional branching for manager vs. director approval, timed wait states for SLA enforcement, and per-task retry policies for transient failures</mark>. The team also needs a human-readable execution history for auditing. <mark>Which AWS service orchestrates this workflow?</mark></h3>
+    <h3>6. A claims-processing workflow needs conditional branching, wait states for approval deadlines, and per-step retry logic when a downstream Lambda call fails temporarily. The company also wants an execution history for audits. Which AWS service should the developer use?</h3>
     <button class="choice">A) API Gateway</button>
     <button class="choice">B) Data Firehose</button>
     <button class="choice" data-correct>C) Step Functions</button>
     <button class="choice">D) Secrets Manager</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway handles HTTP routing—not workflow orchestration.</aside>
-    <aside data-rationale-for="B">Data Firehose delivers streaming data—not workflow orchestration.</aside>
-    <aside data-rationale-for="C">Step Functions state machines support waits, branches, retries, and human-readable history.</aside>
-    <aside data-rationale-for="D">Secrets Manager stores credentials—not workflow orchestration.</aside>
-    <aside class="explanation">Step Functions is correct. State machines manage complex workflows with built-in control flow.</aside>
+    <aside data-rationale-for="A">API Gateway handles API requests, but it does not orchestrate long-running workflows with state.</aside>
+    <aside data-rationale-for="B">Data Firehose delivers streaming data to destinations and is unrelated to workflow control flow.</aside>
+    <aside data-rationale-for="C">Correct. Step Functions supports branches, waits, retries, and visible execution history.</aside>
+    <aside data-rationale-for="D">Secrets Manager stores secrets and does not orchestrate workflows.</aside>
+    <aside class="explanation">Option C is the correct answer. The stem asks for managed workflow orchestration with retries, branches, and history, which points to Step Functions.</aside>
     <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html">Step Functions</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>7. DynamoDB reads need <mark>microsecond latency</mark>. <mark>Which DynamoDB feature provides this?</mark></h3>
+    <h3>7. A gaming application uses DynamoDB for player profiles. Read traffic is extremely high, and the team needs microsecond response times for frequently accessed items without changing the application to another database. Which AWS service should the developer add?</h3>
     <button class="choice">A) DLQ</button>
     <button class="choice">B) EBS</button>
     <button class="choice">C) MSK</button>
     <button class="choice" data-correct>D) DAX</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DLQ captures failed messages—it does not speed up reads.</aside>
-    <aside data-rationale-for="B">EBS is an EC2 block volume—it is not for DynamoDB.</aside>
-    <aside data-rationale-for="C">MSK is Kafka-managed—it does not cache DynamoDB reads.</aside>
-    <aside data-rationale-for="D">DynamoDB Accelerator (DAX) is an in-memory cache providing microsecond read latency.</aside>
-    <aside class="explanation">DAX is correct. DynamoDB Accelerator provides microsecond latency for read-heavy workloads.</aside>
+    <aside data-rationale-for="A">A dead-letter queue stores failed messages; it does not accelerate DynamoDB reads.</aside>
+    <aside data-rationale-for="B">EBS is block storage for EC2 and cannot cache DynamoDB data.</aside>
+    <aside data-rationale-for="C">MSK is managed Kafka and has no role in reducing DynamoDB read latency.</aside>
+    <aside data-rationale-for="D">Correct. DynamoDB Accelerator provides an in-memory cache for microsecond read performance.</aside>
+    <aside class="explanation">Option D is the correct answer. Microsecond read latency for DynamoDB is the key clue for DAX.</aside>
     <aside class="knowledge-gap"><a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a>. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html">DAX</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>8. A single tenant creates a <mark>hot DynamoDB partition</mark>. <mark>How do you distribute write traffic?</mark></h3>
+    <h3>8. A multi-tenant DynamoDB table uses tenant ID as the partition key. One large tenant now generates most of the writes, causing throttling on a single hot partition. Which design change should the developer make?</h3>
     <button class="choice">A) Add a DLQ</button>
     <button class="choice" data-correct>B) Shard the key</button>
     <button class="choice">C) Use a scan</button>
     <button class="choice">D) Add X-Ray</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DLQ handles failed messages—it does not fix hot partitions.</aside>
-    <aside data-rationale-for="B">Sharding the partition key (e.g., random suffix) distributes writes across partitions.</aside>
-    <aside data-rationale-for="C">Scan reads all items—it worsens performance.</aside>
-    <aside data-rationale-for="D">X-Ray traces requests—it does not fix hot partition writes.</aside>
-    <aside class="explanation">Shard the key is correct. Random suffix sharding distributes hot partition writes.</aside>
+    <aside data-rationale-for="A">A dead-letter queue handles failed messages and does not redistribute DynamoDB write traffic.</aside>
+    <aside data-rationale-for="B">Correct. Adding a suffix or other sharding value spreads writes across more partitions.</aside>
+    <aside data-rationale-for="C">Scan reads the whole table and does nothing to reduce hot-partition writes.</aside>
+    <aside data-rationale-for="D">X-Ray helps observe behavior, but it does not change partition-key distribution.</aside>
+    <aside class="explanation">Option B is the correct answer. Partition-key sharding is the standard fix when one key becomes a write hotspot.</aside>
     <aside class="knowledge-gap"><a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a>. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html">Partition key design</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>9. Failed <mark>async Lambda events need later inspection</mark>. <mark>Which feature isolates poison events?</mark></h3>
+    <h3>9. A Lambda function processes asynchronous events from an internal application. Some events fail even after all retry attempts, and the operations team needs a separate location to inspect and reprocess those poison events later. Which feature should the developer configure?</h3>
     <button class="choice">A) Provisioned concurrency</button>
     <button class="choice">B) Stage variable</button>
     <button class="choice" data-correct>C) Dead-letter queue</button>
     <button class="choice">D) Mapping template</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Provisioned concurrency pre-warms environments—it does not capture failures.</aside>
-    <aside data-rationale-for="B">Stage variables pass per-stage values—they do not capture failures.</aside>
-    <aside data-rationale-for="C">DLQ captures failed async events for later inspection and reprocessing.</aside>
-    <aside data-rationale-for="D">Mapping templates transform requests—they do not capture failures.</aside>
-    <aside class="explanation">Dead-letter queue is correct. DLQ isolates events that exceed retry limits.</aside>
+    <aside data-rationale-for="A">Provisioned concurrency reduces cold starts, but it does not capture failed asynchronous events.</aside>
+    <aside data-rationale-for="B">Stage variables pass API Gateway values and do not store failed Lambda events.</aside>
+    <aside data-rationale-for="C">Correct. A dead-letter queue keeps failed asynchronous events for later inspection and replay.</aside>
+    <aside data-rationale-for="D">Mapping templates transform API payloads and are unrelated to async failure handling.</aside>
+    <aside class="explanation">Option C is the correct answer. The clue is failed asynchronous events that must be isolated for later analysis, which points to a DLQ.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq">Lambda DLQ</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>10. <mark>Durable object storage with lifecycle transitions</mark> is needed. <mark>Which AWS storage supports lifecycle policies?</mark></h3>
+    <h3>10. A company stores application backups and user-uploaded media in an AWS service that must provide durable object storage and lifecycle rules to transition old objects to cheaper storage classes automatically. Which AWS service should the developer choose?</h3>
     <button class="choice">A) Amazon EBS</button>
     <button class="choice">B) Amazon EFS</button>
     <button class="choice">C) Amazon DAX</button>
     <button class="choice" data-correct>D) Amazon S3</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">EBS volumes do not have lifecycle policies for tiering or expiration.</aside>
-    <aside data-rationale-for="B">EFS has lifecycle management for storage classes—not object lifecycle transitions.</aside>
-    <aside data-rationale-for="C">DAX is a DynamoDB cache—it does not store objects with lifecycle policies.</aside>
-    <aside data-rationale-for="D">S3 supports lifecycle policies that transition objects to cheaper tiers or expire them.</aside>
-    <aside class="explanation">Amazon S3 is correct. S3 lifecycle policies automate object transitions and expirations.</aside>
+    <aside data-rationale-for="A">EBS is block storage for EC2 volumes and does not provide object lifecycle transitions.</aside>
+    <aside data-rationale-for="B">EFS is a shared file system, not the standard object store with lifecycle rules in this scenario.</aside>
+    <aside data-rationale-for="C">DAX is an in-memory cache for DynamoDB and not a storage service for media objects.</aside>
+    <aside data-rationale-for="D">Correct. Amazon S3 is durable object storage and supports lifecycle transitions and expiration.</aside>
+    <aside class="explanation">Option D is the correct answer. Durable object storage with lifecycle policies is the textbook Amazon S3 requirement.</aside>
     <aside class="knowledge-gap"><a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a>. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html">S3 lifecycle</a>.</aside>
   </section>
 

@@ -51,7 +51,7 @@ Kinesis  streaming transform/analytics before storage or delivery</div>
   <ul>
     <li><strong>AWS Glue:</strong> default exam answer for managed ETL, schema discovery, crawlers, and the Glue Data Catalog.</li>
     <li><strong>Amazon EMR:</strong> choose for Spark/Hadoop ecosystem control, cluster tuning, or long/heavy big-data processing.</li>
-    <li><strong>Lambda:</strong> choose for lightweight transforms triggered by S3, streams, EventBridge, API Gateway, or queues.</li>
+    <li><strong>AWS Lambda:</strong> choose for lightweight transforms triggered by S3, streams, EventBridge, API Gateway, or queues.</li>
     <li><strong>Kinesis:</strong> choose when transformation must happen continuously on streaming records.</li>
   </ul>
 
@@ -65,123 +65,123 @@ Kinesis  streaming transform/analytics before storage or delivery</div>
 
   <h2>Retrieval drill: select the service or pattern</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A product catalog API serves <mark>infrequent and unpredictable read requests</mark>. The team wants to cache only items that users actually request, filling the cache on demand to minimize storage overhead. <mark>Which Amazon ElastiCache strategy matches this requirement?</mark></h3>
+    <h3>1. A retail company runs a product catalog on Amazon Aurora with Amazon ElastiCache in front of the database. Traffic is spiky, and the team wants only requested products to be cached so memory is not spent on rarely viewed items. Which caching strategy should the developer choose?</h3>
     <button class="choice" data-correct>A) Lazy loading</button>
     <button class="choice">B) Write-through</button>
-    <button class="choice">C) Data Firehose</button>
-    <button class="choice">D) AWS Glue</button>
+    <button class="choice">C) Scheduled cache warming</button>
+    <button class="choice">D) TTL-only expiration</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lazy loading fills the cache only on cache misses—ideal for on-demand caching of requested items.</aside>
-    <aside data-rationale-for="B">Write-through writes to cache and database simultaneously—cache is warm but not on-demand.</aside>
-    <aside data-rationale-for="C">Data Firehose is a streaming delivery service—not a caching strategy.</aside>
-    <aside data-rationale-for="D">AWS Glue is an ETL service—not a caching strategy.</aside>
-    <aside class="explanation">Lazy loading is correct. Cache misses trigger database reads, filling the cache on demand.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on caching strategies. <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Strategies.html">Amazon ElastiCache strategies</a>.</aside>
+    <aside data-rationale-for="A">Correct. Lazy loading fills the cache only after a miss, so only requested items are stored.</aside>
+    <aside data-rationale-for="B">Write-through keeps the cache warm on writes, but it does not limit caching to items users actually request.</aside>
+    <aside data-rationale-for="C">Scheduled warming preloads data regardless of demand, which works against the memory-saving requirement.</aside>
+    <aside data-rationale-for="D">TTL controls freshness, but by itself it does not define how entries first get into the cache.</aside>
+    <aside class="explanation">Option A is the correct answer. Lazy loading matches on-demand caching because the application reads the database only after a cache miss and then stores the result.</aside>
+    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a>. <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Strategies.html">Amazon ElastiCache strategies</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A stock price tracking application requires <mark>newly written price data to be immediately visible in the cache</mark> without a subsequent read to populate it. Write latency increase is acceptable. <mark>Which Amazon ElastiCache caching strategy keeps the cache warm on writes?</mark></h3>
+    <h3>2. A financial application writes stock prices to Amazon RDS and uses ElastiCache to reduce read traffic. Each new price must be available from the cache immediately after the write, even if no user has requested it yet. Increased write latency is acceptable. Which caching strategy meets this requirement?</h3>
     <button class="choice">A) Lazy loading</button>
     <button class="choice" data-correct>B) Write-through</button>
-    <button class="choice">C) Data Firehose</button>
-    <button class="choice">D) AWS Glue</button>
+    <button class="choice">C) Periodic cache refresh</button>
+    <button class="choice">D) Time-to-live eviction</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lazy loading fills the cache only on reads—not on writes.</aside>
-    <aside data-rationale-for="B">Write-through writes to both cache and database simultaneously, keeping the cache warm.</aside>
-    <aside data-rationale-for="C">Data Firehose is a streaming delivery service—not a caching strategy.</aside>
-    <aside data-rationale-for="D">AWS Glue is an ETL service—not a caching strategy.</aside>
-    <aside class="explanation">Write-through is correct. Data is written to both cache and database, ensuring immediate cache freshness.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on write-through caching. <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Strategies.html">Amazon ElastiCache strategies</a>.</aside>
+    <aside data-rationale-for="A">Lazy loading populates the cache only after a read miss, so new writes are not visible in cache immediately.</aside>
+    <aside data-rationale-for="B">Correct. Write-through updates the database and cache in the same write path, keeping the cache warm.</aside>
+    <aside data-rationale-for="C">Periodic refresh can leave a gap between the write and the next refresh cycle.</aside>
+    <aside data-rationale-for="D">TTL controls expiration, not immediate cache population after writes.</aside>
+    <aside class="explanation">Option B is the correct answer. Write-through is designed for cases where the newest value must already be present in cache right after a write.</aside>
+    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a>. <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Strategies.html">Amazon ElastiCache strategies</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. Several applications must <mark>replay ordered events</mark> from the same stream. <mark>Which streaming service supports replay?</mark></h3>
+    <h3>3. A company collects order events from many microservices. Two internal applications must read the same ordered stream at different speeds, and developers need to replay the last 24 hours of records during incident analysis. Which AWS service is the best fit?</h3>
     <button class="choice" data-correct>A) Kinesis Data Streams</button>
     <button class="choice">B) Amazon Data Firehose</button>
     <button class="choice">C) Amazon MSK</button>
     <button class="choice">D) AWS Glue Data Catalog</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Kinesis Data Streams retains records for replay within the retention period to multiple consumers.</aside>
-    <aside data-rationale-for="B">Firehose delivers data in near-real-time—it does not support replay or multiple consumers.</aside>
-    <aside data-rationale-for="C">MSK is Kafka-managed—it supports replay but is for existing Kafka apps, not a general answer.</aside>
-    <aside data-rationale-for="D">Glue Data Catalog stores schema metadata—it does not retain streaming data.</aside>
-    <aside class="explanation">Kinesis Data Streams is correct. It retains records and supports replay to multiple consumers within the retention window.</aside>
+    <aside data-rationale-for="A">Correct. Kinesis Data Streams supports ordered records per shard, multiple consumers, and replay during the retention window.</aside>
+    <aside data-rationale-for="B">Firehose delivers data to destinations with minimal code, but it is not the best choice when consumers need replay.</aside>
+    <aside data-rationale-for="C">MSK is plausible only when the scenario says the company already needs native Kafka clients or APIs.</aside>
+    <aside data-rationale-for="D">Glue Data Catalog stores metadata about datasets, not streaming records for consumers.</aside>
+    <aside class="explanation">Option A is the correct answer. Replay plus multiple applications consuming the same stream is the classic Kinesis Data Streams pattern.</aside>
     <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/streams/latest/dev/introduction.html">Kinesis Data Streams</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. Stream records should <mark>land in S3 with little code</mark>. <mark>Which AWS streaming service delivers to S3 serverlessly?</mark></h3>
+    <h3>4. A media company captures clickstream events from web applications and must deliver the records to Amazon S3 in near real time. The team wants minimal operational overhead and does not want to build or run custom consumers. Which service should the developer choose?</h3>
     <button class="choice">A) Kinesis Data Streams</button>
     <button class="choice" data-correct>B) Amazon Data Firehose</button>
     <button class="choice">C) Amazon MSK</button>
     <button class="choice">D) AWS Glue Data Catalog</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Kinesis Data Streams requires custom consumer code to write to S3.</aside>
-    <aside data-rationale-for="B">Data Firehose serverlessly delivers streaming data to S3, Redshift, OpenSearch, or HTTP endpoints.</aside>
-    <aside data-rationale-for="C">MSK is Kafka-managed—it requires custom consumers to write to S3.</aside>
-    <aside data-rationale-for="D">Glue Data Catalog stores schema metadata—it does not deliver data to S3.</aside>
-    <aside class="explanation">Data Firehose is correct. It provides serverless delivery to S3 without writing custom consumer code.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on Data Firehose. <a href="https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html">Amazon Data Firehose</a>.</aside>
+    <aside data-rationale-for="A">Kinesis Data Streams would require the team to manage consumer logic that writes records to S3.</aside>
+    <aside data-rationale-for="B">Correct. Data Firehose is built for near-real-time delivery to S3 and similar destinations with little custom code.</aside>
+    <aside data-rationale-for="C">MSK manages Kafka brokers, but the stem does not say the company needs Kafka APIs or clients.</aside>
+    <aside data-rationale-for="D">Glue Data Catalog catalogs schemas; it does not act as a streaming delivery service.</aside>
+    <aside class="explanation">Option B is the correct answer. The requirement is managed delivery to S3 with minimal code, which is the core Data Firehose use case.</aside>
+    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a>. <a href="https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html">Amazon Data Firehose</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. Existing Kafka apps need <mark>managed Kafka brokers</mark>. <mark>Which AWS service manages Kafka infrastructure?</mark></h3>
+    <h3>5. A company is migrating an existing analytics platform that already uses Apache Kafka clients, topics, and partitions. The developers want AWS to manage the brokers but do not want to rewrite producers and consumers for a non-Kafka API. Which AWS service should they use?</h3>
     <button class="choice">A) Kinesis Data Streams</button>
     <button class="choice">B) Amazon Data Firehose</button>
     <button class="choice" data-correct>C) Amazon MSK</button>
     <button class="choice">D) AWS Glue Data Catalog</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Kinesis Data Streams is an AWS-native streaming service—not Kafka-compatible.</aside>
-    <aside data-rationale-for="B">Data Firehose is a streaming delivery service—not a Kafka service.</aside>
-    <aside data-rationale-for="C">Amazon MSK provides fully managed Apache Kafka brokers on AWS.</aside>
-    <aside data-rationale-for="D">Glue Data Catalog stores schema metadata—it does not run Kafka.</aside>
-    <aside class="explanation">Amazon MSK is correct. MSK manages Kafka brokers, enabling existing Kafka apps to run on AWS.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on MSK. <a href="https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html">Amazon MSK</a>.</aside>
+    <aside data-rationale-for="A">Kinesis Data Streams is AWS-native streaming, so it would require the team to move away from Kafka clients.</aside>
+    <aside data-rationale-for="B">Data Firehose is a managed delivery service, not a managed Kafka broker platform.</aside>
+    <aside data-rationale-for="C">Correct. Amazon MSK runs managed Apache Kafka so existing Kafka tools and clients still work.</aside>
+    <aside data-rationale-for="D">Glue Data Catalog manages metadata for datasets, not Kafka brokers.</aside>
+    <aside class="explanation">Option C is the correct answer. Native Kafka compatibility with AWS-managed brokers points directly to Amazon MSK.</aside>
+    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a>. <a href="https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html">Amazon MSK</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. You need to <mark>crawl S3 data and maintain a schema catalog</mark>. <mark>Which AWS service discovers schemas automatically?</mark></h3>
+    <h3>6. A data team stores CSV and JSON files in Amazon S3 and needs an AWS service to crawl the data, infer schemas, and maintain a central catalog for ETL jobs and analytics. Which service is the best answer?</h3>
     <button class="choice" data-correct>A) AWS Glue</button>
     <button class="choice">B) AWS Lambda</button>
     <button class="choice">C) Amazon EMR</button>
-    <button class="choice">D) TTL policy</button>
+    <button class="choice">D) DynamoDB Accelerator</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">AWS Glue crawlers automatically discover schemas and populate the Glue Data Catalog.</aside>
-    <aside data-rationale-for="B">Lambda can process data but does not automatically discover schemas across S3.</aside>
-    <aside data-rationale-for="C">EMR runs Spark/Hadoop jobs—it is not the default for automatic schema discovery.</aside>
-    <aside data-rationale-for="D">TTL expires DynamoDB items—it does not crawl S3 or discover schemas.</aside>
-    <aside class="explanation">AWS Glue is correct. Glue crawlers automatically discover data schemas and populate the Data Catalog.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on Glue. <a href="https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html">AWS Glue</a>.</aside>
+    <aside data-rationale-for="A">Correct. AWS Glue crawlers discover schemas in S3 and store them in the Glue Data Catalog.</aside>
+    <aside data-rationale-for="B">Lambda can run small transforms, but it is not the managed schema crawler and catalog service in the stem.</aside>
+    <aside data-rationale-for="C">EMR can process big data, but the clue is automatic schema discovery and a managed catalog.</aside>
+    <aside data-rationale-for="D">DAX accelerates DynamoDB reads and has nothing to do with S3 schema discovery.</aside>
+    <aside class="explanation">Option A is the correct answer. The schema-crawler plus shared catalog requirement is the signature AWS Glue pattern.</aside>
+    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a>. <a href="https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html">AWS Glue</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>7. A <mark>short S3 event transform</mark> should run serverlessly. <mark>Which AWS compute service fits short-running transforms?</mark></h3>
-    <button class="choice">A) AWS Glue</button>
+    <h3>7. An S3 ObjectCreated event should trigger a short image-metadata transform and write the result to DynamoDB. The company wants per-request billing and no cluster management. Which compute service should the developer choose?</h3>
+    <button class="choice">A) AWS Glue job</button>
     <button class="choice" data-correct>B) AWS Lambda</button>
-    <button class="choice">C) Amazon EMR</button>
-    <button class="choice">D) TTL policy</button>
+    <button class="choice">C) Amazon EMR cluster</button>
+    <button class="choice">D) Kinesis Data Analytics</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">AWS Glue runs managed ETL jobs—it is overkill for a simple short-running transform.</aside>
-    <aside data-rationale-for="B">Lambda is serverless and charges per invocation—it is ideal for short-running transforms triggered by S3 events.</aside>
-    <aside data-rationale-for="C">EMR runs Spark/Hadoop clusters—it is designed for heavy, long-running processing.</aside>
-    <aside data-rationale-for="D">TTL is a DynamoDB feature—it does not run transforms.</aside>
-    <aside class="explanation">Lambda is correct. Lambda is serverless, event-driven, and charges per millisecond—ideal for lightweight S3 transforms.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on Lambda transforms. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-services.html">AWS Lambda use cases</a>.</aside>
+    <aside data-rationale-for="A">Glue jobs are better for managed ETL pipelines than short event-driven transforms from S3.</aside>
+    <aside data-rationale-for="B">Correct. Lambda is serverless, event-driven, and ideal for lightweight transforms triggered by S3.</aside>
+    <aside data-rationale-for="C">EMR adds cluster management and is excessive for a small per-object transform.</aside>
+    <aside data-rationale-for="D">Kinesis Data Analytics is for stream processing, not direct S3 object event transforms.</aside>
+    <aside class="explanation">Option B is the correct answer. A short S3-triggered transform with no servers to manage is a standard Lambda scenario.</aside>
+    <aside class="knowledge-gap">Review <a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-services.html">AWS Lambda use cases</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>8. A serverless API needs to <mark>CRUD over DynamoDB</mark>. <mark>Which service combination provides the API and compute?</mark></h3>
+    <h3>8. A startup is building a public orders API. HTTPS requests must invoke application code that creates, reads, updates, and deletes items in DynamoDB, and the company wants a fully serverless design. Which service combination should the developer use?</h3>
     <button class="choice" data-correct>A) API Gateway + Lambda</button>
-    <button class="choice">B) KMS + Macie</button>
+    <button class="choice">B) SNS + SQS</button>
     <button class="choice">C) CodeDeploy + SAM</button>
-    <button class="choice">D) X-Ray + Alarms</button>
+    <button class="choice">D) CloudWatch + X-Ray</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway provides the HTTP API; Lambda handles business logic for DynamoDB CRUD operations.</aside>
-    <aside data-rationale-for="B">KMS encrypts data; Macie discovers sensitive data—they do not provide CRUD APIs.</aside>
-    <aside data-rationale-for="C">CodeDeploy shifts traffic; SAM packages serverless apps—they do not provide CRUD APIs.</aside>
-    <aside data-rationale-for="D">X-Ray traces requests; Alarms notify operators—they do not provide CRUD APIs.</aside>
-    <aside class="explanation">API Gateway + Lambda is correct. This is the standard serverless pattern for DynamoDB CRUD operations.</aside>
-    <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on serverless patterns. <a href="https://docs.aws.amazon.com/lambda/latest/dg/services-ddb.html">AWS Lambda with DynamoDB</a>.</aside>
+    <aside data-rationale-for="A">Correct. API Gateway handles the HTTPS API and Lambda runs the CRUD logic against DynamoDB.</aside>
+    <aside data-rationale-for="B">SNS and SQS are messaging services, not the primary pattern for a public request-response API.</aside>
+    <aside data-rationale-for="C">CodeDeploy and SAM help package and release applications, not serve runtime API traffic.</aside>
+    <aside data-rationale-for="D">CloudWatch and X-Ray monitor applications, but they do not implement the API itself.</aside>
+    <aside class="explanation">Option A is the correct answer. Public HTTPS plus serverless business logic over DynamoDB points to API Gateway and Lambda.</aside>
+    <aside class="knowledge-gap">Review <a href="0007-api-gateway-request-response-mapping.html">Lesson 0007</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/services-ddb.html">AWS Lambda with DynamoDB</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
