@@ -49,67 +49,100 @@ Bucket policy       Restrict S3 access with aws:sourceVpce</div>
   </ul>
 
   <h2>Retrieval drill: classify the control</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. An API needs api.example.com with HTTPS.</h3>
-    <button class="choice" data-answer="Custom domain" onclick="choose(this, 'Custom domain')">Custom domain</button>
-    <button class="choice" data-answer="Gateway route" onclick="choose(this, 'Custom domain')">Gateway route</button>
-    <button class="choice" data-answer="NACL filter" onclick="choose(this, 'Custom domain')">NACL filter</button>
-    <button class="choice" data-answer="Shield plan" onclick="choose(this, 'Custom domain')">Shield plan</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. An <mark>API Gateway REST API needs api.example.com with HTTPS</mark>. The team wants a clean hostname for mobile clients. <mark>Which combination of services is required?</mark></h3>
+    <button class="choice" data-correct>A) ACM certificate + API Gateway custom domain</button>
+    <button class="choice">B) Route 53 alias + NAT Gateway</button>
+    <button class="choice">C) Network ACL rule + security group</button>
+    <button class="choice">D) AWS Shield Standard + CloudFront</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">ACM provides the TLS certificate and API Gateway custom domain maps api.example.com to the API stage.</aside>
+    <aside data-rationale-for="B">Route 53 alias routes DNS but does not provide TLS certificates or custom domain mapping.</aside>
+    <aside data-rationale-for="C">NACL and security groups filter traffic—they do not provide HTTPS hostname or TLS certificates.</aside>
+    <aside data-rationale-for="D">Shield Standard provides DDoS protection; CloudFront is a CDN—they do not replace API Gateway custom domains.</aside>
+    <aside class="explanation">ACM certificate + API Gateway custom domain is correct. ACM provisions and renews the TLS cert; the custom domain maps the hostname to the API stage.</aside>
+    <aside class="knowledge-gap">Study <a href="0016-domain-2-secure-configuration-selection.html">ACM certificate management</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html">API Gateway custom domains</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. Private Lambda traffic must call S3 without NAT.</h3>
-    <button class="choice" data-answer="Gateway endpoint" onclick="choose(this, 'Gateway endpoint')">Gateway endpoint</button>
-    <button class="choice" data-answer="Custom domain" onclick="choose(this, 'Gateway endpoint')">Custom domain</button>
-    <button class="choice" data-answer="Security policy" onclick="choose(this, 'Gateway endpoint')">Security policy</button>
-    <button class="choice" data-answer="Managed rule" onclick="choose(this, 'Gateway endpoint')">Managed rule</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A <mark>Lambda function in a private VPC subnet</mark> must call S3 without using a NAT Gateway or internet gateway. <mark>Which VPC component enables this?</mark></h3>
+    <button class="choice" data-correct>A) S3 Gateway VPC endpoint</button>
+    <button class="choice">B) Interface VPC endpoint</button>
+    <button class="choice">C) NAT Gateway with public subnet</button>
+    <button class="choice">D) Route 53 inbound resolver</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">S3 gateway endpoint adds an S3 prefix to the VPC route table, routing S3 traffic privately without internet access.</aside>
+    <aside data-rationale-for="B">Interface VPC endpoints provide private access to services with ENIs—S3 uses gateway endpoints, not interface endpoints.</aside>
+    <aside data-rationale-for="C">NAT Gateway requires an internet gateway—it is the opposite of private VPC access.</aside>
+    <aside data-rationale-for="D">Route 53 inbound resolver handles DNS queries—it does not provide S3 private access.</aside>
+    <aside class="explanation">S3 gateway VPC endpoint is correct. It routes S3 traffic through a VPC endpoint prefix in the route table with no internet required.</aside>
+    <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">VPC gateway endpoints</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpce-gateway.html">Gateway VPC endpoints</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. Private subnets must call Secrets Manager APIs.</h3>
-    <button class="choice" data-answer="Interface endpoint" onclick="choose(this, 'Interface endpoint')">Interface endpoint</button>
-    <button class="choice" data-answer="Gateway endpoint" onclick="choose(this, 'Interface endpoint')">Gateway endpoint</button>
-    <button class="choice" data-answer="Public address" onclick="choose(this, 'Interface endpoint')">Public address</button>
-    <button class="choice" data-answer="Edge certificate" onclick="choose(this, 'Interface endpoint')">Edge certificate</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. An application in <mark>private subnets must call Secrets Manager APIs privately</mark>. There is no internet gateway. <mark>Which VPC component is needed?</mark></h3>
+    <button class="choice" data-correct>A) Secrets Manager Interface VPC endpoint</button>
+    <button class="choice">B) S3 Gateway VPC endpoint</button>
+    <button class="choice">C) NAT Gateway in the private subnet</button>
+    <button class="choice">D) Edge-optimized API Gateway</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Secrets Manager Interface VPC endpoint (PrivateLink) creates a private ENI in the subnet for Secrets Manager API calls.</aside>
+    <aside data-rationale-for="B">S3 gateway endpoint only routes S3 traffic—it does not provide access to Secrets Manager APIs.</aside>
+    <aside data-rationale-for="C">NAT Gateway requires an internet gateway and cannot be placed directly in a private subnet without a public NAT.</aside>
+    <aside data-rationale-for="D">Edge-optimized API Gateway is publicly accessible—it does not provide private VPC access to Secrets Manager.</aside>
+    <aside class="explanation">Secrets Manager Interface VPC endpoint is correct. AWS PrivateLink creates private ENIs for Secrets Manager with no internet traffic.</aside>
+    <aside class="knowledge-gap">Study <a href="0016-domain-2-secure-configuration-selection.html">Secrets Manager VPC access</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. A subnet needs an explicit deny for one CIDR.</h3>
-    <button class="choice" data-answer="Network ACL" onclick="choose(this, 'Network ACL')">Network ACL</button>
-    <button class="choice" data-answer="Security group" onclick="choose(this, 'Network ACL')">Security group</button>
-    <button class="choice" data-answer="ACM certificate" onclick="choose(this, 'Network ACL')">ACM certificate</button>
-    <button class="choice" data-answer="Route mapping" onclick="choose(this, 'Network ACL')">Route mapping</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. A Lambda function behind an ALB in a VPC subnet <mark>needs an explicit deny</mark> for inbound traffic from a specific CIDR range while allowing all other traffic. <mark>Which network control is appropriate?</mark></h3>
+    <button class="choice" data-correct>A) Network ACL with deny rule</button>
+    <button class="choice">B) Security group with allow rule</button>
+    <button class="choice">C) ACM certificate policy</button>
+    <button class="choice">D) Lambda function URL auth</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">NACLs are stateless and can both allow and deny rules, enabling explicit subnet-level denies for specific CIDRs.</aside>
+    <aside data-rationale-for="B">Security groups are stateful and only allow traffic—they cannot explicitly deny by CIDR.</aside>
+    <aside data-rationale-for="C">ACM manages TLS certificates—it does not control subnet-level network traffic.</aside>
+    <aside data-rationale-for="D">Lambda function URL auth controls access to Lambda—not subnet-level traffic filtering.</aside>
+    <aside class="explanation">Network ACL is correct. NACLs are stateless and support explicit deny rules at the subnet level.</aside>
+    <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">NACL vs security groups</a> and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html">Network ACLs</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. Return traffic fails after a subnet rule change.</h3>
-    <button class="choice" data-answer="NACL ports" onclick="choose(this, 'NACL ports')">NACL ports</button>
-    <button class="choice" data-answer="ACM import" onclick="choose(this, 'NACL ports')">ACM import</button>
-    <button class="choice" data-answer="WAF rules" onclick="choose(this, 'NACL ports')">WAF rules</button>
-    <button class="choice" data-answer="Shield tier" onclick="choose(this, 'NACL ports')">Shield tier</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A Lambda function in a VPC subnet <mark>experiences NACL rule failures</mark> after a rule change causes outbound API calls to fail. The NACL was changed to block ephemeral ports. <mark>What is the root cause?</mark></h3>
+    <button class="choice" data-correct>A) NACLs are stateless—ephemeral port return traffic must be explicitly allowed</button>
+    <button class="choice">B) Security groups automatically dropped return traffic</button>
+    <button class="choice">C) Lambda cold start exhausted the connection pool</button>
+    <button class="choice">D) KMS key policy revoked decryption permissions</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">NACLs evaluate both directions of traffic. Ephemeral return traffic (typically ports 32768–65535) must be explicitly allowed in stateless NACL rules.</aside>
+    <aside data-rationale-for="B">Security groups are stateful and automatically allow return traffic—stateless NACLs do not.</aside>
+    <aside data-rationale-for="C">Cold starts do not cause NACL-level ephemeral port failures.</aside>
+    <aside data-rationale-for="D">KMS key policy revocation would cause decrypt failures, not NACL ephemeral port failures.</aside>
+    <aside class="explanation">NACL statelessness is correct. Ephemeral port ranges must be explicitly allowed on both directions of a NACL rule.</aside>
+    <aside class="knowledge-gap">Study <a href="0016-domain-2-secure-configuration-selection.html">NACL ephemeral port rules</a> and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html">Network ACLs</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>6. API requests must block SQL injection.</h3>
-    <button class="choice" data-answer="AWS WAF" onclick="choose(this, 'AWS WAF')">AWS WAF</button>
-    <button class="choice" data-answer="AWS ACM" onclick="choose(this, 'AWS WAF')">AWS ACM</button>
-    <button class="choice" data-answer="AWS STS" onclick="choose(this, 'AWS WAF')">AWS STS</button>
-    <button class="choice" data-answer="AWS KMS" onclick="choose(this, 'AWS WAF')">AWS KMS</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. An <mark>API Gateway REST API must block SQL injection and XSS patterns</mark> in incoming requests. <mark>Which AWS service provides this filtering?</mark></h3>
+    <button class="choice" data-correct>A) AWS WAF</button>
+    <button class="choice">B) AWS Certificate Manager</button>
+    <button class="choice">C) AWS STS</button>
+    <button class="choice">D) AWS KMS</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">AWS WAF inspects HTTP(S) requests and blocks SQL injection, XSS, IP sets, and other layer 7 attack patterns using managed or custom rules.</aside>
+    <aside data-rationale-for="B">ACM manages TLS certificates—it does not filter HTTP requests or block attack patterns.</aside>
+    <aside data-rationale-for="C">STS provides temporary credentials—it does not inspect or filter HTTP requests.</aside>
+    <aside data-rationale-for="D">KMS manages encryption keys—it does not filter HTTP requests or block SQL injection.</aside>
+    <aside class="explanation">AWS WAF is correct. It is the layer 7 web application firewall that blocks SQL injection and XSS patterns at API Gateway.</aside>
+    <aside class="knowledge-gap">Review <a href="0018-security-best-practices-patterns.html">WAF web filtering rules</a> and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html">AWS WAF</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0016-domain-2-secure-configuration-selection.html">← Previous: Lesson 0016</a><a href="0018-security-best-practices-patterns.html">Next: Lesson 0018 →</a>
   </nav>
-
-  <h2>Read next</h2>
-  <p>Primary sources: AWS docs for <a href="https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html">ACM</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html">API Gateway custom domains</a>, <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>, and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html">security groups</a>.</p>
-  <p>Ask me to drill TLS, VPC endpoints, or security-group/NACL traps if any miss felt close.</p>
+  <p>Primary sources: <a href="https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html">ACM</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html">API Gateway custom domains</a>, <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>, and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html">security groups</a>.</p>
 </main>
 <script src="../assets/quiz.js"></script>
 </body>

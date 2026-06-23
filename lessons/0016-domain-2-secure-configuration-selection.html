@@ -80,67 +80,100 @@ Direct control of dedicated HSM hardware?
   </ul>
 
   <h2>Practice: choose the secure configuration</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. RDS credentials must be encrypted and rotated automatically.</h3>
-    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Secrets Manager')">Secrets Manager</button>
-    <button class="choice" data-answer="Parameter Store" onclick="choose(this, 'Secrets Manager')">Parameter Store</button>
-    <button class="choice" data-answer="Certificate Manager" onclick="choose(this, 'Secrets Manager')">Certificate Manager</button>
-    <button class="choice" data-answer="Identity Center" onclick="choose(this, 'Secrets Manager')">Identity Center</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. An <mark>RDS MySQL instance needs credentials</mark> that are encrypted and rotated automatically every 30 days. <mark>Which AWS service stores these credentials?</mark></h3>
+    <button class="choice" data-correct>A) AWS Secrets Manager</button>
+    <button class="choice">B) SSM Parameter Store plaintext</button>
+    <button class="choice">C) AWS Certificate Manager</button>
+    <button class="choice">D) Lambda environment variable</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Secrets Manager stores RDS credentials with built-in automatic rotation at a defined schedule.</aside>
+    <aside data-rationale-for="B">Parameter Store plaintext does not support automatic rotation—it requires custom Lambda rotation logic.</aside>
+    <aside data-rationale-for="C">ACM manages TLS certificates—it does not store database credentials or support rotation.</aside>
+    <aside data-rationale-for="D">Lambda environment variables are per function and do not support automatic credential rotation.</aside>
+    <aside class="explanation">Secrets Manager is correct. It stores database credentials with native automatic rotation on a schedule.</aside>
+    <aside class="knowledge-gap">Study <a href="0015-domain-2-error-handling-and-security-logging.html">Secrets Manager rotation</a> and <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">Secrets Manager</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. Five Lambdas need the same encrypted connection string.</h3>
-    <button class="choice" data-answer="SecureString parameter" onclick="choose(this, 'SecureString parameter')">SecureString parameter</button>
-    <button class="choice" data-answer="Function env variable" onclick="choose(this, 'SecureString parameter')">Function env variable</button>
-    <button class="choice" data-answer="API stage variable" onclick="choose(this, 'SecureString parameter')">API stage variable</button>
-    <button class="choice" data-answer="Lambda handler name" onclick="choose(this, 'SecureString parameter')">Lambda handler name</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. Five Lambda functions in the same VPC need the <mark>same encrypted database connection string</mark>. The value changes rarely. <mark>Which storage approach fits?</mark></h3>
+    <button class="choice" data-correct>A) SSM Parameter Store SecureString</button>
+    <button class="choice">B) Lambda environment variable per function</button>
+    <button class="choice">C) API Gateway stage variable</button>
+    <button class="choice">D) CloudFront cache key</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SecureString in Parameter Store is encrypted with KMS and can be shared across all Lambda functions via SDK or extension.</aside>
+    <aside data-rationale-for="B">Lambda environment variables are per function—duplicating the secret across five functions creates rotation problems.</aside>
+    <aside data-rationale-for="C">API Gateway stage variables are for integration configuration—not shared encrypted secret storage.</aside>
+    <aside data-rationale-for="D">CloudFront cache keys control what is cached at the edge—not secret storage for Lambda.</aside>
+    <aside class="explanation">SSM Parameter Store SecureString is correct. It stores the encrypted value once and all Lambdas retrieve it at runtime.</aside>
+    <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Parameter Store vs Secrets Manager</a> and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. A function needs a non-secret table name setting.</h3>
-    <button class="choice" data-answer="Environment variable" onclick="choose(this, 'Environment variable')">Environment variable</button>
-    <button class="choice" data-answer="Secrets rotation" onclick="choose(this, 'Environment variable')">Secrets rotation</button>
-    <button class="choice" data-answer="Certificate import" onclick="choose(this, 'Environment variable')">Certificate import</button>
-    <button class="choice" data-answer="CloudHSM cluster" onclick="choose(this, 'Environment variable')">CloudHSM cluster</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A <mark>Lambda function needs a DynamoDB table name</mark> that does not change per environment. The value is not a secret. <mark>Where should this configuration go?</mark></h3>
+    <button class="choice" data-correct>A) Lambda environment variable</button>
+    <button class="choice">B) Secrets Manager secret</button>
+    <button class="choice">C) ACM certificate import</button>
+    <button class="choice">D) CloudHSM key store</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda environment variables are ideal for per-function non-secret settings like table names, with optional KMS encryption.</aside>
+    <aside data-rationale-for="B">Secrets Manager is for credentials and secrets—not plain configuration like table names.</aside>
+    <aside data-rationale-for="C">ACM handles TLS certificates—it has no role in Lambda configuration storage.</aside>
+    <aside data-rationale-for="D">CloudHSM provides dedicated hardware key storage—it is not used for Lambda configuration values.</aside>
+    <aside class="explanation">Lambda environment variable is correct. Non-secret configuration values belong in Lambda environment variables.</aside>
+    <aside class="knowledge-gap">Study <a href="0005-lambda-configuration-traps.html">Lambda environment variable usage</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html">Lambda environment variable encryption</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. The app encrypts large data locally before storing it.</h3>
-    <button class="choice" data-answer="KMS data key" onclick="choose(this, 'KMS data key')">KMS data key</button>
-    <button class="choice" data-answer="ACM public cert" onclick="choose(this, 'KMS data key')">ACM public cert</button>
-    <button class="choice" data-answer="Cognito token" onclick="choose(this, 'KMS data key')">Cognito token</button>
-    <button class="choice" data-answer="CloudWatch alarm" onclick="choose(this, 'KMS data key')">CloudWatch alarm</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. An application encrypts <mark>large files locally using AWS KMS</mark> before storing them in S3. <mark>Which KMS feature minimizes the performance impact?</mark></h3>
+    <button class="choice" data-correct>A) KMS GenerateDataKey for envelope encryption</button>
+    <button class="choice">B) KMS Encrypt directly on all data</button>
+    <button class="choice">C) ACM public certificate encryption</button>
+    <button class="choice">D) S3 default server-side encryption</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">GenerateDataKey returns a plaintext data key for local encryption and an encrypted copy for storage—KMS only processes the data key, not the full file.</aside>
+    <aside data-rationale-for="B">KMS Encrypt processes all data through KMS, which hits API call limits and quota for large objects.</aside>
+    <aside data-rationale-for="C">ACM manages TLS certificates—it does not perform data key generation for envelope encryption.</aside>
+    <aside data-rationale-for="D">S3 server-side encryption handles storage encryption—it does not address local encryption use cases.</aside>
+    <aside class="explanation">GenerateDataKey is correct. Envelope encryption uses a data key locally so KMS only processes the small key, not the entire file.</aside>
+    <aside class="knowledge-gap">Review <a href="0005-lambda-configuration-traps.html">KMS envelope encryption</a> and <a href="https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#enveloping">KMS envelope encryption</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. Lambda decrypt fails after switching to a customer KMS key.</h3>
-    <button class="choice" data-answer="Check key policy" onclick="choose(this, 'Check key policy')">Check key policy</button>
-    <button class="choice" data-answer="Check DLQ target" onclick="choose(this, 'Check key policy')">Check DLQ target</button>
-    <button class="choice" data-answer="Check cache mode" onclick="choose(this, 'Check key policy')">Check cache mode</button>
-    <button class="choice" data-answer="Check image tag" onclick="choose(this, 'Check key policy')">Check image tag</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A Lambda function <mark>decrypt fails after switching to a customer managed KMS key</mark>. The execution role has iam:kms:*. <mark>What else must be checked?</mark></h3>
+    <button class="choice" data-correct>A) Check the KMS key policy</button>
+    <button class="choice">B) Check the DLQ configuration</button>
+    <button class="choice">C) Check the Lambda memory setting</button>
+    <button class="choice">D) Check the S3 bucket lifecycle</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">KMS key policy controls who can use the key. Identity permission alone is insufficient if the key policy does not allow the Lambda's principal.</aside>
+    <aside data-rationale-for="B">DLQ configuration handles failed event delivery—it does not affect KMS decryption permissions.</aside>
+    <aside data-rationale-for="C">Lambda memory does not affect KMS decryption—only key policy and IAM permissions matter.</aside>
+    <aside data-rationale-for="D">S3 lifecycle rules manage object expiration—they do not control KMS decryption access.</aside>
+    <aside class="explanation">KMS key policy is correct. KMS requires both IAM permission AND key policy allow for the calling principal.</aside>
+    <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">KMS key policy troubleshooting</a> and <a href="https://docs.aws.amazon.com/kms/latest/developerguide/control-access.html">KMS key policies</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>6. A workload must privately call Secrets Manager from a VPC.</h3>
-    <button class="choice" data-answer="Interface endpoint" onclick="choose(this, 'Interface endpoint')">Interface endpoint</button>
-    <button class="choice" data-answer="Gateway endpoint" onclick="choose(this, 'Interface endpoint')">Gateway endpoint</button>
-    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Interface endpoint')">Lambda alias</button>
-    <button class="choice" data-answer="S3 lifecycle" onclick="choose(this, 'Interface endpoint')">S3 lifecycle</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. A workload running in private subnets must call <mark>Secrets Manager APIs without internet access</mark>. <mark>Which VPC component enables private API access?</mark></h3>
+    <button class="choice" data-correct>A) Interface VPC endpoint (AWS PrivateLink)</button>
+    <button class="choice">B) NAT Gateway with internet gateway</button>
+    <button class="choice">C) Lambda function URL with auth</button>
+    <button class="choice">D) S3 gateway endpoint</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Interface VPC endpoints create private ENIs in subnets for AWS services via PrivateLink—no internet required.</aside>
+    <aside data-rationale-for="B">NAT Gateway requires an internet gateway and public IPs—private subnets cannot route directly through it.</aside>
+    <aside data-rationale-for="C">Lambda function URLs expose Lambda publicly—they do not provide private VPC access to Secrets Manager.</aside>
+    <aside data-rationale-for="D">S3 gateway endpoint only provides private S3 access—not Secrets Manager API access.</aside>
+    <aside class="explanation">Interface VPC endpoint is correct. AWS PrivateLink creates elastic network interfaces in private subnets for Secrets Manager.</aside>
+    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">VPC PrivateLink endpoints</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0015-domain-2-error-handling-and-security-logging.html">← Previous: Lesson 0015</a><a href="0017-secure-application-traffic.html">Next: Lesson 0017 →</a>
   </nav>
-
-  <h2>Read next</h2>
-  <p>Primary source: <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager User Guide</a>. Then compare <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html">Lambda environment encryption</a>.</p>
-  <p>Ask me to drill Secrets Manager vs Parameter Store until rotation, hierarchy, and SecureString clues are automatic.</p>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager</a>. Compare <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html">Lambda environment encryption</a>.</p>
 </main>
 <script src="../assets/quiz.js"></script>
 </body>
