@@ -44,6 +44,12 @@ class Exchange(TypedDict):
     answer_intent: str
     sage_response: str
     citations: list[Citation]
+    # Phase 9.5 / 9.6 — internal audit fields; not used by readiness math.
+    missed_criteria: list[str]
+    triggered_traps: list[str]
+    official_docs: list[str]
+    skill_builder_links: list[str]
+    lab_links: list[str]  
 
 
 class Domain(TypedDict):

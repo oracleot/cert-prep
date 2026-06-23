@@ -29,15 +29,22 @@ async def _generate_sage_response(
     state: AppState,
     kind: str,
     config: RunnableConfig,
-) -> tuple[str, list[Citation]]:
+) -> tuple[str, list[Citation], list[str], list[str], list[str]]:
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
+    # Phase 9.5 — Sage is grounded exclusively to the concept packet. The
+    # challenge carries official_docs / skill_builder_links / lab_links
+    # selected by coach_open / rex_rechallenge; we forward them so
+    # load_sage_grounding will not fall back to service-name docs.
     grounding = load_sage_grounding(
         exam_id=state["exam_id"],
         topic_id=challenge.get("topic_id", ""),
         topic=challenge["topic"],
         services=challenge.get("services", []),
         source_ids=challenge.get("source_ids", []),
+        official_docs=challenge.get("official_docs", []),
+        skill_builder_links=challenge.get("skill_builder_links", []),
+        lab_links=challenge.get("lab_links", []),
     )
 
     sage_input = SageInput(
@@ -52,6 +59,9 @@ async def _generate_sage_response(
         learning_style=state.get("learning_style", ""),
         answer_intent=state.get("answer_intent", "attempt"),
         familiarity_level=challenge.get("familiarity_level", state.get("familiarity_level", "new")),
+        official_docs=challenge.get("official_docs", []) or [],
+        skill_builder_links=challenge.get("skill_builder_links", []) or [],
+        lab_links=challenge.get("lab_links", []) or [],
     )
 
     if kind == "depth":
@@ -65,11 +75,23 @@ async def _generate_sage_response(
         config=config,
     )
     content = response.content if isinstance(response.content, str) else str(response.content)
-    return content, grounding["citations"]
+    return (
+        content,
+        grounding["citations"],
+        list(challenge.get("official_docs", []) or []),
+        list(challenge.get("skill_builder_links", []) or []),
+        list(challenge.get("lab_links", []) or []),
+    )
 
 
 def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) -> dict:
-    """Assemble the per-cycle exchange record (in-memory, not yet persisted)."""
+    """Assemble the per-cycle exchange record (in-memory, not yet persisted).
+
+    Phase 9.5 / 9.6 — ``missed_criteria`` and ``triggered_traps`` flow through
+    from the evaluator's ``last_evaluation`` (internal concept-miss audit) and
+    the three packet link lists are persisted alongside the exchange so the
+    Review-next block can be reconstructed from the database row alone.
+    """
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
     return {
@@ -83,6 +105,14 @@ def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) 
         "answer_intent": state.get("answer_intent", "attempt"),
         "sage_response": sage_text,
         "citations": citations,
+        # Phase 9.5: packet link metadata persisted with the exchange.
+        "official_docs": list(challenge.get("official_docs", []) or []),
+        "skill_builder_links": list(challenge.get("skill_builder_links", []) or []),
+        "lab_links": list(challenge.get("lab_links", []) or []),
+        # Phase 9.6: internal concept-miss audit fields from the evaluator.
+        # Read by ``concept_misses_for_user``; not used in readiness math.
+        "missed_criteria": list(evaluation.get("missed_criteria", []) or []),
+        "triggered_traps": list(evaluation.get("triggered_traps", []) or []),
     }
 
 
@@ -106,6 +136,11 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
             sage_response=exchange["sage_response"],
             citations=exchange["citations"],
             concept_id=exchange.get("concept_id", ""),
+            missed_criteria=exchange.get("missed_criteria", []),
+            triggered_traps=exchange.get("triggered_traps", []),
+            official_docs=exchange.get("official_docs", []),
+            skill_builder_links=exchange.get("skill_builder_links", []),
+            lab_links=exchange.get("lab_links", []),
         )
         await record_rex_result(state["user_id"], state["exam_id"], exchange["outcome"])
     except Exception:
@@ -114,7 +149,7 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
 
 async def sage_depth(state: AppState, config: RunnableConfig) -> dict:
     """Sage adds depth beyond a correct answer."""
-    sage_text, citations = await _generate_sage_response(state, "depth", config)
+    sage_text, citations, _official, _skill, _lab = await _generate_sage_response(state, "depth", config)
     exchange = _build_exchange(state, sage_text, citations)
     await _persist_exchange_if_db(state, exchange)
     return {"session_history": [exchange]}
@@ -122,7 +157,7 @@ async def sage_depth(state: AppState, config: RunnableConfig) -> dict:
 
 async def sage_explain(state: AppState, config: RunnableConfig) -> dict:
     """Sage corrects the misconception behind an incorrect answer."""
-    sage_text, citations = await _generate_sage_response(state, "explain", config)
+    sage_text, citations, _official, _skill, _lab = await _generate_sage_response(state, "explain", config)
     exchange = _build_exchange(state, sage_text, citations)
     await _persist_exchange_if_db(state, exchange)
     return {"session_history": [exchange]}

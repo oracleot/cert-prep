@@ -96,6 +96,15 @@ async def coach_open(state: AppState) -> dict:
         "rex_difficulty": difficulty,
         "curriculum_id": curriculum["id"] if curriculum else "",
         "curriculum": curriculum["domains"] if curriculum else [],
+        # Phase 9.4 / 9.5 — surface the curated packet fields so downstream
+        # nodes (rex_challenge, evaluate_answer, sage_respond) can ground
+        # their prompts to the concept record without re-loading it.
+        "current_concept_facts": packet["facts"],
+        "current_concept_traps": packet["traps"],
+        "current_expected_answer_criteria": packet["expected_answer_criteria"],
+        "current_official_docs": packet["official_docs"],
+        "current_skill_builder_links": packet["skill_builder_links"],
+        "current_lab_links": packet["lab_links"],
         "cycle": 1,
         "db_session_id": db_session_id,
         "learning_style": learning_style,

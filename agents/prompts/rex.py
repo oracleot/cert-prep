@@ -20,19 +20,31 @@ def build_rex_challenge_prompt(
     concept_id: str = "",
     learning_style: str = "",
     familiarity_level: str = "new",
+    facts: list[str] | None = None,
+    traps: list[str] | None = None,
 ) -> tuple[str, str]:
-    """Returns (system, user) prompt tuple for a new challenge."""
+    """Returns (system, user) prompt tuple for a new challenge.
+
+    ``facts`` and ``traps`` are the selected concept's ground-truth claims and
+    gotchas. When provided, they are inlined into the user prompt so Rex's
+    generated scenario/question is anchored to the packet — preventing
+    free-roam to unrelated topics or services.
+    """
     topic_instruction = (
         f'Target the selected concept/topic: "{topic}". Do not choose outside it.'
         if topic else
         "Use only the selected domain/task/source context. Do not invent unsupported topics."
     )
     context = _source_context(task_statement, services, source_ids, concept_id)
+    facts_block = _facts_block(facts)
+    traps_block = _traps_block(traps)
     style_directive = _style_directive(learning_style)
     familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""Generate a {exam_id.upper()} challenge for the "{domain}" domain at {difficulty} difficulty.
 {topic_instruction}
 {context}
+{facts_block}
+{traps_block}
 {style_directive}
 {familiarity_directive}
 
@@ -58,6 +70,8 @@ def build_rex_rechallenge_prompt(
     source_ids: list[str] | None = None,
     learning_style: str = "",
     familiarity_level: str = "new",
+    facts: list[str] | None = None,
+    traps: list[str] | None = None,
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a harder rechallenge."""
     topic_instruction = (
@@ -66,6 +80,8 @@ def build_rex_rechallenge_prompt(
         "Use only the selected next concept packet. Do not invent unsupported topics."
     )
     context = _source_context(task_statement, services, source_ids, concept_id)
+    facts_block = _facts_block(facts)
+    traps_block = _traps_block(traps)
     style_directive = _style_directive(learning_style, rechallenge=True)
     familiarity_directive = _familiarity_directive(familiarity_level)
     user = f"""The challenger just saw Sage explain "{previous_topic}" in the "{domain}" domain. Now raise the stakes.
@@ -73,6 +89,8 @@ def build_rex_rechallenge_prompt(
 Generate a harder {exam_id.upper()} challenge on the SAME domain — different topic, selected next concept only, higher-pressure scenario, more nuanced question. Difficulty: {difficulty}.
 {topic_instruction}
 {context}
+{facts_block}
+{traps_block}
 {style_directive}
 {familiarity_directive}
 
@@ -134,3 +152,28 @@ def _source_context(
     if concept_id:
         lines.append(f"Selected concept ID: {concept_id}.")
     return "\n".join(lines)
+
+
+def _facts_block(facts: list[str] | None) -> str:
+    """Inline concept facts as ground-truth anchors Rex must respect."""
+    if not facts:
+        return ""
+    bullet = "\n".join(f"- {item}" for item in facts)
+    return (
+        "Ground-truth facts about the selected concept — your scenario and "
+        "question MUST be consistent with these:\n"
+        f"{bullet}"
+    )
+
+
+def _traps_block(traps: list[str] | None) -> str:
+    """Inline concept traps; Rex must NOT contradict or trivially leak these."""
+    if not traps:
+        return ""
+    bullet = "\n".join(f"- {item}" for item in traps)
+    return (
+        "Known traps/misconceptions for this concept — your scenario must NOT "
+        "answer the question for the user, and the question must not be trivially "
+        "solvable by spotting the trap directly:\n"
+        f"{bullet}"
+    )

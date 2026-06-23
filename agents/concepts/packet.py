@@ -75,7 +75,13 @@ def concept_services(record: dict[str, Any]) -> list[str]:
 
 
 def concept_packet_fields(record: dict[str, Any]) -> dict[str, Any]:
-    """Normalize optional runtime fields from the curated concept record."""
+    """Normalize optional runtime fields from the curated concept record.
+
+    Phase 9.4 / 9.5 — the packet now also carries the curated facts / traps /
+    expected-answer-criteria and the link lists (official docs, Skill Builder,
+    hands-on labs). These are forwarded to Rex, the Evaluator, and Sage so
+    each agent is grounded to the packet rather than free-responding.
+    """
     concept_id = str(record.get("id", ""))
     return {
         "topic": concept_topic(record),
@@ -85,4 +91,10 @@ def concept_packet_fields(record: dict[str, Any]) -> dict[str, Any]:
         "source_ids": concept_source_ids(record),
         "difficulty": str(record.get("difficulty") or "medium"),
         "familiarity_level": str(record.get("familiarity_level") or "new"),
+        "facts": list(record.get("facts") or []),
+        "traps": list(record.get("traps") or []),
+        "expected_answer_criteria": str(record.get("expected_answer_criteria") or ""),
+        "official_docs": list(record.get("official_docs") or []),
+        "skill_builder_links": list(record.get("skill_builder_links") or []),
+        "lab_links": list(record.get("lab_links") or []),
     }

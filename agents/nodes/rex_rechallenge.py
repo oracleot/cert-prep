@@ -72,6 +72,8 @@ async def rex_rechallenge(state: AppState) -> dict:
         source_ids=packet["source_ids"],
         learning_style=state.get("learning_style", ""),
         familiarity_level=packet["familiarity_level"],
+        facts=packet["facts"],
+        traps=packet["traps"],
     )
 
     # Set the API key in the runtime context so get_llm finds it.
@@ -93,6 +95,8 @@ async def rex_rechallenge(state: AppState) -> dict:
     if not all(k in challenge for k in ("domain", "topic", "scenario", "question")):
         raise ValueError(f"rex_rechallenge returned invalid shape: {challenge}")
 
+    resolved_difficulty = packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard")
+
     return {
         "current_concept_id": concept_id,
         "current_challenge": {
@@ -102,10 +106,17 @@ async def rex_rechallenge(state: AppState) -> dict:
             "topic_id": packet["topic_id"],
             "task_statement_id": packet["task_statement_id"],
             "task_statement": target.get("task_statement", ""),
-            "difficulty": packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard"),
+            "difficulty": resolved_difficulty,
             "services": packet["services"],
             "source_ids": packet["source_ids"],
             "familiarity_level": packet["familiarity_level"],
+            # Phase 9.5: forward the curated packet resources for the next
+            # cycle so Sage stays grounded to the rechallenge's concept.
+            "official_docs": packet["official_docs"],
+            "skill_builder_links": packet["skill_builder_links"],
+            "lab_links": packet["lab_links"],
+            "expected_answer_criteria": packet["expected_answer_criteria"],
+            "traps": packet["traps"],
             "scenario": challenge["scenario"],
             "question": challenge["question"],
         },
@@ -116,7 +127,15 @@ async def rex_rechallenge(state: AppState) -> dict:
         "current_services": packet["services"],
         "current_source_ids": packet["source_ids"],
         "familiarity_level": packet["familiarity_level"],
-        "rex_difficulty": packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard"),
+        "rex_difficulty": resolved_difficulty,
+        # Phase 9.4 / 9.5: refresh packet-derived fields on state so the next
+        # evaluate_answer + sage_respond use the rechallenge's packet.
+        "current_concept_facts": packet["facts"],
+        "current_concept_traps": packet["traps"],
+        "current_expected_answer_criteria": packet["expected_answer_criteria"],
+        "current_official_docs": packet["official_docs"],
+        "current_skill_builder_links": packet["skill_builder_links"],
+        "current_lab_links": packet["lab_links"],
         "answer_intent": "attempt",
         "cycle": state.get("cycle", 1) + 1,
     }

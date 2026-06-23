@@ -28,15 +28,23 @@ class SageInput:
     learning_style: str = ""
     answer_intent: str = "attempt"
     familiarity_level: str = "new"
+    # Phase 9.5 — concept packet resources (verified by the curator). Sage
+    # must only cite URLs drawn from these lists; no invented/fallback URLs.
+    official_docs: list[str] | None = None
+    skill_builder_links: list[str] | None = None
+    lab_links: list[str] | None = None
 
 
 def _grounding_rules(sage: SageInput) -> str:
     if sage.has_verified_sources:
         return """Use the verified sources below for any source-backed claim.
 Do not invent citations or URLs. Do not paste raw URLs inline; citation links render below the response.
+Only cite URLs that appear in the verified source material — do not invent or guess any link.
+If a claim is not backed by a verified source, say so rather than naming an unverified doc.
 Mention at least one source title naturally when it supports the explanation."""
     return """No verified source was available for this topic.
-Begin exactly with "Unverified explanation:". Do not invent citations, URLs, or documentation names."""
+Begin exactly with "Unverified explanation:". Do not invent citations, URLs, or documentation names.
+Do not invent or guess any URL — leave citations empty rather than fabricate one."""
 
 
 def _style_directive(learning_style: str, kind: str) -> str:
