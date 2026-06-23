@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DVA-C02 Security Quick Sheet</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>Security quick sheet</h1>
+  <p class="subtitle">Domain 2 exam selectors for IAM, STS, Cognito, KMS, secrets, TLS, VPC endpoints, S3 access, and edge protection.</p>
+
+  <section class="card">
+    <h2>Domain 2 shape</h2>
+    <ul>
+      <li><strong>Weight:</strong> 26%, roughly 17 exam questions.</li>
+      <li><strong>Official tasks:</strong> authentication/authorization, encryption with AWS services, and sensitive data in application code.</li>
+      <li><strong>Fast triage:</strong> identity, encryption, secrets, certificates, private traffic, or sensitive data discovery usually means Security.</li>
+    </ul>
+  </section>
+
+  <h2>Identity selector</h2>
+  <div class="diagram">AWS compute needs AWS API access      → IAM role
+Cross-account or delegated access        → STS AssumeRole
+External workforce identity              → IAM Identity Center / federation
+App users sign up and sign in            → Cognito user pool
+App users need AWS credentials           → Cognito identity pool
+API caller signs with SigV4              → IAM authorization
+Bearer token custom auth                 → TOKEN Lambda authorizer
+Headers/query/context custom auth        → REQUEST Lambda authorizer</div>
+
+  <section class="card">
+    <h2>Policy cuts</h2>
+    <ul>
+      <li><strong>Identity policy:</strong> attached to user, group, or role.</li>
+      <li><strong>Resource policy:</strong> attached to resource; common for S3, Lambda, KMS, SQS, SNS.</li>
+      <li><strong>Trust policy:</strong> says who can assume a role.</li>
+      <li><strong>SCP, boundary, session policy:</strong> limits maximum access; does not grant access.</li>
+      <li><strong>Explicit deny:</strong> wins over any allow.</li>
+    </ul>
+  </section>
+
+  <h2>Encryption and secrets selector</h2>
+  <div class="diagram">Audit/customer control of object keys    → SSE-KMS
+Minimum managed S3 encryption            → SSE-S3
+Customer supplies S3 object keys         → SSE-C
+Encrypt data inside the application      → KMS GenerateDataKey
+Database password or rotation needed     → Secrets Manager
+Hierarchy/simple encrypted config        → SSM SecureString
+TLS certificate for AWS front door       → ACM
+Dedicated HSM control required           → CloudHSM</div>
+
+  <section class="card">
+    <h2>Secret-handling cuts</h2>
+    <ul>
+      <li>Do not hardcode access keys, tokens, passwords, or decrypted secrets.</li>
+      <li>Use roles for AWS-hosted workloads; use federation or temporary credentials where possible.</li>
+      <li>Lambda environment variables are encrypted at rest, but they are not shared secret storage.</li>
+      <li>Use an interface VPC endpoint for private calls to Secrets Manager, SSM, KMS, or most AWS APIs.</li>
+    </ul>
+  </section>
+
+  <h2>Traffic and edge selector</h2>
+  <div class="diagram">Public HTTPS certificate                → ACM
+API vanity hostname                      → API Gateway custom domain
+Private S3 or DynamoDB access            → Gateway VPC endpoint
+Private access to most AWS APIs          → Interface VPC endpoint
+ENI-level stateful allow rules           → Security group
+Subnet-level stateless allow/deny rules  → Network ACL
+Layer 7 request filtering                → AWS WAF
+Enhanced DDoS response/cost protection   → Shield Advanced
+Find sensitive data in S3                → Amazon Macie</div>
+
+  <section class="card">
+    <h2>High-yield traps</h2>
+    <ul>
+      <li>API keys are for usage plans and throttling, not strong authentication.</li>
+      <li>KMS stores keys, not application passwords.</li>
+      <li>An S3 bucket policy cannot grant KMS decrypt by itself; the key policy/grant must allow use.</li>
+      <li>NACLs are stateless, so return traffic and ephemeral ports matter.</li>
+      <li>CloudWatch Logs are application logs; CloudTrail is AWS API history.</li>
+      <li>Macie discovers sensitive data in S3; WAF blocks web request patterns.</li>
+    </ul>
+  </section>
+
+  <h2>Local review path</h2>
+  <ul>
+    <li><a href="../lessons/0014-authentication-and-authorization-selection.html">Lesson 0014: authentication and authorization selection</a></li>
+    <li><a href="../lessons/0015-domain-2-error-handling-and-security-logging.html">Lesson 0015: error handling and security logging</a></li>
+    <li><a href="../lessons/0016-domain-2-secure-configuration-selection.html">Lesson 0016: secure configuration selection</a></li>
+    <li><a href="../lessons/0017-secure-application-traffic.html">Lesson 0017: secure application traffic</a></li>
+    <li><a href="../lessons/0018-security-best-practices-patterns.html">Lesson 0018: security best-practice patterns</a></li>
+  </ul>
+
+  <h2>Primary sources</h2>
+  <ul>
+    <li><a href="../docs/aws%20dva-c02.md">Local DVA-C02 curriculum notes</a></li>
+    <li><a href="https://aws.amazon.com/certification/certified-developer-associate/">AWS Certified Developer - Associate certification page</a></li>
+    <li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">IAM policy evaluation logic</a></li>
+    <li><a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html">AWS KMS Developer Guide</a></li>
+    <li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager User Guide</a></li>
+    <li><a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">AWS VPC endpoints</a></li>
+    <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html">Amazon S3 encryption</a></li>
+  </ul>
+</main>
+</body>
+</html>
