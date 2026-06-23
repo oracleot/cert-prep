@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0018 — Security Best Practices Patterns</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0018</p>
+  <h1>Pick the best-practice security pattern.</h1>
+  <p class="subtitle">Task Statement 2.5: eliminate distractors by matching the risk to the smallest AWS control that fixes it.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will choose fast among <strong>S3 encryption/access</strong>, <strong>private service access</strong>, <strong>network controls</strong>, and <strong>edge protection</strong>.</p>
+    <p>Related review: <a href="0017-secure-application-traffic.html">secure application traffic</a> and the Domain 2 section in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
+  </section>
+
+  <h2>Best-practice selector</h2>
+  <div class="diagram">Encrypt objects with AWS-managed key       → SSE-S3
+Audit/control customer-managed key use      → SSE-KMS
+Temporary object download/upload            → S3 presigned URL
+Keep bucket private behind CDN              → CloudFront OAC
+Detect sensitive data in S3                 → Amazon Macie
+Block layer 7 attack patterns               → AWS WAF
+Baseline DDoS protection                    → Shield Standard</div>
+
+  <h2>1. S3 access traps</h2>
+  <ul>
+    <li><strong>Block Public Access</strong> is the first cut when a bucket should not be public.</li>
+    <li><strong>Bucket policies</strong> enforce conditions such as required encryption or access only through a VPC endpoint.</li>
+    <li><strong>Presigned URLs</strong> grant temporary object access without making the bucket public.</li>
+    <li><strong>CloudFront OAC</strong> lets CloudFront access a private S3 origin; users should not access the bucket directly.</li>
+  </ul>
+
+  <h2>2. S3 encryption traps</h2>
+  <section class="card">
+    <h3>Exam shortcut</h3>
+    <p>When the clue says compliance, audit key usage, customer control, or key policies, prefer <strong>SSE-KMS</strong>. When it only says encrypt at rest with minimal management, <strong>SSE-S3</strong> is enough.</p>
+  </section>
+  <ul>
+    <li><strong>Default encryption</strong> handles new objects; a bucket policy can deny uploads that omit the required encryption header.</li>
+    <li><strong>SSE-C</strong> means the customer supplies keys for S3 to use; AWS does not store those keys.</li>
+    <li><strong>KMS key policy</strong> controls key use. An S3 bucket policy alone cannot grant KMS decrypt permission.</li>
+  </ul>
+
+  <h2>3. Edge and detection controls</h2>
+  <ul>
+    <li><strong>AWS WAF:</strong> choose for API Gateway, CloudFront, and ALB web request filtering.</li>
+    <li><strong>Shield Standard:</strong> automatic DDoS protection for common infrastructure attacks.</li>
+    <li><strong>Shield Advanced:</strong> choose when the scenario asks for enhanced DDoS response, cost protection, or DRT access.</li>
+    <li><strong>Macie:</strong> choose for discovering sensitive data in S3, not for blocking live HTTP requests.</li>
+  </ul>
+
+  <h2>Mixed drill: choose the best answer</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. A private bucket needs temporary download links.</h3>
+    <button class="choice" data-answer="Presigned URL" onclick="choose(this, 'Presigned URL')">Presigned URL</button>
+    <button class="choice" data-answer="Public read" onclick="choose(this, 'Presigned URL')">Public read</button>
+    <button class="choice" data-answer="NACL allow" onclick="choose(this, 'Presigned URL')">NACL allow</button>
+    <button class="choice" data-answer="Shield plan" onclick="choose(this, 'Presigned URL')">Shield plan</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Object encryption needs customer key policies.</h3>
+    <button class="choice" data-answer="SSE-KMS" onclick="choose(this, 'SSE-KMS')">SSE-KMS</button>
+    <button class="choice" data-answer="SSE-S3" onclick="choose(this, 'SSE-KMS')">SSE-S3</button>
+    <button class="choice" data-answer="SSE-C" onclick="choose(this, 'SSE-KMS')">SSE-C</button>
+    <button class="choice" data-answer="TLS-12" onclick="choose(this, 'SSE-KMS')">TLS-12</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. New uploads missing encryption must be denied.</h3>
+    <button class="choice" data-answer="Bucket policy" onclick="choose(this, 'Bucket policy')">Bucket policy</button>
+    <button class="choice" data-answer="Route policy" onclick="choose(this, 'Bucket policy')">Route policy</button>
+    <button class="choice" data-answer="WAF policy" onclick="choose(this, 'Bucket policy')">WAF policy</button>
+    <button class="choice" data-answer="Trust policy" onclick="choose(this, 'Bucket policy')">Trust policy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. CloudFront should serve private S3 objects.</h3>
+    <button class="choice" data-answer="Origin access control" onclick="choose(this, 'Origin access control')">Origin access control</button>
+    <button class="choice" data-answer="Public object policy" onclick="choose(this, 'Origin access control')">Public object policy</button>
+    <button class="choice" data-answer="Interface VPC link" onclick="choose(this, 'Origin access control')">Interface VPC link</button>
+    <button class="choice" data-answer="Network ACL rule" onclick="choose(this, 'Origin access control')">Network ACL rule</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Find PII already stored across S3 buckets.</h3>
+    <button class="choice" data-answer="Amazon Macie" onclick="choose(this, 'Amazon Macie')">Amazon Macie</button>
+    <button class="choice" data-answer="Amazon Shield" onclick="choose(this, 'Amazon Macie')">Amazon Shield</button>
+    <button class="choice" data-answer="Amazon Route53" onclick="choose(this, 'Amazon Macie')">Amazon Route53</button>
+    <button class="choice" data-answer="Amazon Private" onclick="choose(this, 'Amazon Macie')">Amazon Private</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. API Gateway must block XSS requests.</h3>
+    <button class="choice" data-answer="AWS WAF" onclick="choose(this, 'AWS WAF')">AWS WAF</button>
+    <button class="choice" data-answer="AWS ACM" onclick="choose(this, 'AWS WAF')">AWS ACM</button>
+    <button class="choice" data-answer="AWS KMS" onclick="choose(this, 'AWS WAF')">AWS KMS</button>
+    <button class="choice" data-answer="AWS STS" onclick="choose(this, 'AWS WAF')">AWS STS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. DDoS response needs DRT and cost protection.</h3>
+    <button class="choice" data-answer="Shield Advanced" onclick="choose(this, 'Shield Advanced')">Shield Advanced</button>
+    <button class="choice" data-answer="Shield Standard" onclick="choose(this, 'Shield Advanced')">Shield Standard</button>
+    <button class="choice" data-answer="WAF managed" onclick="choose(this, 'Shield Advanced')">WAF managed</button>
+    <button class="choice" data-answer="ACM public" onclick="choose(this, 'Shield Advanced')">ACM public</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>8. S3 access allowed only through one endpoint.</h3>
+    <button class="choice" data-answer="aws:sourceVpce" onclick="choose(this, 'aws:sourceVpce')">aws:sourceVpce</button>
+    <button class="choice" data-answer="aws:SourceIp" onclick="choose(this, 'aws:sourceVpce')">aws:SourceIp</button>
+    <button class="choice" data-answer="aws:username" onclick="choose(this, 'aws:sourceVpce')">aws:username</button>
+    <button class="choice" data-answer="aws:userid" onclick="choose(this, 'aws:sourceVpce')">aws:userid</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0017-secure-application-traffic.html">← Previous: Lesson 0017</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary sources: AWS docs for <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html">S3 encryption</a>, <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html">S3 Block Public Access</a>, <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html">CloudFront OAC</a>, <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html">AWS WAF</a>, and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/shield-chapter.html">AWS Shield</a>.</p>
+  <p>Ask me for a Domain 2 security-best-practices rematch if any distractor looked tempting.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
