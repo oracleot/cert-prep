@@ -102,7 +102,7 @@ export function SageCard({
             {reviewNext!.items.map((item) => (
               <li key={`${item.source}-${item.url}`} className="flex items-start gap-2">
                 <span className="mt-0.5 shrink-0 rounded-full border border-zinc-300 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-                  {item.source === "skill_builder" ? "lab" : item.source === "lab" ? "hands-on" : "docs"}
+                  {item.source === "skill_builder" ? "skill builder" : item.source === "lab" ? "hands-on" : "docs"}
                 </span>
                 <a
                   href={item.url}
