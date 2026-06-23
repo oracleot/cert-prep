@@ -1,28 +1,25 @@
 /**
- * Drift coverage for Domain 3 quick sheet and curriculum map links.
+ * Drift coverage for Domain 1–3 curriculum map and quick sheet links.
  *
  * Warns if:
- *  - Curriculum map links to lesson files that don't exist
+ *  - Curriculum map links to lesson files that don't exist (0001–0023)
  *  - Quick sheet links to lesson files that don't exist
- *  - Curriculum map claims Domain 3 but lesson files are missing
- *
- * These links can silently drift out of sync when content is moved or renamed.
+ *  - Any 0001–0023 lesson number referenced in the map actually exists as a file
  *
  * Run: npm test -- domain3-drift
  */
 import { describe, expect, it } from "vitest";
-import { read, LESSONS_DIR, REFERENCE_DIR } from "./domain3-utils";
+import { read, LESSONS_DIR, REFERENCE_DIR, parseLessonNum } from "./domain3-utils";
 import { readdirSync } from "fs";
 import { extname, join } from "path";
-import { parseLessonNum } from "./domain3-utils";
+import { ALL_D123_LESSONS } from "./domain3-utils";
 
-// ------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Helpers
-// ------------------------------------------------------------------
-function extractLessonNumbersFromContent(content: string): number[] {
+// --------------------------------------------------------------------------
+function extractFourDigitNums(content: string): number[] {
   const nums = new Set<number>();
-  const matches = content.matchAll(/\b(\d{4})\b/g);
-  for (const m of matches) {
+  for (const m of content.matchAll(/\b(\d{4})\b/g)) {
     nums.add(parseInt(m[1], 10));
   }
   return [...nums].sort((a, b) => a - b);
@@ -34,53 +31,53 @@ function hasFileForLesson(num: number): boolean {
   );
 }
 
-// ------------------------------------------------------------------
-// Curriculum map drift
-// ------------------------------------------------------------------
-describe("curriculum map — lesson links are in sync", () => {
+// --------------------------------------------------------------------------
+// Curriculum map drift — every referenced 0001–0023 lesson has a file
+// --------------------------------------------------------------------------
+describe("curriculum map — lesson links are in sync (0001–0023)", () => {
   const mapFile = join(REFERENCE_DIR, "dva-c02-curriculum-map.html");
   const content = read(mapFile);
-  // Domain 3 lessons are 0019–0023; check all that appear in the map exist
-  const mentionedNums = extractLessonNumbersFromContent(content);
-  const d3Mentioned = mentionedNums.filter((n) => n >= 19 && n <= 23);
+  const mentionedNums = extractFourDigitNums(content);
+  const d123Mentioned = mentionedNums.filter((n) => n >= 1 && n <= 23);
 
-  for (const num of d3Mentioned) {
-    it(`curriculum map mentions 00${num} and the file exists`, () => {
-      expect(hasFileForLesson(num), `curriculum map references 00${num} but no file found`).toBe(
-        true
-      );
+  for (const num of d123Mentioned) {
+    it(`curriculum map references 00${num} and the file exists`, () => {
+      expect(
+        hasFileForLesson(num),
+        `curriculum map references 00${num} but no file found`
+      ).toBe(true);
     });
   }
 });
 
-// ------------------------------------------------------------------
-// Quick sheet drift
-// ------------------------------------------------------------------
-describe("quick sheet — lesson links are in sync", () => {
+// --------------------------------------------------------------------------
+// Quick sheet drift — every referenced 0001–0023 lesson has a file
+// --------------------------------------------------------------------------
+describe("quick sheet — lesson links are in sync (0001–0023)", () => {
   const qsFile = join(REFERENCE_DIR, "dva-c02-deployment-quick-sheet.html");
   const content = read(qsFile);
-  const mentionedNums = extractLessonNumbersFromContent(content);
-  const d3Mentioned = mentionedNums.filter((n) => n >= 19 && n <= 23);
+  const mentionedNums = extractFourDigitNums(content);
+  const d123Mentioned = mentionedNums.filter((n) => n >= 1 && n <= 23);
 
-  for (const num of d3Mentioned) {
-    it(`quick sheet mentions 00${num} and the file exists`, () => {
-      expect(hasFileForLesson(num), `quick sheet references 00${num} but no file found`).toBe(
-        true
-      );
+  for (const num of d123Mentioned) {
+    it(`quick sheet references 00${num} and the file exists`, () => {
+      expect(
+        hasFileForLesson(num),
+        `quick sheet references 00${num} but no file found`
+      ).toBe(true);
     });
   }
 });
 
-// ------------------------------------------------------------------
-// Lesson → curriculum map coverage
-// Ensures every Domain 3 lesson number is mentioned in the curriculum map
-// ------------------------------------------------------------------
-describe("curriculum map — covers all Domain 3 lessons", () => {
+// --------------------------------------------------------------------------
+// Curriculum map coverage — every 0001–0023 lesson is mentioned
+// --------------------------------------------------------------------------
+describe("curriculum map — covers all Domain 1–3 lessons (0001–0023)", () => {
   const mapContent = read(join(REFERENCE_DIR, "dva-c02-curriculum-map.html"));
 
-  for (const num of [19, 20, 21, 22, 23] as const) {
-    it(`curriculum map mentions lesson 00${num}`, () => {
-      expect(mapContent).toContain(`00${num}`);
+  for (const num of ALL_D123_LESSONS) {
+    it(`curriculum map mentions lesson ${String(num).padStart(4, "0")}`, () => {
+      expect(mapContent, `missing 00${num}`).toContain(`00${num}`);
     });
   }
 });

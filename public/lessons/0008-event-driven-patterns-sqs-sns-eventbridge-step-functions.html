@@ -14,7 +14,7 @@
 
   <section class="card">
     <h2>The win</h2>
-    <p>When a scenario says “decouple,” do not stop at “serverless.” Classify the communication shape: <strong>buffer</strong>, <strong>broadcast</strong>, <strong>route</strong>, or <strong>orchestrate</strong>.</p>
+    <p>When a scenario says "decouple," do not stop at "serverless." Classify the communication shape: <strong>buffer</strong>, <strong>broadcast</strong>, <strong>route</strong>, or <strong>orchestrate</strong>.</p>
     <p>Related review: <a href="0004-lambda-event-source-mappings.html">Lambda event source mappings</a>.</p>
   </section>
 
@@ -26,7 +26,7 @@ Step Funcs   state machine → ordered workflow steps</div>
 
   <section class="card">
     <h3>SQS: buffer and absorb spikes</h3>
-    <p>Choose <strong>SQS</strong> when producers and consumers should not depend on each other’s speed or availability. Keywords: queue, backlog, polling, message retention, visibility timeout, dead-letter queue.</p>
+    <p>Choose <strong>SQS</strong> when producers and consumers should not depend on each other's speed or availability. Keywords: queue, backlog, polling, message retention, visibility timeout, dead-letter queue.</p>
   </section>
 
   <section class="card">
@@ -61,51 +61,80 @@ Step Funcs   state machine → ordered workflow steps</div>
   </ul>
 
   <h2>Practice: choose the pattern</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. Orders arrive faster than workers can process them.</h3>
-    <button class="choice" data-answer="SQS" onclick="choose(this, 'SQS')">SQS</button>
-    <button class="choice" data-answer="SNS" onclick="choose(this, 'SQS')">SNS</button>
-    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'SQS')">EventBridge</button>
-    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'SQS')">Step Functions</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. An e-commerce platform receives a surge of <mark>order events</mark> that arrive faster than fulfillment workers can process them. Producers and consumers must not depend on each other's speed or availability. <mark>Which AWS service absorbs the traffic spike?</mark></h3>
+    <button class="choice" data-correct>A) Amazon SQS</button>
+    <button class="choice">B) Amazon SNS</button>
+    <button class="choice">C) EventBridge</button>
+    <button class="choice">D) Step Functions</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SQS buffers messages between producers and consumers, decoupling their availability and processing rates.</aside>
+    <aside data-rationale-for="B">SNS pushes one message to many subscribers—it does not buffer for slower consumers.</aside>
+    <aside data-rationale-for="C">EventBridge routes events based on rules—it does not provide durable buffering.</aside>
+    <aside data-rationale-for="D">Step Functions orchestrate workflow steps—they do not buffer message backlogs.</aside>
+    <aside class="explanation">SQS is correct. SQS queues decouple producers from consumers by buffering messages until workers can process them.</aside>
+    <aside class="knowledge-gap">Review <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> on Lambda event sources. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html">Amazon SQS documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. One event must trigger billing, analytics, and email.</h3>
-    <button class="choice" data-answer="SQS" onclick="choose(this, 'SNS')">SQS</button>
-    <button class="choice" data-answer="SNS" onclick="choose(this, 'SNS')">SNS</button>
-    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'SNS')">EventBridge</button>
-    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'SNS')">Step Functions</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A SaaS platform fires one checkout event that must <mark>simultaneously notify the billing service, analytics pipeline, and email subsystem</mark>. <mark>Which AWS service fans out to multiple targets?</mark></h3>
+    <button class="choice">A) Amazon SQS</button>
+    <button class="choice" data-correct>B) Amazon SNS</button>
+    <button class="choice">C) EventBridge</button>
+    <button class="choice">D) Step Functions</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SQS queues deliver messages to one consumer at a time—they do not broadcast to multiple targets.</aside>
+    <aside data-rationale-for="B">SNS pub/sub broadcasts one message to all topic subscribers: billing, analytics, email.</aside>
+    <aside data-rationale-for="C">EventBridge routes events based on rules—SNS is the more direct answer for one-to-many fanout.</aside>
+    <aside data-rationale-for="D">Step Functions orchestrate sequential or parallel workflow tasks—they do not broadcast events.</aside>
+    <aside class="explanation">SNS is correct. SNS pub/sub fans out one message to multiple subscribers simultaneously.</aside>
+    <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> for the broadcast pattern. <a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html">Amazon SNS documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. A SaaS event should route to targets by event fields.</h3>
-    <button class="choice" data-answer="SQS" onclick="choose(this, 'EventBridge')">SQS</button>
-    <button class="choice" data-answer="SNS" onclick="choose(this, 'EventBridge')">SNS</button>
-    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'EventBridge')">EventBridge</button>
-    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'EventBridge')">Step Functions</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. An ISV's SaaS application emits events that must <mark>route to different Lambda functions or SQS queues based on event detail-type and source field values</mark>. <mark>Which AWS service filters and routes based on event content?</mark></h3>
+    <button class="choice">A) Amazon SQS</button>
+    <button class="choice">B) Amazon SNS</button>
+    <button class="choice" data-correct>C) EventBridge</button>
+    <button class="choice">D) Step Functions</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SQS delivers messages to consumers—it does not route based on event field values.</aside>
+    <aside data-rationale-for="B">SNS broadcasts to all subscribers—it does not route selectively based on event content.</aside>
+    <aside data-rationale-for="C">EventBridge rules route events to targets based on event content, patterns, or custom event buses.</aside>
+    <aside data-rationale-for="D">Step Functions execute workflows—they do not route events based on field values.</aside>
+    <aside class="explanation">EventBridge is correct. EventBridge rules filter and route events based on JSON patterns in event fields.</aside>
+    <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on EventBridge. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html">Amazon EventBridge rules</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. A checkout flow needs branching, waits, and retries.</h3>
-    <button class="choice" data-answer="SQS" onclick="choose(this, 'Step Functions')">SQS</button>
-    <button class="choice" data-answer="SNS" onclick="choose(this, 'Step Functions')">SNS</button>
-    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'Step Functions')">EventBridge</button>
-    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'Step Functions')">Step Functions</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. An order fulfillment microservice requires <mark>conditional branching, human-approval wait states, and per-task retry policies</mark>. The workflow must also provide a human-readable execution history. <mark>Which AWS service orchestrates this multi-step workflow?</mark></h3>
+    <button class="choice">A) Amazon SQS</button>
+    <button class="choice">B) Amazon SNS</button>
+    <button class="choice">C) EventBridge</button>
+    <button class="choice" data-correct>D) Step Functions</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SQS queues handle message buffering—they do not orchestrate multi-step workflows.</aside>
+    <aside data-rationale-for="B">SNS broadcasts events—it does not track workflow state or implement branching logic.</aside>
+    <aside data-rationale-for="C">EventBridge routes events—it does not maintain workflow state or implement wait states.</aside>
+    <aside data-rationale-for="D">Step Functions manage state machines with branching, wait states, retries, and error handling.</aside>
+    <aside class="explanation">Step Functions is correct. State machines provide branching, wait states, retries, and human-readable workflow history.</aside>
+    <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on Step Functions. <a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html">AWS Step Functions documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. Which phrase points most directly to choreography?</h3>
-    <button class="choice" data-answer="Event bus" onclick="choose(this, 'Event bus')">Event bus</button>
-    <button class="choice" data-answer="State machine" onclick="choose(this, 'Event bus')">State machine</button>
-    <button class="choice" data-answer="Wait state" onclick="choose(this, 'Event bus')">Wait state</button>
-    <button class="choice" data-answer="Retry policy" onclick="choose(this, 'Event bus')">Retry policy</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A microservices platform uses <mark>event-driven services that subscribe to an Amazon EventBridge event bus and react independently</mark> to order, payment, and shipping events without a central coordinator dictating the next step. <mark>Which architectural pattern describes this decentralized, event-driven approach?</mark></h3>
+    <button class="choice" data-correct>A) Event bus</button>
+    <button class="choice">B) State machine</button>
+    <button class="choice">C) Wait state</button>
+    <button class="choice">D) Retry policy</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">EventBridge event bus enables choreography—services subscribe to events and react independently.</aside>
+    <aside data-rationale-for="B">State machine implies orchestration—a central coordinator controls the workflow.</aside>
+    <aside data-rationale-for="C">Wait state is an orchestration concept in Step Functions—it implies central control.</aside>
+    <aside data-rationale-for="D">Retry policy is an operational detail—it does not indicate choreography or orchestration.</aside>
+    <aside class="explanation">Event bus is correct. Event-driven services reacting to events on a bus is the definition of choreography.</aside>
+    <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on choreography. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-bus.html">Amazon EventBridge event bus</a>.</aside>
   </section>
-
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0007-api-gateway-request-response-mapping.html">← Previous: Lesson 0007</a>

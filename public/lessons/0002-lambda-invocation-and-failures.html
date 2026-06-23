@@ -49,61 +49,95 @@ Lambda polls source? → event source mapping → source rules, batch behavior, 
   </ul>
 
   <h2>Practice: classify the Lambda path</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. An API Gateway request invokes Lambda and waits for a response.</h3>
-    <button class="choice" data-answer="Synchronous" onclick="choose(this, 'Synchronous')">Synchronous</button>
-    <button class="choice" data-answer="Asynchronous" onclick="choose(this, 'Synchronous')">Asynchronous</button>
-    <button class="choice" data-answer="Event source" onclick="choose(this, 'Synchronous')">Event source</button>
-    <button class="choice" data-answer="Destination" onclick="choose(this, 'Synchronous')">Destination</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. An API Gateway <mark>request invokes Lambda and waits</mark> for a response before returning to the client. <mark>Which invocation type applies?</mark></h3>
+    <button class="choice" data-correct>A) Synchronous invocation</button>
+    <button class="choice">B) Asynchronous invocation</button>
+    <button class="choice">C) Event source mapping</button>
+    <button class="choice">D) Lambda destination</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">API Gateway waits for Lambda's response—the caller waits, making this synchronous invocation.</aside>
+    <aside data-rationale-for="B">Asynchronous invocation means the caller hands off and does not wait for a response.</aside>
+    <aside data-rationale-for="C">Event source mapping means Lambda polls a queue or stream—not direct caller invocation.</aside>
+    <aside data-rationale-for="D">Destinations route async failure records—they are not an invocation type.</aside>
+    <aside class="explanation">Synchronous invocation is correct. API Gateway Lambda proxy integration is a synchronous call—the caller (API Gateway) waits for the response.</aside>
+    <aside class="knowledge-gap">Review <a href="0001-dva-c02-domain-triage.html">Lesson 0001</a> for domain triage. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-sync.html">Lambda synchronous invocation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. S3 sends object-created events to Lambda without waiting for function output.</h3>
-    <button class="choice" data-answer="Synchronous" onclick="choose(this, 'Asynchronous')">Synchronous</button>
-    <button class="choice" data-answer="Asynchronous" onclick="choose(this, 'Asynchronous')">Asynchronous</button>
-    <button class="choice" data-answer="Event source" onclick="choose(this, 'Asynchronous')">Event source</button>
-    <button class="choice" data-answer="Provisioned" onclick="choose(this, 'Asynchronous')">Provisioned</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. S3 <mark>sends object-created events to Lambda without waiting</mark> for function output. <mark>How does Lambda receive these events?</mark></h3>
+    <button class="choice">A) Synchronous invocation</button>
+    <button class="choice" data-correct>B) Asynchronous invocation</button>
+    <button class="choice">C) Event source mapping</button>
+    <button class="choice">D) Provisioned concurrency</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Synchronous means the caller waits—S3 does not wait for Lambda to finish.</aside>
+    <aside data-rationale-for="B">S3 invokes Lambda asynchronously and does not wait for output. Lambda retries failed events twice automatically.</aside>
+    <aside data-rationale-for="C">Event source mapping means Lambda polls SQS, Kinesis, or DynamoDB Streams—not S3 event notifications.</aside>
+    <aside data-rationale-for="D">Provisioned concurrency pre-warms environments—it does not change how S3 delivers events.</aside>
+    <aside class="explanation">Asynchronous invocation is correct. S3 event notifications invoke Lambda asynchronously, and Lambda handles retries.</aside>
+    <aside class="knowledge-gap"><a href="0001-dva-c02-domain-triage.html">Lesson 0001</a> covers Lambda invocation patterns. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda asynchronous invocation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. Lambda reads records from an SQS queue in batches.</h3>
-    <button class="choice" data-answer="Synchronous" onclick="choose(this, 'Event source mapping')">Synchronous</button>
-    <button class="choice" data-answer="Asynchronous" onclick="choose(this, 'Event source mapping')">Asynchronous</button>
-    <button class="choice" data-answer="Event source mapping" onclick="choose(this, 'Event source mapping')">Event source mapping</button>
-    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Event source mapping')">Lambda layer</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A Lambda function <mark>reads records from an SQS queue in batches</mark>. The function is triggered automatically when messages arrive. <mark>What mechanism delivers these batches?</mark></h3>
+    <button class="choice">A) Synchronous invocation</button>
+    <button class="choice">B) Asynchronous invocation</button>
+    <button class="choice" data-correct>C) Event source mapping</button>
+    <button class="choice">D) Lambda layer</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Synchronous invocation requires a caller that waits for response—Lambda polling a queue is not synchronous.</aside>
+    <aside data-rationale-for="B">Asynchronous invocation is triggered by a service calling Lambda—not by Lambda polling a source.</aside>
+    <aside data-rationale-for="C">Lambda event source mapping polls SQS queues and delivers batches to the function.</aside>
+    <aside data-rationale-for="D">Lambda layers package shared code—they do not deliver queue messages.</aside>
+    <aside class="explanation">Event source mapping is correct. Lambda creates the polling mechanism and manages batch delivery from SQS.</aside>
+    <aside class="knowledge-gap">See <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html">Lambda event source mapping</a>.</aside>
   </section>
 
-  <h2>Practice: choose the feature</h2>
-  <section class="quiz" data-quiz>
-    <h3>4. A function must avoid cold-start latency for a production API.</h3>
-    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Provisioned concurrency')">Reserved concurrency</button>
-    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Provisioned concurrency')">Provisioned concurrency</button>
-    <button class="choice" data-answer="Event source mapping" onclick="choose(this, 'Provisioned concurrency')">Event source mapping</button>
-    <button class="choice" data-answer="Dead-letter queue" onclick="choose(this, 'Provisioned concurrency')">Dead-letter queue</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. A production API <mark>experiences unpredictable cold-start latency</mark> and must respond faster. <mark>Which Lambda feature eliminates cold starts for a target concurrency?</mark></h3>
+    <button class="choice">A) Reserved concurrency</button>
+    <button class="choice" data-correct>B) Provisioned concurrency</button>
+    <button class="choice">C) Event source mapping</button>
+    <button class="choice">D) Dead-letter queue</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Reserved concurrency caps maximum instances—it does not pre-warm environments.</aside>
+    <aside data-rationale-for="B">Provisioned concurrency keeps execution environments initialized, eliminating cold starts for targeted function versions or aliases.</aside>
+    <aside data-rationale-for="C">Event source mapping handles batch delivery, not latency reduction.</aside>
+    <aside data-rationale-for="D">DLQ captures failed events—it has no effect on cold starts.</aside>
+    <aside class="explanation">Provisioned concurrency is correct. It targets specific versions or aliases to maintain pre-warmed instances.</aside>
+    <aside class="knowledge-gap">Review <a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html">Lambda concurrency documentation</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. A function should not consume all available account concurrency.</h3>
-    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Reserved concurrency')">Reserved concurrency</button>
-    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Reserved concurrency')">Provisioned concurrency</button>
-    <button class="choice" data-answer="Lambda destination" onclick="choose(this, 'Reserved concurrency')">Lambda destination</button>
-    <button class="choice" data-answer="Lambda extension" onclick="choose(this, 'Reserved concurrency')">Lambda extension</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A function should <mark>not consume all available account concurrency</mark>, leaving capacity for other functions. <mark>Which control prevents one function from monopolizing Lambda?</mark></h3>
+    <button class="choice" data-correct>A) Reserved concurrency</button>
+    <button class="choice">B) Provisioned concurrency</button>
+    <button class="choice">C) Lambda destination</button>
+    <button class="choice">D) Lambda extension</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Reserved concurrency sets a ceiling on a function's concurrent executions, protecting account capacity for other functions.</aside>
+    <aside data-rationale-for="B">Provisioned concurrency adds pre-warmed instances—it does not cap concurrency.</aside>
+    <aside data-rationale-for="C">Destinations route invocation records on success or failure—they do not control concurrency.</aside>
+    <aside data-rationale-for="D">Extensions run alongside the function for monitoring or secrets retrieval—they do not limit concurrency.</aside>
+    <aside class="explanation">Reserved concurrency is correct. It ensures other functions can access account concurrency even if one function scales heavily.</aside>
+    <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html#configuration-concurrency-reserved">Reserved concurrency</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>6. Failed asynchronous events need to be captured for later debugging.</h3>
-    <button class="choice" data-answer="Dead-letter queue" onclick="choose(this, 'Dead-letter queue')">Dead-letter queue</button>
-    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Dead-letter queue')">Lambda alias</button>
-    <button class="choice" data-answer="Memory setting" onclick="choose(this, 'Dead-letter queue')">Memory setting</button>
-    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Dead-letter queue')">Stage variable</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. Failed <mark>asynchronous Lambda events need to be captured</mark> for later debugging and reprocessing. <mark>Which feature isolates poison-pill events?</mark></h3>
+    <button class="choice" data-correct>A) Dead-letter queue</button>
+    <button class="choice">B) Lambda alias</button>
+    <button class="choice">C) Memory setting</button>
+    <button class="choice">D) Stage variable</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">A DLQ (SQS or SNS) captures events that exceed Lambda's retry limits during async invocation.</aside>
+    <aside data-rationale-for="B">Aliases point to specific versions—they do not capture failed events.</aside>
+    <aside data-rationale-for="C">Memory settings affect execution resources—they do not handle failure routing.</aside>
+    <aside data-rationale-for="D">Stage variables pass per-environment values to integrations—they do not handle failures.</aside>
+    <aside class="explanation">Dead-letter queue is correct. Lambda sends events to the DLQ after exhausting retries during async invocation.</aside>
+    <aside class="knowledge-gap"><a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq">Lambda DLQ</a>.</aside>
   </section>
-
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0001-dva-c02-domain-triage.html">← Previous: Lesson 0001</a>

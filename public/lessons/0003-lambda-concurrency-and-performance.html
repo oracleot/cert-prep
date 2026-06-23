@@ -53,51 +53,80 @@ Next request may reuse the environment → warm start</div>
   </ul>
 
   <h2>Practice: choose the knob</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. A production API has unpredictable cold-start latency and must respond faster.</h3>
-    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Provisioned concurrency')">Reserved concurrency</button>
-    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Provisioned concurrency')">Provisioned concurrency</button>
-    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Provisioned concurrency')">Lambda layers</button>
-    <button class="choice" data-answer="EventBridge rules" onclick="choose(this, 'Provisioned concurrency')">EventBridge rules</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. A production API has <mark>unpredictable cold-start latency</mark> and must respond faster. <mark>Which feature eliminates cold starts for a target concurrency level?</mark> A team notices latency spikes under load and needs a solution that pre-warms Lambda environments before requests arrive.</h3>
+    <button class="choice">A) Reserved concurrency</button>
+    <button class="choice" data-correct>B) Provisioned concurrency</button>
+    <button class="choice">C) Lambda layers</button>
+    <button class="choice">D) EventBridge rules</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Reserved concurrency caps the maximum—it does not pre-warm instances or eliminate cold starts.</aside>
+    <aside data-rationale-for="B">Provisioned concurrency keeps execution environments initialized, eliminating cold starts for targeted versions/aliases.</aside>
+    <aside data-rationale-for="C">Lambda layers share code—they do not affect cold-start timing.</aside>
+    <aside data-rationale-for="D">EventBridge rules route events—they do not control Lambda initialization timing.</aside>
+    <aside class="explanation">Provisioned concurrency is correct. It keeps environments initialized so requests hit warm instances immediately.</aside>
+    <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html#configuration-provisioned-concurrency">Provisioned concurrency</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. One function is consuming too much account concurrency and starving others.</h3>
-    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Reserved concurrency')">Reserved concurrency</button>
-    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Reserved concurrency')">Provisioned concurrency</button>
-    <button class="choice" data-answer="Lambda destination" onclick="choose(this, 'Reserved concurrency')">Lambda destination</button>
-    <button class="choice" data-answer="Memory increase" onclick="choose(this, 'Reserved concurrency')">Memory increase</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. One function is <mark>consuming too much account concurrency</mark> and starving other functions. <mark>Which control protects the account?</mark> During a traffic spike, one function scales aggressively and errors appear in other Lambda functions that share the account concurrency pool.</h3>
+    <button class="choice" data-correct>A) Reserved concurrency</button>
+    <button class="choice">B) Provisioned concurrency</button>
+    <button class="choice">C) Lambda destination</button>
+    <button class="choice">D) Memory increase</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Reserved concurrency sets a ceiling on this function's concurrent executions, leaving capacity for other functions.</aside>
+    <aside data-rationale-for="B">Provisioned concurrency adds pre-warmed instances—it does not cap a function's maximum concurrency.</aside>
+    <aside data-rationale-for="C">Destinations route invocation records on success or failure—they do not control concurrency.</aside>
+    <aside data-rationale-for="D">Memory increase changes CPU/resources—it does not limit concurrent executions.</aside>
+    <aside class="explanation">Reserved concurrency is correct. It prevents one function from consuming all account concurrency.</aside>
+    <aside class="knowledge-gap"><a href="0001-dva-c02-domain-triage.html">Lesson 0001</a> covers Lambda concurrency concepts. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html#configuration-concurrency-reserved">Reserved concurrency</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. A CPU-bound function runs too slowly, and you need a simple config change to test.</h3>
-    <button class="choice" data-answer="Increase memory" onclick="choose(this, 'Increase memory')">Increase memory</button>
-    <button class="choice" data-answer="Add a DLQ" onclick="choose(this, 'Increase memory')">Add a DLQ</button>
-    <button class="choice" data-answer="Use an alias" onclick="choose(this, 'Increase memory')">Use an alias</button>
-    <button class="choice" data-answer="Add Macie" onclick="choose(this, 'Increase memory')">Add Macie</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A Lambda function runs <mark>too slowly</mark> and you need a simple config change to test. <mark>Which adjustment can improve CPU-bound performance?</mark> A developer profiling the Lambda function notices CPU utilization is maxed out during the handler execution, suggesting it needs more compute resources.</h3>
+    <button class="choice" data-correct>A) Increase memory</button>
+    <button class="choice">B) Add a DLQ</button>
+    <button class="choice">C) Use an alias</button>
+    <button class="choice">D) Add Macie</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda allocates CPU proportionally to memory. Increasing memory gives more CPU power, which can reduce duration for CPU-bound functions.</aside>
+    <aside data-rationale-for="B">DLQ captures failed events—it does not affect function execution speed.</aside>
+    <aside data-rationale-for="C">Aliases point to versions—they do not change CPU allocation.</aside>
+    <aside data-rationale-for="D">Macie is a data security service—it is unrelated to Lambda performance.</aside>
+    <aside class="explanation">Increase memory is correct. Lambda CPU scales with memory, so CPU-bound functions can benefit from more memory.</aside>
+    <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-memory">Lambda memory configuration</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. You need to compare several memory sizes for cost and duration automatically.</h3>
-    <button class="choice" data-answer="AWS X-Ray" onclick="choose(this, 'Lambda Power Tuning')">AWS X-Ray</button>
-    <button class="choice" data-answer="Lambda Power Tuning" onclick="choose(this, 'Lambda Power Tuning')">Lambda Power Tuning</button>
-    <button class="choice" data-answer="AWS CloudHSM" onclick="choose(this, 'Lambda Power Tuning')">AWS CloudHSM</button>
-    <button class="choice" data-answer="CodeArtifact" onclick="choose(this, 'Lambda Power Tuning')">CodeArtifact</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. You need to <mark>compare several memory sizes</mark> for cost and duration automatically. <mark>Which AWS feature helps visualize these tradeoffs?</mark></h3>
+    <button class="choice">A) AWS X-Ray</button>
+    <button class="choice" data-correct>B) Lambda Power Tuning</button>
+    <button class="choice">C) AWS CloudHSM</button>
+    <button class="choice">D) CodeArtifact</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">X-Ray traces requests—it does not test memory configurations.</aside>
+    <aside data-rationale-for="B">Lambda Power Tuning (uses Step Functions) automatically tests multiple memory configurations and reports cost/duration tradeoffs.</aside>
+    <aside data-rationale-for="C">CloudHSM provides hardware security modules—it does not tune Lambda.</aside>
+    <aside data-rationale-for="D">CodeArtifact stores package dependencies—it does not analyze Lambda performance.</aside>
+    <aside class="explanation">Lambda Power Tuning is correct. It runs your function across memory settings and reports optimal configurations.</aside>
+    <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a> covers Lambda invocation and configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/operatorguide/power-tuning.html">Lambda Power Tuning</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. A Kinesis stream has 100 active shards. What limits parallel Lambda processing?</h3>
-    <button class="choice" data-answer="Shard count" onclick="choose(this, 'Shard count')">Shard count</button>
-    <button class="choice" data-answer="Queue delay" onclick="choose(this, 'Shard count')">Queue delay</button>
-    <button class="choice" data-answer="Layer count" onclick="choose(this, 'Shard count')">Layer count</button>
-    <button class="choice" data-answer="Alias count" onclick="choose(this, 'Shard count')">Alias count</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A Kinesis stream has <mark>100 active shards</mark>. <mark>What limits parallel Lambda processing of this stream?</mark></h3>
+    <button class="choice" data-correct>A) Shard count</button>
+    <button class="choice">B) Queue delay</button>
+    <button class="choice">C) Layer count</button>
+    <button class="choice">D) Alias count</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Each shard supports one concurrent Lambda invocation. More shards enable more parallel processing.</aside>
+    <aside data-rationale-for="B">Queue delay affects visibility timeout—not shard-based parallelism.</aside>
+    <aside data-rationale-for="C">Lambda layers package shared code—they do not limit parallelism.</aside>
+    <aside data-rationale-for="D">Aliases point to versions—they do not control parallelism.</aside>
+    <aside class="explanation">Shard count is correct. Each Kinesis shard can invoke one Lambda function concurrently, limiting parallelism to shard count.</aside>
+    <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html">Lambda with Kinesis</a>.</aside>
   </section>
-
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0002-lambda-invocation-and-failures.html">← Previous: Lesson 0002</a>

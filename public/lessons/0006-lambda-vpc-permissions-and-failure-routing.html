@@ -58,51 +58,80 @@ Async failure routing?
   </ul>
 
   <h2>Practice: classify the missing piece</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. Lambda must connect to an RDS database in private subnets.</h3>
-    <button class="choice" data-answer="VPC config" onclick="choose(this, 'VPC config')">VPC config</button>
-    <button class="choice" data-answer="DLQ config" onclick="choose(this, 'VPC config')">DLQ config</button>
-    <button class="choice" data-answer="Alias swap" onclick="choose(this, 'VPC config')">Alias swap</button>
-    <button class="choice" data-answer="Layer file" onclick="choose(this, 'VPC config')">Layer file</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. A Lambda function must <mark>connect to an RDS database in private subnets</mark>. <mark>What Lambda configuration enables private network access?</mark></h3>
+    <button class="choice" data-correct>A) VPC config with subnets and security groups</button>
+    <button class="choice">B) DLQ config</button>
+    <button class="choice">C) Alias swap</button>
+    <button class="choice">D) Layer file</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">VPC configuration attaches Lambda to private subnets, allowing ENI-based access to RDS in private subnets.</aside>
+    <aside data-rationale-for="B">DLQ captures failed async events—it does not enable VPC access.</aside>
+    <aside data-rationale-for="C">Alias swap changes which version is targeted—it does not enable VPC access.</aside>
+    <aside data-rationale-for="D">Lambda layer packages shared code—it does not enable VPC access.</aside>
+    <aside class="explanation">VPC config is correct. Lambda needs VPC configuration with subnets and security groups to connect to private RDS.</aside>
+    <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html">Lambda VPC config</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. Lambda VPC setup fails because it cannot create network interfaces.</h3>
-    <button class="choice" data-answer="KMS decrypt" onclick="choose(this, 'EC2 ENI perms')">KMS decrypt</button>
-    <button class="choice" data-answer="EC2 ENI perms" onclick="choose(this, 'EC2 ENI perms')">EC2 ENI perms</button>
-    <button class="choice" data-answer="S3 read perms" onclick="choose(this, 'EC2 ENI perms')">S3 read perms</button>
-    <button class="choice" data-answer="SNS send perms" onclick="choose(this, 'EC2 ENI perms')">SNS send perms</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. Lambda VPC setup fails because it <mark>cannot create network interfaces</mark>. <mark>Which IAM permission is missing from the execution role?</mark></h3>
+    <button class="choice">A) KMS decrypt</button>
+    <button class="choice" data-correct>B) EC2 ENI permissions</button>
+    <button class="choice">C) S3 read perms</button>
+    <button class="choice">D) SNS send perms</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">KMS decrypt permissions are for encryption operations—not for creating network interfaces.</aside>
+    <aside data-rationale-for="B">Lambda needs EC2 CreateNetworkInterface, DescribeNetworkInterfaces, and DeleteNetworkInterface permissions for VPC access.</aside>
+    <aside data-rationale-for="C">S3 read permissions enable object access—they do not affect ENI creation.</aside>
+    <aside data-rationale-for="D">SNS send permissions are for publishing messages—they do not affect ENI creation.</aside>
+    <aside class="explanation">EC2 ENI permissions are correct. The execution role needs network interface permissions for Lambda to connect to VPC resources.</aside>
+    <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers Lambda VPC configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html#vpc-permissions">Lambda VPC permissions</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. A private-subnet Lambda must call a public third-party API.</h3>
-    <button class="choice" data-answer="NAT gateway" onclick="choose(this, 'NAT gateway')">NAT gateway</button>
-    <button class="choice" data-answer="DLQ target" onclick="choose(this, 'NAT gateway')">DLQ target</button>
-    <button class="choice" data-answer="Layer mount" onclick="choose(this, 'NAT gateway')">Layer mount</button>
-    <button class="choice" data-answer="Alias shift" onclick="choose(this, 'NAT gateway')">Alias shift</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A Lambda function in private subnets must <mark>call a public third-party API</mark>. <mark>Which AWS resource enables outbound internet from private subnets?</mark></h3>
+    <button class="choice" data-correct>A) NAT gateway</button>
+    <button class="choice">B) DLQ target</button>
+    <button class="choice">C) Layer mount</button>
+    <button class="choice">D) Alias shift</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">A NAT gateway in a public subnet routes outbound traffic from private subnet instances to the internet.</aside>
+    <aside data-rationale-for="B">DLQ targets capture failed events—they do not enable internet access.</aside>
+    <aside data-rationale-for="C">Lambda layers mount shared code—they do not enable internet routing.</aside>
+    <aside data-rationale-for="D">Alias shift changes version targets—it does not enable internet access.</aside>
+    <aside class="explanation">NAT gateway is correct. Private subnet resources use NAT gateway to reach the internet without direct public IPs.</aside>
+    <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers VPC networking patterns. See <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">NAT gateway</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. Async Lambda results need different targets for success and failure.</h3>
-    <button class="choice" data-answer="Destination" onclick="choose(this, 'Destination')">Destination</button>
-    <button class="choice" data-answer="Redrive job" onclick="choose(this, 'Destination')">Redrive job</button>
-    <button class="choice" data-answer="Stage var" onclick="choose(this, 'Destination')">Stage var</button>
-    <button class="choice" data-answer="Mock test" onclick="choose(this, 'Destination')">Mock test</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. Async Lambda results need <mark>different targets for success and failure</mark>. <mark>Which async feature routes both outcomes to separate destinations?</mark></h3>
+    <button class="choice" data-correct>A) Destination</button>
+    <button class="choice">B) Redrive job</button>
+    <button class="choice">C) Stage var</button>
+    <button class="choice">D) Mock test</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda destinations route success and failure records to different targets (SQS, SNS, Lambda, EventBridge).</aside>
+    <aside data-rationale-for="B">Redrive jobs move messages in queues—they do not route async invocation results.</aside>
+    <aside data-rationale-for="C">Stage variables pass per-API-stage values—they do not route invocation results.</aside>
+    <aside data-rationale-for="D">Mock tests validate payloads—they do not route invocation results.</aside>
+    <aside class="explanation">Destination is correct. Destinations can independently route success and failure records to different targets.</aside>
+    <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html">Lambda destinations</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. A service needs permission to invoke the Lambda function.</h3>
-    <button class="choice" data-answer="Resource policy" onclick="choose(this, 'Resource policy')">Resource policy</button>
-    <button class="choice" data-answer="Execution role" onclick="choose(this, 'Resource policy')">Execution role</button>
-    <button class="choice" data-answer="Subnet setting" onclick="choose(this, 'Resource policy')">Subnet setting</button>
-    <button class="choice" data-answer="Memory tuning" onclick="choose(this, 'Resource policy')">Memory tuning</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A service needs <mark>permission to invoke the Lambda function</mark>. <mark>Which policy controls who can call Lambda?</mark></h3>
+    <button class="choice" data-correct>A) Resource policy</button>
+    <button class="choice">B) Execution role</button>
+    <button class="choice">C) Subnet setting</button>
+    <button class="choice">D) Memory tuning</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda resource-based policies control which principals can invoke the function.</aside>
+    <aside data-rationale-for="B">Execution role controls what Lambda can call—it does not control who can invoke Lambda.</aside>
+    <aside data-rationale-for="C">Subnet settings control network access—they do not control invocation permissions.</aside>
+    <aside data-rationale-for="D">Memory tuning affects execution resources—it does not control invocation permissions.</aside>
+    <aside class="explanation">Resource policy is correct. Resource-based policies grant invocation permissions to services and accounts.</aside>
+    <aside class="knowledge-gap"><a href="0014-authentication-and-authorization-selection.html">Lesson 0014</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html">Lambda resource policies</a>.</aside>
   </section>
-
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0005-lambda-configuration-traps.html">← Previous: Lesson 0005</a>

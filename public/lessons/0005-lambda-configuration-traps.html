@@ -9,7 +9,7 @@
 <body>
 <main>
   <p class="kicker">Lesson 0005</p>
-  <h1>Lambda config traps are mostly “which knob owns this?”</h1>
+  <h1>Lambda config traps are mostly "which knob owns this?"</h1>
   <p class="subtitle">DVA-C02 scenarios often hide the answer in one word: stage, runtime, handler, layer, extension, or package.</p>
 
   <section class="card">
@@ -50,7 +50,7 @@ Per-API-stage values → API Gateway stage variables</div>
 
   <h2>Exam traps</h2>
   <ul>
-    <li><strong>Stage clue means API Gateway.</strong> “Different table per API stage” points to stage variables plus mapping/integration config.</li>
+    <li><strong>Stage clue means API Gateway.</strong> "Different table per API stage" points to stage variables plus mapping/integration config.</li>
     <li><strong>Environment variables are not secret storage.</strong> For sensitive values, prefer Secrets Manager or Parameter Store.</li>
     <li><strong>Handler is not runtime.</strong> Runtime selects language; handler selects the entry point.</li>
     <li><strong>Layer is not invocation logic.</strong> Layers package shared dependencies; they do not trigger functions.</li>
@@ -58,51 +58,80 @@ Per-API-stage values → API Gateway stage variables</div>
   </ul>
 
   <h2>Practice: pick the owner</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. Same Lambda serves dev and prod API stages, each with a different table.</h3>
-    <button class="choice" data-answer="Stage variables" onclick="choose(this, 'Stage variables')">Stage variables</button>
-    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Stage variables')">Lambda layers</button>
-    <button class="choice" data-answer="Handler setting" onclick="choose(this, 'Stage variables')">Handler setting</button>
-    <button class="choice" data-answer="Runtime setting" onclick="choose(this, 'Stage variables')">Runtime setting</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. The same Lambda serves <mark>dev and prod API stages</mark>, each with a different DynamoDB table. <mark>How do you pass different table names per stage?</mark></h3>
+    <button class="choice" data-correct>A) Stage variables</button>
+    <button class="choice">B) Lambda layers</button>
+    <button class="choice">C) Handler setting</button>
+    <button class="choice">D) Runtime setting</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">API Gateway stage variables pass per-stage values to integrations—the same function serves both stages with different values.</aside>
+    <aside data-rationale-for="B">Lambda layers share code packages—they do not pass per-stage configuration values.</aside>
+    <aside data-rationale-for="C">Handler setting defines the entry point—it does not control per-stage configuration.</aside>
+    <aside data-rationale-for="D">Runtime selects the language—it does not pass environment-specific values.</aside>
+    <aside class="explanation">Stage variables is correct. API Gateway passes stage-specific values to the Lambda integration without code changes.</aside>
+    <aside class="knowledge-gap"><a href="0007-api-gateway-request-response-mapping.html">Lesson 0007</a>. <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/stage-variables.html">API Gateway stage variables</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. A Python Lambda needs shared SDK helper code used by five functions.</h3>
-    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Lambda layer')">Stage variable</button>
-    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Lambda layer')">Lambda layer</button>
-    <button class="choice" data-answer="Async destination" onclick="choose(this, 'Lambda layer')">Async destination</button>
-    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Lambda layer')">Reserved concurrency</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A Python Lambda needs <mark>shared SDK helper code used by five functions</mark>. <mark>Which feature avoids duplicating code in each deployment package?</mark></h3>
+    <button class="choice">A) Stage variable</button>
+    <button class="choice" data-correct>B) Lambda layer</button>
+    <button class="choice">C) Async destination</button>
+    <button class="choice">D) Reserved concurrency</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Stage variables pass per-stage values to integrations—they do not package shared code.</aside>
+    <aside data-rationale-for="B">Lambda layers are mounted into the execution environment and shared across functions without duplicating in each zip.</aside>
+    <aside data-rationale-for="C">Async destinations route invocation records—they do not share code.</aside>
+    <aside data-rationale-for="D">Reserved concurrency controls maximum executions—it does not share code.</aside>
+    <aside class="explanation">Lambda layer is correct. Layers mount shared libraries into function execution environments.</aside>
+    <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">Lambda layers</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. Lambda must know which function method to call after invocation.</h3>
-    <button class="choice" data-answer="Runtime" onclick="choose(this, 'Handler')">Runtime</button>
-    <button class="choice" data-answer="Handler" onclick="choose(this, 'Handler')">Handler</button>
-    <button class="choice" data-answer="Layer" onclick="choose(this, 'Handler')">Layer</button>
-    <button class="choice" data-answer="Trigger" onclick="choose(this, 'Handler')">Trigger</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. Lambda must know <mark>which function method to call</mark> after invocation. <mark>Which configuration specifies the entry point?</mark></h3>
+    <button class="choice">A) Runtime</button>
+    <button class="choice" data-correct>B) Handler</button>
+    <button class="choice">C) Layer</button>
+    <button class="choice">D) Trigger</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Runtime selects the language (Python, Node.js, etc.)—it does not specify the entry point.</aside>
+    <aside data-rationale-for="B">Handler specifies the module and method Lambda calls when invoked (e.g., index.handler).</aside>
+    <aside data-rationale-for="C">Lambda layers package shared code—they do not define the entry point.</aside>
+    <aside data-rationale-for="D">Triggers invoke functions—they do not define the handler method.</aside>
+    <aside class="explanation">Handler is correct. The handler configuration (module.method) tells Lambda which function code to execute.</aside>
+    <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/foundation-handler.html">Lambda handler</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. A monitoring agent must run beside the function during lifecycle events.</h3>
-    <button class="choice" data-answer="Extension" onclick="choose(this, 'Extension')">Extension</button>
-    <button class="choice" data-answer="Stage var" onclick="choose(this, 'Extension')">Stage var</button>
-    <button class="choice" data-answer="Handler" onclick="choose(this, 'Extension')">Handler</button>
-    <button class="choice" data-answer="Timeout" onclick="choose(this, 'Extension')">Timeout</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. A monitoring agent must <mark>run beside the function during lifecycle events</mark>. <mark>Which Lambda feature runs companion processes?</mark></h3>
+    <button class="choice" data-correct>A) Extension</button>
+    <button class="choice">B) Stage var</button>
+    <button class="choice">C) Handler</button>
+    <button class="choice">D) Timeout</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda extensions run alongside the function during the execution lifecycle for monitoring, security, or configuration tools.</aside>
+    <aside data-rationale-for="B">Stage variables pass per-stage values to integrations—they do not run companion processes.</aside>
+    <aside data-rationale-for="C">Handler specifies the function entry point—it does not run companion processes.</aside>
+    <aside data-rationale-for="D">Timeout controls maximum execution duration—it does not run companion processes.</aside>
+    <aside class="explanation">Extension is correct. Extensions integrate with the Lambda runtime lifecycle and run alongside the function.</aside>
+    <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-extensions.html">Lambda extensions</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. A function needs a database password at runtime.</h3>
-    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Secrets Manager')">Secrets Manager</button>
-    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Secrets Manager')">Stage variable</button>
-    <button class="choice" data-answer="Layer version" onclick="choose(this, 'Secrets Manager')">Layer version</button>
-    <button class="choice" data-answer="Runtime name" onclick="choose(this, 'Secrets Manager')">Runtime name</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A Lambda function connects to an RDS database. <mark>Which secure storage should the function retrieve the database password from?</mark> A developer wants to avoid hardcoding the password and needs automatic credential rotation without application code changes.</h3>
+    <button class="choice" data-correct>A) Secrets Manager</button>
+    <button class="choice">B) Stage variable</button>
+    <button class="choice">C) Layer version</button>
+    <button class="choice">D) Runtime name</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Secrets Manager stores credentials securely with optional automatic rotation and retrieval via SDK or extension.</aside>
+    <aside data-rationale-for="B">Stage variables pass configuration values—they are not designed for sensitive credentials.</aside>
+    <aside data-rationale-for="C">Lambda layer versions package code—they do not store credentials.</aside>
+    <aside data-rationale-for="D">Runtime name selects the language—it does not store credentials.</aside>
+    <aside class="explanation">Secrets Manager is correct. It is designed for sensitive values like database passwords with secure retrieval.</aside>
+    <aside class="knowledge-gap"><a href="0016-domain-2-secure-configuration-selection.html">Lesson 0016</a>. <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">Secrets Manager</a>.</aside>
   </section>
-
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0004-lambda-event-source-mappings.html">← Previous: Lesson 0004</a>
@@ -111,7 +140,7 @@ Per-API-stage values → API Gateway stage variables</div>
 
   <h2>Read next</h2>
   <p>Primary sources: <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html">Lambda environment variables</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/stage-variables.html">API Gateway stage variables</a>, and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-zip.html">Lambda deployment packages</a>.</p>
-  <p>Ask me to grill you on “stage variable vs environment variable” if that distinction still feels slippery.</p>
+  <p>Ask me to grill you on "stage variable vs environment variable" if that distinction still feels slippery.</p>
 </main>
 <script src="../assets/quiz.js"></script>
 </body>
