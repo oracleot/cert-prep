@@ -72,77 +72,77 @@
 
   <h2>Practice: place the control</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. An API must <mark>reject requests missing ?customerId=</mark> before Lambda runs. <mark>Which API Gateway component enforces this?</mark></h3>
-    <button class="choice" data-correct>A) Request validator</button>
-    <button class="choice">B) Lambda layer</button>
-    <button class="choice">C) Stage cache</button>
-    <button class="choice">D) Usage plan</button>
+    <h3>1. A company runs a REST API in Amazon API Gateway in front of a Lambda function that returns customer orders. The public API requires a <code>customerId</code> query string, and invalid requests must be rejected before Lambda is invoked to reduce cost. Which API Gateway feature should the developer use?</h3>
+    <button class="choice" data-correct>A) A request validator</button>
+    <button class="choice">B) A Lambda authorizer</button>
+    <button class="choice">C) A usage plan</button>
+    <button class="choice">D) A stage variable</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Request validators enforce parameter validation in API Gateway before the request reaches the backend.</aside>
-    <aside data-rationale-for="B">Lambda layers package shared code—they do not validate API requests.</aside>
-    <aside data-rationale-for="C">Stage caching stores responses—it does not validate request parameters.</aside>
-    <aside data-rationale-for="D">Usage plans control throttling and quotas—they do not validate request parameters.</aside>
-    <aside class="explanation">Request validator is correct. It checks required parameters and request bodies before Lambda is invoked.</aside>
+    <aside data-rationale-for="A">Option A is correct because a request validator can enforce required query string parameters before API Gateway calls the backend.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because a Lambda authorizer evaluates identity and access, not whether a required query string parameter is present.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because usage plans control throttling and quotas for API clients, not request-shape validation.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because stage variables pass environment-specific values; they do not reject malformed requests.</aside>
+    <aside class="explanation">Option A is the correct answer. Request validators let API Gateway reject requests with missing required parameters before Lambda runs.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html">API Gateway request validators</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. You need to <mark>convert a public query string into a DynamoDB GetItem payload</mark>. <mark>Where does this transformation occur?</mark></h3>
-    <button class="choice">A) Method response</button>
-    <button class="choice">B) Access logging</button>
-    <button class="choice" data-correct>C) Integration request</button>
-    <button class="choice">D) Lambda version</button>
+    <h3>2. A travel company exposes <code>GET /reservation?bookingId=...</code> through API Gateway, but the backend is a direct DynamoDB <code>GetItem</code> service integration that expects a JSON payload with <code>TableName</code> and <code>Key</code>. The team does not want to add a Lambda function just to reshape the request. Where should the developer transform the incoming query string into the DynamoDB request payload?</h3>
+    <button class="choice">A) In method request settings</button>
+    <button class="choice" data-correct>B) In an integration request mapping template</button>
+    <button class="choice">C) In an integration response mapping template</button>
+    <button class="choice">D) In the method response definition</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Method response defines the client-facing contract—it does not transform backend payloads.</aside>
-    <aside data-rationale-for="B">Access logging records requests—it does not transform payloads.</aside>
-    <aside data-rationale-for="C">Integration request mapping transforms client input into the format the backend expects.</aside>
-    <aside data-rationale-for="D">Lambda versions are immutable snapshots—they do not transform API requests.</aside>
-    <aside class="explanation">Integration request is correct. Mapping templates in the integration request transform client input for the backend.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because method request settings define the client-facing contract and validation, not the backend payload shape.</aside>
+    <aside data-rationale-for="B">Option B is correct because integration request mapping templates reshape client input into the format required by Lambda, HTTP backends, or AWS service integrations.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because integration response templates transform backend output after the call returns, not before the backend is invoked.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because method responses declare what clients can receive; they do not build backend requests.</aside>
+    <aside class="explanation">Option B is the correct answer. Request-to-backend transformation happens in the integration request, typically with a VTL mapping template for REST APIs.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers API Gateway configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/rest-api-data-transformations.html">API Gateway data transformations</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. Lambda returns the final <mark>statusCode, headers, and body itself</mark>. <mark>Which API Gateway integration type lets Lambda control the response?</mark></h3>
+    <h3>3. A software company wants an API Gateway REST API to front a Lambda function. The application code must decide the exact HTTP status code, headers, and response body for each request, and the team wants minimal mapping logic in API Gateway. Which integration type should the developer choose?</h3>
     <button class="choice">A) Mock integration</button>
-    <button class="choice" data-correct>B) Lambda proxy</button>
-    <button class="choice">C) Model schema</button>
-    <button class="choice">D) Request model</button>
+    <button class="choice" data-correct>B) Lambda proxy integration</button>
+    <button class="choice">C) Lambda non-proxy integration</button>
+    <button class="choice">D) AWS service integration</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Mock integration returns configured responses without calling a backend—it does not process Lambda responses.</aside>
-    <aside data-rationale-for="B">Lambda proxy integration passes the full request to Lambda, which returns statusCode, headers, and body directly.</aside>
-    <aside data-rationale-for="C">Model schemas validate request/response bodies—they do not control response handling.</aside>
-    <aside data-rationale-for="D">Request models define expected request structures—they do not control response handling.</aside>
-    <aside class="explanation">Lambda proxy is correct. Lambda proxy integration lets Lambda return the full HTTP response directly.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because mock integrations return static configured responses and do not let Lambda generate dynamic HTTP results.</aside>
+    <aside data-rationale-for="B">Option B is correct because Lambda proxy integration lets Lambda return <code>statusCode</code>, <code>headers</code>, and <code>body</code> directly.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because non-proxy integrations shift response shaping back into API Gateway mappings instead of letting Lambda own the full HTTP response.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because an AWS service integration is for direct calls to services such as DynamoDB or SQS, not for Lambda-controlled HTTP responses.</aside>
+    <aside class="explanation">Option B is the correct answer. Lambda proxy integration is the API Gateway mode where Lambda controls the final status code, headers, and body.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a> covers Lambda invocation types. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html">Lambda proxy integration</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. Backend Lambda returns <mark>{"error":"bad input"}</mark>; the client must receive HTTP 400. <mark>Which component changes the HTTP status code?</mark></h3>
-    <button class="choice" data-correct>A) Response override</button>
-    <button class="choice">B) Reserved concurrency</button>
-    <button class="choice">C) Gateway timeout</button>
-    <button class="choice">D) Stage variable</button>
+    <h3>4. A healthcare application uses an API Gateway REST API with a non-proxy Lambda integration. The Lambda function always returns HTTP 200 with a body such as <code>{"errorMessage":"invalid member id"}</code>, but clients must receive HTTP 400 when that error appears and the backend code cannot be changed. Which API Gateway feature should the developer use?</h3>
+    <button class="choice">A) A method request validator</button>
+    <button class="choice" data-correct>B) An integration response mapping with a status override</button>
+    <button class="choice">C) A stage variable</button>
+    <button class="choice">D) A usage plan</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Integration response override with $context.responseOverride.status changes the HTTP status code.</aside>
-    <aside data-rationale-for="B">Reserved concurrency controls maximum executions—it does not change HTTP status codes.</aside>
-    <aside data-rationale-for="C">Gateway timeout is a timeout setting—it does not change HTTP status codes.</aside>
-    <aside data-rationale-for="D">Stage variables pass per-stage values—they do not change HTTP status codes.</aside>
-    <aside class="explanation">Response override is correct. Integration response mapping can override status codes using $context.responseOverride.status.</aside>
-    <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers API Gateway configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-data-transformations.html">API Gateway response overrides</a>.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because request validators inspect incoming requests, not backend responses.</aside>
+    <aside data-rationale-for="B">Option B is correct because an integration response can inspect the backend payload and use <code>$context.responseOverride.status</code> to change the client status code.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because stage variables provide configuration values and do not rewrite status codes.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because usage plans manage throttling and quotas, not response mapping behavior.</aside>
+    <aside class="explanation">Option B is the correct answer. In a non-proxy REST API, the integration response is where API Gateway maps backend errors into a different client-facing HTTP status.</aside>
+    <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers API Gateway configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/rest-api-data-transformations.html">API Gateway response mapping</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. An API Gateway REST API must <mark>declare that clients can receive a 201 with a custom header</mark>. <mark>Where is this contract defined?</mark> Before integrating, a developer wants to know which HTTP status codes and headers the API Gateway can return so client code can handle all valid responses.</h3>
-    <button class="choice" data-correct>A) Method response</button>
-    <button class="choice">B) Event source</button>
-    <button class="choice">C) Function URL</button>
-    <button class="choice">D) Authorizer TTL</button>
+    <h3>5. A media company is documenting an API Gateway REST API method for video uploads. The method can return HTTP 201 and a custom <code>X-Request-Id</code> header, and that client-facing contract must be declared before response mappings are added. Where should the developer define this contract?</h3>
+    <button class="choice" data-correct>A) In the method response</button>
+    <button class="choice">B) In the integration request mapping template</button>
+    <button class="choice">C) In a Lambda alias</button>
+    <button class="choice">D) In the authorizer result cache</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Method response declares the status codes, headers, and models the API can return to clients.</aside>
-    <aside data-rationale-for="B">Event sources trigger Lambda invocations—they do not define API response contracts.</aside>
-    <aside data-rationale-for="C">Function URLs provide direct HTTPS access to Lambda—they do not use method responses.</aside>
-    <aside data-rationale-for="D">Authorizer TTL controls caching of authorizer results—it does not define response contracts.</aside>
-    <aside class="explanation">Method response is correct. Method responses declare the public API contract including status codes and headers.</aside>
+    <aside data-rationale-for="A">Option A is correct because method responses declare the status codes, headers, and models that the REST API is allowed to return to clients.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because integration requests shape what the backend receives; they do not define the public response contract.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because Lambda aliases route traffic to function versions and are unrelated to API Gateway response definitions.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because authorizer caching stores auth results, not method response metadata.</aside>
+    <aside class="explanation">Option A is the correct answer. Method responses are the client-facing contract for which status codes and headers API Gateway can return.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers API Gateway configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-response.html">API Gateway method response</a>.</aside>
   </section>
 

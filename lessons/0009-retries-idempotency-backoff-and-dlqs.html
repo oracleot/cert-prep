@@ -76,77 +76,77 @@ Does the same message keep failing?
 
   <h2>Practice: choose the failure tool</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A Lambda function writes to a <mark>DynamoDB table and receives occasional ThrottlingException errors</mark>. The application needs to handle these transient failures automatically. <mark>How should the AWS SDK handle these errors?</mark></h3>
-    <button class="choice" data-correct>A) Backoff retry</button>
-    <button class="choice">B) Dead queue</button>
-    <button class="choice">C) Skip write</button>
-    <button class="choice">D) Manual page</button>
+    <h3>1. A Lambda function uses the AWS SDK to write order records to DynamoDB during flash sales. The function occasionally receives <code>ThrottlingException</code> responses, and the team wants transient failures handled automatically with minimal custom code. What should the developer do?</h3>
+    <button class="choice" data-correct>A) Configure AWS SDK retries with exponential backoff</button>
+    <button class="choice">B) Disable retries and rely on CloudWatch alarms</button>
+    <button class="choice">C) Send every failed write directly to a dead-letter queue</button>
+    <button class="choice">D) Replace the table with a global secondary index</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Throttling is a transient error. SDK backoff retry waits progressively longer between attempts.</aside>
-    <aside data-rationale-for="B">DLQ captures repeatedly failing messages—it does not handle transient throttling.</aside>
-    <aside data-rationale-for="C">Skipping writes loses data—throttling should trigger retry, not skip.</aside>
-    <aside data-rationale-for="D">Manual paging is not an SDK retry strategy for transient errors.</aside>
-    <aside class="explanation">Backoff retry is correct. Throttling responses should trigger exponential backoff and retry.</aside>
+    <aside data-rationale-for="A">Option A is correct because throttling is a transient failure, and AWS SDK retry modes already implement backoff-based retries for this pattern.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because alarms notify operators but do not automatically recover from short-lived throttling errors.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because a DLQ is for repeatedly failing messages, not for first-line handling of transient SDK API retries.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because a GSI is a DynamoDB index feature and has nothing to do with handling retry behavior in the client.</aside>
+    <aside class="explanation">Option A is the correct answer. For transient DynamoDB throttling, the exam prefers the built-in AWS SDK retry strategy with exponential backoff over custom retry loops.</aside>
     <aside class="knowledge-gap">Review <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> on Lambda error handling. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry behavior</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. After an AWS Availability Zone recovers from an outage, <mark>thousands of Lambda functions retry their invocations simultaneously</mark>. The synchronized retries risk overloading downstream services again. <mark>Which technique prevents this retry storm?</mark></h3>
-    <button class="choice" data-correct>A) Add jitter</button>
-    <button class="choice">B) Add cache</button>
-    <button class="choice">C) Add alarm</button>
-    <button class="choice">D) Add layer</button>
+    <h3>2. After a brief network outage, thousands of mobile clients reconnect and retry the same API calls at once. The development team wants to reduce the chance that synchronized retries will overwhelm the backend again. Which technique should the team add to the retry strategy?</h3>
+    <button class="choice" data-correct>A) Add randomized jitter to the backoff delays</button>
+    <button class="choice">B) Increase Lambda memory for the API functions</button>
+    <button class="choice">C) Enable DynamoDB Accelerator (DAX)</button>
+    <button class="choice">D) Create a CloudWatch alarm on API latency</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Jitter adds random delay to retry intervals, spreading callers out to avoid synchronized retries.</aside>
-    <aside data-rationale-for="B">Caching reduces requests—it does not prevent retry storms.</aside>
-    <aside data-rationale-for="C">Alarms notify operators—they do not prevent synchronized retries.</aside>
-    <aside data-rationale-for="D">Lambda layers package shared code—they do not affect retry timing.</aside>
-    <aside class="explanation">Add jitter is correct. Randomizing retry delays prevents thousands of clients from hitting the service simultaneously.</aside>
+    <aside data-rationale-for="A">Option A is correct because jitter randomizes retry timing so clients do not all retry in lockstep after the outage clears.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because more Lambda memory can improve function performance but does not spread out synchronized client retries.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because DAX is a read cache for DynamoDB and does not solve retry storm timing.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because alarms provide visibility but do not change how callers schedule retries.</aside>
+    <aside class="explanation">Option A is the correct answer. Jitter is the key exam clue when the problem is many callers retrying at the same time.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a> on backoff and jitter. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry and backoff</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A payment service processes a customer order but a network timeout causes a retry. The retry must not create a duplicate charge or a second customer order. <mark>Which pattern prevents duplicate side effects from retried requests?</mark></h3>
-    <button class="choice" data-correct>A) Idempotent code</button>
-    <button class="choice">B) Reserved concurrency</button>
-    <button class="choice">C) Provisioned concurrency</button>
-    <button class="choice">D) Stage variable</button>
+    <h3>3. A checkout service calls an external payment processor. The processor might successfully charge the customer just before the service times out, so the client may retry the same request. The application must not create duplicate charges or duplicate orders. Which design best meets this requirement?</h3>
+    <button class="choice" data-correct>A) Use an idempotency key with a conditional write</button>
+    <button class="choice">B) Increase Lambda reserved concurrency</button>
+    <button class="choice">C) Extend the SQS visibility timeout</button>
+    <button class="choice">D) Cache the payment result in CloudFront</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Idempotent code ensures the second execution has no additional effect—the order is created once.</aside>
-    <aside data-rationale-for="B">Reserved concurrency caps maximum executions—it does not prevent duplicate side effects.</aside>
-    <aside data-rationale-for="C">Provisioned concurrency pre-warms environments—it does not prevent duplicate side effects.</aside>
-    <aside data-rationale-for="D">Stage variables pass per-stage values—they do not prevent duplicate operations.</aside>
-    <aside class="explanation">Idempotent code is correct. Idempotency keys or conditional writes ensure duplicate requests have no additional effect.</aside>
+    <aside data-rationale-for="A">Option A is correct because an idempotency key plus a recorded processed state prevents the same logical request from creating duplicate side effects.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because reserved concurrency limits scaling; it does not make duplicate retries safe.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because visibility timeout applies to queue consumers, not to duplicate payment requests from retried API calls.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because CloudFront caching is unrelated to guaranteeing exactly-once business effects in a payment workflow.</aside>
+    <aside class="explanation">Option A is the correct answer. The exam clue is duplicate side effects, which points to idempotency keys and conditional persistence.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a> on idempotency. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry behavior</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A Lambda function consuming from an <mark>Amazon SQS queue fails to process the same message repeatedly</mark>. After the queue's maxReceiveCount threshold is reached, the message must be removed from the processing queue for inspection. <mark>Where does this poison message go after maxReceiveCount?</mark></h3>
-    <button class="choice" data-correct>A) Use DLQ</button>
-    <button class="choice">B) Use DAX</button>
-    <button class="choice">C) Use WAF</button>
-    <button class="choice">D) Use EFS</button>
+    <h3>4. A Lambda function polls an Amazon SQS queue for invoice-processing jobs. One malformed message fails every time, but the rest of the queue should continue processing and operators need to inspect the bad payload after a set number of attempts. Which configuration should the developer use?</h3>
+    <button class="choice" data-correct>A) Configure an SQS redrive policy to a dead-letter queue</button>
+    <button class="choice">B) Add a DynamoDB TTL attribute to the message</button>
+    <button class="choice">C) Archive the queue to Amazon EventBridge</button>
+    <button class="choice">D) Package the parser in a Lambda layer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS redrive policy sends messages exceeding maxReceiveCount to the dead-letter queue.</aside>
-    <aside data-rationale-for="B">DAX is a DynamoDB read cache—it does not handle SQS message failures.</aside>
-    <aside data-rationale-for="C">WAF filters web requests—it does not handle SQS message routing.</aside>
-    <aside data-rationale-for="D">EFS provides shared file storage—it does not handle SQS message failures.</aside>
-    <aside class="explanation">Use DLQ is correct. SQS redrive policy routes messages exceeding maxReceiveCount to the dead-letter queue.</aside>
+    <aside data-rationale-for="A">Option A is correct because an SQS redrive policy moves messages that exceed <code>maxReceiveCount</code> into a dead-letter queue for later inspection.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because DynamoDB TTL expires table items, not SQS messages that repeatedly fail processing.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because EventBridge archiving is unrelated to poison-message handling for SQS consumers.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because Lambda layers share code packages but do not change failure routing for queue messages.</aside>
+    <aside class="explanation">Option A is the correct answer. A dead-letter queue is the standard AWS pattern for isolating poison messages after repeated failures.</aside>
     <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on event-driven patterns. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html">Amazon SQS DLQ</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. An order fulfillment workflow needs <mark>different retry intervals and catch handlers per task state</mark>. Some steps should retry on throttling errors, while others should catch specific exception types. <mark>Which AWS orchestration service implements per-state retry and catch policies?</mark></h3>
-    <button class="choice" data-correct>A) Step Functions</button>
-    <button class="choice">B) API Gateway</button>
-    <button class="choice">C) CloudFront CDN</button>
-    <button class="choice">D) Cognito Sync</button>
+    <h3>5. An order-fulfillment workflow is implemented as a state machine. The payment task must retry only on throttling errors, while the inventory task must catch a business exception and branch to a compensation path. Which AWS service feature supports this per-step error handling?</h3>
+    <button class="choice" data-correct>A) AWS Step Functions Retry and Catch fields</button>
+    <button class="choice">B) API Gateway gateway responses</button>
+    <button class="choice">C) Amazon SNS delivery retry policy</button>
+    <button class="choice">D) CloudWatch composite alarms</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Step Functions state machine retry and catch blocks define per-state error handling.</aside>
-    <aside data-rationale-for="B">API Gateway handles request/response mapping—it does not implement workflow retry policies.</aside>
-    <aside data-rationale-for="C">CloudFront CDN caches content—it does not implement workflow retry policies.</aside>
-    <aside data-rationale-for="D">Cognito Sync synchronizes user data—it does not implement workflow retry policies.</aside>
-    <aside class="explanation">Step Functions is correct. State machine definitions include per-state Retry and Catch fields.</aside>
+    <aside data-rationale-for="A">Option A is correct because Step Functions lets each state define its own <code>Retry</code> and <code>Catch</code> behavior.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because API Gateway gateway responses customize HTTP error responses, not workflow state error handling.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because SNS delivery retries apply to message delivery attempts, not to branching logic inside a workflow state machine.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because CloudWatch alarms observe system behavior but do not execute retries or catches within a workflow.</aside>
+    <aside class="explanation">Option A is the correct answer. Per-state retry intervals and catch handlers are a native Step Functions capability.</aside>
     <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html">Step Functions error handling</a>.</aside>
   </section>
 

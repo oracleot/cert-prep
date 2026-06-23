@@ -67,62 +67,62 @@ Eventual RCU = (reads/sec × ceil(item KB / 4)) / 2</div>
 
   <h2>Practice: exam triage</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A DynamoDB table is provisioned with <mark>10 read capacity units (RCU) for 4 KB items using eventual consistency</mark>. The application team needs to understand the maximum read throughput available. <mark>What is the maximum strongly consistent reads per second achievable with this configuration?</mark></h3>
+    <h3>1. A gaming company stores 4 KB player profile items in a DynamoDB table provisioned with 10 read capacity units. The application can use eventually consistent reads for these lookups. What is the maximum number of reads per second the table can support for this workload?</h3>
     <button class="choice">A) 5 reads/sec</button>
     <button class="choice">B) 10 reads/sec</button>
     <button class="choice" data-correct>C) 20 reads/sec</button>
     <button class="choice">D) 40 reads/sec</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">5 is incorrect. Eventual reads cost half RCU, giving 2 reads per RCU.</aside>
-    <aside data-rationale-for="B">10 is the strongly consistent read count. Eventual consistency doubles this.</aside>
-    <aside data-rationale-for="C">10 RCU × 2 eventual reads per RCU = 20 reads/sec maximum.</aside>
-    <aside data-rationale-for="D">40 would require 20 RCU. 10 RCU yields 20 eventual reads.</aside>
-    <aside class="explanation">20 reads/sec is correct. Each RCU provides 2 eventual reads for 4 KB items.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because 5 reads per second would undercount the capacity available from 10 RCUs.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because 10 RCUs support 10 strongly consistent 4 KB reads per second, but eventual consistency doubles that throughput.</aside>
+    <aside data-rationale-for="C">Option C is correct because each RCU supports two eventually consistent 4 KB reads, so 10 RCUs support 20 reads per second.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because 40 reads per second would require twice as many RCUs for 4 KB items.</aside>
+    <aside class="explanation">Option C is the correct answer. Eventually consistent reads cost half an RCU for 4 KB items, so 10 RCUs provide 20 reads per second.</aside>
     <aside class="knowledge-gap">Review <a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a> on DynamoDB capacity math. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html">Amazon DynamoDB read/write capacity</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A gaming application's leaderboard needs an <mark>alternate partition key with strongly consistent reads</mark> to display real-time scores. The current GSI does not support this requirement. <mark>Which Amazon DynamoDB index type supports strongly consistent reads on an alternate key?</mark></h3>
-    <button class="choice">A) GSI</button>
-    <button class="choice">B) DAX</button>
-    <button class="choice" data-correct>C) LSI</button>
-    <button class="choice">D) Scan</button>
+    <h3>2. A fitness application stores workouts with <code>userId</code> as the partition key and <code>workoutId</code> as the sort key. The app must also query each user's workouts by <code>workoutDate</code>, and those alternate-key reads must support strong consistency. Which DynamoDB index type should the developer add?</h3>
+    <button class="choice">A) A global secondary index (GSI)</button>
+    <button class="choice">B) DynamoDB Accelerator (DAX)</button>
+    <button class="choice" data-correct>C) A local secondary index (LSI)</button>
+    <button class="choice">D) A Scan with a FilterExpression</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">GSI supports eventual consistency only—strong reads are not supported.</aside>
-    <aside data-rationale-for="B">DAX is a cache that provides eventually consistent reads—it does not change index consistency.</aside>
-    <aside data-rationale-for="C">LSI supports strongly consistent reads. GSI does not.</aside>
-    <aside data-rationale-for="D">Scan reads every item and does not use an index for consistency guarantees.</aside>
-    <aside class="explanation">LSI is correct. Local secondary indexes support strongly consistent reads; global secondary indexes do not.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because GSIs support eventual consistency only, which does not meet the strong-read requirement.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because DAX is an eventually consistent cache and does not create an alternate sort key for querying.</aside>
+    <aside data-rationale-for="C">Option C is correct because an LSI keeps the same partition key, adds an alternate sort key, and supports strongly consistent reads.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because scanning with a filter is inefficient and still does not provide the indexed strong-read access pattern the scenario needs.</aside>
+    <aside class="explanation">Option C is the correct answer. The strong-consistency clue eliminates GSI and points to an LSI on the same partition key.</aside>
     <aside class="knowledge-gap">Review <a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a> on DynamoDB indexes. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/SecondaryIndexes.html">Amazon DynamoDB indexes</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. DynamoDB table has <mark>available capacity, but one popular tenant throttles</mark>. <mark>How do you distribute write traffic across partitions?</mark></h3>
-    <button class="choice">A) Add DAX</button>
-    <button class="choice">B) Use Scan</button>
-    <button class="choice" data-correct>C) Shard the partition key</button>
-    <button class="choice">D) Add GSI</button>
+    <h3>3. A multi-tenant SaaS platform stores events in DynamoDB and has enough total write capacity provisioned. However, one large tenant still gets frequent throttling because most writes use the same partition key value. Which design change best distributes the write traffic?</h3>
+    <button class="choice">A) Add a DAX cluster</button>
+    <button class="choice">B) Replace the queries with table scans</button>
+    <button class="choice" data-correct>C) Shard the partition key with a random suffix</button>
+    <button class="choice">D) Add a GSI that uses the same partition key</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DAX caches reads—it does not solve hot partition write issues.</aside>
-    <aside data-rationale-for="B">Scan reads all items and can worsen performance—it does not fix hot partitions.</aside>
-    <aside data-rationale-for="C">Sharding the partition key (e.g., random suffix) distributes writes across more partitions.</aside>
-    <aside data-rationale-for="D">GSI has its own partition key—it does not fix hot partition writes on the base table.</aside>
-    <aside class="explanation">Shard the partition key is correct. Random suffix sharding spreads writes across multiple partitions.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because DAX accelerates reads and does not spread write traffic across partitions.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because scans increase read work and do nothing to solve a write hot-partition problem.</aside>
+    <aside data-rationale-for="C">Option C is correct because partition-key sharding spreads writes across multiple physical partitions instead of concentrating them on one hot key.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because a GSI with the same partition key does not change the skew on the base table's hot key.</aside>
+    <aside class="explanation">Option C is the correct answer. When overall capacity is sufficient but a single key is hot, the fix is to redesign the partition key distribution.</aside>
     <aside class="knowledge-gap">Review <a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a> on hot partitions. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html">DynamoDB partition key design</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A read-heavy workload needs <mark>microsecond latency for eventually consistent lookups</mark>. <mark>Which DynamoDB feature provides this?</mark></h3>
-    <button class="choice" data-correct>A) DAX</button>
-    <button class="choice">B) LSI</button>
-    <button class="choice">C) Scan</button>
-    <button class="choice">D) Streams</button>
+    <h3>4. An advertising platform repeatedly reads the same product metadata from DynamoDB during each page render. The workload is read-heavy, eventual consistency is acceptable, and the team needs microsecond latency without redesigning the table schema. Which DynamoDB feature is the best fit?</h3>
+    <button class="choice" data-correct>A) DynamoDB Accelerator (DAX)</button>
+    <button class="choice">B) A local secondary index (LSI)</button>
+    <button class="choice">C) DynamoDB Streams</button>
+    <button class="choice">D) TransactionWriteItems</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DAX is an in-memory cache providing microsecond latency for eventually consistent reads.</aside>
-    <aside data-rationale-for="B">LSI supports strong reads but does not provide microsecond latency.</aside>
-    <aside data-rationale-for="C">Scan reads entire tables—it is slower than DAX.</aside>
-    <aside data-rationale-for="D">DynamoDB Streams captures item changes—it does not provide read caching.</aside>
-    <aside class="explanation">DAX is correct. DynamoDB Accelerator provides microsecond read latency for eventually consistent workloads.</aside>
+    <aside data-rationale-for="A">Option A is correct because DAX is an in-memory cache that provides microsecond latency for read-heavy, eventually consistent DynamoDB access.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because an LSI changes query options but does not cache hot reads in memory.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because Streams capture item changes for downstream processing, not low-latency read acceleration.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because transactional writes increase correctness guarantees for writes and are unrelated to read caching.</aside>
+    <aside class="explanation">Option A is the correct answer. DAX is the exam signal for microsecond, eventually consistent DynamoDB reads.</aside>
     <aside class="knowledge-gap">Review <a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a> on DAX. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html">Amazon DynamoDB Accelerator (DAX)</a>.</aside>
   </section>
 

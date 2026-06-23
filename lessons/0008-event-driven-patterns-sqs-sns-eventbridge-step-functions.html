@@ -62,77 +62,77 @@ Step Funcs   state machine → ordered workflow steps</div>
 
   <h2>Practice: choose the pattern</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. An e-commerce platform receives a surge of <mark>order events</mark> that arrive faster than fulfillment workers can process them. Producers and consumers must not depend on each other's speed or availability. <mark>Which AWS service absorbs the traffic spike?</mark></h3>
+    <h3>1. A ticketing company publishes purchase events from its checkout API, but flash-sale traffic arrives faster than the fulfillment workers can process it. The API must keep accepting orders even when workers are slow or temporarily unavailable. Which AWS service is the best fit to absorb the burst and decouple producers from consumers?</h3>
     <button class="choice" data-correct>A) Amazon SQS</button>
     <button class="choice">B) Amazon SNS</button>
-    <button class="choice">C) EventBridge</button>
-    <button class="choice">D) Step Functions</button>
+    <button class="choice">C) Amazon EventBridge</button>
+    <button class="choice">D) AWS Step Functions</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS buffers messages between producers and consumers, decoupling their availability and processing rates.</aside>
-    <aside data-rationale-for="B">SNS pushes one message to many subscribers—it does not buffer for slower consumers.</aside>
-    <aside data-rationale-for="C">EventBridge routes events based on rules—it does not provide durable buffering.</aside>
-    <aside data-rationale-for="D">Step Functions orchestrate workflow steps—they do not buffer message backlogs.</aside>
-    <aside class="explanation">SQS is correct. SQS queues decouple producers from consumers by buffering messages until workers can process them.</aside>
+    <aside data-rationale-for="A">Option A is correct because SQS provides a durable queue that buffers messages so producers and consumers do not need to operate at the same speed.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because SNS fans out notifications but does not act as a durable pull-based work queue for slower workers.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because EventBridge routes events to targets but is not the primary service for backlog buffering and worker decoupling.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because Step Functions orchestrates workflow steps; it does not absorb queue backlogs between independent producers and consumers.</aside>
+    <aside class="explanation">Option A is the correct answer. SQS is the classic DVA-C02 answer when the requirement is to buffer spikes and let consumers process messages later.</aside>
     <aside class="knowledge-gap">Review <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> on Lambda event sources. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html">Amazon SQS documentation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A SaaS platform fires one checkout event that must <mark>simultaneously notify the billing service, analytics pipeline, and email subsystem</mark>. <mark>Which AWS service fans out to multiple targets?</mark></h3>
-    <button class="choice">A) Amazon SQS</button>
-    <button class="choice" data-correct>B) Amazon SNS</button>
-    <button class="choice">C) EventBridge</button>
-    <button class="choice">D) Step Functions</button>
+    <h3>2. A retail application emits one <code>OrderPlaced</code> event after checkout. The same event must immediately notify the billing service, a fraud-detection Lambda function, and an analytics pipeline without the publisher managing each destination separately. Which AWS service should the developer choose?</h3>
+    <button class="choice">A) An Amazon SQS standard queue</button>
+    <button class="choice" data-correct>B) An Amazon SNS topic</button>
+    <button class="choice">C) An Amazon EventBridge archive</button>
+    <button class="choice">D) An AWS Step Functions state machine</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS queues deliver messages to one consumer at a time—they do not broadcast to multiple targets.</aside>
-    <aside data-rationale-for="B">SNS pub/sub broadcasts one message to all topic subscribers: billing, analytics, email.</aside>
-    <aside data-rationale-for="C">EventBridge routes events based on rules—SNS is the more direct answer for one-to-many fanout.</aside>
-    <aside data-rationale-for="D">Step Functions orchestrate sequential or parallel workflow tasks—they do not broadcast events.</aside>
-    <aside class="explanation">SNS is correct. SNS pub/sub fans out one message to multiple subscribers simultaneously.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because an SQS queue delivers each message to consumers for work processing, not simple one-to-many push fanout.</aside>
+    <aside data-rationale-for="B">Option B is correct because SNS topics publish one message to many subscribers such as Lambda, SQS, HTTPS endpoints, email, or SMS.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because an EventBridge archive stores past events for replay; it does not perform the primary live fanout role in this scenario.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because Step Functions coordinates workflow state, not simple broadcast delivery to independent subscribers.</aside>
+    <aside class="explanation">Option B is the correct answer. The exam clue is one event that must notify multiple independent subscribers, which points to SNS fanout.</aside>
     <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> for the broadcast pattern. <a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html">Amazon SNS documentation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. An ISV's SaaS application emits events that must <mark>route to different Lambda functions or SQS queues based on event detail-type and source field values</mark>. <mark>Which AWS service filters and routes based on event content?</mark></h3>
-    <button class="choice">A) Amazon SQS</button>
-    <button class="choice">B) Amazon SNS</button>
-    <button class="choice" data-correct>C) EventBridge</button>
-    <button class="choice">D) Step Functions</button>
+    <h3>3. An ISV publishes custom events from its SaaS platform. Events with <code>source=orders</code> must go to one Lambda function, events with <code>detail-type=invoice.created</code> must go to an SQS queue, and other events should be ignored. Which AWS service provides the best content-based routing for this requirement?</h3>
+    <button class="choice">A) An Amazon SQS FIFO queue</button>
+    <button class="choice">B) An Amazon SNS topic</button>
+    <button class="choice" data-correct>C) An Amazon EventBridge event bus with rules</button>
+    <button class="choice">D) An AWS Step Functions Express workflow</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS delivers messages to consumers—it does not route based on event field values.</aside>
-    <aside data-rationale-for="B">SNS broadcasts to all subscribers—it does not route selectively based on event content.</aside>
-    <aside data-rationale-for="C">EventBridge rules route events to targets based on event content, patterns, or custom event buses.</aside>
-    <aside data-rationale-for="D">Step Functions execute workflows—they do not route events based on field values.</aside>
-    <aside class="explanation">EventBridge is correct. EventBridge rules filter and route events based on JSON patterns in event fields.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because SQS stores messages for consumers but does not inspect event fields and route them to different targets.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because SNS broadcasts to subscribers rather than selectively matching JSON event content.</aside>
+    <aside data-rationale-for="C">Option C is correct because EventBridge rules evaluate event patterns such as source and detail-type, then route matching events to selected targets.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because Step Functions executes a workflow definition; it is not the main event-routing service for loosely coupled subscribers.</aside>
+    <aside class="explanation">Option C is the correct answer. EventBridge is the AWS service built for content-based routing on an event bus.</aside>
     <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on EventBridge. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html">Amazon EventBridge rules</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. An order fulfillment microservice requires <mark>conditional branching, human-approval wait states, and per-task retry policies</mark>. The workflow must also provide a human-readable execution history. <mark>Which AWS service orchestrates this multi-step workflow?</mark></h3>
+    <h3>4. An online pharmacy needs to coordinate prescription fulfillment across several services. The workflow must branch based on insurance results, wait for a pharmacist approval step, retry selected tasks, and provide an execution history for audits. Which AWS service should the developers use?</h3>
     <button class="choice">A) Amazon SQS</button>
     <button class="choice">B) Amazon SNS</button>
-    <button class="choice">C) EventBridge</button>
-    <button class="choice" data-correct>D) Step Functions</button>
+    <button class="choice">C) Amazon EventBridge</button>
+    <button class="choice" data-correct>D) AWS Step Functions</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS queues handle message buffering—they do not orchestrate multi-step workflows.</aside>
-    <aside data-rationale-for="B">SNS broadcasts events—it does not track workflow state or implement branching logic.</aside>
-    <aside data-rationale-for="C">EventBridge routes events—it does not maintain workflow state or implement wait states.</aside>
-    <aside data-rationale-for="D">Step Functions manage state machines with branching, wait states, retries, and error handling.</aside>
-    <aside class="explanation">Step Functions is correct. State machines provide branching, wait states, retries, and human-readable workflow history.</aside>
+    <aside data-rationale-for="A">Option A is a distractor because SQS provides buffering, not branching logic, wait states, or workflow history.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because SNS broadcasts messages but does not maintain workflow state or retry rules per step.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because EventBridge routes events to targets but does not act as a stateful workflow engine.</aside>
+    <aside data-rationale-for="D">Option D is correct because Step Functions state machines support branching, wait states, retries, and a visual execution history.</aside>
+    <aside class="explanation">Option D is the correct answer. When the scenario needs a stateful, auditable workflow with branching and retries, Step Functions is the exam answer.</aside>
     <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on Step Functions. <a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html">AWS Step Functions documentation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A microservices platform uses <mark>event-driven services that subscribe to an Amazon EventBridge event bus and react independently</mark> to order, payment, and shipping events without a central coordinator dictating the next step. <mark>Which architectural pattern describes this decentralized, event-driven approach?</mark></h3>
-    <button class="choice" data-correct>A) Event bus</button>
-    <button class="choice">B) State machine</button>
-    <button class="choice">C) Wait state</button>
-    <button class="choice">D) Retry policy</button>
+    <h3>5. A marketplace publishes <code>OrderPlaced</code>, <code>PaymentCaptured</code>, and <code>ShipmentCreated</code> events to an Amazon EventBridge bus. Inventory, loyalty, and analytics services subscribe and react independently, and no central service decides the next step in the business flow. Which design best describes this architecture?</h3>
+    <button class="choice" data-correct>A) Choreography with an event bus</button>
+    <button class="choice">B) Orchestration with a state machine</button>
+    <button class="choice">C) Request/response over API Gateway</button>
+    <button class="choice">D) Batch processing with S3 events</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">EventBridge event bus enables choreography—services subscribe to events and react independently.</aside>
-    <aside data-rationale-for="B">State machine implies orchestration—a central coordinator controls the workflow.</aside>
-    <aside data-rationale-for="C">Wait state is an orchestration concept in Step Functions—it implies central control.</aside>
-    <aside data-rationale-for="D">Retry policy is an operational detail—it does not indicate choreography or orchestration.</aside>
-    <aside class="explanation">Event bus is correct. Event-driven services reacting to events on a bus is the definition of choreography.</aside>
+    <aside data-rationale-for="A">Option A is correct because independent services reacting to shared events on a bus is the definition of choreography.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because orchestration means one coordinator, such as Step Functions, determines the next step explicitly.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because request/response patterns are synchronous and tightly coupled compared with event-driven subscribers.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because nothing in the stem points to offline batch processing or object-created notifications.</aside>
+    <aside class="explanation">Option A is the correct answer. The absence of a central coordinator and the use of an event bus signal a choreography pattern.</aside>
     <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on choreography. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-bus.html">Amazon EventBridge event bus</a>.</aside>
   </section>
 
