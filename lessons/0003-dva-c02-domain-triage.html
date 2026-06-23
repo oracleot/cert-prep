@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DVA-C02 Domain Triage</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0003</p>
+  <h1>DVA-C02 domain triage</h1>
+  <p class="subtitle">Your first exam skill: read a scenario and identify what AWS is really testing before looking at the answer choices.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>In the local curriculum, DVA-C02 is split into four domains: Development, Security, Deployment, and Troubleshooting/Optimization. The fastest first move is to classify the question by intent.</p>
+    <p>Use the <a href="../reference/dva-c02-curriculum-map.html">DVA-C02 curriculum map</a> while reviewing the source notes in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
+  </section>
+
+  <h2>The triage algorithm</h2>
+  <div class="diagram">1. Ask: what is the scenario trying to change?
+2. Match the verb to a domain.
+3. Then choose the service family.
+
+Build / integrate / store data       → Domain 1
+Authenticate / authorize / encrypt   → Domain 2
+Package / test / release / rollback  → Domain 3
+Debug / trace / measure / optimize   → Domain 4</div>
+
+  <h2>Keyword map</h2>
+  <section class="card">
+    <ul>
+      <li><strong>Domain 1:</strong> Lambda invocation, API Gateway mapping, DynamoDB capacity, SQS/SNS/EventBridge, Step Functions, SDK retries.</li>
+      <li><strong>Domain 2:</strong> IAM roles, STS, Cognito, permission boundaries, KMS, Secrets Manager, Parameter Store, WAF, Macie.</li>
+      <li><strong>Domain 3:</strong> SAM package/deploy, Lambda layers, aliases, CodePipeline, CodeDeploy, CloudFormation, ECR/ECS, AppConfig.</li>
+      <li><strong>Domain 4:</strong> CloudWatch metrics/logs, X-Ray traces, Logs Insights, CloudTrail, CodeGuru, Compute Optimizer, cache hits/misses.</li>
+    </ul>
+  </section>
+
+  <h2>Practice: classify first</h2>
+  <p>Do not answer from memory of a service. First classify the domain.</p>
+
+  <section class="quiz" data-quiz>
+    <h3>1. A Lambda function must use different DynamoDB tables for dev and prod API stages.</h3>
+    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 1')">Domain 1</button>
+    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 1')">Domain 2</button>
+    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 1')">Domain 3</button>
+    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 1')">Domain 4</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. A mobile app needs temporary AWS credentials mapped to least-privilege roles.</h3>
+    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 2')">Domain 1</button>
+    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 2')">Domain 2</button>
+    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 2')">Domain 3</button>
+    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 2')">Domain 4</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A SAM application must zip artifacts, upload them to S3, and produce a deployable template.</h3>
+    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 3')">Domain 1</button>
+    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 3')">Domain 2</button>
+    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 3')">Domain 3</button>
+    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 3')">Domain 4</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. An API Gateway and Lambda integration is slower than expected; you must compare responsiveness metrics.</h3>
+    <button class="choice" data-answer="Domain 1" onclick="choose(this, 'Domain 4')">Domain 1</button>
+    <button class="choice" data-answer="Domain 2" onclick="choose(this, 'Domain 4')">Domain 2</button>
+    <button class="choice" data-answer="Domain 3" onclick="choose(this, 'Domain 4')">Domain 3</button>
+    <button class="choice" data-answer="Domain 4" onclick="choose(this, 'Domain 4')">Domain 4</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <h2>Practice: service family</h2>
+  <section class="quiz" data-quiz>
+    <h3>5. Which Lambda feature shares libraries without putting them in every zip package?</h3>
+    <button class="choice" data-answer="Lambda aliases" onclick="choose(this, 'Lambda layers')">Lambda aliases</button>
+    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Lambda layers')">Lambda layers</button>
+    <button class="choice" data-answer="Lambda triggers" onclick="choose(this, 'Lambda layers')">Lambda triggers</button>
+    <button class="choice" data-answer="Lambda metrics" onclick="choose(this, 'Lambda layers')">Lambda metrics</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. Which deployment shifts Lambda traffic in equal increments every fixed interval?</h3>
+    <button class="choice" data-answer="Canary shift" onclick="choose(this, 'Linear shift')">Canary shift</button>
+    <button class="choice" data-answer="Linear shift" onclick="choose(this, 'Linear shift')">Linear shift</button>
+    <button class="choice" data-answer="Rolling batch" onclick="choose(this, 'Linear shift')">Rolling batch</button>
+    <button class="choice" data-answer="Immutable swap" onclick="choose(this, 'Linear shift')">Immutable swap</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. Which observability service gives distributed traces and service maps?</h3>
+    <button class="choice" data-answer="AWS X-Ray" onclick="choose(this, 'AWS X-Ray')">AWS X-Ray</button>
+    <button class="choice" data-answer="AWS Config" onclick="choose(this, 'AWS X-Ray')">AWS Config</button>
+    <button class="choice" data-answer="AWS Macie" onclick="choose(this, 'AWS X-Ray')">AWS Macie</button>
+    <button class="choice" data-answer="AWS KMS" onclick="choose(this, 'AWS X-Ray')">AWS KMS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>8. Which service should store database credentials that need automatic rotation?</h3>
+    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Secrets Manager')">Secrets Manager</button>
+    <button class="choice" data-answer="Parameter Store" onclick="choose(this, 'Secrets Manager')">Parameter Store</button>
+    <button class="choice" data-answer="Certificate Manager" onclick="choose(this, 'Secrets Manager')">Certificate Manager</button>
+    <button class="choice" data-answer="Identity Center" onclick="choose(this, 'Secrets Manager')">Identity Center</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://aws.amazon.com/certification/certified-developer-associate/">AWS Certified Developer - Associate certification page</a>. Then review Domain 1 in <a href="../docs/aws%20dva-c02.md">the local curriculum</a>, especially Lambda, API Gateway, and DynamoDB.</p>
+  <p>If any answer felt fuzzy, ask me a follow-up and I’ll drill that exact pattern.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
