@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0017 — Secure Application Traffic</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0017</p>
+  <h1>Secure traffic before you secure code.</h1>
+  <p class="subtitle">Task Statement 2.4: choose the AWS feature that protects traffic paths: public HTTPS, private AWS API calls, or subnet-level filtering.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will classify security clues into four exam moves: <strong>TLS with ACM</strong>, <strong>API Gateway custom domains</strong>, <strong>VPC endpoints</strong>, and <strong>security group vs NACL</strong>.</p>
+    <p>Use this after the Domain 2 source notes in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
+  </section>
+
+  <h2>1. Public HTTPS: ACM + the front door</h2>
+  <div class="diagram">Need HTTPS certificate       → AWS Certificate Manager
+Need API vanity hostname    → API Gateway custom domain
+Need DNS to the API         → Route 53 alias / CNAME
+Need minimum TLS version    → API Gateway security policy</div>
+  <ul>
+    <li><strong>ACM</strong> issues, imports, stores, and renews public/private TLS certificates for integrated AWS services.</li>
+    <li><strong>API Gateway custom domains</strong> map names such as <code>api.example.com</code> to API stages; the custom domain uses an ACM certificate.</li>
+    <li><strong>Regional API Gateway custom domains</strong> use an ACM certificate in the same Region; edge-optimized custom domains use certificates in <code>us-east-1</code>.</li>
+    <li><strong>WAF</strong> is not TLS. Choose it for layer 7 filtering: SQL injection, XSS, IP sets, rate-based rules, and managed rule groups.</li>
+  </ul>
+
+  <h2>2. Private AWS traffic: endpoint first, NAT second</h2>
+  <section class="card">
+    <h3>VPC endpoint clue</h3>
+    <p>If private subnets must reach AWS services without internet gateways, NAT gateways, public IPs, or VPN paths, choose a VPC endpoint.</p>
+  </section>
+  <div class="diagram">Gateway endpoint    S3 and DynamoDB, route table target, no ENI
+Interface endpoint  PrivateLink ENIs, security groups, most AWS APIs
+Endpoint policy     Restrict which actions/resources use the endpoint
+Bucket policy       Restrict S3 access with aws:sourceVpce</div>
+
+  <h2>3. Network filters: stateful vs stateless</h2>
+  <ul>
+    <li><strong>Security groups</strong> attach to ENIs, are stateful, and only allow traffic. Return traffic is automatically allowed.</li>
+    <li><strong>NACLs</strong> attach to subnets, are stateless, can allow or deny, and evaluate rules by number.</li>
+    <li><strong>Ephemeral port trap:</strong> NACLs need rules for both request and return traffic, including ephemeral ports. Security groups do not.</li>
+    <li><strong>DVA clue:</strong> app-to-database access usually means security groups; subnet-wide explicit deny usually means NACL.</li>
+  </ul>
+
+  <h2>Retrieval drill: classify the control</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. An API needs api.example.com with HTTPS.</h3>
+    <button class="choice" data-answer="Custom domain" onclick="choose(this, 'Custom domain')">Custom domain</button>
+    <button class="choice" data-answer="Gateway route" onclick="choose(this, 'Custom domain')">Gateway route</button>
+    <button class="choice" data-answer="NACL filter" onclick="choose(this, 'Custom domain')">NACL filter</button>
+    <button class="choice" data-answer="Shield plan" onclick="choose(this, 'Custom domain')">Shield plan</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Private Lambda traffic must call S3 without NAT.</h3>
+    <button class="choice" data-answer="Gateway endpoint" onclick="choose(this, 'Gateway endpoint')">Gateway endpoint</button>
+    <button class="choice" data-answer="Custom domain" onclick="choose(this, 'Gateway endpoint')">Custom domain</button>
+    <button class="choice" data-answer="Security policy" onclick="choose(this, 'Gateway endpoint')">Security policy</button>
+    <button class="choice" data-answer="Managed rule" onclick="choose(this, 'Gateway endpoint')">Managed rule</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Private subnets must call Secrets Manager APIs.</h3>
+    <button class="choice" data-answer="Interface endpoint" onclick="choose(this, 'Interface endpoint')">Interface endpoint</button>
+    <button class="choice" data-answer="Gateway endpoint" onclick="choose(this, 'Interface endpoint')">Gateway endpoint</button>
+    <button class="choice" data-answer="Public address" onclick="choose(this, 'Interface endpoint')">Public address</button>
+    <button class="choice" data-answer="Edge certificate" onclick="choose(this, 'Interface endpoint')">Edge certificate</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A subnet needs an explicit deny for one CIDR.</h3>
+    <button class="choice" data-answer="Network ACL" onclick="choose(this, 'Network ACL')">Network ACL</button>
+    <button class="choice" data-answer="Security group" onclick="choose(this, 'Network ACL')">Security group</button>
+    <button class="choice" data-answer="ACM certificate" onclick="choose(this, 'Network ACL')">ACM certificate</button>
+    <button class="choice" data-answer="Route mapping" onclick="choose(this, 'Network ACL')">Route mapping</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Return traffic fails after a subnet rule change.</h3>
+    <button class="choice" data-answer="NACL ports" onclick="choose(this, 'NACL ports')">NACL ports</button>
+    <button class="choice" data-answer="ACM import" onclick="choose(this, 'NACL ports')">ACM import</button>
+    <button class="choice" data-answer="WAF rules" onclick="choose(this, 'NACL ports')">WAF rules</button>
+    <button class="choice" data-answer="Shield tier" onclick="choose(this, 'NACL ports')">Shield tier</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. API requests must block SQL injection.</h3>
+    <button class="choice" data-answer="AWS WAF" onclick="choose(this, 'AWS WAF')">AWS WAF</button>
+    <button class="choice" data-answer="AWS ACM" onclick="choose(this, 'AWS WAF')">AWS ACM</button>
+    <button class="choice" data-answer="AWS STS" onclick="choose(this, 'AWS WAF')">AWS STS</button>
+    <button class="choice" data-answer="AWS KMS" onclick="choose(this, 'AWS WAF')">AWS KMS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0016-domain-2-secure-configuration-selection.html">← Previous: Lesson 0016</a><a href="0018-security-best-practices-patterns.html">Next: Lesson 0018 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary sources: AWS docs for <a href="https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html">ACM</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html">API Gateway custom domains</a>, <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>, and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html">security groups</a>.</p>
+  <p>Ask me to drill TLS, VPC endpoints, or security-group/NACL traps if any miss felt close.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

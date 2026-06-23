@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rex/Sage LangGraph Map</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>Rex/Sage LangGraph Map</h1>
+  <p class="subtitle">A quick map of how this repo turns Rex and Sage into an explicit LangGraph state machine.</p>
+
+  <section class="card">
+    <h2>Core idea</h2>
+    <p>Rex and Sage are not free-floating agents. In this implementation, each is a <strong>node function</strong> inside a LangGraph <strong>state machine</strong>. The graph owns the control flow; each node reads <code>AppState</code> and returns a small state update.</p>
+  </section>
+
+  <section>
+    <h2>Files to know</h2>
+    <ul>
+      <li><a href="../agents/graphs/session.py"><code>agents/graphs/session.py</code></a> — graph structure, routing, compile step.</li>
+      <li><a href="../agents/state.py"><code>agents/state.py</code></a> — shared state contract.</li>
+      <li><a href="../agents/nodes/rex_challenge.py"><code>agents/nodes/rex_challenge.py</code></a> — first Rex challenge node.</li>
+      <li><a href="../agents/nodes/rex_rechallenge.py"><code>agents/nodes/rex_rechallenge.py</code></a> — later Rex challenge node.</li>
+      <li><a href="../agents/nodes/evaluate_answer.py"><code>agents/nodes/evaluate_answer.py</code></a> — grading node.</li>
+      <li><a href="../agents/nodes/sage_respond.py"><code>agents/nodes/sage_respond.py</code></a> — Sage explanation/depth nodes.</li>
+      <li><a href="../agents/llm.py"><code>agents/llm.py</code></a> — LangChain <code>ChatOpenAI</code> wrapper for OpenRouter.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Flow</h2>
+    <div class="diagram">START
+  → coach_open
+  → rex_challenge
+  → evaluate_answer
+  → if correct: sage_depth
+    else:      sage_explain
+  → if cycle &lt; max_cycles: rex_rechallenge
+    else:                  coach_close
+  → END</div>
+  </section>
+
+  <section>
+    <h2>Node pattern</h2>
+    <pre><code>def some_node(state: AppState) -&gt; dict:
+    # 1. read current state
+    # 2. call tools / model / database if needed
+    # 3. return only the state patch
+    return {"field_to_update": value}</code></pre>
+  </section>
+
+  <section>
+    <h2>Memory hook</h2>
+    <p><strong>State is the backpack.</strong> Rex puts a challenge into it. The user puts an answer into it. The evaluator puts a judgment into it. Sage puts an exchange record into it. The graph decides where the backpack goes next.</p>
+  </section>
+</main>
+</body>
+</html>

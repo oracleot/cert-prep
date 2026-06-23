@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0012 — Caching, Streaming, ETL Drill</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0012</p>
+  <h1>Choose the data pattern from the exam clue.</h1>
+  <p class="subtitle">Domain 1 loves service-selection questions: cache the read path, stream events, transform data, or build the app flow.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will sort four common Domain 1 traps by keyword: <strong>lazy cache</strong>, <strong>write-through cache</strong>, <strong>streaming ingest</strong>, and <strong>ETL tool</strong>.</p>
+    <p>Related review: <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">event-driven patterns</a> and <a href="../reference/dva-c02-curriculum-map.html">Domain 1 map</a>.</p>
+  </section>
+
+  <h2>1. Caching: pick the write/read behavior</h2>
+  <div class="diagram">Lazy loading      app misses cache → reads database → fills cache
+Write-through     app writes cache and database in the write path
+TTL               cache entry expires after a chosen time window</div>
+  <ul>
+    <li><strong>Lazy loading:</strong> choose it when only requested data should be cached. First read is slower; later reads are faster.</li>
+    <li><strong>Write-through:</strong> choose it when the cache must be warm immediately after writes. Write latency can increase.</li>
+    <li><strong>TTL:</strong> choose it when stale data must expire automatically. TTL is a freshness control, not a database backup.</li>
+    <li><strong>DAX / ElastiCache clue:</strong> DAX fits DynamoDB microsecond read caching; ElastiCache fits Redis/Memcached app caches.</li>
+  </ul>
+
+  <h2>2. Streaming: pick the ownership model</h2>
+  <section class="card">
+    <h3>Kinesis Data Streams</h3>
+    <p>Choose it for custom consumers, ordered records per shard, replay within retention, Lambda event source mappings, or multiple applications reading the same stream.</p>
+  </section>
+  <section class="card">
+    <h3>Amazon Data Firehose</h3>
+    <p>Choose it when the clue says near-real-time delivery to S3, Redshift, OpenSearch, Splunk, or HTTP endpoints with minimal custom consumer code.</p>
+  </section>
+  <section class="card">
+    <h3>Amazon MSK</h3>
+    <p>Choose it when the scenario already uses Apache Kafka, needs Kafka APIs, Kafka clients, topics, partitions, or wants AWS to manage Kafka brokers.</p>
+  </section>
+
+  <h2>3. ETL: pick the transformation engine</h2>
+  <div class="diagram">Glue     managed serverless ETL + Data Catalog + crawlers
+EMR      managed Hadoop/Spark clusters for big data frameworks
+Lambda   small event transform, short running, serverless glue code
+Kinesis  streaming transform/analytics before storage or delivery</div>
+  <ul>
+    <li><strong>AWS Glue:</strong> default exam answer for managed ETL, schema discovery, crawlers, and the Glue Data Catalog.</li>
+    <li><strong>Amazon EMR:</strong> choose for Spark/Hadoop ecosystem control, cluster tuning, or long/heavy big-data processing.</li>
+    <li><strong>Lambda:</strong> choose for lightweight transforms triggered by S3, streams, EventBridge, API Gateway, or queues.</li>
+    <li><strong>Kinesis:</strong> choose when transformation must happen continuously on streaming records.</li>
+  </ul>
+
+  <h2>Fast distractor cuts</h2>
+  <ul>
+    <li>If the question says <strong>replay records</strong>, Firehose is usually the distractor; think Kinesis Data Streams.</li>
+    <li>If it says <strong>deliver to S3 with no servers</strong>, custom Kinesis consumers are the distractor; think Data Firehose.</li>
+    <li>If it says <strong>Kafka clients</strong>, do not translate to Kinesis; think Amazon MSK.</li>
+    <li>If it says <strong>schema catalog/crawler</strong>, Lambda is too small; think AWS Glue.</li>
+  </ul>
+
+  <h2>Retrieval drill: select the service or pattern</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Cache only items that users actually request.</h3>
+    <button class="choice" data-answer="Lazy loading" onclick="choose(this, 'Lazy loading')">Lazy loading</button>
+    <button class="choice" data-answer="Write-through" onclick="choose(this, 'Lazy loading')">Write-through</button>
+    <button class="choice" data-answer="Data Firehose" onclick="choose(this, 'Lazy loading')">Data Firehose</button>
+    <button class="choice" data-answer="AWS Glue" onclick="choose(this, 'Lazy loading')">AWS Glue</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. New writes must be visible in cache immediately.</h3>
+    <button class="choice" data-answer="Lazy loading" onclick="choose(this, 'Write-through')">Lazy loading</button>
+    <button class="choice" data-answer="Write-through" onclick="choose(this, 'Write-through')">Write-through</button>
+    <button class="choice" data-answer="Data Firehose" onclick="choose(this, 'Write-through')">Data Firehose</button>
+    <button class="choice" data-answer="AWS Glue" onclick="choose(this, 'Write-through')">AWS Glue</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Several applications must replay ordered events.</h3>
+    <button class="choice" data-answer="Kinesis Data Streams" onclick="choose(this, 'Kinesis Data Streams')">Kinesis Data Streams</button>
+    <button class="choice" data-answer="Amazon Data Firehose" onclick="choose(this, 'Kinesis Data Streams')">Amazon Data Firehose</button>
+    <button class="choice" data-answer="Amazon MSK service" onclick="choose(this, 'Kinesis Data Streams')">Amazon MSK service</button>
+    <button class="choice" data-answer="AWS Glue DataCatalog" onclick="choose(this, 'Kinesis Data Streams')">AWS Glue DataCatalog</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. Stream records should land in S3 with little code.</h3>
+    <button class="choice" data-answer="Kinesis Data Streams" onclick="choose(this, 'Amazon Data Firehose')">Kinesis Data Streams</button>
+    <button class="choice" data-answer="Amazon Data Firehose" onclick="choose(this, 'Amazon Data Firehose')">Amazon Data Firehose</button>
+    <button class="choice" data-answer="Amazon MSK service" onclick="choose(this, 'Amazon Data Firehose')">Amazon MSK service</button>
+    <button class="choice" data-answer="AWS Glue DataCatalog" onclick="choose(this, 'Amazon Data Firehose')">AWS Glue DataCatalog</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Existing Kafka apps need managed brokers.</h3>
+    <button class="choice" data-answer="Kinesis Data Streams" onclick="choose(this, 'Amazon MSK service')">Kinesis Data Streams</button>
+    <button class="choice" data-answer="Amazon Data Firehose" onclick="choose(this, 'Amazon MSK service')">Amazon Data Firehose</button>
+    <button class="choice" data-answer="Amazon MSK service" onclick="choose(this, 'Amazon MSK service')">Amazon MSK service</button>
+    <button class="choice" data-answer="AWS Glue DataCatalog" onclick="choose(this, 'Amazon MSK service')">AWS Glue DataCatalog</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. Crawl S3 data and maintain a schema catalog.</h3>
+    <button class="choice" data-answer="AWS Glue" onclick="choose(this, 'AWS Glue')">AWS Glue</button>
+    <button class="choice" data-answer="AWS Lambda" onclick="choose(this, 'AWS Glue')">AWS Lambda</button>
+    <button class="choice" data-answer="Amazon EMR" onclick="choose(this, 'AWS Glue')">Amazon EMR</button>
+    <button class="choice" data-answer="TTL policy" onclick="choose(this, 'AWS Glue')">TTL policy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. A short S3 event transform should run serverlessly.</h3>
+    <button class="choice" data-answer="AWS Glue" onclick="choose(this, 'AWS Lambda')">AWS Glue</button>
+    <button class="choice" data-answer="AWS Lambda" onclick="choose(this, 'AWS Lambda')">AWS Lambda</button>
+    <button class="choice" data-answer="Amazon EMR" onclick="choose(this, 'AWS Lambda')">Amazon EMR</button>
+    <button class="choice" data-answer="TTL policy" onclick="choose(this, 'AWS Lambda')">TTL policy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>8. Domain 1 mixed: API CRUD over DynamoDB.</h3>
+    <button class="choice" data-answer="API Gateway + Lambda" onclick="choose(this, 'API Gateway + Lambda')">API Gateway + Lambda</button>
+    <button class="choice" data-answer="KMS key + Macie" onclick="choose(this, 'API Gateway + Lambda')">KMS key + Macie</button>
+    <button class="choice" data-answer="CodeDeploy + SAM" onclick="choose(this, 'API Gateway + Lambda')">CodeDeploy + SAM</button>
+    <button class="choice" data-answer="X-Ray + Alarms" onclick="choose(this, 'API Gateway + Lambda')">X-Ray + Alarms</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0011-storage-selection-and-lifecycle.html">← Previous: Lesson 0011</a>
+    <a href="0013-timed-domain-1-mixed-drill.html">Next: Lesson 0013 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary sources: AWS docs for <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html">DynamoDB Accelerator</a>, <a href="https://docs.aws.amazon.com/streams/latest/dev/introduction.html">Kinesis Data Streams</a>, <a href="https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html">Data Firehose</a>, <a href="https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html">Amazon MSK</a>, and <a href="https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html">AWS Glue</a>.</p>
+  <p>Ask me to grill you on Domain 1 if any pair still feels interchangeable.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

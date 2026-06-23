@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0002 — Lambda Invocation and Failures</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0002</p>
+  <h1>Lambda: know how the event enters, then how failure is handled.</h1>
+  <p class="subtitle">DVA-C02 Lambda questions usually hide the answer in the invocation path: synchronous, asynchronous, or event source mapping.</p>
+
+  <section class="card">
+    <h2>The exam move</h2>
+    <p>Before picking a Lambda feature, ask: <strong>who invokes the function?</strong> The caller determines retry behavior, error handling, and whether Lambda reads from a source in batches.</p>
+    <p>Keep the <a href="../reference/dva-c02-lambda-quick-sheet.html">Lambda quick sheet</a> open while you practice.</p>
+  </section>
+
+  <h2>Three invocation patterns</h2>
+  <section class="card">
+    <h3>1. Synchronous</h3>
+    <p>The caller waits. If Lambda succeeds, the caller gets the response. If it fails, the caller sees the error and must decide whether to retry. The AWS CLI command is <code>aws lambda invoke</code>.</p>
+  </section>
+
+  <section class="card">
+    <h3>2. Asynchronous</h3>
+    <p>The caller hands off the event and does not wait. Lambda queues the event, runs the function, retries function errors twice, and can send invocation records to destinations or a dead-letter queue.</p>
+  </section>
+
+  <section class="card">
+    <h3>3. Event source mapping</h3>
+    <p>Lambda polls SQS, Kinesis, or DynamoDB Streams and sends records to your function in batches. With Kinesis and DynamoDB Streams, shards are the concurrency unit because each shard is processed in order.</p>
+  </section>
+
+  <h2>Failure routing mental model</h2>
+  <div class="diagram">Caller waits?        → synchronous → caller handles retry
+Caller drops event?  → asynchronous → Lambda retries, destinations or DLQ
+Lambda polls source? → event source mapping → source rules, batch behavior, redrive policy</div>
+
+  <h2>Common DVA-C02 traps</h2>
+  <ul>
+    <li><strong>Retries require idempotency.</strong> Your function may process the same event more than once.</li>
+    <li><strong>Event source mapping is a Lambda resource.</strong> Use it for SQS, Kinesis, and DynamoDB Streams.</li>
+    <li><strong>Memory affects CPU.</strong> Increasing memory can improve CPU-bound performance.</li>
+    <li><strong>Reserved concurrency is a control.</strong> It can cap a function so it does not consume too much account concurrency.</li>
+    <li><strong>Provisioned concurrency targets cold starts.</strong> It keeps environments initialized for low latency.</li>
+  </ul>
+
+  <h2>Practice: classify the Lambda path</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. An API Gateway request invokes Lambda and waits for a response.</h3>
+    <button class="choice" data-answer="Synchronous" onclick="choose(this, 'Synchronous')">Synchronous</button>
+    <button class="choice" data-answer="Asynchronous" onclick="choose(this, 'Synchronous')">Asynchronous</button>
+    <button class="choice" data-answer="Event source" onclick="choose(this, 'Synchronous')">Event source</button>
+    <button class="choice" data-answer="Destination" onclick="choose(this, 'Synchronous')">Destination</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. S3 sends object-created events to Lambda without waiting for function output.</h3>
+    <button class="choice" data-answer="Synchronous" onclick="choose(this, 'Asynchronous')">Synchronous</button>
+    <button class="choice" data-answer="Asynchronous" onclick="choose(this, 'Asynchronous')">Asynchronous</button>
+    <button class="choice" data-answer="Event source" onclick="choose(this, 'Asynchronous')">Event source</button>
+    <button class="choice" data-answer="Provisioned" onclick="choose(this, 'Asynchronous')">Provisioned</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Lambda reads records from an SQS queue in batches.</h3>
+    <button class="choice" data-answer="Synchronous" onclick="choose(this, 'Event source mapping')">Synchronous</button>
+    <button class="choice" data-answer="Asynchronous" onclick="choose(this, 'Event source mapping')">Asynchronous</button>
+    <button class="choice" data-answer="Event source mapping" onclick="choose(this, 'Event source mapping')">Event source mapping</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Event source mapping')">Lambda layer</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <h2>Practice: choose the feature</h2>
+  <section class="quiz" data-quiz>
+    <h3>4. A function must avoid cold-start latency for a production API.</h3>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Provisioned concurrency')">Reserved concurrency</button>
+    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Provisioned concurrency')">Provisioned concurrency</button>
+    <button class="choice" data-answer="Event source mapping" onclick="choose(this, 'Provisioned concurrency')">Event source mapping</button>
+    <button class="choice" data-answer="Dead-letter queue" onclick="choose(this, 'Provisioned concurrency')">Dead-letter queue</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A function should not consume all available account concurrency.</h3>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Reserved concurrency')">Reserved concurrency</button>
+    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Reserved concurrency')">Provisioned concurrency</button>
+    <button class="choice" data-answer="Lambda destination" onclick="choose(this, 'Reserved concurrency')">Lambda destination</button>
+    <button class="choice" data-answer="Lambda extension" onclick="choose(this, 'Reserved concurrency')">Lambda extension</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. Failed asynchronous events need to be captured for later debugging.</h3>
+    <button class="choice" data-answer="Dead-letter queue" onclick="choose(this, 'Dead-letter queue')">Dead-letter queue</button>
+    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Dead-letter queue')">Lambda alias</button>
+    <button class="choice" data-answer="Memory setting" onclick="choose(this, 'Dead-letter queue')">Memory setting</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Dead-letter queue')">Stage variable</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0001-dva-c02-domain-triage.html">← Previous: Lesson 0001</a>
+    <a href="0003-lambda-concurrency-and-performance.html">Next: Lesson 0003 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-invocation.html">AWS Lambda invocation docs</a>. Then review Domain 1 Lesson 3 in <a href="../docs/aws%20dva-c02.md">the local curriculum</a>.</p>
+  <p>Ask me to drill any misses, especially if synchronous vs asynchronous still feels fuzzy.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

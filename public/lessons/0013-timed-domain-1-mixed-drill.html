@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0013 — Timed Domain 1 Mixed Drill</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0013</p>
+  <h1>Beat the clock on Domain 1 service selection.</h1>
+  <p class="subtitle">Twenty mixed DVA-C02 scenarios. Choose fast, then review misses by keyword.</p>
+
+  <section class="card">
+    <h2>Rules</h2>
+    <p>Target: <strong>25 minutes</strong>. Click Start, answer every question once, then revisit only the ones you missed.</p>
+    <p>Score goal: 16/20. Below that, ask me to drill your weakest three service pairs.</p>
+  </section>
+
+  <section class="timer" data-timer-minutes="25">
+    <p class="kicker">Timer</p>
+    <strong data-timer-display>25:00</strong>
+    <button data-timer-start>Start</button>
+    <button data-timer-reset>Reset</button>
+  </section>
+
+  <h2>Timed drill</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Public HTTPS API invokes business code and returns JSON.</h3>
+    <button class="choice" data-answer="API Gateway + Lambda" onclick="choose(this, 'API Gateway + Lambda')">API Gateway + Lambda</button>
+    <button class="choice" data-answer="S3 + Data Firehose" onclick="choose(this, 'API Gateway + Lambda')">S3 + Data Firehose</button>
+    <button class="choice" data-answer="DAX + DynamoDB" onclick="choose(this, 'API Gateway + Lambda')">DAX + DynamoDB</button>
+    <button class="choice" data-answer="SNS + EventBridge" onclick="choose(this, 'API Gateway + Lambda')">SNS + EventBridge</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>2. One image upload triggers one resize job.</h3>
+    <button class="choice" data-answer="S3 event to Lambda" onclick="choose(this, 'S3 event to Lambda')">S3 event to Lambda</button>
+    <button class="choice" data-answer="API cache to DAX" onclick="choose(this, 'S3 event to Lambda')">API cache to DAX</button>
+    <button class="choice" data-answer="Glue crawler job" onclick="choose(this, 'S3 event to Lambda')">Glue crawler job</button>
+    <button class="choice" data-answer="MSK topic replay" onclick="choose(this, 'S3 event to Lambda')">MSK topic replay</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>3. Order processing needs buffering and retries between services.</h3>
+    <button class="choice" data-answer="Amazon SQS" onclick="choose(this, 'Amazon SQS')">Amazon SQS</button>
+    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon SQS')">Amazon DAX</button>
+    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon SQS')">Amazon EFS</button>
+    <button class="choice" data-answer="Amazon X-Ray" onclick="choose(this, 'Amazon SQS')">Amazon X-Ray</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>4. One event must fan out to email, Lambda, and queues.</h3>
+    <button class="choice" data-answer="Amazon SNS" onclick="choose(this, 'Amazon SNS')">Amazon SNS</button>
+    <button class="choice" data-answer="Amazon SQS" onclick="choose(this, 'Amazon SNS')">Amazon SQS</button>
+    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon SNS')">Amazon DAX</button>
+    <button class="choice" data-answer="Amazon EBS" onclick="choose(this, 'Amazon SNS')">Amazon EBS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>5. SaaS events need routing by source and detail fields.</h3>
+    <button class="choice" data-answer="EventBridge rule" onclick="choose(this, 'EventBridge rule')">EventBridge rule</button>
+    <button class="choice" data-answer="DynamoDB stream" onclick="choose(this, 'EventBridge rule')">DynamoDB stream</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'EventBridge rule')">Lambda layer</button>
+    <button class="choice" data-answer="S3 lifecycle" onclick="choose(this, 'EventBridge rule')">S3 lifecycle</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>6. Workflow needs waits, branches, and per-step retries.</h3>
+    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'Step Functions')">Step Functions</button>
+    <button class="choice" data-answer="API Gateway" onclick="choose(this, 'Step Functions')">API Gateway</button>
+    <button class="choice" data-answer="Data Firehose" onclick="choose(this, 'Step Functions')">Data Firehose</button>
+    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Step Functions')">Secrets Manager</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>7. DynamoDB reads need microsecond latency.</h3>
+    <button class="choice" data-answer="DAX" onclick="choose(this, 'DAX')">DAX</button>
+    <button class="choice" data-answer="DLQ" onclick="choose(this, 'DAX')">DLQ</button>
+    <button class="choice" data-answer="EBS" onclick="choose(this, 'DAX')">EBS</button>
+    <button class="choice" data-answer="MSK" onclick="choose(this, 'DAX')">MSK</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>8. Strongly consistent reads are required from a table.</h3>
+    <button class="choice" data-answer="Base table read" onclick="choose(this, 'Base table read')">Base table read</button>
+    <button class="choice" data-answer="GSI read path" onclick="choose(this, 'Base table read')">GSI read path</button>
+    <button class="choice" data-answer="DAX read path" onclick="choose(this, 'Base table read')">DAX read path</button>
+    <button class="choice" data-answer="Scan all items" onclick="choose(this, 'Base table read')">Scan all items</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>9. A single tenant creates a hot DynamoDB partition.</h3>
+    <button class="choice" data-answer="Shard the key" onclick="choose(this, 'Shard the key')">Shard the key</button>
+    <button class="choice" data-answer="Add a DLQ" onclick="choose(this, 'Shard the key')">Add a DLQ</button>
+    <button class="choice" data-answer="Use a scan" onclick="choose(this, 'Shard the key')">Use a scan</button>
+    <button class="choice" data-answer="Add X-Ray" onclick="choose(this, 'Shard the key')">Add X-Ray</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>10. Failed async Lambda events need later inspection.</h3>
+    <button class="choice" data-answer="Dead-letter queue" onclick="choose(this, 'Dead-letter queue')">Dead-letter queue</button>
+    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Dead-letter queue')">Provisioned concurrency</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Dead-letter queue')">Stage variable</button>
+    <button class="choice" data-answer="Mapping template" onclick="choose(this, 'Dead-letter queue')">Mapping template</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>11. API backend returns an error body; client needs HTTP 400.</h3>
+    <button class="choice" data-answer="Response mapping" onclick="choose(this, 'Response mapping')">Response mapping</button>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Response mapping')">Reserved concurrency</button>
+    <button class="choice" data-answer="DynamoDB TTL" onclick="choose(this, 'Response mapping')">DynamoDB TTL</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Response mapping')">Lambda layer</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>12. AWS SDK calls should survive transient throttling.</h3>
+    <button class="choice" data-answer="Exponential backoff" onclick="choose(this, 'Exponential backoff')">Exponential backoff</button>
+    <button class="choice" data-answer="Strong consistency" onclick="choose(this, 'Exponential backoff')">Strong consistency</button>
+    <button class="choice" data-answer="Write-through cache" onclick="choose(this, 'Exponential backoff')">Write-through cache</button>
+    <button class="choice" data-answer="Resource policy" onclick="choose(this, 'Exponential backoff')">Resource policy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>13. Retried create requests must not duplicate orders.</h3>
+    <button class="choice" data-answer="Idempotency token" onclick="choose(this, 'Idempotency token')">Idempotency token</button>
+    <button class="choice" data-answer="Lazy loading cache" onclick="choose(this, 'Idempotency token')">Lazy loading cache</button>
+    <button class="choice" data-answer="Provisioned poller" onclick="choose(this, 'Idempotency token')">Provisioned poller</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Idempotency token')">Stage variable</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>14. Durable object storage with lifecycle transitions is needed.</h3>
+    <button class="choice" data-answer="Amazon S3" onclick="choose(this, 'Amazon S3')">Amazon S3</button>
+    <button class="choice" data-answer="Amazon EBS" onclick="choose(this, 'Amazon S3')">Amazon EBS</button>
+    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon S3')">Amazon EFS</button>
+    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon S3')">Amazon DAX</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>15. Lambda needs shared file storage across invocations.</h3>
+    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon EFS')">Amazon EFS</button>
+    <button class="choice" data-answer="Amazon EBS" onclick="choose(this, 'Amazon EFS')">Amazon EBS</button>
+    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon EFS')">Amazon DAX</button>
+    <button class="choice" data-answer="Amazon SNS" onclick="choose(this, 'Amazon EFS')">Amazon SNS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>16. App cache should store only requested keys after misses.</h3>
+    <button class="choice" data-answer="Lazy loading" onclick="choose(this, 'Lazy loading')">Lazy loading</button>
+    <button class="choice" data-answer="Write-through" onclick="choose(this, 'Lazy loading')">Write-through</button>
+    <button class="choice" data-answer="Strong read" onclick="choose(this, 'Lazy loading')">Strong read</button>
+    <button class="choice" data-answer="Fanout topic" onclick="choose(this, 'Lazy loading')">Fanout topic</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>17. Records need replay and multiple custom consumers.</h3>
+    <button class="choice" data-answer="Kinesis Data Streams" onclick="choose(this, 'Kinesis Data Streams')">Kinesis Data Streams</button>
+    <button class="choice" data-answer="Kinesis Data Firehose" onclick="choose(this, 'Kinesis Data Streams')">Kinesis Data Firehose</button>
+    <button class="choice" data-answer="Amazon API Gateway" onclick="choose(this, 'Kinesis Data Streams')">Amazon API Gateway</button>
+    <button class="choice" data-answer="AWS Secrets Manager" onclick="choose(this, 'Kinesis Data Streams')">AWS Secrets Manager</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>18. Stream data should deliver to S3 with minimal code.</h3>
+    <button class="choice" data-answer="Data Firehose" onclick="choose(this, 'Data Firehose')">Data Firehose</button>
+    <button class="choice" data-answer="DynamoDB DAX" onclick="choose(this, 'Data Firehose')">DynamoDB DAX</button>
+    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Data Firehose')">Lambda layers</button>
+    <button class="choice" data-answer="API mapping" onclick="choose(this, 'Data Firehose')">API mapping</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>19. Existing Kafka apps should run on managed brokers.</h3>
+    <button class="choice" data-answer="Amazon MSK" onclick="choose(this, 'Amazon MSK')">Amazon MSK</button>
+    <button class="choice" data-answer="Amazon SQS" onclick="choose(this, 'Amazon MSK')">Amazon SQS</button>
+    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon MSK')">Amazon DAX</button>
+    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon MSK')">Amazon EFS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+  <section class="quiz" data-quiz>
+    <h3>20. ETL needs crawlers and a shared data catalog.</h3>
+    <button class="choice" data-answer="AWS Glue" onclick="choose(this, 'AWS Glue')">AWS Glue</button>
+    <button class="choice" data-answer="AWS Lambda" onclick="choose(this, 'AWS Glue')">AWS Lambda</button>
+    <button class="choice" data-answer="Amazon SNS" onclick="choose(this, 'AWS Glue')">Amazon SNS</button>
+    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'AWS Glue')">Amazon DAX</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">← Previous: Lesson 0012</a><a href="0014-authentication-and-authorization-selection.html">Next: Lesson 0014 →</a>
+  </nav>
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://aws.amazon.com/certification/certified-developer-associate/">AWS Certified Developer - Associate exam guide</a>. Use the Domain 1 task statements to classify every miss.</p>
+  <p>Ask me to turn your misses into a 10-question weak-topic rematch.</p>
+</main>
+<script src="../assets/quiz.js"></script><script src="../assets/timer.js"></script>
+</body>
+</html>

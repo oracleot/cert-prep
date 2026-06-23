@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0007 — API Gateway Request/Response Mapping</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0007</p>
+  <h1>API Gateway mapping is where requests and responses change shape.</h1>
+  <p class="subtitle">DVA-C02 tests whether you can place validation, parameter mapping, templates, and status-code handling on the correct side of API Gateway.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When a scenario says “transform,” “rename,” “require,” or “return a different status,” first classify the flow: <strong>method request → integration request → backend → integration response → method response</strong>.</p>
+    <p>Anchor this to <a href="../reference/dva-c02-curriculum-map.html">Domain 1 development</a>: API Gateway is being tested as the app integration layer.</p>
+  </section>
+
+  <h2>The five boxes</h2>
+  <div class="diagram">Client
+  → Method request: public API contract, auth, required params, validation
+  → Integration request: transform client input for Lambda, HTTP, or AWS service
+  → Backend
+  → Integration response: map backend output, headers, errors, status overrides
+  → Method response: public response contract: status codes, models, headers</div>
+
+  <section class="card">
+    <h3>Method request: reject bad input early</h3>
+    <p>Use method request settings to declare request parameters, such as a required query string. Add a <strong>request validator</strong> when API Gateway must check required parameters or request bodies before calling the backend.</p>
+  </section>
+
+  <section class="card">
+    <h3>Integration request: reshape the call</h3>
+    <p>Use integration request mapping when the backend expects a different shape than the public API. In REST APIs, non-proxy integrations can use <strong>Velocity Template Language (VTL)</strong> mapping templates to build a Lambda event or an AWS service request.</p>
+  </section>
+
+  <section class="card">
+    <h3>Integration response: reshape the answer</h3>
+    <p>Use integration responses to transform backend output into the public API response. This is where error patterns, headers, body templates, and <code>$context.responseOverride.status</code> can change what the client receives.</p>
+  </section>
+
+  <section class="card">
+    <h3>Method response: declare the contract</h3>
+    <p>Method responses define which status codes, response headers, and models the API can return. If a header or status is not declared for a REST API method response, mapping it later is a common trap.</p>
+  </section>
+
+  <h2>Proxy vs non-proxy</h2>
+  <ul>
+    <li><strong>Lambda proxy:</strong> API Gateway passes a standard event; Lambda returns <code>statusCode</code>, <code>headers</code>, and <code>body</code>.</li>
+    <li><strong>Non-proxy/custom:</strong> API Gateway owns mapping templates and method/integration response mappings.</li>
+    <li><strong>AWS service integration:</strong> VTL can remove a Lambda hop, such as direct API Gateway → DynamoDB.</li>
+    <li><strong>Exam clue:</strong> “no code change” plus “transform request/response” usually points to mapping templates.</li>
+  </ul>
+
+  <h2>Status override pattern</h2>
+  <pre>{
+  "message": "$input.path('$.errorMessage')"
+}
+#set($context.responseOverride.status = 400)</pre>
+  <p>Use status overrides when the backend response body contains the clue for the client status. Do not choose Lambda proxy if the scenario says API Gateway must perform the mapping.</p>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>Required query parameter alone is not enough.</strong> Add a request validator to enforce it.</li>
+    <li><strong>Method request is client-facing.</strong> Integration request is backend-facing.</li>
+    <li><strong>Method response is the declared client contract.</strong> Integration response performs the mapping.</li>
+    <li><strong>Proxy integration reduces mapping.</strong> Backend code controls the response shape.</li>
+    <li><strong>VTL means REST API mapping templates.</strong> It is not Lambda application code.</li>
+  </ul>
+
+  <h2>Practice: place the control</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Reject requests missing <code>?customerId=</code> before Lambda runs.</h3>
+    <button class="choice" data-answer="Request validator" onclick="choose(this, 'Request validator')">Request validator</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Request validator')">Lambda layer</button>
+    <button class="choice" data-answer="Stage cache" onclick="choose(this, 'Request validator')">Stage cache</button>
+    <button class="choice" data-answer="Usage plan" onclick="choose(this, 'Request validator')">Usage plan</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Convert a public query string into a DynamoDB <code>GetItem</code> payload.</h3>
+    <button class="choice" data-answer="Method response" onclick="choose(this, 'Integration request')">Method response</button>
+    <button class="choice" data-answer="Access logging" onclick="choose(this, 'Integration request')">Access logging</button>
+    <button class="choice" data-answer="Integration request" onclick="choose(this, 'Integration request')">Integration request</button>
+    <button class="choice" data-answer="Lambda version" onclick="choose(this, 'Integration request')">Lambda version</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Lambda returns the final <code>statusCode</code>, headers, and body itself.</h3>
+    <button class="choice" data-answer="Mock integration" onclick="choose(this, 'Lambda proxy')">Mock integration</button>
+    <button class="choice" data-answer="Lambda proxy" onclick="choose(this, 'Lambda proxy')">Lambda proxy</button>
+    <button class="choice" data-answer="Model schema" onclick="choose(this, 'Lambda proxy')">Model schema</button>
+    <button class="choice" data-answer="Request model" onclick="choose(this, 'Lambda proxy')">Request model</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. Backend says <code>{"error":"bad input"}</code>; client must receive HTTP 400.</h3>
+    <button class="choice" data-answer="Response override" onclick="choose(this, 'Response override')">Response override</button>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Response override')">Reserved concurrency</button>
+    <button class="choice" data-answer="Gateway timeout" onclick="choose(this, 'Response override')">Gateway timeout</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Response override')">Stage variable</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Declare that clients can receive a <code>201</code> with a custom header.</h3>
+    <button class="choice" data-answer="Method response" onclick="choose(this, 'Method response')">Method response</button>
+    <button class="choice" data-answer="Event source" onclick="choose(this, 'Method response')">Event source</button>
+    <button class="choice" data-answer="Function URL" onclick="choose(this, 'Method response')">Function URL</button>
+    <button class="choice" data-answer="Authorizer TTL" onclick="choose(this, 'Method response')">Authorizer TTL</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0006-lambda-vpc-permissions-and-failure-routing.html">← Previous: Lesson 0006</a>
+    <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Next: Lesson 0008 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/rest-api-data-transformations.html">API Gateway REST API data transformations</a>. Also review <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html">method request setup</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-response.html">method response setup</a>.</p>
+  <p>Ask me to drill proxy vs non-proxy integrations if those answer choices still feel too similar.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

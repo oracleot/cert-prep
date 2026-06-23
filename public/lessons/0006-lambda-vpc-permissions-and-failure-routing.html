@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0006 — Lambda VPC, Permissions, and Failure Routing</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0006</p>
+  <h1>Lambda in a VPC needs network config first, permissions second.</h1>
+  <p class="subtitle">DVA-C02 scenarios often mix VPC access, execution-role permissions, and failure-routing distractors. Classify the problem before choosing a feature.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When a Lambda question mentions private resources, ask three questions in order: <strong>Where is it attached?</strong> <strong>What can its role do?</strong> <strong>Where do failed async events go?</strong></p>
+    <p>Use this with the <a href="../reference/dva-c02-lambda-quick-sheet.html">Lambda quick sheet</a> and <a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>.</p>
+  </section>
+
+  <h2>The decision path</h2>
+  <div class="diagram">Needs RDS/ElastiCache/private subnet resource?
+  → configure Lambda VPC subnets + security groups
+  → execution role needs EC2 network-interface permissions
+  → outbound internet needs NAT, not just a public subnet
+
+Async failure routing?
+  → destinations for success/failure records
+  → DLQ only for failed async events</div>
+
+  <section class="card">
+    <h3>VPC access keyword pattern</h3>
+    <p>Choose Lambda VPC configuration when the function must reach resources inside a VPC, such as private RDS, ElastiCache, or internal services. You select <strong>subnets</strong> and <strong>security groups</strong>; Lambda creates and manages elastic network interfaces.</p>
+  </section>
+
+  <section class="card">
+    <h3>ENI permission pattern</h3>
+    <p>The function execution role must allow Lambda to manage network interfaces. The exam-friendly answer is usually the AWS managed policy <strong>AWSLambdaVPCAccessExecutionRole</strong>, which includes EC2 network-interface permissions plus CloudWatch Logs permissions.</p>
+  </section>
+
+  <section class="card">
+    <h3>Subnet and security group pattern</h3>
+    <p>For private database access, put Lambda in subnets that can route to the target and assign a security group that the target allows inbound. If the function also needs public internet access from private subnets, look for a <strong>NAT gateway</strong>.</p>
+  </section>
+
+  <section class="card">
+    <h3>Destinations vs DLQ pattern</h3>
+    <p>For asynchronous invocation, <strong>destinations</strong> can route success or failure records to SQS, SNS, Lambda, or EventBridge. A <strong>DLQ</strong> captures failed async events only, usually to SQS or SNS, and gives less context than destinations.</p>
+  </section>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>Resource policy is not execution role.</strong> Invocation permission lets a service call Lambda; execution role lets Lambda call AWS APIs.</li>
+    <li><strong>VPC attachment is not internet access.</strong> A Lambda in private subnets needs NAT for outbound public internet.</li>
+    <li><strong>Security groups are still enforced.</strong> The database must allow the Lambda security group inbound.</li>
+    <li><strong>DLQ is not for success.</strong> Choose destinations when the scenario needs success and failure routing.</li>
+    <li><strong>Console test events are payload tests.</strong> They do not prove private subnet routing, NAT, or security group access.</li>
+  </ul>
+
+  <h2>Practice: classify the missing piece</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Lambda must connect to an RDS database in private subnets.</h3>
+    <button class="choice" data-answer="VPC config" onclick="choose(this, 'VPC config')">VPC config</button>
+    <button class="choice" data-answer="DLQ config" onclick="choose(this, 'VPC config')">DLQ config</button>
+    <button class="choice" data-answer="Alias swap" onclick="choose(this, 'VPC config')">Alias swap</button>
+    <button class="choice" data-answer="Layer file" onclick="choose(this, 'VPC config')">Layer file</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Lambda VPC setup fails because it cannot create network interfaces.</h3>
+    <button class="choice" data-answer="KMS decrypt" onclick="choose(this, 'EC2 ENI perms')">KMS decrypt</button>
+    <button class="choice" data-answer="EC2 ENI perms" onclick="choose(this, 'EC2 ENI perms')">EC2 ENI perms</button>
+    <button class="choice" data-answer="S3 read perms" onclick="choose(this, 'EC2 ENI perms')">S3 read perms</button>
+    <button class="choice" data-answer="SNS send perms" onclick="choose(this, 'EC2 ENI perms')">SNS send perms</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A private-subnet Lambda must call a public third-party API.</h3>
+    <button class="choice" data-answer="NAT gateway" onclick="choose(this, 'NAT gateway')">NAT gateway</button>
+    <button class="choice" data-answer="DLQ target" onclick="choose(this, 'NAT gateway')">DLQ target</button>
+    <button class="choice" data-answer="Layer mount" onclick="choose(this, 'NAT gateway')">Layer mount</button>
+    <button class="choice" data-answer="Alias shift" onclick="choose(this, 'NAT gateway')">Alias shift</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. Async Lambda results need different targets for success and failure.</h3>
+    <button class="choice" data-answer="Destination" onclick="choose(this, 'Destination')">Destination</button>
+    <button class="choice" data-answer="Redrive job" onclick="choose(this, 'Destination')">Redrive job</button>
+    <button class="choice" data-answer="Stage var" onclick="choose(this, 'Destination')">Stage var</button>
+    <button class="choice" data-answer="Mock test" onclick="choose(this, 'Destination')">Mock test</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A service needs permission to invoke the Lambda function.</h3>
+    <button class="choice" data-answer="Resource policy" onclick="choose(this, 'Resource policy')">Resource policy</button>
+    <button class="choice" data-answer="Execution role" onclick="choose(this, 'Resource policy')">Execution role</button>
+    <button class="choice" data-answer="Subnet setting" onclick="choose(this, 'Resource policy')">Subnet setting</button>
+    <button class="choice" data-answer="Memory tuning" onclick="choose(this, 'Resource policy')">Memory tuning</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0005-lambda-configuration-traps.html">← Previous: Lesson 0005</a>
+    <a href="0007-api-gateway-request-response-mapping.html">Next: Lesson 0007 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html">AWS Lambda VPC configuration docs</a>. Also review <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html">Lambda destinations</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html#invocation-dlq">dead-letter queues</a>.</p>
+  <p>Ask me to drill VPC config vs IAM permission vs failure-routing keywords until the distractors feel obvious.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

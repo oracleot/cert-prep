@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0010 — DynamoDB Capacity and Indexes</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0010</p>
+  <h1>Do DynamoDB exam math before choosing features.</h1>
+  <p class="subtitle">DVA-C02 Domain 1 tests whether you can calculate capacity, spot consistency clues, and avoid index and partition traps.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>Given a DynamoDB scenario, classify it in this order: <strong>access pattern → capacity math → consistency → index behavior → partition risk → cache fit</strong>.</p>
+    <p>Related review: <a href="0001-dva-c02-domain-triage.html">Domain 1 triage</a>.</p>
+  </section>
+
+  <h2>1. Capacity math: round up first</h2>
+  <ul>
+    <li><strong>1 WCU</strong> = one write per second for an item up to <strong>1 KB</strong>. Round item size up to the next KB.</li>
+    <li><strong>1 RCU</strong> = one strongly consistent read per second for an item up to <strong>4 KB</strong>. Round item size up to the next 4 KB.</li>
+    <li><strong>Eventually consistent reads</strong> cost half: one RCU gives two eventual reads for up to 4 KB items.</li>
+    <li><strong>Transactional reads/writes</strong> cost double; do not pick them unless the scenario needs all-or-nothing correctness.</li>
+  </ul>
+
+  <div class="diagram">WCU = writes/sec × ceil(item KB / 1)
+Strong RCU = reads/sec × ceil(item KB / 4)
+Eventual RCU = (reads/sec × ceil(item KB / 4)) / 2</div>
+
+  <h2>2. Consistency: base table yes, GSI no</h2>
+  <section class="card">
+    <p>DynamoDB tables and local secondary indexes can use <strong>strongly consistent reads</strong>. Global secondary indexes support <strong>eventual consistency only</strong>.</p>
+    <p>Exam clue: if the answer requires strong reads on an alternate key, a <strong>GSI</strong> is a trap.</p>
+  </section>
+
+  <h2>3. Query beats Scan</h2>
+  <ul>
+    <li><strong>Query</strong>: targeted. Requires a partition key value and can narrow with a sort key condition.</li>
+    <li><strong>Scan</strong>: reads every item or index entry, then filters. Usually expensive and slow.</li>
+    <li><strong>FilterExpression</strong>: reduces returned items, not capacity consumed. It is not a capacity-saving strategy.</li>
+  </ul>
+
+  <h2>4. GSI behavior to recognize</h2>
+  <ul>
+    <li>A GSI has its own partition/sort key and lets you query by a different access pattern.</li>
+    <li>GSI reads and writes consume capacity from the index, not the base table.</li>
+    <li>Base-table writes can be throttled if the GSI cannot keep up.</li>
+    <li>Projected attributes decide what the index can return without fetching from the table.</li>
+  </ul>
+
+  <h2>5. Hot partitions are key-design failures</h2>
+  <p>If consumed table capacity is below provisioned capacity but requests are throttled, suspect a <strong>hot partition</strong>: one partition key gets too much traffic.</p>
+  <ul>
+    <li>Use high-cardinality partition keys: many distinct values, evenly accessed.</li>
+    <li>Use composite keys when the access pattern needs grouping plus ordering.</li>
+    <li>For write-heavy skew, add random suffix sharding and query the shards when reading.</li>
+    <li>Do not solve a hot write partition with DAX; DAX is a read-through cache.</li>
+  </ul>
+
+  <h2>6. DAX: read cache, not correctness</h2>
+  <section class="card">
+    <p>Choose <strong>DynamoDB Accelerator (DAX)</strong> for microsecond response times on read-heavy, eventually consistent workloads. Avoid it when the scenario needs strongly consistent reads, write scaling, ad hoc analytics, or better partition-key distribution.</p>
+  </section>
+
+  <h2>Practice: exam triage</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. 10 RCU, 4 KB items, eventual reads. Max reads/sec?</h3>
+    <button class="choice" data-answer="5" onclick="choose(this, '20')">5</button>
+    <button class="choice" data-answer="10" onclick="choose(this, '20')">10</button>
+    <button class="choice" data-answer="20" onclick="choose(this, '20')">20</button>
+    <button class="choice" data-answer="40" onclick="choose(this, '20')">40</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Alternate access pattern requires strong consistency.</h3>
+    <button class="choice" data-answer="GSI" onclick="choose(this, 'LSI')">GSI</button>
+    <button class="choice" data-answer="DAX" onclick="choose(this, 'LSI')">DAX</button>
+    <button class="choice" data-answer="LSI" onclick="choose(this, 'LSI')">LSI</button>
+    <button class="choice" data-answer="Scan" onclick="choose(this, 'LSI')">Scan</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Capacity is available, but one popular tenant throttles.</h3>
+    <button class="choice" data-answer="Add DAX" onclick="choose(this, 'Shard key')">Add DAX</button>
+    <button class="choice" data-answer="Use Scan" onclick="choose(this, 'Shard key')">Use Scan</button>
+    <button class="choice" data-answer="Shard key" onclick="choose(this, 'Shard key')">Shard key</button>
+    <button class="choice" data-answer="Add GSI" onclick="choose(this, 'Shard key')">Add GSI</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. Need microsecond reads for eventually consistent lookup data.</h3>
+    <button class="choice" data-answer="DAX" onclick="choose(this, 'DAX')">DAX</button>
+    <button class="choice" data-answer="LSI" onclick="choose(this, 'DAX')">LSI</button>
+    <button class="choice" data-answer="Scan" onclick="choose(this, 'DAX')">Scan</button>
+    <button class="choice" data-answer="Streams" onclick="choose(this, 'DAX')">Streams</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0009-retries-idempotency-backoff-and-dlqs.html">← Previous: Lesson 0009</a>
+    <a href="0011-storage-selection-and-lifecycle.html">Next: Lesson 0011 →</a>
+  </nav>
+
+  <h2>Primary source</h2>
+  <p>Read AWS: <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html">DynamoDB read/write capacity mode</a>, then <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html">Query</a> vs <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html">Scan</a>.</p>
+  <p>Ask the agent to drill you on DynamoDB capacity math until the rounding is automatic.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

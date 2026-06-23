@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0015 — Domain 2 Error Handling and Security Logging</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0015</p>
+  <h1>Handle failures without leaking security context.</h1>
+  <p class="subtitle">DVA-C02 Domain 2 scenarios test whether you can classify failures, preserve evidence, and avoid exposing secrets while fixing the error path.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When a question says <strong>error handling</strong>, do not only think retry. Ask whether the app must <strong>recover</strong>, <strong>isolate</strong>, <strong>redact</strong>, or <strong>prove who was denied</strong>.</p>
+    <p>Related review: <a href="0009-retries-idempotency-backoff-and-dlqs.html">retries, idempotency, and DLQs</a>.</p>
+  </section>
+
+  <h2>The exam decision path</h2>
+  <div class="diagram">Transient AWS API failure?
+  → SDK retry mode, exponential backoff, jitter
+
+Poison async event or repeated message failure?
+  → Lambda destination / DLQ / SQS redrive policy
+
+Multi-step workflow needs alternate branch?
+  → Step Functions Retry and Catch
+
+AccessDenied or KMS Decrypt denied?
+  → check explicit deny, SCP, boundary, session, resource policy, key policy
+
+Security incident or audit trail needed?
+  → CloudTrail for API calls, CloudWatch Logs for app logs, X-Ray for traces</div>
+
+  <section class="card">
+    <h3>1. Return safe errors; log useful facts</h3>
+    <p>Client-facing errors should be useful but not revealing. Do not return stack traces, policy names, secret names, access keys, tokens, or raw exception dumps. Log request IDs, principal context, resource IDs, and sanitized failure codes for investigation.</p>
+    <p>Source: <a href="https://docs.aws.amazon.com/lambda/latest/operatorguide/logging.html">AWS Lambda logging best practices</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>2. Pick the failure mechanism by shape</h3>
+    <ul>
+      <li><strong>SDK call failed temporarily:</strong> retry with backoff and jitter.</li>
+      <li><strong>Lambda async event failed:</strong> use destinations or a DLQ.</li>
+      <li><strong>SQS message keeps failing:</strong> configure a redrive policy.</li>
+      <li><strong>Workflow task fails:</strong> use Step Functions <code>Retry</code> and <code>Catch</code>.</li>
+    </ul>
+    <p>Sources: <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">SDK retries</a>, <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async errors</a>, and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html">Step Functions error handling</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>3. Troubleshoot denial in evaluation order</h3>
+    <p>For IAM, an explicit deny wins. If there is no explicit deny, the request still needs an allow from the right policy path. Check identity policies, resource policies, permission boundaries, session policies, SCPs, and service-specific policies.</p>
+    <p>KMS has an extra trap: the caller usually needs permission through IAM <em>and</em> the KMS key policy or grant.</p>
+    <p>Source: <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">IAM policy evaluation logic</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>4. Use logs and traces without creating evidence leaks</h3>
+    <p>Use CloudWatch Logs for application security events and CloudTrail for AWS API activity. Use X-Ray to trace requests across services, but keep secrets and sensitive data out of annotations, metadata, and log fields.</p>
+    <p>Sources: <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html">CloudWatch Logs</a>, <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html">CloudTrail</a>, and <a href="https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html">X-Ray concepts</a>.</p>
+  </section>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>Retry is not authorization.</strong> AccessDenied is usually policy evaluation, not transient failure.</li>
+    <li><strong>Logging is not dumping.</strong> Never log credentials, bearer tokens, API keys, or decrypted secrets.</li>
+    <li><strong>CloudWatch is not CloudTrail.</strong> App logs go to CloudWatch; AWS API history goes to CloudTrail.</li>
+    <li><strong>KMS deny may be key policy.</strong> Identity allow alone can still fail.</li>
+  </ul>
+
+  <h2>Practice: classify the safe response</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. An API returns stack traces and policy names to users.</h3>
+    <button class="choice" data-answer="Redact client error" onclick="choose(this, 'Redact client error')">Redact client error</button>
+    <button class="choice" data-answer="Increase retry count" onclick="choose(this, 'Redact client error')">Increase retry count</button>
+    <button class="choice" data-answer="Enable table scans" onclick="choose(this, 'Redact client error')">Enable table scans</button>
+    <button class="choice" data-answer="Disable key policy" onclick="choose(this, 'Redact client error')">Disable key policy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. A Lambda async event fails after all retry attempts.</h3>
+    <button class="choice" data-answer="Use failure target" onclick="choose(this, 'Use failure target')">Use failure target</button>
+    <button class="choice" data-answer="Use public subnet" onclick="choose(this, 'Use failure target')">Use public subnet</button>
+    <button class="choice" data-answer="Use stage switch" onclick="choose(this, 'Use failure target')">Use stage switch</button>
+    <button class="choice" data-answer="Use larger memory" onclick="choose(this, 'Use failure target')">Use larger memory</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A workflow needs a branch when a task throws a known error.</h3>
+    <button class="choice" data-answer="Step Functions Catch" onclick="choose(this, 'Step Functions Catch')">Step Functions Catch</button>
+    <button class="choice" data-answer="CloudFront invalidation" onclick="choose(this, 'Step Functions Catch')">CloudFront invalidation</button>
+    <button class="choice" data-answer="Secrets rotation job" onclick="choose(this, 'Step Functions Catch')">Secrets rotation job</button>
+    <button class="choice" data-answer="Parameter hierarchy" onclick="choose(this, 'Step Functions Catch')">Parameter hierarchy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A role has an allow, but requests are still denied.</h3>
+    <button class="choice" data-answer="Check explicit deny" onclick="choose(this, 'Check explicit deny')">Check explicit deny</button>
+    <button class="choice" data-answer="Check larger timeout" onclick="choose(this, 'Check explicit deny')">Check larger timeout</button>
+    <button class="choice" data-answer="Check warmer cache" onclick="choose(this, 'Check explicit deny')">Check warmer cache</button>
+    <button class="choice" data-answer="Check newer runtime" onclick="choose(this, 'Check explicit deny')">Check newer runtime</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Compliance needs to know who called <code>kms:Decrypt</code>.</h3>
+    <button class="choice" data-answer="CloudTrail event" onclick="choose(this, 'CloudTrail event')">CloudTrail event</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'CloudTrail event')">Lambda layer</button>
+    <button class="choice" data-answer="DAX metric" onclick="choose(this, 'CloudTrail event')">DAX metric</button>
+    <button class="choice" data-answer="ACM import" onclick="choose(this, 'CloudTrail event')">ACM import</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0014-authentication-and-authorization-selection.html">← Previous: Lesson 0014</a><a href="0016-domain-2-secure-configuration-selection.html">Next: Lesson 0016 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">IAM policy evaluation logic</a>. Then skim <a href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html">Step Functions error handling</a>.</p>
+  <p>Ask me to drill AccessDenied troubleshooting until you can name the likely policy layer from one clue.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

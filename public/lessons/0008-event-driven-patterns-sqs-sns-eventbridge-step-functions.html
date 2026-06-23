@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0008 — Event-Driven Patterns</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0008</p>
+  <h1>Pick the event service by the coupling problem.</h1>
+  <p class="subtitle">DVA-C02 Domain 1 expects fast recognition of SQS, SNS, EventBridge, and Step Functions in loose-coupling scenarios.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When a scenario says “decouple,” do not stop at “serverless.” Classify the communication shape: <strong>buffer</strong>, <strong>broadcast</strong>, <strong>route</strong>, or <strong>orchestrate</strong>.</p>
+    <p>Related review: <a href="0004-lambda-event-source-mappings.html">Lambda event source mappings</a>.</p>
+  </section>
+
+  <h2>The four shapes</h2>
+  <div class="diagram">SQS          producer → queue → consumer
+SNS fanout   publisher → topic → many subscribers
+EventBridge  event bus → rules → selected targets
+Step Funcs   state machine → ordered workflow steps</div>
+
+  <section class="card">
+    <h3>SQS: buffer and absorb spikes</h3>
+    <p>Choose <strong>SQS</strong> when producers and consumers should not depend on each other’s speed or availability. Keywords: queue, backlog, polling, message retention, visibility timeout, dead-letter queue.</p>
+  </section>
+
+  <section class="card">
+    <h3>SNS: push one message to many</h3>
+    <p>Choose <strong>SNS</strong> for pub/sub fanout when one publication must notify multiple subscribers such as SQS queues, Lambda functions, HTTPS endpoints, email, or SMS.</p>
+  </section>
+
+  <section class="card">
+    <h3>EventBridge: route application events</h3>
+    <p>Choose <strong>EventBridge</strong> when events need content-based rules, SaaS/AWS/custom event buses, schema discovery, or many services reacting without a central workflow owner.</p>
+  </section>
+
+  <section class="card">
+    <h3>Step Functions: own the workflow state</h3>
+    <p>Choose <strong>Step Functions</strong> when the scenario needs branching, retries, wait states, error handling, human-readable state history, or long-running workflow orchestration.</p>
+  </section>
+
+  <h2>Orchestration vs choreography</h2>
+  <ul>
+    <li><strong>Orchestration:</strong> one coordinator decides the next step. Exam clue: state machine, workflow, branch, retry policy.</li>
+    <li><strong>Choreography:</strong> services react to events independently. Exam clue: event bus, loose coupling, rules, subscribers.</li>
+    <li><strong>Fanout:</strong> duplicate one event to multiple consumers. Classic answer: SNS topic with SQS subscriptions.</li>
+    <li><strong>Back pressure:</strong> smooth traffic spikes between producer and worker. Classic answer: SQS queue.</li>
+  </ul>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>SNS is not a durable work queue.</strong> If workers need to pull and retry, put SQS behind SNS.</li>
+    <li><strong>EventBridge is not Step Functions.</strong> EventBridge routes events; Step Functions tracks workflow state.</li>
+    <li><strong>Lambda is not the default orchestrator.</strong> Complex coordination belongs in Step Functions.</li>
+    <li><strong>Loose coupling still needs idempotency.</strong> Retries and duplicate events can happen.</li>
+  </ul>
+
+  <h2>Practice: choose the pattern</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Orders arrive faster than workers can process them.</h3>
+    <button class="choice" data-answer="SQS" onclick="choose(this, 'SQS')">SQS</button>
+    <button class="choice" data-answer="SNS" onclick="choose(this, 'SQS')">SNS</button>
+    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'SQS')">EventBridge</button>
+    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'SQS')">Step Functions</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. One event must trigger billing, analytics, and email.</h3>
+    <button class="choice" data-answer="SQS" onclick="choose(this, 'SNS')">SQS</button>
+    <button class="choice" data-answer="SNS" onclick="choose(this, 'SNS')">SNS</button>
+    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'SNS')">EventBridge</button>
+    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'SNS')">Step Functions</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A SaaS event should route to targets by event fields.</h3>
+    <button class="choice" data-answer="SQS" onclick="choose(this, 'EventBridge')">SQS</button>
+    <button class="choice" data-answer="SNS" onclick="choose(this, 'EventBridge')">SNS</button>
+    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'EventBridge')">EventBridge</button>
+    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'EventBridge')">Step Functions</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A checkout flow needs branching, waits, and retries.</h3>
+    <button class="choice" data-answer="SQS" onclick="choose(this, 'Step Functions')">SQS</button>
+    <button class="choice" data-answer="SNS" onclick="choose(this, 'Step Functions')">SNS</button>
+    <button class="choice" data-answer="EventBridge" onclick="choose(this, 'Step Functions')">EventBridge</button>
+    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'Step Functions')">Step Functions</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Which phrase points most directly to choreography?</h3>
+    <button class="choice" data-answer="Event bus" onclick="choose(this, 'Event bus')">Event bus</button>
+    <button class="choice" data-answer="State machine" onclick="choose(this, 'Event bus')">State machine</button>
+    <button class="choice" data-answer="Wait state" onclick="choose(this, 'Event bus')">Wait state</button>
+    <button class="choice" data-answer="Retry policy" onclick="choose(this, 'Event bus')">Retry policy</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0007-api-gateway-request-response-mapping.html">← Previous: Lesson 0007</a>
+    <a href="0009-retries-idempotency-backoff-and-dlqs.html">Next: Lesson 0009 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/event-driven-architecture-with-eventbridge.html">AWS serverless event-driven architecture with EventBridge</a>. Also compare <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html">SQS</a>, <a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html">SNS</a>, and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html">Step Functions</a>.</p>
+  <p>Ask me to grill you on service selection if SQS vs SNS vs EventBridge vs Step Functions still feels interchangeable.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

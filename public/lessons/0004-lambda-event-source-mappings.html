@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0004 — Lambda Event Source Mappings</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0004</p>
+  <h1>Lambda event source mappings mean Lambda polls and batches for you.</h1>
+  <p class="subtitle">DVA-C02 likes to test whether you can distinguish direct invocation from Lambda reading SQS, Kinesis, or DynamoDB Streams.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You already know Lambda invocation and concurrency. Now add this exam move: when the source is a <strong>queue or stream</strong>, look for an <strong>event source mapping</strong>.</p>
+    <p>Keep the <a href="../reference/dva-c02-lambda-quick-sheet.html">Lambda quick sheet</a> open while you drill.</p>
+  </section>
+
+  <h2>The pattern</h2>
+  <div class="diagram">SQS / Kinesis / DynamoDB Streams
+  → event source mapping polls records
+  → Lambda receives a batch
+  → failures are handled by source-specific rules</div>
+
+  <section class="card">
+    <h3>SQS keyword pattern</h3>
+    <p>Choose event source mapping when Lambda must process queue messages in batches. For failed SQS processing, think <strong>visibility timeout</strong> and <strong>redrive policy</strong> on the queue.</p>
+  </section>
+
+  <section class="card">
+    <h3>Kinesis and DynamoDB Streams keyword pattern</h3>
+    <p>Choose event source mapping when Lambda processes stream records. The exam clue is <strong>shards</strong>: Lambda processes records from each shard in order, so shard count shapes parallelism.</p>
+  </section>
+
+  <section class="card">
+    <h3>Async destination distractor</h3>
+    <p>Destinations are for asynchronous Lambda invocations. If Lambda is polling SQS, Kinesis, or DynamoDB Streams, start with event source mapping behavior instead.</p>
+  </section>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>Poll-based is not async invocation.</strong> Lambda is reading from the source.</li>
+    <li><strong>SQS failures belong to SQS controls.</strong> Visibility timeout and redrive policy are common answer keywords.</li>
+    <li><strong>Stream ordering matters.</strong> Kinesis and DynamoDB Streams preserve order per shard.</li>
+    <li><strong>Shards shape concurrency.</strong> More active shards can allow more parallel Lambda processing.</li>
+    <li><strong>Idempotency still matters.</strong> Retries can cause duplicate processing.</li>
+  </ul>
+
+  <h2>Practice: spot the mapping</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Lambda must read messages from SQS in batches.</h3>
+    <button class="choice" data-answer="Async destination" onclick="choose(this, 'Event source mapping')">Async destination</button>
+    <button class="choice" data-answer="Event source mapping" onclick="choose(this, 'Event source mapping')">Event source mapping</button>
+    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Event source mapping')">Provisioned concurrency</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Event source mapping')">Lambda layer</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. A failed SQS message should eventually move to a dead-letter queue.</h3>
+    <button class="choice" data-answer="Redrive policy" onclick="choose(this, 'Redrive policy')">Redrive policy</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Redrive policy')">Stage variable</button>
+    <button class="choice" data-answer="X-Ray segment" onclick="choose(this, 'Redrive policy')">X-Ray segment</button>
+    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Redrive policy')">Lambda alias</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. DynamoDB Streams records must be processed in order per partition path.</h3>
+    <button class="choice" data-answer="Per shard" onclick="choose(this, 'Per shard')">Per shard</button>
+    <button class="choice" data-answer="Per layer" onclick="choose(this, 'Per shard')">Per layer</button>
+    <button class="choice" data-answer="Per alias" onclick="choose(this, 'Per shard')">Per alias</button>
+    <button class="choice" data-answer="Per stage" onclick="choose(this, 'Per shard')">Per stage</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A Kinesis stream has 25 active shards. What is the key concurrency clue?</h3>
+    <button class="choice" data-answer="Shard count" onclick="choose(this, 'Shard count')">Shard count</button>
+    <button class="choice" data-answer="Queue count" onclick="choose(this, 'Shard count')">Queue count</button>
+    <button class="choice" data-answer="Layer count" onclick="choose(this, 'Shard count')">Layer count</button>
+    <button class="choice" data-answer="Stage count" onclick="choose(this, 'Shard count')">Stage count</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. S3 invokes Lambda after object creation and does not wait for output.</h3>
+    <button class="choice" data-answer="Async invocation" onclick="choose(this, 'Async invocation')">Async invocation</button>
+    <button class="choice" data-answer="Event source map" onclick="choose(this, 'Async invocation')">Event source map</button>
+    <button class="choice" data-answer="Poll response" onclick="choose(this, 'Async invocation')">Poll response</button>
+    <button class="choice" data-answer="Stream mapping" onclick="choose(this, 'Async invocation')">Stream mapping</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0003-lambda-concurrency-and-performance.html">← Previous: Lesson 0003</a>
+    <a href="0005-lambda-configuration-traps.html">Next: Lesson 0005 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html">AWS Lambda event source mapping docs</a>. Then review Domain 1 Lesson 3 in <a href="../docs/aws%20dva-c02.md">the local curriculum</a>.</p>
+  <p>Ask me to drill SQS vs Kinesis vs DynamoDB Streams if any source-specific keyword still feels fuzzy.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

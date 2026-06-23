@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DVA-C02 Deployment Quick Sheet</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>Deployment quick sheet</h1>
+  <p class="subtitle">Domain 3 exam selectors for artifacts, dev/test environments, automated deployment testing, CI/CD, safe rollout, and rollback.</p>
+
+  <section class="card">
+    <h2>Domain 3 shape</h2>
+    <ul>
+      <li><strong>Weight:</strong> 20%, roughly 13 exam questions.</li>
+      <li><strong>Official tasks:</strong> prepare artifacts, test in development, automate deployment testing, and deploy with CI/CD services.</li>
+      <li><strong>Fast triage:</strong> package, build, template, stage, branch, approval, canary, rollback, or pipeline usually means Deployment.</li>
+    </ul>
+  </section>
+
+  <h2>Task selector</h2>
+  <div class="diagram">Dependencies, package, layer, image       → 3.1 Prepare artifacts
+Mock endpoint, stage, alias, dev stack    → 3.2 Test in dev
+Automated test gate, buildspec, version   → 3.3 Automate tests
+Commit, pipeline, approval, rollout       → 3.4 Deploy with CI/CD</div>
+
+  <h2>Artifact selector</h2>
+  <div class="diagram">Team package repository              → CodeArtifact
+Packaged SAM/Lambda zip storage       → Amazon S3
+Native Lambda dependency build        → sam build --use-container
+Zip and upload SAM artifacts          → sam package
+Create or update serverless stack     → sam deploy
+Shared zip dependency or runtime      → Lambda layer
+Container image source                → Amazon ECR
+Runtime feature flags/config rollout  → AWS AppConfig</div>
+
+  <section class="card">
+    <h2>SAM command cuts</h2>
+    <ul>
+      <li><strong>sam build:</strong> prepare local project; use containers to match the Lambda runtime.</li>
+      <li><strong>sam package:</strong> upload artifacts to S3 and produce a packaged template.</li>
+      <li><strong>sam deploy:</strong> create or update the CloudFormation stack.</li>
+      <li><strong>Transform:</strong> <code>AWS::Serverless-2016-10-31</code> enables SAM resources inside CloudFormation.</li>
+    </ul>
+  </section>
+
+  <h2>Dev/test environment selector</h2>
+  <div class="diagram">Backend missing but consumers must test → API Gateway MOCK
+Same API, different env settings       → API Gateway stages/variables
+Stable trigger while Lambda changes    → Lambda alias ARN
+EC2 packages/files from stack metadata → cfn-init
+Stack waits for EC2 bootstrap          → cfn-signal
+Fastest deployment, high blast radius  → all-at-once
+Major platform/runtime change          → blue/green
+Same resources stop/install/start      → in-place</div>
+
+  <h2>Automated testing selector</h2>
+  <div class="diagram">Ordered source-build-test-deploy flow → CodePipeline
+Commands run unit tests/package app    → CodeBuild buildspec
+Small slice, wait, then rest           → CodeDeploy canary
+Equal slices every interval            → CodeDeploy linear
+All traffic moves immediately          → CodeDeploy all-at-once
+Only approved image proceeds           → ECR tag or digest
+Cross-account test deployment          → STS AssumeRole target role</div>
+
+  <h2>CI/CD service selector</h2>
+  <div class="diagram">Release workflow orchestration        → CodePipeline
+Build commands, artifacts, reports     → CodeBuild
+Traffic shifting and app rollout       → CodeDeploy
+EC2 file placement/lifecycle hooks     → AppSpec file
+Same stack across accounts/Regions     → CloudFormation StackSets
+Program IaC in familiar language       → AWS CDK
+Managed app platform deployment modes  → Elastic Beanstalk
+Stack rollback on alarm                → CloudFormation rollback trigger</div>
+
+  <section class="card">
+    <h2>High-yield traps</h2>
+    <ul>
+      <li>CodePipeline orchestrates; CodeBuild runs commands; CodeDeploy shifts traffic or updates app fleets.</li>
+      <li>Buildspec belongs to CodeBuild. AppSpec belongs to CodeDeploy EC2/on-premises deployments.</li>
+      <li>Lambda versions are immutable; aliases are movable pointers for promotion and traffic shifting.</li>
+      <li>Canary is small-first-then-rest. Linear is equal increments over time.</li>
+      <li>CloudFormation ChangeSets preview changes; StackSets roll out stacks across accounts or Regions.</li>
+      <li>Rollback clues often mention failed hooks, failed health checks, or CloudWatch alarms.</li>
+    </ul>
+  </section>
+
+  <h2>Local review path</h2>
+  <ul>
+    <li><a href="../lessons/0019-domain-3-introduction.html">Lesson 0019: Domain 3 introduction</a></li>
+    <li><a href="../lessons/0020-prepare-application-artifacts.html">Lesson 0020: prepare application artifacts</a></li>
+    <li><a href="../lessons/0021-test-applications-in-dev-environments.html">Lesson 0021: test in development environments</a></li>
+    <li><a href="../lessons/0022-automate-deployment-testing.html">Lesson 0022: automate deployment testing</a></li>
+    <li><a href="../lessons/0023-deploy-code-using-ci-cd-services.html">Lesson 0023: deploy code using CI/CD services</a></li>
+  </ul>
+
+  <h2>Primary sources</h2>
+  <ul>
+    <li><a href="../docs/aws%20dva-c02.md">Local DVA-C02 curriculum notes</a></li>
+    <li><a href="https://aws.amazon.com/certification/certified-developer-associate/">AWS Certified Developer - Associate certification page</a></li>
+    <li><a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">AWS CodePipeline User Guide</a></li>
+    <li><a href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html">AWS CodeBuild buildspec reference</a></li>
+    <li><a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">AWS CodeDeploy deployment configurations</a></li>
+    <li><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS Serverless Application Model Developer Guide</a></li>
+    <li><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html">CloudFormation StackSets</a></li>
+  </ul>
+</main>
+</body>
+</html>

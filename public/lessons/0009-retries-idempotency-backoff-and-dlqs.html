@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0009 — Retries, Idempotency, Backoff, and DLQs</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0009</p>
+  <h1>Retry safely, then isolate poison failures.</h1>
+  <p class="subtitle">DVA-C02 Domain 1 tests whether you can recognize safe retries, exponential backoff with jitter, idempotent logic, and dead-letter queues in distributed apps.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When a scenario says <strong>transient failure</strong>, think retry. When it says <strong>duplicate side effects</strong>, think idempotency. When it says <strong>repeatedly failing message</strong>, think DLQ.</p>
+    <p>Related review: <a href="0004-lambda-event-source-mappings.html">Lambda event source mappings</a> and <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">event-driven patterns</a>.</p>
+  </section>
+
+  <h2>The exam decision path</h2>
+  <div class="diagram">Is the failure temporary?
+  yes → retry with exponential backoff + jitter
+  no  → fail fast or route to an error path
+
+Can the operation run twice safely?
+  yes → retry normally
+  no  → add idempotency key / conditional write / processed-event record
+
+Does the same message keep failing?
+  yes → send to DLQ after max receives / failed async attempts</div>
+
+  <section class="card">
+    <h3>1. AWS SDK retries are already built in</h3>
+    <p>AWS SDKs include retry behavior for many transient errors, throttling responses, and network failures. Exam clue: if an app uses the AWS SDK and needs reliable API calls, prefer SDK retry configuration before custom retry loops.</p>
+    <p>Source: <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry behavior</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>2. Backoff waits longer; jitter spreads callers out</h3>
+    <p><strong>Exponential backoff</strong> increases delay after each failed attempt. <strong>Jitter</strong> randomizes that delay so thousands of clients do not retry at the same time and overload the service again.</p>
+    <p>Keyword trap: “retry immediately” can make an outage worse. “Reduce contention” or “avoid retry storms” points to jitter.</p>
+    <p>Source: <a href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/">AWS Architecture Blog: Exponential Backoff and Jitter</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>3. Idempotency makes duplicate delivery harmless</h3>
+    <p>Distributed systems can deliver duplicate events. Idempotent logic ensures the original request succeeds and later retries have no additional effect.</p>
+    <ul>
+      <li>Use a client request token, order ID, or event ID as an idempotency key.</li>
+      <li>Record processed IDs in DynamoDB, often with a conditional write.</li>
+      <li>Design updates so repeating the same request does not double charge, double email, or double ship.</li>
+    </ul>
+    <p>Source: <a href="https://docs.powertools.aws.dev/lambda/python/latest/utilities/idempotency/">AWS Lambda Powertools idempotency utility</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>4. DLQs are for messages you cannot process now</h3>
+    <p>A <strong>dead-letter queue</strong> captures failed messages after retry limits so normal processing can continue and operators can inspect, replay, or fix bad events.</p>
+    <ul>
+      <li>For SQS, configure a redrive policy and <code>maxReceiveCount</code>.</li>
+      <li>For Lambda async invokes, use destinations or a DLQ for failed events.</li>
+      <li>Do not use a DLQ to hide bugs; alarm on DLQ depth.</li>
+    </ul>
+    <p>Sources: <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html">SQS DLQs</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async error handling</a>.</p>
+  </section>
+
+  <h2>Fast classification</h2>
+  <ul>
+    <li><strong>ThrottlingException, 5xx, timeout:</strong> retry with SDK/backoff.</li>
+    <li><strong>Many clients retry together:</strong> add jitter.</li>
+    <li><strong>Payment/order/write may happen twice:</strong> make operation idempotent first.</li>
+    <li><strong>One message blocks progress repeatedly:</strong> route to DLQ after max attempts.</li>
+    <li><strong>Workflow step needs per-state retry/catch:</strong> Step Functions retry and catch policies.</li>
+  </ul>
+
+  <h2>Practice: choose the failure tool</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. A DynamoDB write receives occasional throttling errors.</h3>
+    <button class="choice" data-answer="Backoff retry" onclick="choose(this, 'Backoff retry')">Backoff retry</button>
+    <button class="choice" data-answer="Dead queue" onclick="choose(this, 'Backoff retry')">Dead queue</button>
+    <button class="choice" data-answer="Skip write" onclick="choose(this, 'Backoff retry')">Skip write</button>
+    <button class="choice" data-answer="Manual page" onclick="choose(this, 'Backoff retry')">Manual page</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Thousands of clients retry after the same outage.</h3>
+    <button class="choice" data-answer="Add jitter" onclick="choose(this, 'Add jitter')">Add jitter</button>
+    <button class="choice" data-answer="Add cache" onclick="choose(this, 'Add jitter')">Add cache</button>
+    <button class="choice" data-answer="Add alarm" onclick="choose(this, 'Add jitter')">Add alarm</button>
+    <button class="choice" data-answer="Add layer" onclick="choose(this, 'Add jitter')">Add layer</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A retry must not create a second customer order.</h3>
+    <button class="choice" data-answer="Idempotent code" onclick="choose(this, 'Idempotent code')">Idempotent code</button>
+    <button class="choice" data-answer="Reserved conc" onclick="choose(this, 'Idempotent code')">Reserved conc</button>
+    <button class="choice" data-answer="Provisioned conc" onclick="choose(this, 'Idempotent code')">Provisioned conc</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Idempotent code')">Stage variable</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. An SQS message fails processing after repeated receives.</h3>
+    <button class="choice" data-answer="Use DLQ" onclick="choose(this, 'Use DLQ')">Use DLQ</button>
+    <button class="choice" data-answer="Use DAX" onclick="choose(this, 'Use DLQ')">Use DAX</button>
+    <button class="choice" data-answer="Use WAF" onclick="choose(this, 'Use DLQ')">Use WAF</button>
+    <button class="choice" data-answer="Use EFS" onclick="choose(this, 'Use DLQ')">Use EFS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A multi-step workflow needs retry rules per task.</h3>
+    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'Step Functions')">Step Functions</button>
+    <button class="choice" data-answer="API Gateway" onclick="choose(this, 'Step Functions')">API Gateway</button>
+    <button class="choice" data-answer="CloudFront CDN" onclick="choose(this, 'Step Functions')">CloudFront CDN</button>
+    <button class="choice" data-answer="Cognito Sync" onclick="choose(this, 'Step Functions')">Cognito Sync</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">← Previous: Lesson 0008</a>
+    <a href="0010-dynamodb-capacity-consistency-and-indexes.html">Next: Lesson 0010 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDKs and Tools Reference Guide: Retry behavior</a>. Then skim <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a>.</p>
+  <p>Ask me to grill you on retry-vs-idempotency-vs-DLQ scenarios until the keyword recognition is automatic.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

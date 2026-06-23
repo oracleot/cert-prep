@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0022 — Automate Deployment Testing</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0022</p>
+  <h1>Automate the test gate before production.</h1>
+  <p class="subtitle">Task Statement 3.3: choose the AWS service or feature that makes deployment testing repeatable across environments.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will classify deployment-testing clues into <strong>pipeline stages</strong>, <strong>buildspec tests</strong>, <strong>traffic shifting</strong>, <strong>API integrations</strong>, and <strong>approved environment promotion</strong>.</p>
+    <p>Source map: Domain 3 Task 3.3 in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
+  </section>
+
+  <h2>Exam selector</h2>
+  <div class="diagram">Commit triggers release workflow        → CodePipeline source stage
+Run unit tests from commands          → CodeBuild buildspec
+Shift Lambda traffic every interval   → CodeDeploy linear
+Shift a small slice, then the rest    → CodeDeploy canary
+Route all traffic immediately         → CodeDeploy all-at-once
+Promote only approved container image → ECR tags or digests</div>
+
+  <h2>1. CodePipeline is the automation spine</h2>
+  <ul>
+    <li><strong>Stages</strong> group actions in order: source, build, test, staging, approval, production.</li>
+    <li><strong>Source</strong> starts from a repository or artifact change; <strong>build/test</strong> often runs CodeBuild.</li>
+    <li><strong>Deploy</strong> can call CloudFormation, CodeDeploy, ECS, Elastic Beanstalk, or custom actions.</li>
+    <li><strong>Cross-account</strong> deployments use IAM roles and STS AssumeRole so the pipeline can enter test, pre-prod, or prod accounts with temporary credentials.</li>
+  </ul>
+
+  <h2>2. CodeBuild proves the artifact</h2>
+  <section class="card">
+    <h3>Buildspec clue</h3>
+    <p>If the scenario says install dependencies, run unit tests, package artifacts, or publish test reports from commands, choose <strong>CodeBuild buildspec.yml</strong>.</p>
+  </section>
+  <div class="diagram">install     dependency setup
+pre_build  login, lint, test setup
+build      compile and unit tests
+post_build package, report, push artifact
+reports    test result groups
+artifacts  files for the next stage</div>
+
+  <h2>3. CodeDeploy controls blast radius</h2>
+  <ul>
+    <li><strong>Canary:</strong> send a small percentage first, wait, then send the rest. Clues: 10% first, monitor, then full.</li>
+    <li><strong>Linear:</strong> shift equal increments at fixed intervals. Clues: every 5 minutes, every 15 minutes, equal batches.</li>
+    <li><strong>All-at-once:</strong> shift all traffic immediately. Fastest, riskiest, least validation window.</li>
+    <li><strong>Validation:</strong> use lifecycle hooks and CloudWatch alarms to stop or roll back bad deployments.</li>
+  </ul>
+
+  <h2>4. API Gateway testing keywords</h2>
+  <div class="diagram">MOCK        Gateway returns test responses without a backend
+AWS_PROXY   Lambda proxy; full request event passed to Lambda
+AWS         AWS service or Lambda with mapping templates
+HTTP_PROXY  Passthrough to HTTP backend
+HTTP        HTTP backend with request/response mapping</div>
+  <ul>
+    <li>Use <strong>stages</strong> for dev, test, staging, and prod API deployments.</li>
+    <li>Use <strong>stage variables</strong>, logging, throttling, caching, and canary settings to isolate test behavior.</li>
+    <li>Choose <strong>MOCK</strong> when dependencies are unavailable but consumers need predictable integration tests.</li>
+  </ul>
+
+  <h2>5. Approved versions across services</h2>
+  <ul>
+    <li><strong>ECR tags</strong> mark images such as dev, test, release, or prod; immutable digests are safer for exact approvals.</li>
+    <li><strong>Amplify branches</strong> map Git branches to frontend/backend environments and deploy updates on commits.</li>
+    <li><strong>AWS Copilot</strong> creates ECS application environments and can provision pipelines across accounts or Regions.</li>
+    <li><strong>STS roles</strong> let automated tests assume only the account role needed for that environment.</li>
+  </ul>
+
+  <h2>Retrieval drill: pick the tested feature</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. A commit must trigger build, test, staging, and production actions.</h3>
+    <button class="choice" data-answer="CodePipeline" onclick="choose(this, 'CodePipeline')">CodePipeline</button>
+    <button class="choice" data-answer="CodeArtifact" onclick="choose(this, 'CodePipeline')">CodeArtifact</button>
+    <button class="choice" data-answer="CodeCommit" onclick="choose(this, 'CodePipeline')">CodeCommit</button>
+    <button class="choice" data-answer="CodeGuru" onclick="choose(this, 'CodePipeline')">CodeGuru</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Unit tests must run from commands during the build.</h3>
+    <button class="choice" data-answer="Buildspec" onclick="choose(this, 'Buildspec')">Buildspec</button>
+    <button class="choice" data-answer="AppSpec" onclick="choose(this, 'Buildspec')">AppSpec</button>
+    <button class="choice" data-answer="UserData" onclick="choose(this, 'Buildspec')">UserData</button>
+    <button class="choice" data-answer="Template" onclick="choose(this, 'Buildspec')">Template</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Lambda traffic shifts to the new version every 15 minutes.</h3>
+    <button class="choice" data-answer="Linear" onclick="choose(this, 'Linear')">Linear</button>
+    <button class="choice" data-answer="Canary" onclick="choose(this, 'Linear')">Canary</button>
+    <button class="choice" data-answer="Bluegreen" onclick="choose(this, 'Linear')">Bluegreen</button>
+    <button class="choice" data-answer="Immutable" onclick="choose(this, 'Linear')">Immutable</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. API consumers need test responses before the backend exists.</h3>
+    <button class="choice" data-answer="MOCK" onclick="choose(this, 'MOCK')">MOCK</button>
+    <button class="choice" data-answer="HTTP" onclick="choose(this, 'MOCK')">HTTP</button>
+    <button class="choice" data-answer="AWS" onclick="choose(this, 'MOCK')">AWS</button>
+    <button class="choice" data-answer="VPC" onclick="choose(this, 'MOCK')">VPC</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. API Gateway must pass the full request event to Lambda.</h3>
+    <button class="choice" data-answer="AWS_PROXY" onclick="choose(this, 'AWS_PROXY')">AWS_PROXY</button>
+    <button class="choice" data-answer="HTTP_PROXY" onclick="choose(this, 'AWS_PROXY')">HTTP_PROXY</button>
+    <button class="choice" data-answer="AWS_CUSTOM" onclick="choose(this, 'AWS_PROXY')">AWS_CUSTOM</button>
+    <button class="choice" data-answer="HTTP_MOCK" onclick="choose(this, 'AWS_PROXY')">HTTP_MOCK</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. Only an approved container build should enter integration tests.</h3>
+    <button class="choice" data-answer="ECR tag" onclick="choose(this, 'ECR tag')">ECR tag</button>
+    <button class="choice" data-answer="S3 key" onclick="choose(this, 'ECR tag')">S3 key</button>
+    <button class="choice" data-answer="IAM user" onclick="choose(this, 'ECR tag')">IAM user</button>
+    <button class="choice" data-answer="API key" onclick="choose(this, 'ECR tag')">API key</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. Frontend test and prod environments follow Git branches.</h3>
+    <button class="choice" data-answer="Amplify" onclick="choose(this, 'Amplify')">Amplify</button>
+    <button class="choice" data-answer="AppConfig" onclick="choose(this, 'Amplify')">AppConfig</button>
+    <button class="choice" data-answer="OpsWorks" onclick="choose(this, 'Amplify')">OpsWorks</button>
+    <button class="choice" data-answer="DataSync" onclick="choose(this, 'Amplify')">DataSync</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>8. A pipeline deploys tests into another account with temporary credentials.</h3>
+    <button class="choice" data-answer="STS role" onclick="choose(this, 'STS role')">STS role</button>
+    <button class="choice" data-answer="KMS key" onclick="choose(this, 'STS role')">KMS key</button>
+    <button class="choice" data-answer="SCP rule" onclick="choose(this, 'STS role')">SCP rule</button>
+    <button class="choice" data-answer="ACL rule" onclick="choose(this, 'STS role')">ACL rule</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0021-test-applications-in-dev-environments.html">← Previous: Lesson 0021</a><a href="0023-deploy-code-using-ci-cd-services.html">Next: Lesson 0023 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary sources: AWS docs for <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>, <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html">buildspec files</a>, <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy deployment configurations</a>, and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-integration-types.html">API Gateway integration types</a>.</p>
+  <p>Ask me for a timed Domain 3 deployment-testing rematch if any service sounded interchangeable.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
