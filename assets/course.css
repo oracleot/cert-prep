@@ -104,6 +104,27 @@ button {
 .feedback.ok { color: var(--ok); }
 .feedback.bad { color: var(--bad); }
 
+.lesson-nav, .timer {
+  border-top: 1px solid var(--line);
+  margin-top: 36px;
+  padding-top: 18px;
+}
+
+.lesson-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.timer strong {
+  display: block;
+  font: 700 2rem/1 ui-sans-serif, system-ui, sans-serif;
+  margin: 8px 0 14px;
+}
+
+.timer.done strong { color: var(--bad); }
+
 @media print {
   body { background: white; }
   main { max-width: none; padding: 20mm; }
