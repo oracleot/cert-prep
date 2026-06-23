@@ -4,18 +4,18 @@ Per-sample checks that gate Phase 9 closure:
 
 * ``check_resource_grounding`` — every Sage citation must come from the
   active concept packet (official_docs / skill_builder_links / lab_links).
+  No broad known-good URL root fallback: aggregate ``analyze()`` resolves
+  ready concept packets and enforces packet-only URLs. The fallback only
+  applies for samples with no resolvable packet (legacy fixtures).
 * ``check_concept_id_match`` — Rex's challenge topic + concept_id match
   the selected concept, so the LLM cannot drift the challenge off-packet.
 * ``check_evaluator_miss_tracking`` — evaluator output includes the
   ``missed_criteria`` and ``triggered_traps`` lists (Phase 9.6 audit).
+  Missing ``evaluator_output`` is a failure; ``analyze()`` only treats
+  the check as not-applicable when the sample omits the field.
 
 ``analyze()`` in ``evals.checks`` aggregates these into the gate-level
 ``checks`` dict; any sample failure flips overall_status to ``fail``.
-
-``KNOWN_GOOD_URL_ROOTS`` mirrors the roots used by
-``_has_official_citation`` so aggregate ``analyze()`` runs gate
-consistently on legacy sample payloads. Direct callers that pass an
-explicit ``concept_record`` get strict packet matching.
 """
 from __future__ import annotations
 
@@ -25,15 +25,6 @@ from typing import Any
 _PACKET_LINK_FIELDS = ("official_docs", "skill_builder_links", "lab_links")
 _MISS_FIELDS = ("missed_criteria", "triggered_traps")
 _URL_PATTERN = re.compile(r"https?://[^\s)\]\"'<>]+")
-
-KNOWN_GOOD_URL_ROOTS = (
-    "https://docs.aws.amazon.com/",
-    "https://docs.anthropic.com/",
-    "https://modelcontextprotocol.io/",
-    "https://claudecertifications.com/",
-    "https://skillbuilder.aws/",
-    "https://aws.amazon.com/",
-)
 
 
 def check_resource_grounding(
@@ -45,15 +36,15 @@ def check_resource_grounding(
 ) -> dict[str, Any]:
     """Fail when Sage cites URLs that did not come from the concept packet.
 
-    When the packet has links, matching is strict (fallback roots ignored
-    so a fabricated AWS URL still fails). When the packet is empty (legacy
-    sample payloads), the check falls back to ``known_good_url_roots`` to
-    avoid false positives on legacy URL patterns.
+    Strict packet-only matching is the default; ``known_good_url_roots``
+    only applies when no packet URLs are available (legacy fixtures).
     """
     packet_set = {url for url in _packet_url_allowlist(concept_record) if url}
     strict = bool(packet_set)
 
     def _is_allowed(url: str) -> bool:
+        if not url:
+            return False
         if strict:
             return url in packet_set
         return url in packet_set or any(url.startswith(r) for r in known_good_url_roots)
@@ -118,19 +109,19 @@ def check_evaluator_miss_tracking(
     evaluator_output: dict[str, Any] | None,
     concept_record: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """Fail when evaluator output is missing the internal miss-tracking fields.
+    """Fail when evaluator output is missing or missing miss-tracking fields.
 
-    When ``evaluator_output`` is not supplied (e.g. aggregate sample
-    exercising only resource-grounding), the check is treated as "not
-    applicable" and passes — the gate fails only on real evidence of
-    regression, not on missing eval data.
+    Missing ``evaluator_output`` (None or empty dict) is a Phase 9 regression
+    per the reviewer contract. ``analyze()`` only skips this check when the
+    sample omits the field entirely.
     """
     if not evaluator_output:
         return {
-            "pass": True,
-            "missing_fields": [],
+            "pass": False,
+            "missing_fields": list(_MISS_FIELDS),
             "present_fields": [],
-            "note": "evaluator_output not supplied; check not applicable",
+            "concept_id": (concept_record or {}).get("id", ""),
+            "note": "evaluator_output missing; miss tracking not verified",
         }
     list_present = [
         field for field in _MISS_FIELDS
@@ -146,11 +137,7 @@ def check_evaluator_miss_tracking(
 
 
 def concept_record_for_sample(sample: dict[str, Any]) -> dict[str, Any] | None:
-    """Best-effort lookup of the concept record a sample was generated for.
-
-    Falls back to the ``target`` payload when ``concept_record`` is not
-    supplied by the caller.
-    """
+    """Best-effort lookup of the concept record a sample was generated for."""
     if sample.get("concept_record"):
         return sample["concept_record"]
     target = sample.get("target") or {}
@@ -171,19 +158,26 @@ def resolve_concept_record(exam_id: str, sample: dict[str, Any]) -> dict[str, An
 
     Order:
       1. ``sample["concept_record"]`` if the caller passed one explicitly.
-      2. The bare fallback built from ``target`` (no packet links).
-
-    Note: direct callers get strict packet matching. The aggregate
-    ``analyze()`` path tolerates URLs from ``KNOWN_GOOD_URL_ROOTS``
-    fallback when the resolved record has no link fields. YAML lookup is
-    intentionally NOT used here because aggregate samples can carry URLs
-    from a different concept revision than the curated YAML, and the
-    gate's job at this layer is to flag URLs that aren't on a known-good
-    root, not to enforce per-revision packet match.
+      2. The curated loader record matching ``target.topic_id`` or
+         ``challenge.concept_id`` — so aggregate ``analyze()`` runs gate
+         against the same concept packet Rex/Sage/Evaluator saw at
+         runtime, instead of inheriting a ``known_good_url_roots``
+         fallback.
+      3. The bare fallback built from ``target`` for legacy fixtures.
     """
     explicit = sample.get("concept_record")
     if explicit:
         return explicit
+    topic_id = (
+        (sample.get("target") or {}).get("topic_id", "")
+        or (sample.get("challenge") or {}).get("concept_id", "")
+    )
+    if topic_id:
+        try:
+            from concepts.loader import find_concept
+            return find_concept(exam_id, topic_id)
+        except (KeyError, ImportError, FileNotFoundError):
+            pass
     return concept_record_for_sample(sample)
 
 
