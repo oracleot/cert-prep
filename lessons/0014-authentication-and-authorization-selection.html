@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0014 — Authentication and Authorization Selection</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0014</p>
+  <h1>Pick the auth control from the exam clue.</h1>
+  <p class="subtitle">Task Statement 2.1 is mostly service selection: IAM, STS, Cognito, API Gateway authorizers, Lambda policies, or least privilege.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will classify authentication and authorization scenarios before answer choices distract you.</p>
+    <p>Related review: <a href="0001-dva-c02-domain-triage.html">domain triage</a> and the <a href="../reference/dva-c02-curriculum-map.html">DVA-C02 curriculum map</a>.</p>
+  </section>
+
+  <h2>The selection map</h2>
+  <div class="diagram">AWS code needs AWS APIs             → IAM role
+Another account needs access         → STS AssumeRole
+App users need sign-up/sign-in       → Cognito user pool
+App users need AWS credentials       → Cognito identity pool
+API callers sign with SigV4          → IAM authorization
+API needs bearer-token custom logic  → TOKEN Lambda authorizer
+API needs headers/query/context      → REQUEST Lambda authorizer
+Service must invoke Lambda           → Lambda resource-based policy</div>
+
+  <h2>1. IAM policy vs IAM role</h2>
+  <section class="card">
+    <p><strong>Policy:</strong> the permission document. It grants or denies actions on resources.</p>
+    <p><strong>Role:</strong> the assumable identity. It has a trust policy plus permissions. Choose roles for Lambda, ECS tasks, EC2, cross-account access, and temporary application credentials.</p>
+  </section>
+
+  <h2>2. STS and AssumeRole</h2>
+  <section class="card">
+    <p>Choose <code>AssumeRole</code> when the clue says temporary credentials, delegated access, federation, or cross-account access. Avoid embedded long-term access keys unless the workload is truly outside AWS and no federation path is given.</p>
+  </section>
+
+  <h2>3. Cognito vs IAM auth</h2>
+  <section class="card">
+    <p><strong>User pools</strong> authenticate app users and issue tokens. <strong>Identity pools</strong> exchange identities for temporary AWS credentials mapped to IAM roles.</p>
+    <p><strong>IAM auth</strong> means the API caller is an AWS principal that signs requests with Signature Version 4.</p>
+  </section>
+
+  <h2>4. API Gateway authorizers</h2>
+  <section class="card">
+    <p>Use a Cognito/JWT authorizer for token validation managed by API Gateway. Use a Lambda authorizer when the scenario requires custom authorization logic.</p>
+    <p><strong>TOKEN</strong> authorizer = bearer token. <strong>REQUEST</strong> authorizer = headers, query strings, stage variables, or context.</p>
+  </section>
+
+  <h2>5. Lambda resource policies</h2>
+  <section class="card">
+    <p>Lambda calling out uses the <strong>execution role</strong>. Something invoking Lambda uses the function's <strong>resource-based policy</strong>. For least privilege, restrict principals, actions, resources, and source ARNs.</p>
+  </section>
+
+  <h2>Fast distractor cuts</h2>
+  <ul>
+    <li>SCPs, permission boundaries, and session policies limit permissions; they do not grant access.</li>
+    <li>API keys are for usage plans and throttling, not real user authentication.</li>
+    <li>ECS task access uses task roles, not IAM groups or service-linked roles.</li>
+    <li>Cross-account access needs both trust and permissions.</li>
+    <li>Wildcard <code>*</code> is usually wrong when the question says most secure or least privilege.</li>
+  </ul>
+
+  <h2>Retrieval drill: choose the best answer</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. ECS tasks need access to AWS services.</h3>
+    <button class="choice" data-answer="IAM role" onclick="choose(this, 'IAM role')">IAM role</button>
+    <button class="choice" data-answer="IAM group" onclick="choose(this, 'IAM role')">IAM group</button>
+    <button class="choice" data-answer="Root keys" onclick="choose(this, 'IAM role')">Root keys</button>
+    <button class="choice" data-answer="Access key" onclick="choose(this, 'IAM role')">Access key</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. A partner account needs temporary access.</h3>
+    <button class="choice" data-answer="AssumeRole call" onclick="choose(this, 'AssumeRole call')">AssumeRole call</button>
+    <button class="choice" data-answer="Static keys" onclick="choose(this, 'AssumeRole call')">Static keys</button>
+    <button class="choice" data-answer="Root login" onclick="choose(this, 'AssumeRole call')">Root login</button>
+    <button class="choice" data-answer="Shared user" onclick="choose(this, 'AssumeRole call')">Shared user</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Mobile users need sign-up and sign-in.</h3>
+    <button class="choice" data-answer="User pool" onclick="choose(this, 'User pool')">User pool</button>
+    <button class="choice" data-answer="Identity pool" onclick="choose(this, 'User pool')">Identity pool</button>
+    <button class="choice" data-answer="IAM role" onclick="choose(this, 'User pool')">IAM role</button>
+    <button class="choice" data-answer="API key" onclick="choose(this, 'User pool')">API key</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. Signed-in users need temporary S3 credentials.</h3>
+    <button class="choice" data-answer="Identity pool" onclick="choose(this, 'Identity pool')">Identity pool</button>
+    <button class="choice" data-answer="User pool" onclick="choose(this, 'Identity pool')">User pool</button>
+    <button class="choice" data-answer="API key" onclick="choose(this, 'Identity pool')">API key</button>
+    <button class="choice" data-answer="Stage cache" onclick="choose(this, 'Identity pool')">Stage cache</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Internal callers sign API requests with SigV4.</h3>
+    <button class="choice" data-answer="IAM auth" onclick="choose(this, 'IAM auth')">IAM auth</button>
+    <button class="choice" data-answer="API key" onclick="choose(this, 'IAM auth')">API key</button>
+    <button class="choice" data-answer="User pool" onclick="choose(this, 'IAM auth')">User pool</button>
+    <button class="choice" data-answer="Stage var" onclick="choose(this, 'IAM auth')">Stage var</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. Custom OAuth bearer-token logic is required.</h3>
+    <button class="choice" data-answer="TOKEN authorizer" onclick="choose(this, 'TOKEN authorizer')">TOKEN authorizer</button>
+    <button class="choice" data-answer="REQUEST authorizer" onclick="choose(this, 'TOKEN authorizer')">REQUEST authorizer</button>
+    <button class="choice" data-answer="Usage plan" onclick="choose(this, 'TOKEN authorizer')">Usage plan</button>
+    <button class="choice" data-answer="Stage cache" onclick="choose(this, 'TOKEN authorizer')">Stage cache</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. Auth depends on headers and query strings.</h3>
+    <button class="choice" data-answer="REQUEST authorizer" onclick="choose(this, 'REQUEST authorizer')">REQUEST authorizer</button>
+    <button class="choice" data-answer="TOKEN authorizer" onclick="choose(this, 'REQUEST authorizer')">TOKEN authorizer</button>
+    <button class="choice" data-answer="Usage plan" onclick="choose(this, 'REQUEST authorizer')">Usage plan</button>
+    <button class="choice" data-answer="Stage cache" onclick="choose(this, 'REQUEST authorizer')">Stage cache</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>8. API Gateway cannot invoke Lambda.</h3>
+    <button class="choice" data-answer="Resource policy" onclick="choose(this, 'Resource policy')">Resource policy</button>
+    <button class="choice" data-answer="Execution role" onclick="choose(this, 'Resource policy')">Execution role</button>
+    <button class="choice" data-answer="User pool" onclick="choose(this, 'Resource policy')">User pool</button>
+    <button class="choice" data-answer="Access keys" onclick="choose(this, 'Resource policy')">Access keys</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>9. Lambda code must write to DynamoDB.</h3>
+    <button class="choice" data-answer="Execution role" onclick="choose(this, 'Execution role')">Execution role</button>
+    <button class="choice" data-answer="Resource policy" onclick="choose(this, 'Execution role')">Resource policy</button>
+    <button class="choice" data-answer="Usage plan" onclick="choose(this, 'Execution role')">Usage plan</button>
+    <button class="choice" data-answer="Access token" onclick="choose(this, 'Execution role')">Access token</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>10. The question asks for least privilege.</h3>
+    <button class="choice" data-answer="Specific ARN" onclick="choose(this, 'Specific ARN')">Specific ARN</button>
+    <button class="choice" data-answer="Wildcard all" onclick="choose(this, 'Specific ARN')">Wildcard all</button>
+    <button class="choice" data-answer="Root allow" onclick="choose(this, 'Specific ARN')">Root allow</button>
+    <button class="choice" data-answer="Shared keys" onclick="choose(this, 'Specific ARN')">Shared keys</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0013-timed-domain-1-mixed-drill.html">← Previous: Lesson 0013</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary sources: AWS docs on <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html">IAM</a>, <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html">STS AssumeRole</a>, <a href="https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html">Amazon Cognito</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-control-access-to-api.html">API Gateway access control</a>, and <a href="https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html">Lambda resource policies</a>.</p>
+  <p>Ask me to drill whichever pair you missed: role/policy, user pool/identity pool, or execution role/resource policy.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
