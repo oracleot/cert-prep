@@ -30,7 +30,7 @@ function choose(button, expected) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const selector =
-    'section[data-quiz][data-walkthrough="true"] aside[data-rationale-for'], ' +
+    'section[data-quiz][data-walkthrough="true"] aside[data-rationale-for], ' +
     'section[data-quiz][data-walkthrough="true"] aside.explanation, ' +
     'section[data-quiz][data-walkthrough="true"] aside.knowledge-gap';
   document.querySelectorAll(selector).forEach((aside) => {
