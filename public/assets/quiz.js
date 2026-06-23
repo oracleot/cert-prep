@@ -11,7 +11,7 @@
  *   - attaches click listeners that call choose(button, answerLabel)
  *   - skips buttons that already carry an inline onclick to avoid double-fire
  */
-function choose(button, expected, answerLabel) {
+function choose(button, expected) {
   const quiz = button.closest('[data-quiz]');
   const feedback = quiz.querySelector('[data-feedback]');
   const selected = button.dataset.answer;
