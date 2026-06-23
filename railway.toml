@@ -1,0 +1,19 @@
+[railway]
+name = "cert-prep-nextjs"
+deployment_strategy = "duplicate"
+
+[build]
+builder = "NIXPACKS"
+build_command = "npm install && npm run build"
+
+[deploy]
+
+[deployments]
+web = { name = "Next.js frontend", healthcheck_path = "/api/health" }
+healthcheck_path = "/api/health"
+healthcheck_timeout = 60
+restart_policy_type = "ON_FAILURE"
+restart_policy_max_retries = 10
+
+[environment]
+NODE_ENV = "production"

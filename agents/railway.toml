@@ -1,0 +1,18 @@
+[railway]
+name = "cert-prep-agents"
+deployment_strategy = "duplicate"
+
+# Python/FastAPI service — agents LangGraph API
+# python | fastapi | uvicorn
+[build]
+builder = "DOCKERFILE"
+dockerfile_path = "agents/Dockerfile"
+
+[deploy]
+healthcheck_path = "/health"
+healthcheck_timeout = 60
+restart_policy_type = "ON_FAILURE"
+restart_policy_max_retries = 10
+
+[environment]
+PYTHONUNBUFFERED = "1"
