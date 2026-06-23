@@ -66,11 +66,23 @@ describe("AC2 — Railway config files (next.js + agents)", () => {
       expect(existsSync(NEXT_RAILWAY)).toBe(true);
     });
 
-    it("has [railway] section with [deploy] and [deployments] blocks", () => {
+    it("has [railway] section with [deploy] block", () => {
       const content = readFileSync(NEXT_RAILWAY, "utf-8");
       expect(content).toMatch(/\[railway\]/);
       expect(content).toMatch(/\[deploy\]/);
-      expect(content).toMatch(/\[deployments\]/);
+    });
+
+    it("uses Railway schema camelCase deploy keys", () => {
+      const content = readFileSync(NEXT_RAILWAY, "utf-8");
+      expect(content).toMatch(/healthcheckPath/);
+      expect(content).toMatch(/healthcheckTimeout/);
+      expect(content).toMatch(/restartPolicyType/);
+      expect(content).toMatch(/restartPolicyMaxRetries/);
+    });
+
+    it("has no [deployments] block (invalid in Railway schema)", () => {
+      const content = readFileSync(NEXT_RAILWAY, "utf-8");
+      expect(content).not.toMatch(/\[deployments\]/);
     });
 
     it("documents nextjs as the first service", () => {
@@ -82,6 +94,30 @@ describe("AC2 — Railway config files (next.js + agents)", () => {
       const content = readFileSync(NEXT_RAILWAY, "utf-8");
       // If agents service appears in root railway.toml, that's the invalid pattern
       expect(content).not.toMatch(/agents|python|fastapi|uvicorn/);
+    });
+  });
+
+  describe("Agents railway.toml", () => {
+    it("file exists at agents/ root", () => {
+      expect(existsSync(AGENTS_RAILWAY)).toBe(true);
+    });
+
+    it("has [railway] section", () => {
+      const content = readFileSync(AGENTS_RAILWAY, "utf-8");
+      expect(content).toMatch(/\[railway\]/);
+    });
+
+    it("uses Railway schema camelCase deploy keys", () => {
+      const content = readFileSync(AGENTS_RAILWAY, "utf-8");
+      expect(content).toMatch(/healthcheckPath/);
+      expect(content).toMatch(/healthcheckTimeout/);
+      expect(content).toMatch(/restartPolicyType/);
+      expect(content).toMatch(/restartPolicyMaxRetries/);
+    });
+
+    it("documents python/fastapi as the service", () => {
+      const content = readFileSync(AGENTS_RAILWAY, "utf-8");
+      expect(content).toMatch(/python|fastapi|uvicorn/);
     });
   });
 

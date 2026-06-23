@@ -5,9 +5,7 @@ FROM python:3.11-slim
 
 WORKDIR /app/agents
 
-# Install system deps (no curl needed — no HEALTHCHECK in this image)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+
 
 # Install Python deps
 COPY agents/requirements.txt /app/agents/requirements.txt

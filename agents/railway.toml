@@ -9,10 +9,10 @@ builder = "DOCKERFILE"
 dockerfile_path = "agents/Dockerfile"
 
 [deploy]
-healthcheck_path = "/health"
-healthcheck_timeout = 60
-restart_policy_type = "ON_FAILURE"
-restart_policy_max_retries = 10
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
 
 [environment]
 PYTHONUNBUFFERED = "1"

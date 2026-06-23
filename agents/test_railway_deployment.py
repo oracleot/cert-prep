@@ -43,6 +43,34 @@ class TestAgentsHealthEndpoint:
 
 
 # ---------------------------------------------------------------------------
+# AC1b — root Next.js railway.toml (from agents/ perspective)
+# ---------------------------------------------------------------------------
+
+class TestRootRailwayConfig:
+    """Validates the project-root railway.toml uses Railway schema camelCase keys."""
+
+    def test_root_railway_toml_exists(self):
+        root_railway = AGENTS_DIR.parent / "railway.toml"
+        assert root_railway.exists(), f"root railway.toml not found at {root_railway}"
+
+    def test_root_railway_uses_camelcase_deploy_keys(self):
+        root_railway = AGENTS_DIR.parent / "railway.toml"
+        content = root_railway.read_text()
+        for key in ["healthcheckPath", "healthcheckTimeout", "restartPolicyType", "restartPolicyMaxRetries"]:
+            assert key in content, f"root railway.toml must use Railway schema key: {key}"
+        # No snake_case leakage
+        assert "healthcheck_path" not in content
+        assert "healthcheck_timeout" not in content
+
+    def test_root_railway_has_no_deployments_block(self):
+        """Railway schema does not support [deployments]; it must not appear."""
+        root_railway = AGENTS_DIR.parent / "railway.toml"
+        content = root_railway.read_text()
+        assert "[deployments]" not in content, \
+            "root railway.toml must not contain [deployments] block (invalid Railway schema)"
+
+
+# ---------------------------------------------------------------------------
 # AC2 — agents/railway.toml
 # ---------------------------------------------------------------------------
 
@@ -52,6 +80,18 @@ class TestAgentsRailwayConfig:
     def test_railway_toml_exists(self):
         railway = AGENTS_DIR / "railway.toml"
         assert railway.exists(), f"agents/railway.toml not found at {railway}"
+
+    def test_railway_toml_uses_camelcase_deploy_keys(self):
+        """Railway schema requires camelCase deploy keys (not snake_case)."""
+        railway = AGENTS_DIR / "railway.toml"
+        content = railway.read_text()
+        for key in ["healthcheckPath", "healthcheckTimeout", "restartPolicyType", "restartPolicyMaxRetries"]:
+            assert key in content, f"agents/railway.toml must use Railway schema key: {key}"
+        # Ensure no snake_case aliases leak in
+        assert "healthcheck_path" not in content
+        assert "healthcheck_timeout" not in content
+        assert "restart_policy_type" not in content
+        assert "restart_policy_max_retries" not in content
 
     def test_railway_toml_declares_python_service(self):
         railway = AGENTS_DIR / "railway.toml"
