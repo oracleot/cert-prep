@@ -1,21 +1,21 @@
 """Phase 9.7 — resource-grounding eval harness.
 
-Three independent per-sample checks the eval gate runs before Phase 9 can
-close:
+Per-sample checks that gate Phase 9 closure:
 
 * ``check_resource_grounding`` — every Sage citation must come from the
-  active concept packet (``official_docs`` + ``skill_builder_links`` +
-  ``lab_links``). URLs from anywhere else fail.
-* ``check_concept_id_match`` — Rex's challenge topic and concept_id must
-  match the selected concept, so a free-roaming LLM cannot drift the
-  challenge off-packet.
-* ``check_evaluator_miss_tracking`` — evaluator output must include the
-  ``missed_criteria`` and ``triggered_traps`` lists (Phase 9.6 internal
-  concept-miss audit). Missing or non-list values fail.
+  active concept packet (official_docs / skill_builder_links / lab_links).
+* ``check_concept_id_match`` — Rex's challenge topic + concept_id match
+  the selected concept, so the LLM cannot drift the challenge off-packet.
+* ``check_evaluator_miss_tracking`` — evaluator output includes the
+  ``missed_criteria`` and ``triggered_traps`` lists (Phase 9.6 audit).
 
-``analyze()`` in ``evals.checks`` aggregates these per-sample checks into
-the gate-level ``checks`` dict; if any sample fails, the overall_status
-flips to ``fail``.
+``analyze()`` in ``evals.checks`` aggregates these into the gate-level
+``checks`` dict; any sample failure flips overall_status to ``fail``.
+
+``KNOWN_GOOD_URL_ROOTS`` mirrors the roots used by
+``_has_official_citation`` so aggregate ``analyze()`` runs gate
+consistently on legacy sample payloads. Direct callers that pass an
+explicit ``concept_record`` get strict packet matching.
 """
 from __future__ import annotations
 
@@ -25,6 +25,15 @@ from typing import Any
 _PACKET_LINK_FIELDS = ("official_docs", "skill_builder_links", "lab_links")
 _MISS_FIELDS = ("missed_criteria", "triggered_traps")
 _URL_PATTERN = re.compile(r"https?://[^\s)\]\"'<>]+")
+
+KNOWN_GOOD_URL_ROOTS = (
+    "https://docs.aws.amazon.com/",
+    "https://docs.anthropic.com/",
+    "https://modelcontextprotocol.io/",
+    "https://claudecertifications.com/",
+    "https://skillbuilder.aws/",
+    "https://aws.amazon.com/",
+)
 
 
 def check_resource_grounding(
@@ -36,42 +45,29 @@ def check_resource_grounding(
 ) -> dict[str, Any]:
     """Fail when Sage cites URLs that did not come from the concept packet.
 
-    The packet URL allow-list is the union of ``official_docs``,
-    ``skill_builder_links`` and ``lab_links`` from the concept record that
-    was active when the challenge was generated. Citations pointing
-    anywhere else are flagged so the eval gate refuses to close Phase 9.
-
-    When the resolved record has no packet link fields (legacy sample
-    payloads or aggregate ``analyze()`` calls without an explicit
-    ``concept_record``), the check falls back to ``known_good_url_roots``
-    so we don't false-positive on legacy URL patterns. When the packet
-    DOES contain links, packet matching is strict — the fallback roots
-    are ignored so a fabricated URL like ``docs.aws.amazon.com/lambda/...``
-    still fails even though it's on a known-good root.
+    When the packet has links, matching is strict (fallback roots ignored
+    so a fabricated AWS URL still fails). When the packet is empty (legacy
+    sample payloads), the check falls back to ``known_good_url_roots`` to
+    avoid false positives on legacy URL patterns.
     """
-    packet_urls = _packet_url_allowlist(concept_record)
-    packet_set = {url for url in packet_urls if url}
-    use_packet_strict = bool(packet_set)
+    packet_set = {url for url in _packet_url_allowlist(concept_record) if url}
+    strict = bool(packet_set)
 
     def _is_allowed(url: str) -> bool:
-        if use_packet_strict:
+        if strict:
             return url in packet_set
-        # Fallback mode: accept packet URLs (none) + known-good roots.
-        if url in packet_set:
-            return True
-        return any(url.startswith(root) for root in known_good_url_roots)
+        return url in packet_set or any(url.startswith(r) for r in known_good_url_roots)
 
-    out_of_packet_links: list[str] = []
-    for citation in citations or []:
-        url = str(citation.get("url", "") or "")
-        if not url:
-            out_of_packet_links.append("<empty url>")
-            continue
-        if not _is_allowed(url):
-            out_of_packet_links.append(url)
+    out_of_packet_links = [
+        url for url in (str(c.get("url", "") or "") for c in (citations or []))
+        if not url or not _is_allowed(url)
+    ]
+    if out_of_packet_links and "<empty url>" in out_of_packet_links and not any(
+        u for u in out_of_packet_links if u
+    ):
+        out_of_packet_links = ["<empty url>"]
 
-    # Also scan the Sage response body for URL strings that are not in the
-    # allow-list; LLM responses sometimes paste raw URLs that bypass the
+    # Also scan the Sage response body for inline URLs that bypass the
     # citation pipeline.
     inline_urls = _URL_PATTERN.findall(sage_response or "")
     fake_link_failures = [url for url in inline_urls if not _is_allowed(url)]
@@ -90,23 +86,19 @@ def check_concept_id_match(
     challenge_concept_id: str,
     selected_concept: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """Fail when Rex's challenge drifted off the selected concept packet.
-
-    A mismatch indicates either the LLM ignored the topic anchor or the
-    node failed to echo the concept_id. Either way the challenge is no
-    longer aligned with the user's selected topic and should fail the gate.
-    """
+    """Fail when Rex's challenge drifted off the selected concept packet."""
     if not selected_concept:
         return {"pass": True, "mismatch": None, "note": "no concept_record available"}
 
     expected_id = str(selected_concept.get("id", "") or "")
     expected_topic = str(selected_concept.get("topic", "") or "").strip().lower()
-
     actual_id = str(challenge_concept_id or "")
     actual_topic = str(challenge_topic or "").strip().lower()
 
     id_mismatch = bool(expected_id) and bool(actual_id) and actual_id != expected_id
-    topic_mismatch = bool(expected_topic) and bool(actual_topic) and actual_topic != expected_topic
+    topic_mismatch = (
+        bool(expected_topic) and bool(actual_topic) and actual_topic != expected_topic
+    )
     passed = not id_mismatch and not topic_mismatch
 
     return {
@@ -128,14 +120,9 @@ def check_evaluator_miss_tracking(
 ) -> dict[str, Any]:
     """Fail when evaluator output is missing the internal miss-tracking fields.
 
-    Phase 9.6 wires ``missed_criteria`` and ``triggered_traps`` into the
-    per-exchange record so future routing and coaching can audit concept
-    gaps. If the evaluator ever returns an outcome without populating these
-    lists (even empty), the gate refuses to close the phase.
-
-    When the caller does not supply ``evaluator_output`` (e.g. a sample that
-    exercises only the resource-grounding check), the check is treated as
-    "not applicable" and passes — the gate only fails on real evidence of
+    When ``evaluator_output`` is not supplied (e.g. aggregate sample
+    exercising only resource-grounding), the check is treated as "not
+    applicable" and passes — the gate fails only on real evidence of
     regression, not on missing eval data.
     """
     if not evaluator_output:
@@ -145,8 +132,6 @@ def check_evaluator_miss_tracking(
             "present_fields": [],
             "note": "evaluator_output not supplied; check not applicable",
         }
-    # Field is "present" only if it is a list (defensive against bad payloads
-    # like strings or null that would crash downstream persistence).
     list_present = [
         field for field in _MISS_FIELDS
         if isinstance(evaluator_output.get(field), list)
@@ -164,7 +149,7 @@ def concept_record_for_sample(sample: dict[str, Any]) -> dict[str, Any] | None:
     """Best-effort lookup of the concept record a sample was generated for.
 
     Falls back to the ``target`` payload when ``concept_record`` is not
-    supplied by the caller; this keeps older eval callers working.
+    supplied by the caller.
     """
     if sample.get("concept_record"):
         return sample["concept_record"]
@@ -179,6 +164,27 @@ def concept_record_for_sample(sample: dict[str, Any]) -> dict[str, Any] | None:
         "skill_builder_links": [],
         "lab_links": [],
     }
+
+
+def resolve_concept_record(exam_id: str, sample: dict[str, Any]) -> dict[str, Any] | None:
+    """Pick the most authoritative concept record available for a sample.
+
+    Order:
+      1. ``sample["concept_record"]`` if the caller passed one explicitly.
+      2. The bare fallback built from ``target`` (no packet links).
+
+    Note: direct callers get strict packet matching. The aggregate
+    ``analyze()`` path tolerates URLs from ``KNOWN_GOOD_URL_ROOTS``
+    fallback when the resolved record has no link fields. YAML lookup is
+    intentionally NOT used here because aggregate samples can carry URLs
+    from a different concept revision than the curated YAML, and the
+    gate's job at this layer is to flag URLs that aren't on a known-good
+    root, not to enforce per-revision packet match.
+    """
+    explicit = sample.get("concept_record")
+    if explicit:
+        return explicit
+    return concept_record_for_sample(sample)
 
 
 def _packet_url_allowlist(concept_record: dict[str, Any] | None) -> list[str]:

@@ -10,10 +10,11 @@ from typing import Any
 # ``checks.py`` stays focused on artifact-level gates. The functions are
 # re-exported at module bottom for backward-compatible imports.
 from evals.grounding import (
+    KNOWN_GOOD_URL_ROOTS,
     check_concept_id_match,
     check_evaluator_miss_tracking,
     check_resource_grounding,
-    concept_record_for_sample,
+    resolve_concept_record,
 )
 
 REQUIRED_CHALLENGE_KEYS = {"domain", "topic", "scenario", "question"}
@@ -36,10 +37,7 @@ def analyze(
     # Phase 9.7 — per-sample resource-grounding + concept-id + miss-tracking
     # checks. Any sample failure flips resource_grounding to False, which
     # in turn fails overall_status so the gate refuses to close a phase.
-    # Samples may carry an explicit ``concept_record``; otherwise we fall back
-    # to a YAML lookup by topic_id so the gate can run on legacy sample
-    # payloads (which only embed the topic_id via ``target``/``challenge``).
-    sample_concept_records = [_resolve_concept_record(exam_id, sample) for sample in samples]
+    sample_concept_records = [resolve_concept_record(exam_id, sample) for sample in samples]  
 
     resource_grounding_results = [
         check_resource_grounding(
@@ -177,40 +175,3 @@ def _metrics(targets: list[dict[str, Any]], samples: list[dict[str, Any]], dupli
         "domain_counts": dict(Counter(sample["target"]["domain"] for sample in samples)),
         "topic_counts": dict(Counter(sample["target"]["topic_id"] for sample in samples)),
     }
-
-
-def _resolve_concept_record(exam_id: str, sample: dict[str, Any]) -> dict[str, Any] | None:
-    """Pick the most authoritative concept record available for a sample.
-
-    Order:
-      1. ``sample["concept_record"]`` if the caller passed one explicitly.
-      2. The bare fallback built from ``target`` (no packet links) — used
-         only so we never crash the gate on legacy sample payloads.
-
-    Note: direct callers (``check_resource_grounding(challenge,
-    concept_record, ...)``) get strict packet matching. The aggregate
-    ``analyze()`` path tolerates URLs from the ``KNOWN_GOOD_URL_ROOTS``
-    fallback when the resolved record has no link fields (legacy samples);
-    YAML lookup is intentionally NOT used here because aggregate samples
-    can carry URLs from a different revision of the concept than the
-    curated YAML, and the gate's job at this layer is to flag URLs that
-    aren't on a known-good root, not to enforce per-revision packet match.
-    """
-    explicit = sample.get("concept_record")
-    if explicit:
-        return explicit
-    return concept_record_for_sample(sample)
-
-
-# Curated URL roots that are always considered safe to cite. Mirrors the
-# roots used by ``_has_official_citation`` for the content-quality gate so
-# the resource-grounding gate produces consistent pass/fail verdicts when
-# the sample lacks an explicit concept_record.
-KNOWN_GOOD_URL_ROOTS = (
-    "https://docs.aws.amazon.com/",
-    "https://docs.anthropic.com/",
-    "https://modelcontextprotocol.io/",
-    "https://claudecertifications.com/",
-    "https://skillbuilder.aws/",
-    "https://aws.amazon.com/",
-)
