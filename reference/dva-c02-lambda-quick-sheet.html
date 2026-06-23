@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DVA-C02 Lambda Quick Sheet</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>Lambda quick sheet</h1>
+  <p class="subtitle">Exam-focused Lambda facts from Domain 1, with links to the official AWS docs.</p>
+
+  <section class="card">
+    <h2>Invocation modes</h2>
+    <ul>
+      <li><strong>Synchronous:</strong> caller waits for the response. CLI uses <code>aws lambda invoke</code>.</li>
+      <li><strong>Asynchronous:</strong> caller hands off the event; Lambda queues and retries function errors twice.</li>
+      <li><strong>Polling:</strong> event source mappings read batches from SQS, Kinesis, or DynamoDB Streams.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Configuration knobs</h2>
+    <ul>
+      <li><strong>Memory:</strong> increasing memory also increases CPU.</li>
+      <li><strong>Timeout:</strong> max runtime before Lambda stops the invocation.</li>
+      <li><strong>Concurrency:</strong> unit of scale; reserved concurrency caps or guarantees capacity.</li>
+      <li><strong>Provisioned concurrency:</strong> keeps execution environments ready for low-latency starts.</li>
+      <li><strong>Environment variables:</strong> function-level settings; use Parameter Store or Secrets Manager for shared sensitive values.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Event source mappings</h2>
+    <p>Use event source mappings when Lambda must read from SQS, Kinesis, or DynamoDB Streams in batches. For Kinesis and DynamoDB Streams, shards control concurrency because Lambda processes each shard in order.</p>
+  </section>
+
+  <section class="card">
+    <h2>Failure handling</h2>
+    <ul>
+      <li><strong>Async destinations:</strong> send success or failure records to SQS, SNS, Lambda, or EventBridge.</li>
+      <li><strong>DLQ:</strong> capture failed asynchronous events for later inspection.</li>
+      <li><strong>SQS redrive policy:</strong> queue-level failure path for event source mappings from SQS.</li>
+      <li><strong>Idempotency:</strong> required when retries can deliver the same event more than once.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Packaging and dependencies</h2>
+    <ul>
+      <li><strong>Zip archive:</strong> package code and dependencies; layers can provide shared libraries.</li>
+      <li><strong>Container image:</strong> package runtime, code, and dependencies together; Lambda layers are not used.</li>
+      <li><strong>SAM build:</strong> useful for building native dependencies in a Lambda-compatible environment.</li>
+    </ul>
+  </section>
+
+  <h2>Sources</h2>
+  <ul>
+    <li><a href="../docs/aws%20dva-c02.md">Local DVA-C02 curriculum notes</a></li>
+    <li><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-invocation.html">AWS Lambda invocation docs</a></li>
+    <li><a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html">AWS Lambda event source mapping docs</a></li>
+    <li><a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html">AWS Lambda concurrency docs</a></li>
+    <li><a href="../lessons/0002-lambda-invocation-and-failures.html">Lesson: Lambda invocation and failures</a></li>
+  </ul>
+</main>
+</body>
+</html>
