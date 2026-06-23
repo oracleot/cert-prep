@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0011 — Storage Selection and Lifecycle</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0011</p>
+  <h1>Choose storage by access pattern, not by habit.</h1>
+  <p class="subtitle">DVA-C02 Domain 1 tests whether you can separate object, file, block, relational, key-value, ephemeral, and lifecycle clues quickly.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When a scenario asks for a data store, first classify the data shape: <strong>object</strong>, <strong>shared file</strong>, <strong>single-instance block</strong>, <strong>managed database</strong>, or <strong>temporary scratch</strong>.</p>
+    <p>Related: <a href="0001-dva-c02-domain-triage.html">Domain triage</a> and <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">event service selection</a>.</p>
+  </section>
+
+  <h2>The exam map</h2>
+  <div class="diagram">S3        object storage: static assets, backups, data lakes, lifecycle tiers
+EFS       shared Linux file system: many EC2/Lambda/ECS clients, NFS
+EBS       block volume: one EC2 instance, boot/data disk, snapshots
+FSx       managed file systems: Windows, Lustre, NetApp ONTAP, OpenZFS
+RDS/Aurora relational database: SQL, joins, transactions, managed engines
+DynamoDB  key-value/document: low-latency, serverless, partition-key access
+/tmp      ephemeral scratch: Lambda or EC2 instance-local temporary data</div>
+
+  <section class="card">
+    <h3>Step 1: Is it storage or a database?</h3>
+    <ul>
+      <li><strong>S3/EFS/EBS/FSx</strong> store files, objects, or blocks. Choose them when the app already knows how to read/write those forms.</li>
+      <li><strong>RDS/Aurora</strong> stores relational records when the scenario says SQL, schema, joins, transactions, or existing MySQL/PostgreSQL/Oracle/SQL Server apps.</li>
+      <li><strong>DynamoDB</strong> stores key-value/document items when the scenario says serverless scale, single-digit millisecond latency, partition key, or massive throughput.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h3>Step 2: Match the access method</h3>
+    <ul>
+      <li><strong>Object:</strong> S3. You retrieve whole objects by key; great for static content, logs, artifacts, and backups.</li>
+      <li><strong>Shared POSIX files:</strong> EFS. Multiple compute clients mount the same elastic Linux file system.</li>
+      <li><strong>Block disk:</strong> EBS. One EC2 instance needs a low-latency disk volume or boot volume.</li>
+      <li><strong>Specialized managed file system:</strong> FSx. Windows file shares, Lustre HPC, ONTAP, or OpenZFS clues point here.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h3>Step 3: Persistent or ephemeral?</h3>
+    <p><strong>Persistent</strong> means the data must survive restarts, instance replacement, or function completion. Think S3, EFS, EBS snapshots/volumes, FSx, RDS/Aurora, and DynamoDB.</p>
+    <p><strong>Ephemeral</strong> means scratch space. Lambda <code>/tmp</code> and EC2 instance store can disappear; use them for caches, decompression, image processing, ETL staging, and temporary downloads.</p>
+  </section>
+
+  <h2>Lifecycle clues</h2>
+  <ul>
+    <li><strong>S3 Lifecycle</strong>: transition objects to cheaper storage classes or expire/delete objects by age, prefix, tag, or version status.</li>
+    <li><strong>EFS Lifecycle Management</strong>: move cold files to lower-cost EFS storage classes based on last access.</li>
+    <li><strong>Amazon Data Lifecycle Manager</strong>: automate EBS snapshot and EBS-backed AMI creation, retention, copy, and deletion.</li>
+    <li><strong>Backups are not lifecycle policies.</strong> If the clue is database backup/point-in-time recovery, think RDS/Aurora/DynamoDB backup features first.</li>
+  </ul>
+
+  <h2>Fast distractor eliminations</h2>
+  <ul>
+    <li>If many instances must mount the same Linux directory, eliminate EBS; choose EFS.</li>
+    <li>If the answer needs SQL joins or transactions, eliminate S3 and DynamoDB; choose RDS/Aurora.</li>
+    <li>If the clue is static website hosting or object expiration, eliminate EFS/EBS; choose S3.</li>
+    <li>If the clue is Windows SMB file shares, eliminate EFS; choose FSx for Windows File Server.</li>
+    <li>If the clue is temporary Lambda scratch, eliminate persistent stores unless results must survive.</li>
+  </ul>
+
+  <h2>Practice: choose the store</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. A serverless app stores user uploads and expires raw files after 30 days.</h3>
+    <button class="choice" data-answer="S3" onclick="choose(this, 'S3')">S3</button>
+    <button class="choice" data-answer="EFS" onclick="choose(this, 'S3')">EFS</button>
+    <button class="choice" data-answer="EBS" onclick="choose(this, 'S3')">EBS</button>
+    <button class="choice" data-answer="RDS" onclick="choose(this, 'S3')">RDS</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Several Lambda functions need the same mounted Linux file directory.</h3>
+    <button class="choice" data-answer="S3" onclick="choose(this, 'EFS')">S3</button>
+    <button class="choice" data-answer="EFS" onclick="choose(this, 'EFS')">EFS</button>
+    <button class="choice" data-answer="EBS" onclick="choose(this, 'EFS')">EBS</button>
+    <button class="choice" data-answer="FSx" onclick="choose(this, 'EFS')">FSx</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A legacy app needs SQL transactions and foreign-key relationships.</h3>
+    <button class="choice" data-answer="S3" onclick="choose(this, 'RDS/Aurora')">S3</button>
+    <button class="choice" data-answer="EFS" onclick="choose(this, 'RDS/Aurora')">EFS</button>
+    <button class="choice" data-answer="DynamoDB" onclick="choose(this, 'RDS/Aurora')">DynamoDB</button>
+    <button class="choice" data-answer="RDS/Aurora" onclick="choose(this, 'RDS/Aurora')">RDS/Aurora</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. You must automate daily EBS snapshots and delete old ones.</h3>
+    <button class="choice" data-answer="S3 Lifecycle" onclick="choose(this, 'Data Lifecycle Manager')">S3 Lifecycle</button>
+    <button class="choice" data-answer="EFS Lifecycle" onclick="choose(this, 'Data Lifecycle Manager')">EFS Lifecycle</button>
+    <button class="choice" data-answer="Data Lifecycle Manager" onclick="choose(this, 'Data Lifecycle Manager')">Data Lifecycle Manager</button>
+    <button class="choice" data-answer="DynamoDB TTL" onclick="choose(this, 'Data Lifecycle Manager')">DynamoDB TTL</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A Lambda function downloads an image, resizes it, then uploads the result.</h3>
+    <button class="choice" data-answer="Lambda /tmp" onclick="choose(this, 'Lambda /tmp')">Lambda /tmp</button>
+    <button class="choice" data-answer="RDS storage" onclick="choose(this, 'Lambda /tmp')">RDS storage</button>
+    <button class="choice" data-answer="EBS volume" onclick="choose(this, 'Lambda /tmp')">EBS volume</button>
+    <button class="choice" data-answer="FSx volume" onclick="choose(this, 'Lambda /tmp')">FSx volume</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/storage-services.html">AWS storage services overview</a>. Then compare <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html">S3 Lifecycle</a>, <a href="https://docs.aws.amazon.com/efs/latest/ug/lifecycle-management-efs.html">EFS Lifecycle Management</a>, and <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/snapshot-lifecycle.html">Amazon Data Lifecycle Manager</a>.</p>
+  <p>Ask me to grill you on storage-selection distractors if S3, EFS, EBS, and FSx still blur together.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
