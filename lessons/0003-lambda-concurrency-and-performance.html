@@ -54,77 +54,77 @@ Next request may reuse the environment → warm start</div>
 
   <h2>Practice: choose the knob</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A production API has <mark>unpredictable cold-start latency</mark> and must respond faster. <mark>Which feature eliminates cold starts for a target concurrency level?</mark> A team notices latency spikes under load and needs a solution that pre-warms Lambda environments before requests arrive.</h3>
+    <h3>1. A retail company serves a checkout API from Lambda through API Gateway. During flash sales, latency spikes appear only when new execution environments are created, and the business requires consistently low latency for 150 concurrent requests. Which Lambda feature should the developer choose?</h3>
     <button class="choice">A) Reserved concurrency</button>
     <button class="choice" data-correct>B) Provisioned concurrency</button>
     <button class="choice">C) Lambda layers</button>
-    <button class="choice">D) EventBridge rules</button>
+    <button class="choice">D) Scheduled warmer function</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Reserved concurrency caps the maximum—it does not pre-warm instances or eliminate cold starts.</aside>
-    <aside data-rationale-for="B">Provisioned concurrency keeps execution environments initialized, eliminating cold starts for targeted versions/aliases.</aside>
-    <aside data-rationale-for="C">Lambda layers share code—they do not affect cold-start timing.</aside>
-    <aside data-rationale-for="D">EventBridge rules route events—they do not control Lambda initialization timing.</aside>
-    <aside class="explanation">Provisioned concurrency is correct. It keeps environments initialized so requests hit warm instances immediately.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because reserved concurrency controls scale limits but does not keep execution environments initialized.</aside>
+    <aside data-rationale-for="B">Option B is correct because provisioned concurrency pre-warms execution environments for the configured concurrency level.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because layers share dependencies and do not reduce cold-start latency by themselves.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because scheduled warmers are not a reliable way to eliminate cold starts under real scaling conditions.</aside>
+    <aside class="explanation">Option B is the correct answer. Provisioned concurrency is the Lambda feature designed to deliver consistently low latency by keeping environments ready before requests arrive.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html#configuration-provisioned-concurrency">Provisioned concurrency</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. One function is <mark>consuming too much account concurrency</mark> and starving other functions. <mark>Which control protects the account?</mark> During a traffic spike, one function scales aggressively and errors appear in other Lambda functions that share the account concurrency pool.</h3>
+    <h3>2. A video-processing Lambda can spike sharply during uploads and is exhausting the shared account concurrency pool, causing unrelated payment and login functions to throttle. Which configuration best protects the rest of the account?</h3>
     <button class="choice" data-correct>A) Reserved concurrency</button>
     <button class="choice">B) Provisioned concurrency</button>
     <button class="choice">C) Lambda destination</button>
     <button class="choice">D) Memory increase</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Reserved concurrency sets a ceiling on this function's concurrent executions, leaving capacity for other functions.</aside>
-    <aside data-rationale-for="B">Provisioned concurrency adds pre-warmed instances—it does not cap a function's maximum concurrency.</aside>
-    <aside data-rationale-for="C">Destinations route invocation records on success or failure—they do not control concurrency.</aside>
-    <aside data-rationale-for="D">Memory increase changes CPU/resources—it does not limit concurrent executions.</aside>
-    <aside class="explanation">Reserved concurrency is correct. It prevents one function from consuming all account concurrency.</aside>
+    <aside data-rationale-for="A">Option A is correct because reserved concurrency sets a hard ceiling on this function's concurrent executions.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because provisioned concurrency adds warm capacity but does not stop the function from scaling further.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because destinations route asynchronous results and do not manage concurrency.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because increasing memory changes resources per invocation, not the maximum number of concurrent invocations.</aside>
+    <aside class="explanation">Option A is the correct answer. Reserved concurrency contains the blast radius of a noisy Lambda function by capping its concurrency.</aside>
     <aside class="knowledge-gap"><a href="0001-dva-c02-domain-triage.html">Lesson 0001</a> covers Lambda concurrency concepts. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html#configuration-concurrency-reserved">Reserved concurrency</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A Lambda function runs <mark>too slowly</mark> and you need a simple config change to test. <mark>Which adjustment can improve CPU-bound performance?</mark> A developer profiling the Lambda function notices CPU utilization is maxed out during the handler execution, suggesting it needs more compute resources.</h3>
+    <h3>3. A document-conversion Lambda consistently runs with high CPU utilization and long duration. The developer wants the fastest configuration change to test whether more compute will improve performance. What should the developer do first?</h3>
     <button class="choice" data-correct>A) Increase memory</button>
-    <button class="choice">B) Add a DLQ</button>
+    <button class="choice">B) Add a dead-letter queue</button>
     <button class="choice">C) Use an alias</button>
-    <button class="choice">D) Add Macie</button>
+    <button class="choice">D) Increase timeout</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda allocates CPU proportionally to memory. Increasing memory gives more CPU power, which can reduce duration for CPU-bound functions.</aside>
-    <aside data-rationale-for="B">DLQ captures failed events—it does not affect function execution speed.</aside>
-    <aside data-rationale-for="C">Aliases point to versions—they do not change CPU allocation.</aside>
-    <aside data-rationale-for="D">Macie is a data security service—it is unrelated to Lambda performance.</aside>
-    <aside class="explanation">Increase memory is correct. Lambda CPU scales with memory, so CPU-bound functions can benefit from more memory.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda allocates more CPU as memory increases, which often reduces duration for CPU-bound workloads.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because a dead-letter queue handles failed asynchronous events and does not improve runtime performance.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because an alias controls version routing and does not change compute resources.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a longer timeout lets the function run longer but does not make it run faster.</aside>
+    <aside class="explanation">Option A is the correct answer. For CPU-bound Lambda workloads, increasing memory is the simplest test because CPU allocation scales with memory.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-memory">Lambda memory configuration</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. You need to <mark>compare several memory sizes</mark> for cost and duration automatically. <mark>Which AWS feature helps visualize these tradeoffs?</mark></h3>
+    <h3>4. A team wants to evaluate several Lambda memory sizes and automatically compare duration and cost before choosing a production setting. Which AWS tool is designed for this analysis?</h3>
     <button class="choice">A) AWS X-Ray</button>
     <button class="choice" data-correct>B) Lambda Power Tuning</button>
-    <button class="choice">C) AWS CloudHSM</button>
-    <button class="choice">D) CodeArtifact</button>
+    <button class="choice">C) AWS Compute Optimizer</button>
+    <button class="choice">D) CodeDeploy canary deployment</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">X-Ray traces requests—it does not test memory configurations.</aside>
-    <aside data-rationale-for="B">Lambda Power Tuning (uses Step Functions) automatically tests multiple memory configurations and reports cost/duration tradeoffs.</aside>
-    <aside data-rationale-for="C">CloudHSM provides hardware security modules—it does not tune Lambda.</aside>
-    <aside data-rationale-for="D">CodeArtifact stores package dependencies—it does not analyze Lambda performance.</aside>
-    <aside class="explanation">Lambda Power Tuning is correct. It runs your function across memory settings and reports optimal configurations.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because X-Ray traces requests but does not run controlled tests across multiple memory settings.</aside>
+    <aside data-rationale-for="B">Option B is correct because Lambda Power Tuning runs the function at multiple memory sizes and visualizes the speed-versus-cost tradeoff.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because Compute Optimizer is not the standard exam answer for directly benchmarking Lambda memory settings in this way.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because CodeDeploy canary releases manage traffic shifting, not performance tuning experiments.</aside>
+    <aside class="explanation">Option B is the correct answer. Lambda Power Tuning is purpose-built to test multiple memory configurations and compare their performance and cost.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a> covers Lambda invocation and configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/operatorguide/power-tuning.html">Lambda Power Tuning</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A Kinesis stream has <mark>100 active shards</mark>. <mark>What limits parallel Lambda processing of this stream?</mark></h3>
+    <h3>5. A streaming analytics application uses Lambda to process records from an Amazon Kinesis Data Stream with 100 active shards. If the function code is healthy, what is the main factor that limits how many records Lambda can process in parallel?</h3>
     <button class="choice" data-correct>A) Shard count</button>
     <button class="choice">B) Queue delay</button>
     <button class="choice">C) Layer count</button>
     <button class="choice">D) Alias count</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Each shard supports one concurrent Lambda invocation. More shards enable more parallel processing.</aside>
-    <aside data-rationale-for="B">Queue delay affects visibility timeout—not shard-based parallelism.</aside>
-    <aside data-rationale-for="C">Lambda layers package shared code—they do not limit parallelism.</aside>
-    <aside data-rationale-for="D">Aliases point to versions—they do not control parallelism.</aside>
-    <aside class="explanation">Shard count is correct. Each Kinesis shard can invoke one Lambda function concurrently, limiting parallelism to shard count.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda processes Kinesis records in parallel by shard, with ordering preserved within each shard.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because queue delay is an SQS concept and does not determine Kinesis parallelism.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because layers package dependencies and do not affect stream concurrency.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because aliases route to versions and do not increase Kinesis processing parallelism.</aside>
+    <aside class="explanation">Option A is the correct answer. For Lambda event source mappings on Kinesis, shard count is the core concurrency clue because each shard is processed independently.</aside>
     <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html">Lambda with Kinesis</a>.</aside>
   </section>
 

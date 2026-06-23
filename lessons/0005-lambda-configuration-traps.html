@@ -59,77 +59,77 @@ Per-API-stage values → API Gateway stage variables</div>
 
   <h2>Practice: pick the owner</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. The same Lambda serves <mark>dev and prod API stages</mark>, each with a different DynamoDB table. <mark>How do you pass different table names per stage?</mark></h3>
+    <h3>1. A company uses one Lambda function behind an API Gateway REST API for both dev and prod. Each stage must send requests to a different DynamoDB table without deploying separate functions. Which configuration should the developer use to pass the table name per stage?</h3>
     <button class="choice" data-correct>A) Stage variables</button>
-    <button class="choice">B) Lambda layers</button>
-    <button class="choice">C) Handler setting</button>
-    <button class="choice">D) Runtime setting</button>
+    <button class="choice">B) Lambda environment variables</button>
+    <button class="choice">C) Lambda layers</button>
+    <button class="choice">D) Handler setting</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway stage variables pass per-stage values to integrations—the same function serves both stages with different values.</aside>
-    <aside data-rationale-for="B">Lambda layers share code packages—they do not pass per-stage configuration values.</aside>
-    <aside data-rationale-for="C">Handler setting defines the entry point—it does not control per-stage configuration.</aside>
-    <aside data-rationale-for="D">Runtime selects the language—it does not pass environment-specific values.</aside>
-    <aside class="explanation">Stage variables is correct. API Gateway passes stage-specific values to the Lambda integration without code changes.</aside>
+    <aside data-rationale-for="A">Option A is correct because API Gateway stage variables let the same deployed API pass different values for dev and prod.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because Lambda environment variables belong to the function configuration, not to individual API stages.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because layers package reusable code and do not provide per-stage configuration values.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because the handler identifies the entry point in the code and does not vary request data by API stage.</aside>
+    <aside class="explanation">Option A is the correct answer. The clue is one Lambda function serving multiple API Gateway stages with different values, which points to stage variables.</aside>
     <aside class="knowledge-gap"><a href="0007-api-gateway-request-response-mapping.html">Lesson 0007</a>. <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/stage-variables.html">API Gateway stage variables</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A Python Lambda needs <mark>shared SDK helper code used by five functions</mark>. <mark>Which feature avoids duplicating code in each deployment package?</mark></h3>
+    <h3>2. A team maintains five Python Lambda functions that all use the same internal SDK helper library. The developers want to update that shared code once and avoid packaging it into every deployment zip. Which Lambda feature is the best fit?</h3>
     <button class="choice">A) Stage variable</button>
     <button class="choice" data-correct>B) Lambda layer</button>
     <button class="choice">C) Async destination</button>
     <button class="choice">D) Reserved concurrency</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Stage variables pass per-stage values to integrations—they do not package shared code.</aside>
-    <aside data-rationale-for="B">Lambda layers are mounted into the execution environment and shared across functions without duplicating in each zip.</aside>
-    <aside data-rationale-for="C">Async destinations route invocation records—they do not share code.</aside>
-    <aside data-rationale-for="D">Reserved concurrency controls maximum executions—it does not share code.</aside>
-    <aside class="explanation">Lambda layer is correct. Layers mount shared libraries into function execution environments.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because stage variables pass configuration values to API Gateway integrations and do not package libraries.</aside>
+    <aside data-rationale-for="B">Option B is correct because Lambda layers let multiple functions share the same dependencies without duplicating them in each package.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because asynchronous destinations route invocation records and do not distribute shared code.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because reserved concurrency controls scaling and has nothing to do with packaging dependencies.</aside>
+    <aside class="explanation">Option B is the correct answer. Shared libraries reused by multiple Lambda functions are the classic use case for Lambda layers.</aside>
     <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">Lambda layers</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. Lambda must know <mark>which function method to call</mark> after invocation. <mark>Which configuration specifies the entry point?</mark></h3>
+    <h3>3. A Node.js Lambda deployment succeeds, but every invocation fails because Lambda is looking for the wrong exported method in the code package. Which configuration setting should the developer update?</h3>
     <button class="choice">A) Runtime</button>
     <button class="choice" data-correct>B) Handler</button>
     <button class="choice">C) Layer</button>
     <button class="choice">D) Trigger</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Runtime selects the language (Python, Node.js, etc.)—it does not specify the entry point.</aside>
-    <aside data-rationale-for="B">Handler specifies the module and method Lambda calls when invoked (e.g., index.handler).</aside>
-    <aside data-rationale-for="C">Lambda layers package shared code—they do not define the entry point.</aside>
-    <aside data-rationale-for="D">Triggers invoke functions—they do not define the handler method.</aside>
-    <aside class="explanation">Handler is correct. The handler configuration (module.method) tells Lambda which function code to execute.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because the runtime chooses the language environment and does not identify the specific method Lambda should call.</aside>
+    <aside data-rationale-for="B">Option B is correct because the handler setting tells Lambda which module and function to invoke, such as index.handler.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because a layer packages extra content and does not set the function entry point.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a trigger defines how the function is invoked, not which method inside the code package runs.</aside>
+    <aside class="explanation">Option B is the correct answer. When Lambda is calling the wrong method, the setting to fix is the handler configuration.</aside>
     <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/foundation-handler.html">Lambda handler</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A monitoring agent must <mark>run beside the function during lifecycle events</mark>. <mark>Which Lambda feature runs companion processes?</mark></h3>
+    <h3>4. A security team wants a monitoring agent to run alongside a Lambda function during initialization and invocation so it can collect telemetry without changing business logic. Which Lambda feature should the developer use?</h3>
     <button class="choice" data-correct>A) Extension</button>
     <button class="choice">B) Stage var</button>
     <button class="choice">C) Handler</button>
     <button class="choice">D) Timeout</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda extensions run alongside the function during the execution lifecycle for monitoring, security, or configuration tools.</aside>
-    <aside data-rationale-for="B">Stage variables pass per-stage values to integrations—they do not run companion processes.</aside>
-    <aside data-rationale-for="C">Handler specifies the function entry point—it does not run companion processes.</aside>
-    <aside data-rationale-for="D">Timeout controls maximum execution duration—it does not run companion processes.</aside>
-    <aside class="explanation">Extension is correct. Extensions integrate with the Lambda runtime lifecycle and run alongside the function.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda extensions are companion processes that integrate with the Lambda execution lifecycle.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because stage variables carry API Gateway configuration values and do not run code beside the function.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because the handler points to the business-logic entry point and is not a sidecar process.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because timeout sets the maximum runtime and does not provide monitoring functionality.</aside>
+    <aside class="explanation">Option A is the correct answer. A Lambda extension is the feature built to run monitoring or security tooling alongside the function lifecycle.</aside>
     <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-extensions.html">Lambda extensions</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A Lambda function connects to an RDS database. <mark>Which secure storage should the function retrieve the database password from?</mark> A developer wants to avoid hardcoding the password and needs automatic credential rotation without application code changes.</h3>
+    <h3>5. A Lambda function connects to an Amazon RDS database. The security team requires the database password to be encrypted, retrieved securely at runtime, and rotated automatically with minimal custom code. Which AWS service should the developer use?</h3>
     <button class="choice" data-correct>A) Secrets Manager</button>
-    <button class="choice">B) Stage variable</button>
-    <button class="choice">C) Layer version</button>
-    <button class="choice">D) Runtime name</button>
+    <button class="choice">B) Systems Manager Parameter Store</button>
+    <button class="choice">C) Lambda environment variable</button>
+    <button class="choice">D) Lambda layer version</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Secrets Manager stores credentials securely with optional automatic rotation and retrieval via SDK or extension.</aside>
-    <aside data-rationale-for="B">Stage variables pass configuration values—they are not designed for sensitive credentials.</aside>
-    <aside data-rationale-for="C">Lambda layer versions package code—they do not store credentials.</aside>
-    <aside data-rationale-for="D">Runtime name selects the language—it does not store credentials.</aside>
-    <aside class="explanation">Secrets Manager is correct. It is designed for sensitive values like database passwords with secure retrieval.</aside>
+    <aside data-rationale-for="A">Option A is correct because Secrets Manager stores credentials securely and supports native rotation workflows for database secrets.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because Parameter Store can store secure strings, but automatic secret rotation is the decisive requirement in the stem.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because environment variables are not the preferred store for rotating database passwords.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a layer version packages code and cannot securely manage or rotate credentials.</aside>
+    <aside class="explanation">Option A is the correct answer. The key requirement is automatic rotation of a database password with minimal custom code, which points to AWS Secrets Manager.</aside>
     <aside class="knowledge-gap"><a href="0016-domain-2-secure-configuration-selection.html">Lesson 0016</a>. <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">Secrets Manager</a>.</aside>
   </section>
 

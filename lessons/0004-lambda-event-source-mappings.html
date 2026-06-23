@@ -50,77 +50,77 @@
 
   <h2>Practice: spot the mapping</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A Lambda function must <mark>read messages from SQS in batches</mark>. The function is triggered automatically when messages arrive. <mark>How does Lambda receive these messages?</mark></h3>
+    <h3>1. A travel company writes booking-confirmation jobs to Amazon SQS so requests can be processed in batches. A Lambda function must automatically poll the queue and receive messages without the application calling Invoke directly. Which Lambda feature should the developer configure?</h3>
     <button class="choice">A) Async destination</button>
     <button class="choice" data-correct>B) Event source mapping</button>
-    <button class="choice">C) Provisioned concurrency</button>
-    <button class="choice">D) Lambda layer</button>
+    <button class="choice">C) SNS topic subscription</button>
+    <button class="choice">D) API Gateway integration</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Destinations route invocation records for async invocations—not batch delivery from queues.</aside>
-    <aside data-rationale-for="B">Lambda event source mapping polls SQS and delivers batches to the function.</aside>
-    <aside data-rationale-for="C">Provisioned concurrency pre-warms environments—it does not deliver queue messages.</aside>
-    <aside data-rationale-for="D">Lambda layers package shared code—they do not deliver queue messages.</aside>
-    <aside class="explanation">Event source mapping is correct. Lambda creates the polling mechanism and manages batch delivery from SQS.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because destinations route records after asynchronous invocation and do not poll SQS.</aside>
+    <aside data-rationale-for="B">Option B is correct because Lambda uses an event source mapping to poll SQS and deliver message batches to the function.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because subscribing SQS to SNS does not create the Lambda polling relationship described in the stem.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because API Gateway invokes Lambda directly and is unrelated to queue polling.</aside>
+    <aside class="explanation">Option B is the correct answer. When Lambda must read from SQS in batches, the developer configures an event source mapping.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html">Event source mapping</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A failed SQS message should <mark>eventually move to a dead-letter queue</mark> after exceeding receive attempts. <mark>Which SQS feature controls this behavior?</mark></h3>
+    <h3>2. A customer-support application uses SQS with a Lambda consumer. The team wants messages that fail processing too many times to move automatically to a dead-letter queue after a defined number of receives. Which SQS setting controls that behavior?</h3>
     <button class="choice" data-correct>A) Redrive policy</button>
-    <button class="choice">B) Stage variable</button>
-    <button class="choice">C) X-Ray segment</button>
+    <button class="choice">B) Visibility timeout</button>
+    <button class="choice">C) Reserved concurrency</button>
     <button class="choice">D) Lambda alias</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">The redrive policy defines maxReceiveCount and sends messages exceeding that limit to the DLQ.</aside>
-    <aside data-rationale-for="B">Stage variables pass per-environment values to integrations—they do not control queue behavior.</aside>
-    <aside data-rationale-for="C">X-Ray provides distributed tracing—it does not control message routing.</aside>
-    <aside data-rationale-for="D">Aliases point to specific versions—they do not control queue routing.</aside>
-    <aside class="explanation">Redrive policy is correct. It controls when messages move to the DLQ based on maxReceiveCount.</aside>
+    <aside data-rationale-for="A">Option A is correct because the redrive policy defines maxReceiveCount and the dead-letter queue target.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because visibility timeout controls how long a received message stays hidden before reappearing, not when it moves to a DLQ.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because reserved concurrency caps Lambda scaling and does not change SQS dead-letter routing.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because aliases route traffic to Lambda versions and have no effect on SQS retry thresholds.</aside>
+    <aside class="explanation">Option A is the correct answer. In SQS, the redrive policy is the setting that sends repeatedly failed messages to the dead-letter queue.</aside>
     <aside class="knowledge-gap"><a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a>. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html">SQS DLQ</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. DynamoDB Streams records must be <mark>processed in order per partition key</mark>. <mark>What is the processing unit for ordered stream delivery?</mark></h3>
+    <h3>3. An online game writes player profile updates to DynamoDB, and a Lambda function consumes the DynamoDB stream to update a leaderboard cache. The company must preserve record order for related items. What is the ordering and processing unit Lambda follows for this stream?</h3>
     <button class="choice" data-correct>A) Per shard</button>
     <button class="choice">B) Per layer</button>
     <button class="choice">C) Per alias</button>
     <button class="choice">D) Per stage</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">DynamoDB Streams delivers records per shard in order. Each shard processes its partition key range sequentially.</aside>
-    <aside data-rationale-for="B">Lambda layers are for shared code packages—not stream ordering.</aside>
-    <aside data-rationale-for="C">Aliases point to versions—they do not define stream processing units.</aside>
-    <aside data-rationale-for="D">API Gateway stages represent deployed environments—they do not control stream ordering.</aside>
-    <aside class="explanation">Per shard is correct. DynamoDB Streams preserve ordering within each shard's partition key range.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda processes DynamoDB Streams in order within each shard.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because layers package shared code and have nothing to do with stream ordering.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because aliases point to Lambda versions and do not define the unit of stream processing.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because stages are an API Gateway concept and do not control DynamoDB Streams behavior.</aside>
+    <aside class="explanation">Option A is the correct answer. For DynamoDB Streams event source mappings, Lambda preserves ordering within each shard, so shards are the key processing unit.</aside>
     <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a> covers Lambda concurrency concepts. See <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html">DynamoDB Streams</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A Kinesis stream has <mark>25 active shards</mark>. <mark>What is the key concurrency clue for Lambda processing?</mark></h3>
+    <h3>4. A clickstream analytics team uses Lambda to consume an Amazon Kinesis Data Stream. The stream currently has 25 active shards, and the developers want to know what most directly limits Lambda's parallel processing capacity. Which factor is the key concurrency clue?</h3>
     <button class="choice" data-correct>A) Shard count</button>
     <button class="choice">B) Queue count</button>
     <button class="choice">C) Layer count</button>
     <button class="choice">D) Stage count</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Each Kinesis shard can invoke one Lambda function concurrently. Shard count directly limits Lambda parallelism.</aside>
-    <aside data-rationale-for="B">Kinesis Data Streams uses shards, not queues. Queue count is an SQS concept.</aside>
-    <aside data-rationale-for="C">Lambda layers package shared code—they do not control parallelism.</aside>
-    <aside data-rationale-for="D">API Gateway stages represent deployed environments—they do not limit stream processing.</aside>
-    <aside class="explanation">Shard count is correct. Lambda parallelism for Kinesis is limited to the number of active shards.</aside>
+    <aside data-rationale-for="A">Option A is correct because each active Kinesis shard can be processed independently, so shard count drives Lambda parallelism.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because Kinesis uses shards rather than queues.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because Lambda layers are packaging constructs and do not change stream throughput.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because API Gateway stage count has no relationship to Kinesis event source mappings.</aside>
+    <aside class="explanation">Option A is the correct answer. In Kinesis-based Lambda questions, shard count is the exam keyword that signals the parallelism limit.</aside>
     <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html">Lambda with Kinesis</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. S3 <mark>invokes Lambda after object creation</mark> and does not wait for output. <mark>How does Lambda receive this notification?</mark></h3>
+    <h3>5. A content-management system stores uploaded videos in Amazon S3 and triggers a Lambda function to create metadata after each object is created. The upload request must finish immediately without waiting for the Lambda result. How does S3 invoke the function?</h3>
     <button class="choice" data-correct>A) Async invocation</button>
     <button class="choice">B) Event source map</button>
     <button class="choice">C) Poll response</button>
     <button class="choice">D) Stream mapping</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">S3 event notifications invoke Lambda asynchronously—the notification is handed off and Lambda processes it.</aside>
-    <aside data-rationale-for="B">Event source mapping means Lambda polls SQS, Kinesis, or DynamoDB Streams—not S3 notifications.</aside>
-    <aside data-rationale-for="C">Poll response is not a Lambda invocation type.</aside>
-    <aside data-rationale-for="D">Stream mapping applies to DynamoDB Streams, not S3 notifications.</aside>
-    <aside class="explanation">Async invocation is correct. S3 event notifications trigger Lambda asynchronously.</aside>
+    <aside data-rationale-for="A">Option A is correct because S3 event notifications hand off the event to Lambda without waiting for a function response.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because event source mappings are used when Lambda polls services such as SQS, Kinesis, or DynamoDB Streams.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because poll response is not a Lambda invocation model.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because stream mappings apply to streaming services, not S3 object notifications.</aside>
+    <aside class="explanation">Option A is the correct answer. S3 invokes Lambda asynchronously, which is why the upload workflow does not wait for the metadata function to finish.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async invocation</a>.</aside>
   </section>
 

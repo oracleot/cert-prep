@@ -59,77 +59,77 @@ Async failure routing?
 
   <h2>Practice: classify the missing piece</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A Lambda function must <mark>connect to an RDS database in private subnets</mark>. <mark>What Lambda configuration enables private network access?</mark></h3>
+    <h3>1. A payroll application runs a Lambda function that must connect to an Amazon RDS for PostgreSQL database deployed in private subnets. Which Lambda configuration is required so the function can reach the database?</h3>
     <button class="choice" data-correct>A) VPC config with subnets and security groups</button>
     <button class="choice">B) DLQ config</button>
     <button class="choice">C) Alias swap</button>
     <button class="choice">D) Layer file</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">VPC configuration attaches Lambda to private subnets, allowing ENI-based access to RDS in private subnets.</aside>
-    <aside data-rationale-for="B">DLQ captures failed async events—it does not enable VPC access.</aside>
-    <aside data-rationale-for="C">Alias swap changes which version is targeted—it does not enable VPC access.</aside>
-    <aside data-rationale-for="D">Lambda layer packages shared code—it does not enable VPC access.</aside>
-    <aside class="explanation">VPC config is correct. Lambda needs VPC configuration with subnets and security groups to connect to private RDS.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda must be attached to the VPC by selecting subnets and security groups to reach private RDS resources.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because a dead-letter queue handles failed asynchronous events and does not provide network connectivity.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because an alias swap changes version routing and does not affect VPC access.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a layer packages files for the execution environment and does not connect Lambda to private subnets.</aside>
+    <aside class="explanation">Option A is the correct answer. To access an RDS database in private subnets, the Lambda function must be configured with the correct VPC subnets and security groups.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html">Lambda VPC config</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. Lambda VPC setup fails because it <mark>cannot create network interfaces</mark>. <mark>Which IAM permission is missing from the execution role?</mark></h3>
-    <button class="choice">A) KMS decrypt</button>
-    <button class="choice" data-correct>B) EC2 ENI permissions</button>
-    <button class="choice">C) S3 read perms</button>
-    <button class="choice">D) SNS send perms</button>
+    <h3>2. A Lambda function is attached to private subnets, but invocations fail during initialization because Lambda cannot create elastic network interfaces. Which IAM change should the developer make?</h3>
+    <button class="choice">A) Attach AWSLambdaBasicExecutionRole</button>
+    <button class="choice" data-correct>B) Attach AWSLambdaVPCAccessExecutionRole</button>
+    <button class="choice">C) Add AmazonS3ReadOnlyAccess</button>
+    <button class="choice">D) Add SNS publish permissions</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">KMS decrypt permissions are for encryption operations—not for creating network interfaces.</aside>
-    <aside data-rationale-for="B">Lambda needs EC2 CreateNetworkInterface, DescribeNetworkInterfaces, and DeleteNetworkInterface permissions for VPC access.</aside>
-    <aside data-rationale-for="C">S3 read permissions enable object access—they do not affect ENI creation.</aside>
-    <aside data-rationale-for="D">SNS send permissions are for publishing messages—they do not affect ENI creation.</aside>
-    <aside class="explanation">EC2 ENI permissions are correct. The execution role needs network interface permissions for Lambda to connect to VPC resources.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because the basic execution role adds logging permissions but not the EC2 network-interface permissions Lambda needs for VPC access.</aside>
+    <aside data-rationale-for="B">Option B is correct because AWSLambdaVPCAccessExecutionRole includes the ENI permissions required for Lambda to create and manage network interfaces.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because S3 read access is unrelated to creating ENIs in a VPC.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because SNS publish permissions do not help Lambda attach to VPC networking.</aside>
+    <aside class="explanation">Option B is the correct answer. The symptom points to missing EC2 network-interface permissions, and the managed policy AWSLambdaVPCAccessExecutionRole is the standard fix.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers Lambda VPC configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html#vpc-permissions">Lambda VPC permissions</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A Lambda function in private subnets must <mark>call a public third-party API</mark>. <mark>Which AWS resource enables outbound internet from private subnets?</mark></h3>
+    <h3>3. A Lambda function runs in private subnets so it can access an internal database, but it also must call a public third-party payment API on the internet. Which AWS resource is required to provide outbound internet access from those private subnets?</h3>
     <button class="choice" data-correct>A) NAT gateway</button>
-    <button class="choice">B) DLQ target</button>
-    <button class="choice">C) Layer mount</button>
-    <button class="choice">D) Alias shift</button>
+    <button class="choice">B) Internet gateway only</button>
+    <button class="choice">C) Lambda resource policy</button>
+    <button class="choice">D) Dead-letter queue</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">A NAT gateway in a public subnet routes outbound traffic from private subnet instances to the internet.</aside>
-    <aside data-rationale-for="B">DLQ targets capture failed events—they do not enable internet access.</aside>
-    <aside data-rationale-for="C">Lambda layers mount shared code—they do not enable internet routing.</aside>
-    <aside data-rationale-for="D">Alias shift changes version targets—it does not enable internet access.</aside>
-    <aside class="explanation">NAT gateway is correct. Private subnet resources use NAT gateway to reach the internet without direct public IPs.</aside>
+    <aside data-rationale-for="A">Option A is correct because private subnets need a NAT gateway to reach the public internet without assigning public IP addresses.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because an internet gateway alone does not give resources in private subnets outbound internet access.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because a resource policy controls who can invoke Lambda and does not affect routing.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a dead-letter queue stores failed events and has nothing to do with internet connectivity.</aside>
+    <aside class="explanation">Option A is the correct answer. A Lambda function in private subnets needs a NAT gateway for outbound access to public endpoints.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers VPC networking patterns. See <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html">NAT gateway</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. Async Lambda results need <mark>different targets for success and failure</mark>. <mark>Which async feature routes both outcomes to separate destinations?</mark></h3>
+    <h3>4. A logistics company invokes a Lambda function asynchronously to enrich shipment events. The team wants successful invocations sent to EventBridge and failed invocations sent to an SQS queue. Which Lambda feature supports separate targets for both outcomes?</h3>
     <button class="choice" data-correct>A) Destination</button>
-    <button class="choice">B) Redrive job</button>
-    <button class="choice">C) Stage var</button>
-    <button class="choice">D) Mock test</button>
+    <button class="choice">B) Dead-letter queue</button>
+    <button class="choice">C) Stage variable</button>
+    <button class="choice">D) Redrive policy</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda destinations route success and failure records to different targets (SQS, SNS, Lambda, EventBridge).</aside>
-    <aside data-rationale-for="B">Redrive jobs move messages in queues—they do not route async invocation results.</aside>
-    <aside data-rationale-for="C">Stage variables pass per-API-stage values—they do not route invocation results.</aside>
-    <aside data-rationale-for="D">Mock tests validate payloads—they do not route invocation results.</aside>
-    <aside class="explanation">Destination is correct. Destinations can independently route success and failure records to different targets.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda destinations can route success and failure records to different supported targets.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because a dead-letter queue captures only failed asynchronous events and cannot route successful ones.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because stage variables are API Gateway configuration values and do not route Lambda invocation results.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because redrive policy is an SQS setting and does not handle Lambda success routing.</aside>
+    <aside class="explanation">Option A is the correct answer. When the scenario requires separate success and failure targets for asynchronous invocations, Lambda destinations are the right feature.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html">Lambda destinations</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A service needs <mark>permission to invoke the Lambda function</mark>. <mark>Which policy controls who can call Lambda?</mark></h3>
+    <h3>5. A company wants Amazon S3 to be allowed to invoke a Lambda function whenever a new object is created in a bucket. Which policy type controls which principals and services can invoke the function?</h3>
     <button class="choice" data-correct>A) Resource policy</button>
     <button class="choice">B) Execution role</button>
     <button class="choice">C) Subnet setting</button>
     <button class="choice">D) Memory tuning</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda resource-based policies control which principals can invoke the function.</aside>
-    <aside data-rationale-for="B">Execution role controls what Lambda can call—it does not control who can invoke Lambda.</aside>
-    <aside data-rationale-for="C">Subnet settings control network access—they do not control invocation permissions.</aside>
-    <aside data-rationale-for="D">Memory tuning affects execution resources—it does not control invocation permissions.</aside>
-    <aside class="explanation">Resource policy is correct. Resource-based policies grant invocation permissions to services and accounts.</aside>
+    <aside data-rationale-for="A">Option A is correct because Lambda resource-based policies grant invocation permission to AWS services, accounts, or principals.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because the execution role controls what the function can access after it starts running, not who can invoke it.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because subnet settings control networking and do not authorize invokers.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because memory tuning affects performance and has no effect on invocation permissions.</aside>
+    <aside class="explanation">Option A is the correct answer. The question is about who may call the Lambda function, which is handled by a resource-based policy.</aside>
     <aside class="knowledge-gap"><a href="0014-authentication-and-authorization-selection.html">Lesson 0014</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html">Lambda resource policies</a>.</aside>
   </section>
 

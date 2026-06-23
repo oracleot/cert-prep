@@ -50,92 +50,92 @@ Lambda polls source? → event source mapping → source rules, batch behavior, 
 
   <h2>Practice: classify the Lambda path</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. An API Gateway <mark>request invokes Lambda and waits</mark> for a response before returning to the client. <mark>Which invocation type applies?</mark></h3>
+    <h3>1. A health-tech company uses Amazon API Gateway to front a Lambda function that validates insurance claims and must return a decision to the mobile client in the same request. Which invocation model is API Gateway using to call the function?</h3>
     <button class="choice" data-correct>A) Synchronous invocation</button>
     <button class="choice">B) Asynchronous invocation</button>
     <button class="choice">C) Event source mapping</button>
-    <button class="choice">D) Lambda destination</button>
+    <button class="choice">D) On-failure destination</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway waits for Lambda's response—the caller waits, making this synchronous invocation.</aside>
-    <aside data-rationale-for="B">Asynchronous invocation means the caller hands off and does not wait for a response.</aside>
-    <aside data-rationale-for="C">Event source mapping means Lambda polls a queue or stream—not direct caller invocation.</aside>
-    <aside data-rationale-for="D">Destinations route async failure records—they are not an invocation type.</aside>
-    <aside class="explanation">Synchronous invocation is correct. API Gateway Lambda proxy integration is a synchronous call—the caller (API Gateway) waits for the response.</aside>
+    <aside data-rationale-for="A">Option A is correct because API Gateway waits for the Lambda response before it can return data to the mobile client.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because asynchronous invocation means the caller hands off the event and does not wait for the function result.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because event source mappings are used when Lambda polls services such as SQS, Kinesis, or DynamoDB Streams.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a destination is a failure-routing feature for asynchronous invocations, not an invocation model.</aside>
+    <aside class="explanation">Option A is the correct answer. API Gateway uses synchronous invocation for request-response patterns where the client must receive the Lambda result immediately.</aside>
     <aside class="knowledge-gap">Review <a href="0001-dva-c02-domain-triage.html">Lesson 0001</a> for domain triage. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-sync.html">Lambda synchronous invocation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. S3 <mark>sends object-created events to Lambda without waiting</mark> for function output. <mark>How does Lambda receive these events?</mark></h3>
+    <h3>2. A media company stores uploaded photos in Amazon S3. Each new object should trigger a Lambda function that generates thumbnails, and the user must not wait for processing to finish. How does Lambda receive the S3 event?</h3>
     <button class="choice">A) Synchronous invocation</button>
     <button class="choice" data-correct>B) Asynchronous invocation</button>
     <button class="choice">C) Event source mapping</button>
     <button class="choice">D) Provisioned concurrency</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Synchronous means the caller waits—S3 does not wait for Lambda to finish.</aside>
-    <aside data-rationale-for="B">S3 invokes Lambda asynchronously and does not wait for output. Lambda retries failed events twice automatically.</aside>
-    <aside data-rationale-for="C">Event source mapping means Lambda polls SQS, Kinesis, or DynamoDB Streams—not S3 event notifications.</aside>
-    <aside data-rationale-for="D">Provisioned concurrency pre-warms environments—it does not change how S3 delivers events.</aside>
-    <aside class="explanation">Asynchronous invocation is correct. S3 event notifications invoke Lambda asynchronously, and Lambda handles retries.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because S3 does not wait for the function response before completing the upload workflow.</aside>
+    <aside data-rationale-for="B">Option B is correct because S3 event notifications invoke Lambda asynchronously and Lambda handles retry behavior.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because event source mappings apply when Lambda polls queues or streams, not S3 event notifications.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because provisioned concurrency reduces cold starts but does not describe how S3 delivers events.</aside>
+    <aside class="explanation">Option B is the correct answer. S3 sends event notifications to Lambda asynchronously, so the uploader does not wait for the thumbnail job to finish.</aside>
     <aside class="knowledge-gap"><a href="0001-dva-c02-domain-triage.html">Lesson 0001</a> covers Lambda invocation patterns. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda asynchronous invocation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A Lambda function <mark>reads records from an SQS queue in batches</mark>. The function is triggered automatically when messages arrive. <mark>What mechanism delivers these batches?</mark></h3>
+    <h3>3. An ecommerce platform places order-fulfillment jobs on an Amazon SQS queue. A Lambda function must automatically poll the queue and process up to 10 messages at a time. Which mechanism should the developer configure?</h3>
     <button class="choice">A) Synchronous invocation</button>
     <button class="choice">B) Asynchronous invocation</button>
     <button class="choice" data-correct>C) Event source mapping</button>
     <button class="choice">D) Lambda layer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Synchronous invocation requires a caller that waits for response—Lambda polling a queue is not synchronous.</aside>
-    <aside data-rationale-for="B">Asynchronous invocation is triggered by a service calling Lambda—not by Lambda polling a source.</aside>
-    <aside data-rationale-for="C">Lambda event source mapping polls SQS queues and delivers batches to the function.</aside>
-    <aside data-rationale-for="D">Lambda layers package shared code—they do not deliver queue messages.</aside>
-    <aside class="explanation">Event source mapping is correct. Lambda creates the polling mechanism and manages batch delivery from SQS.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because there is no direct caller waiting for a response when Lambda processes SQS messages.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because SQS integration is poll-based rather than a service directly invoking Lambda asynchronously.</aside>
+    <aside data-rationale-for="C">Option C is correct because Lambda uses an event source mapping to poll SQS and deliver batches to the function.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a layer packages shared dependencies and does not connect Lambda to a queue.</aside>
+    <aside class="explanation">Option C is the correct answer. SQS integrations use an event source mapping so Lambda can poll the queue and pass batches to the handler.</aside>
     <aside class="knowledge-gap">See <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html">Lambda event source mapping</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A production API <mark>experiences unpredictable cold-start latency</mark> and must respond faster. <mark>Which Lambda feature eliminates cold starts for a target concurrency?</mark></h3>
+    <h3>4. A ticketing API runs on API Gateway and Lambda. During concert drops, new execution environments create latency spikes, and the business requires consistently low response times for 200 concurrent requests. Which Lambda feature best meets this requirement?</h3>
     <button class="choice">A) Reserved concurrency</button>
     <button class="choice" data-correct>B) Provisioned concurrency</button>
     <button class="choice">C) Event source mapping</button>
     <button class="choice">D) Dead-letter queue</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Reserved concurrency caps maximum instances—it does not pre-warm environments.</aside>
-    <aside data-rationale-for="B">Provisioned concurrency keeps execution environments initialized, eliminating cold starts for targeted function versions or aliases.</aside>
-    <aside data-rationale-for="C">Event source mapping handles batch delivery, not latency reduction.</aside>
-    <aside data-rationale-for="D">DLQ captures failed events—it has no effect on cold starts.</aside>
-    <aside class="explanation">Provisioned concurrency is correct. It targets specific versions or aliases to maintain pre-warmed instances.</aside>
+    <aside data-rationale-for="A">Option A is incorrect because reserved concurrency limits or guarantees capacity, but it does not keep execution environments pre-initialized.</aside>
+    <aside data-rationale-for="B">Option B is correct because provisioned concurrency keeps execution environments warm for a target concurrency level.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because event source mappings are for queue and stream polling, not API latency control.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a dead-letter queue stores failed asynchronous events and has no effect on cold starts.</aside>
+    <aside class="explanation">Option B is the correct answer. Provisioned concurrency pre-warms Lambda environments so the API avoids cold-start latency for the configured traffic level.</aside>
     <aside class="knowledge-gap">Review <a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html">Lambda concurrency documentation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A function should <mark>not consume all available account concurrency</mark>, leaving capacity for other functions. <mark>Which control prevents one function from monopolizing Lambda?</mark></h3>
+    <h3>5. A batch image-processing function can suddenly scale to thousands of concurrent invocations and starve more critical authentication and checkout functions in the same account. Which setting should the developer configure to cap this function's scale?</h3>
     <button class="choice" data-correct>A) Reserved concurrency</button>
     <button class="choice">B) Provisioned concurrency</button>
     <button class="choice">C) Lambda destination</button>
     <button class="choice">D) Lambda extension</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Reserved concurrency sets a ceiling on a function's concurrent executions, protecting account capacity for other functions.</aside>
-    <aside data-rationale-for="B">Provisioned concurrency adds pre-warmed instances—it does not cap concurrency.</aside>
-    <aside data-rationale-for="C">Destinations route invocation records on success or failure—they do not control concurrency.</aside>
-    <aside data-rationale-for="D">Extensions run alongside the function for monitoring or secrets retrieval—they do not limit concurrency.</aside>
-    <aside class="explanation">Reserved concurrency is correct. It ensures other functions can access account concurrency even if one function scales heavily.</aside>
+    <aside data-rationale-for="A">Option A is correct because reserved concurrency sets the maximum concurrent executions for a function and protects the rest of the account.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because provisioned concurrency pre-warms capacity but does not cap the function's maximum concurrency.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because destinations route asynchronous invocation records and do not control concurrency.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because extensions add runtime side processes and do not limit function scaling.</aside>
+    <aside class="explanation">Option A is the correct answer. Reserved concurrency prevents one noisy function from consuming the entire account concurrency pool.</aside>
     <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html#configuration-concurrency-reserved">Reserved concurrency</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. Failed <mark>asynchronous Lambda events need to be captured</mark> for later debugging and reprocessing. <mark>Which feature isolates poison-pill events?</mark></h3>
+    <h3>6. An EventBridge rule invokes a Lambda function asynchronously to process partner order files. Some malformed events keep failing, and the team wants the original event payload sent to an Amazon SQS queue after Lambda exhausts its retries so it can be replayed later. Which feature should the developer configure?</h3>
     <button class="choice" data-correct>A) Dead-letter queue</button>
-    <button class="choice">B) Lambda alias</button>
-    <button class="choice">C) Memory setting</button>
-    <button class="choice">D) Stage variable</button>
+    <button class="choice">B) On-failure destination</button>
+    <button class="choice">C) Reserved concurrency</button>
+    <button class="choice">D) Lambda layer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">A DLQ (SQS or SNS) captures events that exceed Lambda's retry limits during async invocation.</aside>
-    <aside data-rationale-for="B">Aliases point to specific versions—they do not capture failed events.</aside>
-    <aside data-rationale-for="C">Memory settings affect execution resources—they do not handle failure routing.</aside>
-    <aside data-rationale-for="D">Stage variables pass per-environment values to integrations—they do not handle failures.</aside>
-    <aside class="explanation">Dead-letter queue is correct. Lambda sends events to the DLQ after exhausting retries during async invocation.</aside>
+    <aside data-rationale-for="A">Option A is correct because a dead-letter queue stores the original failed asynchronous event in SQS or SNS after Lambda exhausts retries.</aside>
+    <aside data-rationale-for="B">Option B is incorrect because a destination sends an invocation record, not the original event payload the team wants to replay directly.</aside>
+    <aside data-rationale-for="C">Option C is incorrect because reserved concurrency controls scale and does not route failed events anywhere.</aside>
+    <aside data-rationale-for="D">Option D is incorrect because a layer packages shared code and is unrelated to asynchronous failure handling.</aside>
+    <aside class="explanation">Option A is the correct answer. The requirement is to capture the original asynchronous event in SQS after retries are exhausted, which is the dead-letter queue use case.</aside>
     <aside class="knowledge-gap"><a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq">Lambda DLQ</a>.</aside>
   </section>
 
