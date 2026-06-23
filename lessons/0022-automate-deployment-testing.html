@@ -31,92 +31,92 @@ Promote only approved container image → ECR tags or digests</div>
 
   <h2>Retrieval drill: pick the tested feature</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A DVA-C02 scenario describes a <mark>commit to a Git repository that must trigger build, test, staging, and production actions automatically</mark>. You must name the orchestration service. <mark>Which AWS service chains source, build, test, and deploy stages triggered by code changes?</mark></h3>
+    <h3>1. A software company stores application code in a Git repository. After each commit to the main branch, the release process must automatically run build and test actions, deploy to a staging environment, pause for approval, and then deploy to production. Which AWS service should orchestrate this workflow?</h3>
     <button class="choice" data-correct>A) AWS CodePipeline</button>
     <button class="choice">B) AWS CodeArtifact</button>
     <button class="choice">C) AWS CodeCommit</button>
-    <button class="choice">D) AWS CodeGuru</button>
+    <button class="choice">D) AWS CodeGuru Reviewer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>CodePipeline</strong> orchestrates ordered stages (source, build, test, deploy) triggered by repository changes—Task 3.3.</aside>
-    <aside data-rationale-for="B">CodeArtifact stores package dependencies; it does not orchestrate pipeline stages.</aside>
-    <aside data-rationale-for="C">CodeCommit hosts the Git repository; it does not chain pipeline stages.</aside>
-    <aside data-rationale-for="D">CodeGuru performs code reviews; it does not orchestrate CI/CD stages.</aside>
-    <aside class="explanation">CodePipeline is correct. It is the release automation spine that chains stages on commit events.</aside>
+    <aside data-rationale-for="A">Option A is correct because CodePipeline is the AWS service that chains source, build, test, approval, and deploy stages into one release workflow.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because CodeArtifact stores packages and dependencies, but it does not orchestrate pipeline stages.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because CodeCommit hosts source code, but it does not coordinate downstream build and deployment stages.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because CodeGuru Reviewer analyzes code quality and security issues rather than running CI/CD workflows.</aside>
+    <aside class="explanation">Option A is the correct answer. The stem is asking for the service that automates an end-to-end release pipeline with ordered stages and approval gates.</aside>
     <aside class="knowledge-gap">Review <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD services</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A scenario involves <mark>a CodeBuild project where unit tests and lint commands must run during the build phase</mark>. You must name the configuration file. <mark>Which YAML file defines install, build, and post-build commands that CodeBuild executes?</mark></h3>
+    <h3>2. A developer creates an AWS CodeBuild project for a Node.js application. The build must install dependencies, run unit tests, execute lint checks, and package artifacts using commands defined in a file that is stored with the application source. Which file should the developer create?</h3>
     <button class="choice" data-correct>A) buildspec.yml</button>
-    <button class="choice">B) AppSpec file</button>
-    <button class="choice">C) CloudFormation template</button>
-    <button class="choice">D) Runbook</button>
+    <button class="choice">B) appspec.yml</button>
+    <button class="choice">C) template.yaml</button>
+    <button class="choice">D) settings.xml</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>buildspec.yml</code> defines install, pre_build, build, and post_build phases for CodeBuild—Task 3.3.</aside>
-    <aside data-rationale-for="B">AppSpec file configures CodeDeploy application and deployment lifecycle hooks; it does not run in CodeBuild.</aside>
-    <aside data-rationale-for="C">CloudFormation template defines infrastructure resources; it does not run build commands.</aside>
-    <aside data-rationale-for="D">Runbook documents operational procedures; it is not a CodeBuild configuration file.</aside>
-    <aside class="explanation">buildspec.yml is correct. CodeBuild reads this file to run the install, build, and test phases of the project.</aside>
+    <aside data-rationale-for="A">Option A is correct because buildspec.yml defines the install, pre_build, build, and post_build commands that CodeBuild runs.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because appspec.yml is used by CodeDeploy for deployment hooks, not by CodeBuild for build commands.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because a CloudFormation or SAM template defines infrastructure resources, not CodeBuild phases.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because settings.xml is associated with Maven configuration and is not the standard CodeBuild workflow file.</aside>
+    <aside class="explanation">Option A is the correct answer. When the exam says CodeBuild must execute named phases from source-controlled YAML, that points to buildspec.yml.</aside>
     <aside class="knowledge-gap">Study <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD services</a> and <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html">CodeBuild buildspec reference</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A DVA-C02 scenario describes a <mark>CodeDeploy Lambda deployment where traffic shifts to the new version in equal increments at fixed intervals</mark>. You must name the traffic configuration. <mark>Which CodeDeploy Lambda deployment configuration shifts traffic in equal percentages at fixed intervals?</mark></h3>
-    <button class="choice" data-correct>A) Linear</button>
-    <button class="choice">B) Canary</button>
-    <button class="choice">C) Blue/green</button>
-    <button class="choice">D) Immutable</button>
+    <h3>3. A company deploys a new Lambda version with AWS CodeDeploy. The release policy requires 10% of production traffic to shift to the new version every 10 minutes until all traffic uses the new version. Which deployment configuration meets this requirement?</h3>
+    <button class="choice" data-correct>A) Linear deployment</button>
+    <button class="choice">B) Canary deployment</button>
+    <button class="choice">C) Blue/green deployment</button>
+    <button class="choice">D) Immutable deployment</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 10 minutes)—Task 3.3.</aside>
-    <aside data-rationale-for="B">Canary shifts an initial small percentage, then shifts the remainder at once—fixed equal increments are not canary.</aside>
-    <aside data-rationale-for="C">Blue/green deploys to a separate environment before shifting traffic; it is not equal increments.</aside>
-    <aside data-rationale-for="D">Immutable deploys to a new fleet and terminates the old one; it does not shift traffic incrementally.</aside>
-    <aside class="explanation">Linear is correct. CodeDeploy linear configuration shifts traffic in equal increments at fixed intervals.</aside>
+    <aside data-rationale-for="A">Option A is correct because a linear deployment shifts equal percentages of traffic at fixed intervals, such as 10% every 10 minutes.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because canary shifts a small initial percentage and then moves the remaining traffic in a later step, not equal increments throughout.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because blue/green describes parallel environments rather than the exact incremental traffic pattern in the stem.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because immutable deployments create a fresh fleet, but the requirement is specifically about timed traffic shifting percentages.</aside>
+    <aside class="explanation">Option A is the correct answer. Equal traffic increments at a fixed interval are the defining clue for a CodeDeploy linear deployment.</aside>
     <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A scenario involves an <mark>API Gateway integration that must return test responses before any Lambda backend exists</mark>. You must choose the correct integration type. <mark>Which API Gateway integration type returns a configured response without invoking any backend?</mark></h3>
-    <button class="choice" data-correct>A) MOCK</button>
-    <button class="choice">B) HTTP</button>
-    <button class="choice">C) AWS</button>
-    <button class="choice">D) VPC</button>
+    <h3>4. A team is contract-testing a REST API before the backend microservice is available. The developers need Amazon API Gateway to return a static success payload so the client application can continue development without a live integration target. Which API Gateway integration type should they use?</h3>
+    <button class="choice" data-correct>A) MOCK integration</button>
+    <button class="choice">B) HTTP integration</button>
+    <button class="choice">C) AWS integration</button>
+    <button class="choice">D) VPC link integration</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>MOCK</strong> integration returns fixed responses configured in API Gateway without calling any backend—Task 3.3.</aside>
-    <aside data-rationale-for="B">HTTP integration calls an HTTP backend; it requires a live endpoint.</aside>
-    <aside data-rationale-for="C">AWS integration invokes an AWS service or Lambda; it requires a real backend.</aside>
-    <aside data-rationale-for="D">VPC is not an API Gateway integration type.</aside>
-    <aside class="explanation">MOCK is correct. It enables API Gateway to return configured responses for contract testing or when backends are unavailable.</aside>
+    <aside data-rationale-for="A">Option A is correct because MOCK integration returns a configured response directly from API Gateway without calling a backend.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because HTTP integration still needs a reachable HTTP backend endpoint.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because AWS integration invokes an AWS service such as Lambda, and the scenario says no backend is ready.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because VPC link is used for private integrations, not static mock responses.</aside>
+    <aside class="explanation">Option A is the correct answer. The requirement is backend-free test responses, which is the textbook use case for API Gateway MOCK integration.</aside>
     <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-integration-types.html">API Gateway integration types</a> and <a href="0021-test-applications-in-dev-environments.html">Task 3.2</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A DVA-C02 scenario involves <mark>a pipeline that must deploy to another AWS account using temporary, time-limited credentials</mark>. You must name the security mechanism. <mark>Which AWS service provides temporary, role-based credentials for cross-account pipeline access?</mark></h3>
-    <button class="choice" data-correct>A) AWS STS (AssumeRole)</button>
-    <button class="choice">B) AWS KMS key</button>
-    <button class="choice">C) SCP rule</button>
-    <button class="choice">D) Network ACL</button>
+    <h3>5. A CodePipeline pipeline in a tooling account must deploy application resources into a separate production AWS account. The security team requires the pipeline to use temporary credentials instead of long-term access keys. Which approach should the developer use?</h3>
+    <button class="choice" data-correct>A) Use AWS STS to assume a cross-account IAM role</button>
+    <button class="choice">B) Encrypt the pipeline with an AWS KMS key</button>
+    <button class="choice">C) Attach a service control policy to the pipeline</button>
+    <button class="choice">D) Add an inbound rule to a network ACL</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>STS AssumeRole</strong> returns temporary security credentials with an expiration time for cross-account access—Task 3.3.</aside>
-    <aside data-rationale-for="B">KMS keys encrypt and decrypt data; they do not provide temporary credentials.</aside>
-    <aside data-rationale-for="C">SCPs (Service Control Policies) restrict permissions in AWS Organizations; they do not issue credentials.</aside>
-    <aside data-rationale-for="D">Network ACLs filter subnet traffic; they do not provide cross-account credentials.</aside>
-    <aside class="explanation">STS AssumeRole is correct. It is the standard mechanism for pipelines to assume cross-account IAM roles with temporary credentials.</aside>
+    <aside data-rationale-for="A">Option A is correct because STS AssumeRole provides temporary credentials for secure cross-account access from a pipeline.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because KMS protects data with encryption but does not issue credentials for deployment actions.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because service control policies restrict permissions in AWS Organizations and do not grant temporary access.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because network ACLs control subnet traffic and are unrelated to identity delegation for CI/CD.</aside>
+    <aside class="explanation">Option A is the correct answer. Cross-account deployments that must avoid long-term keys use STS AssumeRole for temporary, role-based credentials.</aside>
     <aside class="knowledge-gap">Review <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD</a> and <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_role-for-sdk.html">IAM AssumeRole</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. A DVA-C02 scenario involves <mark>a frontend application where test and production environments must follow Git branches automatically</mark>. You must name the service. <mark>Which AWS service connects Git branches to frontend and backend environments, deploying updates on every commit?</mark></h3>
+    <h3>6. A startup hosts a web application with AWS Amplify. The team wants the develop branch to deploy automatically to a test environment and the main branch to deploy automatically to production whenever code is pushed. Which AWS service best matches this branch-based deployment requirement?</h3>
     <button class="choice" data-correct>A) AWS Amplify</button>
     <button class="choice">B) AWS AppConfig</button>
     <button class="choice">C) AWS OpsWorks</button>
     <button class="choice">D) AWS DataSync</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Amplify</strong> connects Git branches to hosting environments and deploys automatically on commits—Task 3.3.</aside>
-    <aside data-rationale-for="B">AppConfig manages runtime feature flags and configurations; it does not connect Git branches to environments.</aside>
-    <aside data-rationale-for="C">OpsWorks manages configuration with Chef or Puppet; it does not follow Git branch deployments.</aside>
-    <aside data-rationale-for="D">DataSync transfers data between storage systems; it does not manage deployments.</aside>
-    <aside class="explanation">Amplify is correct. It maps Git branches to environments and triggers automatic deployments on code commits.</aside>
+    <aside data-rationale-for="A">Option A is correct because Amplify connects Git branches to app environments and automatically deploys on each commit.</aside>
+    <aside data-rationale-for="B">Option B is a distractor because AppConfig manages runtime configuration and feature flags, not branch-based web app deployments.</aside>
+    <aside data-rationale-for="C">Option C is a distractor because OpsWorks is for configuration management and is not the managed branch-to-environment workflow described here.</aside>
+    <aside data-rationale-for="D">Option D is a distractor because DataSync transfers data between storage systems and has no role in CI/CD branch deployment.</aside>
+    <aside class="explanation">Option A is the correct answer. Automatic deployments mapped directly from Git branches to frontend environments are an Amplify pattern.</aside>
     <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html">AWS Amplify</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD</a>.</aside>
   </section>
 
