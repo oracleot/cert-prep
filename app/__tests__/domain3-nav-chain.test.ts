@@ -4,7 +4,7 @@
  * Run: npm test -- domain3-nav-chain
  */
 import { describe, expect, it } from "vitest";
-import { read, findLessonFile, LESSONS_DIR } from "./domain3-utils";
+import { read, findLessonFile } from "./domain3-utils";
 import { parseLessonNum } from "./domain3-utils";
 
 // ------------------------------------------------------------------

@@ -13,19 +13,12 @@
 import { describe, expect, it } from "vitest";
 import { read, LESSONS_DIR, REFERENCE_DIR } from "./domain3-utils";
 import { readdirSync } from "fs";
-import { extname, join, resolve } from "path";
+import { extname, join } from "path";
 import { parseLessonNum } from "./domain3-utils";
 
 // ------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------
-function getAllLessonNumbers(): number[] {
-  return readdirSync(LESSONS_DIR)
-    .filter((f) => extname(f) === ".html")
-    .map((f) => parseLessonNum(f))
-    .filter((n): n is number => n !== null);
-}
-
 function extractLessonNumbersFromContent(content: string): number[] {
   const nums = new Set<number>();
   const matches = content.matchAll(/\b(\d{4})\b/g);

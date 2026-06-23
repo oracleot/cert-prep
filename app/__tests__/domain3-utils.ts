@@ -2,7 +2,7 @@
  * Shared helpers for Domain 3 lesson QA tests.
  * Consumed by all domain3-*.test.ts suites.
  */
-import { existsSync, readdirSync, readFileSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
 import { extname, join } from "path";
 
 export const LESSONS_DIR = join(process.cwd(), "lessons");
