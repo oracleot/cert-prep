@@ -19,8 +19,8 @@
   </section>
 
   <h2>Domain 3 deployment overview</h2>
-  <p>Deployment questions are about the full application lifecycle: provision resources, manage configuration, package and release code, update software, monitor rollout health, control access, and recover safely.</p>
-  <p>Exam scenarios often combine services. The clue is not just “deploy”; it is what part of deployment needs control: artifact packaging, environment testing, IaC automation, traffic shifting, rollback, or release orchestration.</p>
+  <p>Deployment questions cover the full application lifecycle: provision resources, manage configuration, package and release code, update software, monitor rollout health, control access, and recover safely.</p>
+  <p>Exam scenarios often combine services. The clue is not just "deploy"; it is what part of deployment needs control: artifact packaging, environment testing, IaC automation, traffic shifting, rollback, or release orchestration.</p>
 
   <h2>The four task statements</h2>
   <section class="card">
@@ -51,67 +51,109 @@ Traffic shifting, rollback, safe rollout   → CodeDeploy, Elastic Beanstalk, EC
   </ul>
 
   <h2>Retrieval drill: choose the best answer</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. How much of DVA-C02 is Domain 3?</h3>
-    <button class="choice" data-answer="20 percent" onclick="choose(this, '20 percent')">20 percent</button>
-    <button class="choice" data-answer="12 percent" onclick="choose(this, '20 percent')">12 percent</button>
-    <button class="choice" data-answer="26 percent" onclick="choose(this, '20 percent')">26 percent</button>
-    <button class="choice" data-answer="32 percent" onclick="choose(this, '20 percent')">32 percent</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. An AWS team asks how much of the <mark>DVA-C02 exam covers Domain 3 Deployment</mark>. You need the accurate percentage to calibrate your study time. <mark>Which answer is correct?</mark></h3>
+    <button class="choice" data-correct>A) 20 percent</button>
+    <button class="choice">B) 12 percent</button>
+    <button class="choice">C) 26 percent</button>
+    <button class="choice">D) 32 percent</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Domain 3 Deployment is exactly <strong>20 percent</strong> of DVA-C02, or roughly 13 questions out of 65.</aside>
+    <aside data-rationale-for="B">12 percent understates the weight—Domain 1 alone is closer to that range.</aside>
+    <aside data-rationale-for="C">26 percent overstates Domain 3; it is close to Domain 1's actual weight.</aside>
+    <aside data-rationale-for="D">32 percent is far too high—Domain 1 (40%) and Domain 2 (30%) absorb most of the exam.</aside>
+    <aside class="explanation">Domain 3 Deployment is 20 percent of DVA-C02, roughly 13 questions. This is the lightest of the four domains.</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/certification/certified-developer-associate/">AWS DVA-C02 exam guide</a> to ground the percentage in actual service clusters.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. A scenario asks where to store versioned packages.</h3>
-    <button class="choice" data-answer="Artifacts" onclick="choose(this, 'Artifacts')">Artifacts</button>
-    <button class="choice" data-answer="Mock APIs" onclick="choose(this, 'Artifacts')">Mock APIs</button>
-    <button class="choice" data-answer="Rollbacks" onclick="choose(this, 'Artifacts')">Rollbacks</button>
-    <button class="choice" data-answer="Branches" onclick="choose(this, 'Artifacts')">Branches</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A DVA-C02 scenario describes a workload that <mark>stores versioned packages in an S3 bucket before deploying</mark>. You must name the artifact stage. <mark>Which answer labels the correct artifact operation?</mark></h3>
+    <button class="choice" data-correct>A) Artifacts</button>
+    <button class="choice">B) Mock APIs</button>
+    <button class="choice">C) Rollbacks</button>
+    <button class="choice">D) Branches</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Storing versioned packages before deployment is the <strong>Artifacts</strong> stage of the CI/CD pipeline, covered by Task 3.1.</aside>
+    <aside data-rationale-for="B">Mock APIs are used in development testing (Task 3.2), not for storing packages.</aside>
+    <aside data-rationale-for="C">Rollbacks are a deployment safety feature in Task 3.4, not an artifact storage operation.</aside>
+    <aside data-rationale-for="D">Branches trigger pipelines (Task 3.4) but do not store or version packages.</aside>
+    <aside class="explanation">Artifacts is correct. Versioned package storage is the prepare stage in Task 3.1, done with S3, CodeArtifact, or ECR before any deployment occurs.</aside>
+    <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-about.html">CodePipeline artifacts</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. The clue says API Gateway mock integrations.</h3>
-    <button class="choice" data-answer="Dev testing" onclick="choose(this, 'Dev testing')">Dev testing</button>
-    <button class="choice" data-answer="Code storage" onclick="choose(this, 'Dev testing')">Code storage</button>
-    <button class="choice" data-answer="Key control" onclick="choose(this, 'Dev testing')">Key control</button>
-    <button class="choice" data-answer="DNS routing" onclick="choose(this, 'Dev testing')">DNS routing</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A scenario describes an API Gateway integration that <mark>returns test responses without invoking a Lambda backend</mark>. You must select the correct integration type. <mark>Which answer names the right AWS integration?</mark></h3>
+    <button class="choice" data-correct>A) MOCK</button>
+    <button class="choice">B) Lambda proxy</button>
+    <button class="choice">C) Step Functions</button>
+    <button class="choice">D) DynamoDB streams</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><strong>MOCK</strong> integration makes API Gateway return configured responses with no backend call—perfect for consumer-driven contract testing.</aside>
+    <aside data-rationale-for="B">Lambda proxy integration invokes a Lambda function; it requires a live backend.</aside>
+    <aside data-rationale-for="C">Step Functions invokes state machines—not a direct API Gateway integration type.</aside>
+    <aside data-rationale-for="D">DynamoDB streams capture table changes—they are not an API Gateway integration type.</aside>
+    <aside class="explanation">MOCK is correct. API Gateway MOCK integrations return fixed responses without calling any backend, used in development testing (Task 3.2).</aside>
+    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Task 3.2 dev testing</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-integration-types.html">API Gateway integration types</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. A pipeline must build, test, then deploy on commit.</h3>
-    <button class="choice" data-answer="CodePipeline" onclick="choose(this, 'CodePipeline')">CodePipeline</button>
-    <button class="choice" data-answer="CloudTrail" onclick="choose(this, 'CodePipeline')">CloudTrail</button>
-    <button class="choice" data-answer="CloudFront" onclick="choose(this, 'CodePipeline')">CloudFront</button>
-    <button class="choice" data-answer="CodeGuru" onclick="choose(this, 'CodePipeline')">CodeGuru</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. A scenario describes a pipeline that <mark>builds, tests, and deploys automatically on every code commit</mark>. You must name the orchestration service. <mark>Which AWS service manages the ordered stages?</mark></h3>
+    <button class="choice" data-correct>A) CodePipeline</button>
+    <button class="choice">B) CloudTrail</button>
+    <button class="choice">C) CloudFront</button>
+    <button class="choice">D) CodeGuru</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><strong>CodePipeline</strong> orchestrates ordered stages (source, build, test, deploy) triggered by repository changes—Task 3.4.</aside>
+    <aside data-rationale-for="B">CloudTrail records API calls; it does not orchestrate CI/CD pipelines.</aside>
+    <aside data-rationale-for="C">CloudFront is a CDN; it does not manage deployment pipelines.</aside>
+    <aside data-rationale-for="D">CodeGuru reviews code quality; it does not orchestrate build and deploy stages.</aside>
+    <aside class="explanation">CodePipeline is correct. It is the release automation spine that chains source, build, test, and deploy actions on commit events (Task 3.4).</aside>
+    <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 testing automation</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. A Lambda trigger should keep using “prod” while versions change.</h3>
-    <button class="choice" data-answer="Alias" onclick="choose(this, 'Alias')">Alias</button>
-    <button class="choice" data-answer="Layer" onclick="choose(this, 'Alias')">Layer</button>
-    <button class="choice" data-answer="Image" onclick="choose(this, 'Alias')">Image</button>
-    <button class="choice" data-answer="Queue" onclick="choose(this, 'Alias')">Queue</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A DVA-C02 scenario involves a <mark>Lambda trigger that must keep pointing to the same ARN while function versions change</mark>. You must identify the stable pointer. <mark>Which Lambda feature provides the unchanging trigger target?</mark></h3>
+    <button class="choice" data-correct>A) Lambda alias</button>
+    <button class="choice">B) Lambda layer</button>
+    <button class="choice">C) Container image</button>
+    <button class="choice">D) SQS queue</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">A <strong>Lambda alias</strong> is a stable, movable pointer to a specific version—event sources can target the alias ARN without updates after version promotion.</aside>
+    <aside data-rationale-for="B">Lambda layers share dependencies across functions; they do not serve as stable trigger targets.</aside>
+    <aside data-rationale-for="C">Container images package runtime and code but are referenced by image URIs, not used as stable aliases.</aside>
+    <aside data-rationale-for="D">An SQS queue is an event source; it does not solve the stable-version-pointer problem.</aside>
+    <aside class="explanation">Lambda alias is correct. Aliases (dev, beta, prod) allow event sources to remain unchanged while versions are promoted—Task 3.2.</aside>
+    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Task 3.2 Lambda promotion</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>6. CodeDeploy shifts traffic every 15 minutes equally.</h3>
-    <button class="choice" data-answer="Linear" onclick="choose(this, 'Linear')">Linear</button>
-    <button class="choice" data-answer="Canary" onclick="choose(this, 'Linear')">Canary</button>
-    <button class="choice" data-answer="Inplace" onclick="choose(this, 'Linear')">Inplace</button>
-    <button class="choice" data-answer="Allonce" onclick="choose(this, 'Linear')">Allonce</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. A scenario describes a <mark>CodeDeploy Lambda deployment that shifts 10 percent of traffic every 15 minutes</mark>. You must name the traffic-shifting configuration. <mark>Which deployment configuration performs equal increments at fixed intervals?</mark></h3>
+    <button class="choice" data-correct>A) Linear</button>
+    <button class="choice">B) Canary</button>
+    <button class="choice">C) In-place</button>
+    <button class="choice">D) AllAtATime</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 15 minutes)—Task 3.3.</aside>
+    <aside data-rationale-for="B">Canary shifts a small initial percentage, then shifts the rest at once—fixed intervals are not canary behavior.</aside>
+    <aside data-rationale-for="C">In-place replaces the function code on the same instances; it does not shift traffic incrementally.</aside>
+    <aside data-rationale-for="D">AllAtATime shifts all traffic immediately—equal increments are not all-at-once behavior.</aside>
+    <aside class="explanation">Linear is correct. CodeDeploy linear configuration shifts traffic in equal increments at fixed intervals (Task 3.3).</aside>
+    <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 traffic shifting</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>7. The clue says controlled app configuration rollout.</h3>
-    <button class="choice" data-answer="AppConfig" onclick="choose(this, 'AppConfig')">AppConfig</button>
-    <button class="choice" data-answer="CodeBuild" onclick="choose(this, 'AppConfig')">CodeBuild</button>
-    <button class="choice" data-answer="CodeArtifact" onclick="choose(this, 'AppConfig')">CodeArtifact</button>
-    <button class="choice" data-answer="CloudFront" onclick="choose(this, 'AppConfig')">CloudFront</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>7. A scenario involves <mark>feature flags that must be validated before rollout and applied without redeploying code</mark>. You must choose the configuration management service. <mark>Which AWS service validates and propagates runtime configuration safely?</mark></h3>
+    <button class="choice" data-correct>A) AWS AppConfig</button>
+    <button class="choice">B) AWS CodeBuild</button>
+    <button class="choice">C) AWS CodeArtifact</button>
+    <button class="choice">D) AWS CloudTrail</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><strong>AppConfig</strong> validates configuration profiles and propagates them to applications without redeployment—Task 3.1 configuration lifecycle.</aside>
+    <aside data-rationale-for="B">CodeBuild runs build commands; it does not manage runtime feature flags.</aside>
+    <aside data-rationale-for="C">CodeArtifact manages package dependencies; it does not propagate runtime configuration.</aside>
+    <aside data-rationale-for="D">CloudTrail records API activity; it does not manage application configuration.</aside>
+    <aside class="explanation">AppConfig is correct. It validates configurations and rolls them out safely without redeploying code (Task 3.1).</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 configuration management</a> and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">

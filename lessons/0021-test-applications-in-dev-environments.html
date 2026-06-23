@@ -29,112 +29,98 @@ Backend not ready, API consumers must test   → API Gateway mock integration
 Same API, different dev/test config          → API Gateway stages + variables
 Stable event source while Lambda changes     → Lambda alias ARN</div>
 
-  <h2>1. Choose the deployment strategy</h2>
-  <ul>
-    <li><strong>All-at-once</strong> is fastest, but the riskiest. Pick it when speed matters and downtime/blast radius is acceptable.</li>
-    <li><strong>Blue/green</strong> is the exam answer for major runtime, server, or platform changes because the new environment is separate.</li>
-    <li><strong>In-place</strong> means stop the app, install the latest version, start it, then validate it on the same resources.</li>
-    <li><strong>Combine tools</strong> when needed: CloudFormation manages infrastructure; CodeDeploy, Elastic Beanstalk, ECS, or similar services manage application updates.</li>
-  </ul>
-
-  <h2>2. Promote Lambda safely</h2>
-  <section class="card">
-    <h3>Exam shortcut</h3>
-    <p><strong>Versions are immutable.</strong> <strong>Aliases are movable pointers.</strong> Point S3, API Gateway, or other event sources at the alias ARN so promotion only changes the alias target.</p>
-  </section>
-  <ul>
-    <li>Develop against <code>$LATEST</code>, publish a numbered version, then test that version in dev or beta.</li>
-    <li>Move aliases such as <code>dev</code>, <code>beta</code>, and <code>prod</code> to approved versions as testing completes.</li>
-    <li>Do not make every event source update its function ARN after each release; use the alias ARN as the stable integration target.</li>
-  </ul>
-
-  <h2>3. Mock and stage APIs</h2>
-  <ul>
-    <li><strong>Mock integration</strong> lets API Gateway return configured responses when the backend service is missing, unstable, or not ready for consumer tests.</li>
-    <li><strong>Stages</strong> represent deployed API environments such as dev, test, beta, and prod.</li>
-    <li><strong>Stage settings</strong> can enable caching, throttling, logging, and canary testing per environment.</li>
-    <li><strong>Stage variables</strong> hold environment-specific values, such as which backend or Lambda alias a stage should call.</li>
-  </ul>
-
-  <h2>4. Template and EC2 bootstrap clues</h2>
-  <ul>
-    <li>Use <code>sam deploy --template</code> when the question asks SAM to deploy a specific template instead of the current project root.</li>
-    <li>Use <strong>cfn-init</strong> to read CloudFormation metadata and install packages, create files, enable services, or start services on EC2.</li>
-    <li>Use <strong>cfn-signal</strong> with a CreationPolicy or wait condition when CloudFormation must wait for an instance to finish configuration before continuing.</li>
-    <li><strong>Prebaked AMIs</strong> reduce instance startup work; <strong>bootstrapping</strong> configures instances at launch.</li>
-  </ul>
+  <h2>Exam shortcut</h2>
+  <p><strong>Versions are immutable.</strong> <strong>Aliases are movable pointers.</strong> Point S3, API Gateway, or other event sources at the alias ARN so promotion only changes the alias target.</p>
 
   <h2>Mixed drill: choose the best answer</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. A test API needs responses before the backend exists.</h3>
-    <button class="choice" data-answer="Mock integration" onclick="choose(this, 'Mock integration')">Mock integration</button>
-    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Mock integration')">Lambda alias</button>
-    <button class="choice" data-answer="cfn-init script" onclick="choose(this, 'Mock integration')">cfn-init script</button>
-    <button class="choice" data-answer="SAM package" onclick="choose(this, 'Mock integration')">SAM package</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. A DVA-C02 scenario describes a <mark>development team that needs API responses before the Lambda backend is built</mark>. You must choose the API Gateway integration that returns test data. <mark>Which integration type returns responses without invoking any backend?</mark></h3>
+    <button class="choice" data-correct>A) MOCK</button>
+    <button class="choice">B) Lambda alias</button>
+    <button class="choice">C) cfn-init script</button>
+    <button class="choice">D) SAM package</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><strong>MOCK</strong> integration makes API Gateway return fixed, configured responses with no backend call—Task 3.2.</aside>
+    <aside data-rationale-for="B">Lambda alias is a stable pointer to a version; it does not replace a missing backend.</aside>
+    <aside data-rationale-for="C">cfn-init configures EC2 instances at launch; it is not an API Gateway integration type.</aside>
+    <aside data-rationale-for="D">SAM package zips and uploads artifacts; it does not return API responses.</aside>
+    <aside class="explanation">MOCK is correct. It returns test responses without invoking Lambda—used when the backend is not yet available.</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html">API Gateway mock integrations</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>2. Same API needs dev and prod configuration values.</h3>
-    <button class="choice" data-answer="Stage variables" onclick="choose(this, 'Stage variables')">Stage variables</button>
-    <button class="choice" data-answer="Layer versions" onclick="choose(this, 'Stage variables')">Layer versions</button>
-    <button class="choice" data-answer="Wait conditions" onclick="choose(this, 'Stage variables')">Wait conditions</button>
-    <button class="choice" data-answer="Public mappings" onclick="choose(this, 'Stage variables')">Public mappings</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A scenario involves a <mark>Lambda function whose versions are promoted through dev, beta, and prod environments</mark>. You must choose the feature that keeps event source ARNs unchanged during promotion. <mark>Which Lambda construct provides a stable trigger target that can be moved between versions?</mark></h3>
+    <button class="choice" data-correct>A) Lambda alias</button>
+    <button class="choice">B) Lambda layer version</button>
+    <button class="choice">C) Wait condition</button>
+    <button class="choice">D) Public mappings</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">A <strong>Lambda alias</strong> is a movable pointer to a specific version—event sources targeting the alias ARN do not need updates after promotion—Task 3.2.</aside>
+    <aside data-rationale-for="B">Lambda layer versions share dependencies; they do not serve as stable trigger targets.</aside>
+    <aside data-rationale-for="C">Wait conditions synchronize CloudFormation stack creation; they do not provide stable Lambda trigger targets.</aside>
+    <aside data-rationale-for="D">Public mappings route API requests; they do not point to Lambda versions.</aside>
+    <aside class="explanation">Lambda alias is correct. Aliases (dev, beta, prod) allow stable event source ARNs while versions are promoted.</aside>
+    <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>3. S3 should invoke prod Lambda without ARN updates.</h3>
-    <button class="choice" data-answer="Alias ARN" onclick="choose(this, 'Alias ARN')">Alias ARN</button>
-    <button class="choice" data-answer="Layer ARN" onclick="choose(this, 'Alias ARN')">Layer ARN</button>
-    <button class="choice" data-answer="Stack ARN" onclick="choose(this, 'Alias ARN')">Stack ARN</button>
-    <button class="choice" data-answer="Stage ARN" onclick="choose(this, 'Alias ARN')">Stage ARN</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. A DVA-C02 scenario describes an <mark>S3 event trigger that must keep invoking the same Lambda function even after new versions are published</mark>. You must choose the stable pointer. <mark>Which Lambda construct should the S3 trigger target instead of a version ARN?</mark></h3>
+    <button class="choice" data-correct>A) Lambda alias ARN</button>
+    <button class="choice">B) Lambda layer ARN</button>
+    <button class="choice">C) CloudFormation stack ARN</button>
+    <button class="choice">D) API Gateway stage ARN</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">An <strong>alias ARN</strong> is the stable trigger target—S3 and other event sources pointing to the alias do not need updates after version promotion—Task 3.2.</aside>
+    <aside data-rationale-for="B">Lambda layer ARNs reference shared dependencies, not the function itself; they cannot serve as event source targets.</aside>
+    <aside data-rationale-for="C">CloudFormation stack ARN identifies the stack, not a specific Lambda function version.</aside>
+    <aside data-rationale-for="D">API Gateway stage ARN identifies a deployed API, not a Lambda version pointer.</aside>
+    <aside class="explanation">Lambda alias ARN is correct. Event sources should target the alias, not the version ARN, so promotions do not require trigger updates.</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>4. A major platform version changes with lower cutover risk.</h3>
-    <button class="choice" data-answer="Blue/green" onclick="choose(this, 'Blue/green')">Blue/green</button>
-    <button class="choice" data-answer="All-at-once" onclick="choose(this, 'Blue/green')">All-at-once</button>
-    <button class="choice" data-answer="In-place" onclick="choose(this, 'Blue/green')">In-place</button>
-    <button class="choice" data-answer="Mock API" onclick="choose(this, 'Blue/green')">Mock API</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. A DVA-C02 scenario involves a <mark>major runtime version change for a Lambda function where cutover risk must be minimized</mark>. You must choose the deployment strategy. <mark>Which deployment approach provisions a new environment in parallel before switching traffic?</mark></h3>
+    <button class="choice" data-correct>A) Blue/green</button>
+    <button class="choice">B) All-at-once</button>
+    <button class="choice">C) In-place</button>
+    <button class="choice">D) API Gateway mock</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><strong>Blue/green</strong> provisions a new environment in parallel and shifts traffic—minimizing cutover risk for major changes—Task 3.2.</aside>
+    <aside data-rationale-for="B">All-at-once shifts all traffic immediately; it has the highest cutover risk.</aside>
+    <aside data-rationale-for="C">In-place replaces code on the same instances; it does not provision a parallel environment.</aside>
+    <aside data-rationale-for="D">API Gateway mock returns test responses; it is not a Lambda deployment strategy.</aside>
+    <aside class="explanation">Blue/green is correct. It creates a parallel environment and shifts traffic, providing instant rollback capability.</aside>
+    <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 traffic shifting</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>5. EC2 must install packages from template metadata.</h3>
-    <button class="choice" data-answer="cfn-init" onclick="choose(this, 'cfn-init')">cfn-init</button>
-    <button class="choice" data-answer="cfn-hup" onclick="choose(this, 'cfn-init')">cfn-hup</button>
-    <button class="choice" data-answer="SAM init" onclick="choose(this, 'cfn-init')">SAM init</button>
-    <button class="choice" data-answer="API mock" onclick="choose(this, 'cfn-init')">API mock</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. A scenario describes an <mark>EC2 instance that must install packages, create directories, and start services automatically from CloudFormation template metadata during provisioning</mark>. You must name the bootstrap script. <mark>Which CloudFormation helper script applies metadata-driven configuration to an EC2 instance?</mark></h3>
+    <button class="choice" data-correct>A) cfn-init</button>
+    <button class="choice">B) cfn-hup</button>
+    <button class="choice">C) sam init</button>
+    <button class="choice">D) API Gateway mock</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><code>cfn-init</code> reads <code>AWS::CloudFormation::Init</code> metadata and installs packages, creates files, and starts services—Task 3.2.</aside>
+    <aside data-rationale-for="B">cfn-hup detects metadata changes and re-runs cfn-init; it does not perform the initial configuration.</aside>
+    <aside data-rationale-for="C">sam init creates a new SAM project; it does not configure EC2 from CloudFormation metadata.</aside>
+    <aside data-rationale-for="D">API Gateway mock returns test responses; it does not configure EC2 instances.</aside>
+    <aside class="explanation">cfn-init is correct. It applies CloudFormation metadata to configure EC2 at launch.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a> and <a href="0020-prepare-application-artifacts.html">Task 3.1</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz>
-    <h3>6. CloudFormation must wait until EC2 finishes setup.</h3>
-    <button class="choice" data-answer="cfn-signal" onclick="choose(this, 'cfn-signal')">cfn-signal</button>
-    <button class="choice" data-answer="cfn-init" onclick="choose(this, 'cfn-signal')">cfn-init</button>
-    <button class="choice" data-answer="SAM build" onclick="choose(this, 'cfn-signal')">SAM build</button>
-    <button class="choice" data-answer="API stage" onclick="choose(this, 'cfn-signal')">API stage</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. A DVA-C02 scenario involves a <mark>CloudFormation stack that must pause until an EC2 instance finishes its cfn-init configuration</mark>. You must choose the synchronization mechanism. <mark>Which CloudFormation feature makes the stack wait for a successful EC2 configuration signal before proceeding?</mark></h3>
+    <button class="choice" data-correct>A) cfn-signal</button>
+    <button class="choice">B) cfn-init</button>
+    <button class="choice">C) sam build</button>
+    <button class="choice">D) API Gateway stage</button>
     <p data-feedback class="feedback"></p>
-  </section>
-
-  <section class="quiz" data-quiz>
-    <h3>7. SAM must deploy a specific staging template.</h3>
-    <button class="choice" data-answer="--template" onclick="choose(this, '--template')">--template</button>
-    <button class="choice" data-answer="--guided" onclick="choose(this, '--template')">--guided</button>
-    <button class="choice" data-answer="--cached" onclick="choose(this, '--template')">--cached</button>
-    <button class="choice" data-answer="--use-container" onclick="choose(this, '--template')">--use-container</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-
-  <section class="quiz" data-quiz>
-    <h3>8. The fastest deployment can tolerate full blast radius.</h3>
-    <button class="choice" data-answer="All-at-once" onclick="choose(this, 'All-at-once')">All-at-once</button>
-    <button class="choice" data-answer="Blue/green" onclick="choose(this, 'All-at-once')">Blue/green</button>
-    <button class="choice" data-answer="Canary API" onclick="choose(this, 'All-at-once')">Canary API</button>
-    <button class="choice" data-answer="Rolling app" onclick="choose(this, 'All-at-once')">Rolling app</button>
-    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><code>cfn-signal</code> sends a success or failure signal to CloudFormation so the stack can proceed or roll back—Task 3.2.</aside>
+    <aside data-rationale-for="B">cfn-init configures the instance; it does not signal CloudFormation to continue.</aside>
+    <aside data-rationale-for="C">sam build compiles Lambda artifacts; it does not synchronize CloudFormation.</aside>
+    <aside data-rationale-for="D">API Gateway stage is a deployed API environment; it does not synchronize CloudFormation.</aside>
+    <aside class="explanation">cfn-signal is correct. Combined with a CreationPolicy or wait condition, it tells CloudFormation the instance is ready.</aside>
+    <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
