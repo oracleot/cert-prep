@@ -1,3 +1,17 @@
+/* -----------------------------------------------------------------------
+   Walkthrough quiz reveal states
+   ----------------------------------------------------------------------- */
+
+[data-quiz][data-walkthrough="true"] aside[data-rationale-for],
+[data-quiz][data-walkthrough="true"] aside.explanation,
+[data-quiz][data-walkthrough="true"] aside.knowledge-gap {
+  display: none;
+}
+
+[data-quiz][data-walkthrough="true"] aside.revealed {
+  display: block;
+}
+
 :root {
   color-scheme: light;
   --ink: #171717;
