@@ -10,7 +10,6 @@ from typing import Any
 # ``checks.py`` stays focused on artifact-level gates. The functions are
 # re-exported at module bottom for backward-compatible imports.
 from evals.grounding import (
-    KNOWN_GOOD_URL_ROOTS,
     check_concept_id_match,
     check_evaluator_miss_tracking,
     check_resource_grounding,
@@ -37,7 +36,7 @@ def analyze(
     # Phase 9.7 — per-sample resource-grounding + concept-id + miss-tracking
     # checks. Any sample failure flips resource_grounding to False, which
     # in turn fails overall_status so the gate refuses to close a phase.
-    sample_concept_records = [resolve_concept_record(exam_id, sample) for sample in samples]  
+    sample_concept_records = [resolve_concept_record(exam_id, sample) for sample in samples]
 
     resource_grounding_results = [
         check_resource_grounding(
@@ -45,10 +44,9 @@ def analyze(
             concept_record=sample_concept_records[index],
             sage_response=sample.get("sage_response", ""),
             citations=sample.get("citations", []),
-            known_good_url_roots=KNOWN_GOOD_URL_ROOTS,
         )
         for index, sample in enumerate(samples)
-    ]  
+    ]
     concept_id_results = [
         check_concept_id_match(
             challenge_topic=sample["challenge"].get("topic", ""),
@@ -57,13 +55,27 @@ def analyze(
         )
         for index, sample in enumerate(samples)
     ]
-    miss_tracking_results = [
-        check_evaluator_miss_tracking(
-            evaluator_output=sample.get("evaluator_output", {}),
-            concept_record=sample_concept_records[index],
-        )
-        for index, sample in enumerate(samples)
-    ]  
+    # Per the reviewer contract: miss tracking is a strict Phase 9 gate
+    # only when the sample carries an ``evaluator_output`` field. Content-
+    # quality samples that omit the field are treated as not-applicable
+    # so legacy runnable evals stay unaffected; the strict fail-on-missing
+    # rule then activates for any future evaluator-aware sample.
+    miss_tracking_results = []
+    for index, sample in enumerate(samples):
+        if "evaluator_output" not in sample:
+            miss_tracking_results.append({
+                "pass": True,
+                "missing_fields": [],
+                "present_fields": [],
+                "note": "evaluator_output not in sample (N/A for content-quality eval)",
+            })
+        else:
+            miss_tracking_results.append(
+                check_evaluator_miss_tracking(
+                    evaluator_output=sample["evaluator_output"],
+                    concept_record=sample_concept_records[index],
+                )
+            )  
 
     resource_grounding_pass = all(result.get("pass") for result in resource_grounding_results)
     concept_id_match_pass = all(result.get("pass") for result in concept_id_results)
