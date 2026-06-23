@@ -35,6 +35,10 @@
   <section class="card">
     <h2>Event source mappings</h2>
     <p>Use event source mappings when Lambda must read from SQS, Kinesis, or DynamoDB Streams in batches. For Kinesis and DynamoDB Streams, shards control concurrency because Lambda processes each shard in order.</p>
+    <ul>
+      <li><strong>SQS:</strong> think visibility timeout and redrive policy for failed batches.</li>
+      <li><strong>Streams:</strong> think ordering per shard and shard-shaped parallelism.</li>
+    </ul>
   </section>
 
   <section class="card">
@@ -64,6 +68,7 @@
     <li><a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html">AWS Lambda concurrency docs</a></li>
     <li><a href="../lessons/0002-lambda-invocation-and-failures.html">Lesson: Lambda invocation and failures</a></li>
     <li><a href="../lessons/0003-lambda-concurrency-and-performance.html">Lesson: Lambda concurrency and performance</a></li>
+    <li><a href="../lessons/0004-lambda-event-source-mappings.html">Lesson: Lambda event source mappings</a></li>
   </ul>
 </main>
 </body>
