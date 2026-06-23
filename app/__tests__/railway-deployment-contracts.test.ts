@@ -39,9 +39,10 @@ describe("AC1 — Next.js /api/health endpoint", () => {
     expect(existsSync(HEALTH_ROUTE)).toBe(true);
   });
 
-  it("route exports GET handler", () => {
+  it("route exports GET handler (App Router syntax)", () => {
     const content = readFileSync(HEALTH_ROUTE, "utf-8");
-    expect(content).toMatch(/\.get\s*\(/);
+    // Match both `export async function GET` (App Router) and `app.get(` (Route Handler API)
+    expect(content).toMatch(/export\s+(?:async\s+)?function\s+GET|\.get\s*\(/);
   });
 
   it("response model includes status, database_configured, langgraph_configured fields", () => {
@@ -65,10 +66,11 @@ describe("AC2 — Railway config files (next.js + agents)", () => {
       expect(existsSync(NEXT_RAILWAY)).toBe(true);
     });
 
-    it("has [railway] section with deployments block", () => {
+    it("has [railway] section with [deploy] and [deployments] blocks", () => {
       const content = readFileSync(NEXT_RAILWAY, "utf-8");
       expect(content).toMatch(/\[railway\]/);
-      expect(content).toMatch(/deployments/);
+      expect(content).toMatch(/\[deploy\]/);
+      expect(content).toMatch(/\[deployments\]/);
     });
 
     it("documents nextjs as the first service", () => {
@@ -133,11 +135,12 @@ describe("AC3 — Agents Dockerfile build context includes migrations", () => {
 // ---------------------------------------------------------------------------
 
 describe("AC4 — Required env vars documented in docs", () => {
+  // Prefer railway-deploy.md (the canonical deploy guide); fall back to others.
   const DEPLOY_DOC_PATTERNS = [
-    join(PROJECT_ROOT, "docs", "implementation-backlog.md"),
-    join(PROJECT_ROOT, "docs", "tech-stack.md"),
     join(PROJECT_ROOT, "docs", "railway-deploy.md"),
     join(PROJECT_ROOT, "docs", "deployment.md"),
+    join(PROJECT_ROOT, "docs", "implementation-backlog.md"),
+    join(PROJECT_ROOT, "docs", "tech-stack.md"),
   ];
 
   const REQUIRED_VARS = [
@@ -180,11 +183,14 @@ describe("AC4 — Required env vars documented in docs", () => {
     expect(content).toMatch(/REDIS_URL/);
   });
 
-  it("doc mentions LANGGRAPH_URL (next.js → agents internal routing)", () => {
-    const doc = find_deploy_doc();
-    if (!doc) return;
-    const content = readFileSync(doc, "utf-8");
+  it("railway-deploy.md mentions LANGGRAPH_URL for next.js → agents routing", () => {
+    // Railway-deploy.md is the canonical doc; check it explicitly.
+    const rail_doc = join(PROJECT_ROOT, "docs", "railway-deploy.md");
+    if (!existsSync(rail_doc)) return;
+    const content = readFileSync(rail_doc, "utf-8");
     expect(content).toMatch(/LANGGRAPH_URL/);
+    // Must NOT describe LANGGRAPH_URL as a self-reference for agents
+    expect(content).not.toMatch(/LANGGRAPH_URL.*agents.*self.?reference|LANGGRAPH_URL.*self.?reference.*agents/i);
   });
 });
 

@@ -3,11 +3,10 @@
 
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR /app/agents
 
-# Install system deps
+# Install system deps (no curl needed — no HEALTHCHECK in this image)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python deps
@@ -26,4 +25,4 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "agents.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

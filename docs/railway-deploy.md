@@ -39,7 +39,7 @@ Both services are provisioned as independent Railway services sharing managed Po
 | `DATABASE_URL` | Railway Postgres | Same connection string as above. Agents raises `RuntimeError` at startup if absent. |
 | `REDIS_URL` | Railway Redis | Format: `redis://user:pass@host:6379`. Used by BullMQ in Phase 2.5. |
 | `OPENROUTER_API_KEY` | OpenRouter dashboard | Required for all agent LLM calls. |
-| `LANGGRAPH_URL` | Railway (auto) | Self-reference; can be set to `http://localhost:8000` locally and overridden to internal URL on Railway. |
+| `LANGGRAPH_URL` | — | Not used by the agents service. Next.js sets this for its own internal routing to agents. |
 
 ## Service-to-Service Communication
 
