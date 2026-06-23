@@ -3,6 +3,7 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
+import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 
 const OPTIONS = [
@@ -15,7 +16,8 @@ type ThemeValue = (typeof OPTIONS)[number]["value"];
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const current: ThemeValue = (theme as ThemeValue) ?? "system";
+  const hydrated = useHydrated();
+  const current: ThemeValue = hydrated ? (theme as ThemeValue) ?? "system" : "system";
 
   return (
     <div
@@ -36,18 +38,10 @@ export function ThemeToggle() {
             onClick={() => setTheme(value)}
             className={cn(
               "inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-              isActive
-                ? "bg-amber-300 text-zinc-950 shadow-sm"
-                : "hover:bg-zinc-100 dark:hover:bg-zinc-800",
+              isActive ? "bg-amber-300 text-zinc-950 shadow-sm" : "hover:bg-zinc-100 dark:hover:bg-zinc-800",
             )}
           >
-            <Icon
-              aria-hidden
-              className={cn(
-                "size-4",
-                isActive ? "text-zinc-950" : "text-current",
-              )}
-            />
+            <Icon aria-hidden className={cn("size-4", isActive ? "text-zinc-950" : "text-current")} />
           </button>
         );
       })}
