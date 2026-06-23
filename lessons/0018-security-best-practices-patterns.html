@@ -56,123 +56,123 @@ Baseline DDoS protection                    → Shield Standard</div>
 
   <h2>Mixed drill: choose the best answer</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A <mark>private S3 bucket needs temporary download links</mark> for authenticated users without making the bucket public. <mark>Which S3 feature grants time-limited access?</mark></h3>
-    <button class="choice" data-correct>A) S3 presigned URL</button>
-    <button class="choice">B) S3 public read ACL</button>
-    <button class="choice">C) NACL allow rule</button>
-    <button class="choice">D) AWS Shield Standard</button>
+    <h3>1. A training platform stores course-completion certificates in a private S3 bucket. After users sign in, the application must let each user download only one certificate for a short time without making the bucket public. Which solution best meets this requirement?</h3>
+    <button class="choice" data-correct>A) Generate an S3 presigned URL for the requested object</button>
+    <button class="choice">B) Add a public-read ACL to the bucket for certificate objects</button>
+    <button class="choice">C) Open the subnet network ACL to allow outbound HTTPS to S3</button>
+    <button class="choice">D) Enable AWS Shield Standard on the bucket endpoint</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">S3 presigned URLs grant temporary access to specific objects using the owner's credentials without changing bucket access.</aside>
-    <aside data-rationale-for="B">Public read ACL makes the bucket publicly accessible—violating the requirement for a private bucket.</aside>
-    <aside data-rationale-for="C">NACLs filter subnet traffic—they do not grant S3 object-level temporary download access.</aside>
-    <aside data-rationale-for="D">Shield Standard protects against DDoS attacks—it does not provide temporary object download access.</aside>
-    <aside class="explanation">S3 presigned URL is correct. It grants temporary object access using the bucket owner's credentials without exposing the bucket publicly.</aside>
-    <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">S3 presigned URLs</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-urls.html">S3 presigned URLs</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. A presigned URL gives temporary access to one object by using the signer’s credentials without exposing the bucket publicly.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Public-read ACLs make the object broadly accessible and violate the requirement to keep the bucket private.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Network ACLs control subnet traffic, not temporary object-level authorization for S3 downloads.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Shield Standard provides baseline DDoS protection, not time-limited access to private S3 objects.</aside>
+    <aside class="explanation">Option A is the correct answer. The phrase temporary access to a private object is the classic S3 presigned URL pattern.</aside>
+    <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-urls.html">S3 presigned URLs</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A compliance team requires <mark>customer managed KMS keys</mark> with key policies that audit key usage and control who can decrypt. <mark>Which S3 encryption mode fits this requirement?</mark></h3>
-    <button class="choice" data-correct>A) SSE-KMS with customer managed key</button>
-    <button class="choice">B) SSE-S3 with AWS managed key</button>
-    <button class="choice">C) SSE-C with customer supplied key</button>
-    <button class="choice">D) TLS-1.2 in transit encryption</button>
+    <h3>2. A healthcare company stores patient exports in Amazon S3. Compliance requires customer-managed encryption keys, key policies that limit decrypt access, and an audit trail of key usage. Which S3 encryption option should the developer choose?</h3>
+    <button class="choice" data-correct>A) Use SSE-KMS with a customer managed KMS key</button>
+    <button class="choice">B) Use SSE-S3 with the default Amazon S3 managed key</button>
+    <button class="choice">C) Use SSE-C with application-supplied encryption keys</button>
+    <button class="choice">D) Require TLS 1.2 for all object uploads and downloads</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SSE-KMS with a customer managed key provides key policies, CloudTrail audit logs of key usage, and rotation controls.</aside>
-    <aside data-rationale-for="B">SSE-S3 uses AWS managed keys with no customer key policy or audit trail of key usage.</aside>
-    <aside data-rationale-for="C">SSE-C stores no key metadata—AWS cannot audit or log key usage because the key is never stored.</aside>
-    <aside data-rationale-for="D">TLS-1.2 encrypts data in transit, not at rest—it does not address SSE requirements.</aside>
-    <aside class="explanation">SSE-KMS with customer managed key is correct. Key policies and CloudTrail logging of KMS API calls satisfy audit and control requirements.</aside>
-    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">S3 SSE-KMS audit trails</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html">S3 encryption</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. SSE-KMS with a customer managed key gives the company key policies, KMS audit logs, and customer control over decrypt permissions.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. SSE-S3 encrypts data at rest, but it does not provide customer-managed key policies or KMS usage auditing.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. SSE-C uses customer-provided keys, but it does not match the common AWS-managed audit-and-policy pattern tested on DVA-C02.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. TLS protects data in transit, not the at-rest encryption and key governance requirements in the stem.</aside>
+    <aside class="explanation">Option A is the correct answer. Auditability plus customer-managed key control is a direct SSE-KMS clue.</aside>
+    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html">SSE-KMS for Amazon S3</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A <mark>bucket policy must deny any S3 PUT</mark> that does not include an encryption header. <mark>Which policy statement achieves this?</mark></h3>
-    <button class="choice" data-correct>A) Deny s3:PutObject unless s3:x-amz-server-side-encryption header is present</button>
-    <button class="choice">B) Deny s3:ListBucket unless bucket is private</button>
-    <button class="choice">C) Allow s3:GetObject from CloudFront only</button>
-    <button class="choice">D) Deny s3:* unless aws:sourceVpce matches</button>
+    <h3>3. A media company allows internal tools to upload video files to an S3 bucket. Security requires every new object upload to use server-side encryption, and any upload that omits the encryption header must be rejected automatically. Which approach should the developer use?</h3>
+    <button class="choice" data-correct>A) Add a bucket policy that denies <code>s3:PutObject</code> when the encryption header is missing</button>
+    <button class="choice">B) Add a bucket policy that denies <code>s3:ListBucket</code> unless the object is already encrypted</button>
+    <button class="choice">C) Allow only CloudFront <code>s3:GetObject</code> requests from the bucket</button>
+    <button class="choice">D) Restrict the bucket with <code>aws:SourceVpce</code> and no encryption condition</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">A bucket policy condition s3:x-amz-server-side-encryption:aws:kms enforces encryption on every PUT without encryption header.</aside>
-    <aside data-rationale-for="B">Deny ListBucket does not address encryption headers on object uploads.</aside>
-    <aside data-rationale-for="C">Allow from CloudFront controls source but does not enforce encryption headers on PUT.</aside>
-    <aside data-rationale-for="D">aws:sourceVpce restricts access to a specific VPC endpoint—it does not enforce encryption headers.</aside>
-    <aside class="explanation">Deny with s3:x-amz-server-side-encryption condition is correct. It blocks any PUT that omits the encryption header.</aside>
-    <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">S3 bucket policy conditions</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html">S3 bucket policies</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. A deny on <code>s3:PutObject</code> with an encryption-header condition enforces that every upload declares the required server-side encryption setting.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Listing the bucket is unrelated to enforcing encryption at upload time.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. A CloudFront origin policy controls who can read objects, not whether uploads include the encryption header.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. <code>aws:SourceVpce</code> restricts the network path to the bucket, but it does not require encryption on each PUT request.</aside>
+    <aside class="explanation">Option A is the correct answer. The DVA clue is deny the PUT unless the encryption header is present.</aside>
+    <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/amazon-s3-policy-keys.html">S3 policy condition keys</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. CloudFront must <mark>serve objects from a private S3 origin</mark> while preventing users from accessing the bucket directly. <mark>Which CloudFront and S3 feature pair is correct?</mark></h3>
-    <button class="choice" data-correct>A) CloudFront Origin Access Control (OAC) on CloudFront + no public access on S3</button>
-    <button class="choice">B) S3 public bucket policy + CloudFront cache invalidation</button>
-    <button class="choice">C) Interface VPC link + S3 gateway endpoint</button>
-    <button class="choice">D) Network ACL rule + S3 block public access</button>
+    <h3>4. A news site serves premium images through Amazon CloudFront. The S3 origin bucket must remain private so that users cannot bypass CloudFront and request objects directly from S3. Which configuration best meets this requirement?</h3>
+    <button class="choice" data-correct>A) Configure CloudFront Origin Access Control and keep S3 Block Public Access enabled</button>
+    <button class="choice">B) Add a public bucket policy and invalidate the CloudFront cache on each deploy</button>
+    <button class="choice">C) Create an interface VPC endpoint for CloudFront and a gateway endpoint for S3</button>
+    <button class="choice">D) Add a subnet network ACL deny rule and leave the bucket public</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">OAC grants CloudFront access to the private S3 bucket while S3 block public access prevents direct bucket access.</aside>
-    <aside data-rationale-for="B">A public bucket policy contradicts the requirement to prevent direct access to the bucket.</aside>
-    <aside data-rationale-for="C">Interface VPC link connects ALB to Lambda—it does not relate to CloudFront S3 origins.</aside>
-    <aside data-rationale-for="D">NACL rules filter subnet traffic—they do not control CloudFront-to-S3 origin access patterns.</aside>
-    <aside class="explanation">CloudFront OAC + S3 block public access is correct. OAC grants CloudFront access; block public access prevents direct bucket access.</aside>
-    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">CloudFront OAC configuration</a> and <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html">CloudFront OAC</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. CloudFront OAC lets CloudFront read from a private S3 origin while S3 Block Public Access prevents direct public access to the bucket.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. A public bucket policy directly violates the requirement to prevent users from reaching S3 without CloudFront.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. VPC endpoints do not solve CloudFront’s origin authorization pattern for a private S3 bucket.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Network ACLs do not control how CloudFront is authorized to access S3 objects.</aside>
+    <aside class="explanation">Option A is the correct answer. Private S3 behind CloudFront is the standard OAC pattern.</aside>
+    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html">CloudFront OAC</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A data governance team needs to <mark>discover and classify sensitive data</mark> already stored across multiple S3 buckets. <mark>Which AWS service scans S3 for PII?</mark></h3>
+    <h3>5. A governance team has inherited dozens of S3 buckets and needs to identify where customer names, emails, and national ID numbers are already stored. The team wants a managed service that scans S3 and classifies sensitive data. Which AWS service should the developer recommend?</h3>
     <button class="choice" data-correct>A) Amazon Macie</button>
     <button class="choice">B) AWS Shield Advanced</button>
-    <button class="choice">C) Amazon Route 53</button>
-    <button class="choice">D) ACM private certificate</button>
+    <button class="choice">C) Amazon Route 53 Resolver</button>
+    <button class="choice">D) AWS Certificate Manager</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Amazon Macie uses machine learning to automatically discover and classify sensitive data such as PII in S3 buckets.</aside>
-    <aside data-rationale-for="B">Shield Advanced provides DDoS cost protection and DRT access—it does not scan S3 for sensitive data.</aside>
-    <aside data-rationale-for="C">Route 53 is a DNS service—it does not scan S3 for PII or sensitive data.</aside>
-    <aside data-rationale-for="D">ACM private certificates manage TLS—it does not discover or classify sensitive data in S3.</aside>
-    <aside class="explanation">Amazon Macie is correct. It automatically discovers, classifies, and alerts on sensitive data in S3 using machine learning.</aside>
-    <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Macie data discovery</a> and <a href="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html">Amazon Macie</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. Amazon Macie discovers and classifies sensitive data such as PII across S3 buckets.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Shield Advanced focuses on DDoS response and cost protection, not S3 data discovery.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Route 53 Resolver handles DNS resolution and does not inspect S3 object contents.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. ACM manages certificates for TLS, not sensitive-data discovery in S3.</aside>
+    <aside class="explanation">Option A is the correct answer. When the question asks to discover or classify PII already in S3, choose Macie.</aside>
+    <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Lesson 0015</a> and <a href="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html">Amazon Macie</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. An <mark>API Gateway REST API must block XSS attack patterns</mark> in incoming requests. <mark>Which AWS service provides layer 7 filtering?</mark></h3>
-    <button class="choice" data-correct>A) AWS WAF with XSS rule</button>
-    <button class="choice">B) AWS ACM with TLS inspection</button>
-    <button class="choice">C) AWS KMS with key policy</button>
-    <button class="choice">D) AWS STS with session policy</button>
+    <h3>6. A company runs a public REST API on Amazon API Gateway. A penetration test shows reflected XSS payloads in request parameters, and the security team wants a managed service to block those patterns before they hit the backend. Which option is the best answer?</h3>
+    <button class="choice" data-correct>A) Associate AWS WAF with the API and use XSS filtering rules</button>
+    <button class="choice">B) Replace the API certificate in ACM with a stronger RSA key</button>
+    <button class="choice">C) Encrypt all application secrets with AWS KMS customer keys</button>
+    <button class="choice">D) Require callers to assume an IAM role from AWS STS</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">AWS WAF inspects HTTP requests and blocks XSS patterns using managed rule groups or custom rules.</aside>
-    <aside data-rationale-for="B">ACM manages TLS certificates—it does not inspect HTTP request bodies for XSS patterns.</aside>
-    <aside data-rationale-for="C">KMS manages encryption keys—it does not filter HTTP requests or block XSS attacks.</aside>
-    <aside data-rationale-for="D">STS issues temporary credentials—it does not inspect or filter HTTP requests.</aside>
-    <aside class="explanation">AWS WAF with XSS rule is correct. WAF is the layer 7 web application firewall that blocks XSS, SQLi, and other attack patterns at API Gateway.</aside>
-    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">WAF rule configuration</a> and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html">AWS WAF</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. AWS WAF provides layer 7 inspection and can block XSS patterns on requests to API Gateway.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. ACM secures the TLS connection but does not inspect or block malicious application-layer content.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. KMS protects stored secrets, not live HTTP requests containing XSS payloads.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. STS handles temporary credentials and is unrelated to request-body or query-string attack filtering.</aside>
+    <aside class="explanation">Option A is the correct answer. XSS and SQL injection clues should immediately move you to AWS WAF.</aside>
+    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-xss-match.html">AWS WAF XSS match rules</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>7. A production workload requires <mark>DDoS response with cost protection</mark> and access to the DDoS Response Team (DRT). <mark>Which AWS Shield tier includes these features?</mark></h3>
+    <h3>7. A gaming company is launching a major event and wants enhanced DDoS response, cost protection for scaling during attacks, and access to the AWS DDoS Response Team. Which service tier should the company choose?</h3>
     <button class="choice" data-correct>A) AWS Shield Advanced</button>
     <button class="choice">B) AWS Shield Standard</button>
-    <button class="choice">C) AWS WAF managed rule group</button>
-    <button class="choice">D) ACM public certificate</button>
+    <button class="choice">C) AWS WAF managed rule groups only</button>
+    <button class="choice">D) Amazon CloudFront origin failover</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Shield Advanced includes DRT access, DDoS cost protection for EC2, ELB, CloudFront, and Route 53, and enhanced attack visibility.</aside>
-    <aside data-rationale-for="B">Shield Standard provides automatic DDoS protection for common layer 3 and 4 attacks with no cost protection or DRT access.</aside>
-    <aside data-rationale-for="C">WAF managed rule groups filter layer 7 traffic—they do not provide DDoS cost protection or DRT access.</aside>
-    <aside data-rationale-for="D">ACM public certificates provide TLS—it has no DDoS protection, cost protection, or DRT features.</aside>
-    <aside class="explanation">Shield Advanced is correct. DRT access and DDoS cost protection are exclusive to Shield Advanced, not Shield Standard.</aside>
-    <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">Shield tier comparison</a> and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/shield-chapter.html">AWS Shield</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. Shield Advanced adds DRT access, enhanced protections, and cost-protection benefits that Shield Standard does not include.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Shield Standard is included automatically, but it does not provide DRT access or DDoS cost protection.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. WAF rule groups help with layer 7 filtering, but they are not a substitute for Shield Advanced benefits.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Origin failover improves availability design, but it does not provide DDoS response services or cost protection.</aside>
+    <aside class="explanation">Option A is the correct answer. DRT access and DDoS cost protection are the signature clues for Shield Advanced.</aside>
+    <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/shield-chapter.html">AWS Shield</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>8. An <mark>S3 bucket must allow access only through one VPC endpoint</mark>. All other access paths, including direct internet access, must be denied. <mark>Which condition key enforces this?</mark></h3>
-    <button class="choice" data-correct>A) aws:sourceVpce in the bucket policy</button>
-    <button class="choice">B) aws:SourceIp in the bucket policy</button>
-    <button class="choice">C) aws:username in the IAM policy</button>
-    <button class="choice">D) aws:userid in the SCP</button>
+    <h3>8. An analytics application writes reports to an S3 bucket through a gateway VPC endpoint. The security team wants the bucket to reject all requests that do not come through that specific endpoint, including any direct internet access. Which bucket policy condition key should the developer use?</h3>
+    <button class="choice" data-correct>A) Use <code>aws:sourceVpce</code> to allow only the required VPC endpoint ID</button>
+    <button class="choice">B) Use <code>aws:SourceIp</code> to match the private subnet CIDR range</button>
+    <button class="choice">C) Use <code>aws:username</code> to limit access to the application IAM role name</button>
+    <button class="choice">D) Use <code>aws:userid</code> in an AWS Organizations SCP</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">aws:sourceVpce in a bucket policy restricts access to requests originating from the specified VPC endpoint ID, blocking all other access paths.</aside>
-    <aside data-rationale-for="B">aws:SourceIp filters by IP address—it does not restrict access to a specific VPC endpoint.</aside>
-    <aside data-rationale-for="C">aws:username identifies IAM users—it does not restrict S3 access to a specific VPC endpoint.</aside>
-    <aside data-rationale-for="D">aws:userid in an SCP controls IAM user identifiers—it does not enforce VPC endpoint access restrictions.</aside>
-    <aside class="explanation">aws:sourceVpce is correct. Bucket policy condition aws:sourceVpce restricts access to traffic from the specified VPC endpoint only.</aside>
-    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">S3 bucket policy VPC endpoint conditions</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html">S3 access conditions</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. <code>aws:sourceVpce</code> is the S3 bucket policy condition that restricts access to requests coming through a specific VPC endpoint.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Source IP restrictions do not reliably express the endpoint-only requirement and are not the exam’s best answer here.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. IAM identity conditions can restrict principals, but they do not enforce that traffic must traverse a particular VPC endpoint.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. An SCP is the wrong control plane for a bucket-level network-path restriction.</aside>
+    <aside class="explanation">Option A is the correct answer. Endpoint-only S3 access is the classic <code>aws:sourceVpce</code> bucket-policy pattern.</aside>
+    <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">Lesson 0017</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies-vpc-endpoint.html">S3 VPC endpoint bucket policies</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">

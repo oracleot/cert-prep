@@ -33,123 +33,123 @@ Point traffic without changing ARNs  → Lambda alias</div>
 
   <h2>Retrieval drill: pick the deployment clue</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. A DVA-C02 scenario describes a <mark>development team that needs to store and share npm packages across multiple AWS accounts</mark>. You must choose the managed artifact repository. <mark>Which AWS service provides managed package hosting for npm, pip, and Maven?</mark></h3>
+    <h3>1. Several development teams publish internal npm and Python packages that must be shared across AWS accounts. The company wants a fully managed repository that works with common package managers and stores versioned artifacts. Which AWS service should the developer use?</h3>
     <button class="choice" data-correct>A) AWS CodeArtifact</button>
     <button class="choice">B) AWS CloudFormation</button>
     <button class="choice">C) AWS CodeDeploy</button>
     <button class="choice">D) AWS AppConfig</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>CodeArtifact</strong> is a fully managed artifact repository that works with npm, pip, Maven, NuGet, and more—Task 3.1.</aside>
-    <aside data-rationale-for="B">CloudFormation provisions infrastructure; it does not store package dependencies.</aside>
-    <aside data-rationale-for="C">CodeDeploy automates application deployments; it does not host packages.</aside>
-    <aside data-rationale-for="D">AppConfig manages runtime configurations; it does not store npm packages.</aside>
-    <aside class="explanation">CodeArtifact is correct. It is the managed artifact repository for language package managers (Task 3.1).</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact documentation</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD services</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. CodeArtifact is the managed repository service for package formats such as npm, pip, Maven, and NuGet.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. CloudFormation provisions infrastructure, but it does not host dependency packages for developers.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. CodeDeploy handles deployments, not package repository management.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. AppConfig delivers runtime configuration, not versioned language packages.</aside>
+    <aside class="explanation">Option A is the correct answer. Managed package hosting for development dependencies points to CodeArtifact.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact documentation</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Lesson 0023</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A scenario involves <mark>AWS SAM code that must be zipped, uploaded to S3, and rewritten as a deployment-ready template</mark>. You must name the SAM CLI command. <mark>Which command performs the zip, S3 upload, and template rewrite?</mark></h3>
-    <button class="choice" data-correct>A) sam package</button>
-    <button class="choice">B) sam deploy</button>
-    <button class="choice">C) sam validate</button>
-    <button class="choice">D) sam publish</button>
+    <h3>2. A team maintains an AWS SAM application with several Lambda functions. Before the stack can be deployed, the build process must zip the local artifacts, upload them to Amazon S3, and generate a deployment-ready template that references those uploaded objects. Which SAM CLI command should the developer run?</h3>
+    <button class="choice" data-correct>A) <code>sam package</code></button>
+    <button class="choice">B) <code>sam deploy</code></button>
+    <button class="choice">C) <code>sam validate</code></button>
+    <button class="choice">D) <code>sam publish</code></button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>sam package</code> zips the application, uploads the package to S3, and writes a packaged CloudFormation template—Task 3.1.</aside>
-    <aside data-rationale-for="B"><code>sam deploy</code> deploys a packaged template; it does not create the package or upload to S3.</aside>
-    <aside data-rationale-for="C"><code>sam validate</code> checks template syntax; it does not upload artifacts.</aside>
-    <aside data-rationale-for="D"><code>sam publish</code> publishes to the AWS Serverless Application Repository; it does not handle packaging.</aside>
-    <aside class="explanation"><code>sam package</code> is correct. It creates the deployment package and uploads it to S3 (Task 3.1).</aside>
-    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-command-reference.html">SAM CLI command reference</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 SAM deployment</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. <code>sam package</code> uploads local artifacts to S3 and rewrites the template so it can be deployed later.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. <code>sam deploy</code> creates or updates the stack after packaging is complete, but it is not the packaging step itself.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. <code>sam validate</code> checks template syntax and structure without uploading artifacts.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. <code>sam publish</code> targets the Serverless Application Repository and is not the standard answer for packaging deployment artifacts.</aside>
+    <aside class="explanation">Option A is the correct answer. Zip plus S3 upload plus template rewrite is the exact job of <code>sam package</code>.</aside>
+    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-package.html">sam package</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Lesson 0023</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A DVA-C02 scenario describes a <mark>Lambda function with native dependencies that must compile against the Amazon Linux runtime environment</mark>. You must choose the correct build command. <mark>Which SAM CLI flag builds inside a Lambda-compatible Docker container?</mark></h3>
-    <button class="choice" data-correct>A) sam build --use-container</button>
-    <button class="choice">B) sam deploy --guided</button>
-    <button class="choice">C) sam delete --stack</button>
-    <button class="choice">D) sam traces --tail</button>
+    <h3>3. A Python Lambda function depends on native libraries that must be compiled against the same Amazon Linux environment used by the Lambda runtime. The developer wants the SAM build step to run in a compatible container locally. Which command should the developer use?</h3>
+    <button class="choice" data-correct>A) <code>sam build --use-container</code></button>
+    <button class="choice">B) <code>sam deploy --guided</code></button>
+    <button class="choice">C) <code>sam delete --stack-name</code></button>
+    <button class="choice">D) <code>sam traces --tail</code></button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>sam build --use-container</code> builds inside a Docker container that matches the Lambda runtime environment—Task 3.1.</aside>
-    <aside data-rationale-for="B"><code>sam deploy --guided</code> launches an interactive deployment wizard; it does not build native dependencies.</aside>
-    <aside data-rationale-for="C"><code>sam delete --stack</code> deletes a CloudFormation stack; it does not build anything.</aside>
-    <aside data-rationale-for="D"><code>sam traces --tail</code> follows X-Ray traces; it does not build native dependencies.</aside>
-    <aside class="explanation"><code>sam build --use-container</code> is correct. Native Lambda dependencies require a compatible runtime environment, provided by the container flag.</aside>
-    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Task 3.2 Lambda promotion</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html">Lambda deployment packages</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. The <code>--use-container</code> flag builds dependencies inside a Lambda-compatible container image.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Guided deploy helps collect deployment parameters, but it does not compile native dependencies in a matching runtime environment.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Deleting a stack has nothing to do with building deployment artifacts.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Traces are for observability, not packaging native Lambda dependencies.</aside>
+    <aside class="explanation">Option A is the correct answer. Native dependency compatibility is the clue for <code>sam build --use-container</code>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html">sam build</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html">Lambda deployment packages</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A DVA-C02 scenario shows a <mark>CloudFormation template that contains AWS SAM Lambda and API Gateway resources</mark>. You must identify the required template declaration. <mark>Which CloudFormation top-level key processes SAM resources before creating real AWS resources?</mark></h3>
-    <button class="choice" data-correct>A) Transform</button>
-    <button class="choice">B) Mappings</button>
-    <button class="choice">C) Outputs</button>
-    <button class="choice">D) Metadata</button>
+    <h3>4. A developer receives a CloudFormation template that declares <code>AWS::Serverless::Function</code> and <code>AWS::Serverless::Api</code> resources. CloudFormation must preprocess those serverless resources into standard resources before creating the stack. Which top-level template key is required?</h3>
+    <button class="choice" data-correct>A) <code>Transform</code></button>
+    <button class="choice">B) <code>Mappings</code></button>
+    <button class="choice">C) <code>Outputs</code></button>
+    <button class="choice">D) <code>Metadata</code></button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Transform: AWS::Serverless-2016-10-31</strong> instructs CloudFormation to process SAM resources before creating the actual stack—Task 3.1.</aside>
-    <aside data-rationale-for="B">Mappings define conditional parameter lookups; they do not process SAM resources.</aside>
-    <aside data-rationale-for="C">Outputs expose stack values; they do not process SAM resources.</aside>
-    <aside data-rationale-for="D">Metadata provides附加 data about resources; it does not process SAM syntax.</aside>
-    <aside class="explanation">Transform is correct. The <code>Transform</code> key triggers the SAM macro to convert serverless resources into CloudFormation resources.</aside>
-    <aside class="knowledge-gap">Study <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 SAM deployment</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-aws-serverless.html">CloudFormation SAM transform</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. <code>Transform: AWS::Serverless-2016-10-31</code> invokes the SAM transform that expands serverless resources for CloudFormation.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Mappings provide lookup values and do not run the SAM macro.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Outputs expose stack values after deployment and do not preprocess resources.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Metadata stores supporting information and does not tell CloudFormation to transform SAM resources.</aside>
+    <aside class="explanation">Option A is the correct answer. The required top-level SAM declaration is the <code>Transform</code> key.</aside>
+    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-aws-serverless.html">the SAM transform</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Lesson 0023</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A scenario describes a <mark>Lambda zip package that exceeds the deployment size limit because the same dependencies are repeated in every function</mark>. You must choose the shared dependency solution. <mark>Which Lambda feature allows multiple functions to share the same dependencies without duplication?</mark></h3>
-    <button class="choice" data-correct>A) Lambda layer</button>
-    <button class="choice">B) Lambda alias</button>
-    <button class="choice">C) Lambda trigger</button>
-    <button class="choice">D) Lambda policy</button>
+    <h3>5. A company has 25 Lambda functions, and each deployment package contains the same shared image-processing libraries. The total package size is growing, and the team wants to update the shared dependencies without copying them into every function zip. Which feature should the developer use?</h3>
+    <button class="choice" data-correct>A) Lambda layers</button>
+    <button class="choice">B) Lambda aliases</button>
+    <button class="choice">C) Lambda event source mappings</button>
+    <button class="choice">D) Lambda resource policies</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Lambda layers</strong> package shared libraries and runtimes that all functions in the same account can reference—reducing package size duplication—Task 3.1.</aside>
-    <aside data-rationale-for="B">Lambda aliases point to versions; they do not share dependencies across functions.</aside>
-    <aside data-rationale-for="C">Lambda triggers invoke functions; they do not solve dependency duplication.</aside>
-    <aside data-rationale-for="D">Lambda resource policies control invocation permissions; they do not package dependencies.</aside>
-    <aside class="explanation">Lambda layer is correct. Layers share dependencies across functions, reducing zip size and avoiding duplication.</aside>
-    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Task 3.2 Lambda promotion</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">Lambda layers</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. Layers package shared libraries separately so multiple Lambda functions can reuse them without duplication.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Aliases provide stable version pointers, not shared dependency packaging.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Event source mappings connect streams or queues to Lambda and do not reduce package duplication.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Resource policies control who can invoke a function and do not manage code dependencies.</aside>
+    <aside class="explanation">Option A is the correct answer. Reusable shared libraries across many Lambda functions point to Lambda layers.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">Lambda layers</a> and <a href="0021-test-applications-in-dev-environments.html">Lesson 0021</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. A DVA-C02 scenario involves an <mark>ECS task definition that must reference an immutable Docker image stored in AWS</mark>. You must choose the container image registry. <mark>Which AWS managed service stores and manages Docker images for ECS and Lambda container functions?</mark></h3>
+    <h3>6. An application is moving to Amazon ECS, and the release process must store immutable container images in an AWS-managed registry before deployment. The same registry should also support Lambda container image functions. Which AWS service is the best fit?</h3>
     <button class="choice" data-correct>A) Amazon ECR</button>
     <button class="choice">B) Amazon EFS</button>
     <button class="choice">C) Amazon SQS</button>
     <button class="choice">D) Amazon VPC</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Amazon ECR</strong> is the managed Docker container registry that stores, scans, and serves images to ECS tasks and Lambda container functions—Task 3.1.</aside>
-    <aside data-rationale-for="B">EFS is a file system; it does not store Docker container images.</aside>
-    <aside data-rationale-for="C">SQS is a message queue; it does not store container images.</aside>
-    <aside data-rationale-for="D">VPC provides networking isolation; it does not store container images.</aside>
-    <aside class="explanation">Amazon ECR is correct. ECR stores Docker images and provides them to ECS tasks and Lambda container-image functions.</aside>
-    <aside class="knowledge-gap">Review <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 ECS deployment</a> and <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html">Amazon ECR</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. Amazon ECR is the AWS-managed container registry for ECS images and Lambda container image packages.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. EFS is a network file system and does not act as a Docker image registry.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. SQS is a message queue, not an artifact store for container images.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. A VPC provides networking boundaries and does not store deployment images.</aside>
+    <aside class="explanation">Option A is the correct answer. AWS-managed container image storage for ECS and Lambda means Amazon ECR.</aside>
+    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html">Amazon ECR</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Lesson 0023</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>7. A scenario describes an <mark>EC2 instance that must install packages, create files, and start services from CloudFormation template metadata during launch</mark>. You must name the bootstrap helper. <mark>Which CloudFormation helper script reads metadata and configures the EC2 instance?</mark></h3>
-    <button class="choice" data-correct>A) cfn-init</button>
-    <button class="choice">B) cfn-lint</button>
-    <button class="choice">C) cfn-flip</button>
-    <button class="choice">D) cfn-diff</button>
+    <h3>7. An EC2 instance is launched from a CloudFormation stack, and the template metadata must install packages, create configuration files, and start services during boot. Which CloudFormation helper script should the instance run to apply the metadata?</h3>
+    <button class="choice" data-correct>A) <code>cfn-init</code></button>
+    <button class="choice">B) <code>cfn-lint</code></button>
+    <button class="choice">C) <code>cfn-flip</code></button>
+    <button class="choice">D) <code>cfn-diff</code></button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>cfn-init</code> reads the <code>AWS::CloudFormation::Init</code> metadata and installs packages, creates files, and starts services on EC2—Task 3.1.</aside>
-    <aside data-rationale-for="B"><code>cfn-lint</code> validates CloudFormation template syntax; it does not configure EC2 instances.</aside>
-    <aside data-rationale-for="C"><code>cfn-flip</code> reformats CloudFormation templates between JSON and YAML; it does not configure EC2.</aside>
-    <aside data-rationale-for="D"><code>cfn-diff</code> compares local templates against deployed stacks; it does not configure EC2.</aside>
-    <aside class="explanation">cfn-init is correct. It is the CloudFormation bootstrap helper that applies metadata-driven configuration to EC2 instances.</aside>
-    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a> and <a href="0021-test-applications-in-dev-environments.html">Task 3.2 EC2 bootstrapping</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. <code>cfn-init</code> reads <code>AWS::CloudFormation::Init</code> metadata and configures the instance during bootstrap.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. <code>cfn-lint</code> validates templates locally and does not configure running EC2 instances.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. <code>cfn-flip</code> converts CloudFormation template formats and is not a bootstrap helper.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. <code>cfn-diff</code> compares templates and does not execute instance setup tasks.</aside>
+    <aside class="explanation">Option A is the correct answer. Metadata-driven EC2 bootstrapping is the <code>cfn-init</code> pattern.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a> and <a href="0021-test-applications-in-dev-environments.html">Lesson 0021</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>8. A DVA-C02 scenario involves <mark>runtime feature flags and configuration values that must be validated, deployed gradually, and rolled back if errors occur</mark>. You must choose the configuration management service. <mark>Which AWS service provides validated, safe runtime configuration propagation without code redeployment?</mark></h3>
+    <h3>8. A retailer stores feature flags and throttle settings outside the application code. The operations team wants schema validation, gradual rollout, CloudWatch alarm monitoring, and automatic rollback if a bad configuration causes errors in production. Which AWS service should the developer use?</h3>
     <button class="choice" data-correct>A) AWS AppConfig</button>
     <button class="choice">B) AWS CodeBuild</button>
     <button class="choice">C) AWS CodeStar</button>
     <button class="choice">D) AWS CloudTrail</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>AppConfig</strong> validates configuration data, supports gradual deployment, monitors with CloudWatch alarms, and rolls back on error—Task 3.1 configuration lifecycle.</aside>
-    <aside data-rationale-for="B">CodeBuild runs build and test commands; it does not manage runtime feature flags.</aside>
-    <aside data-rationale-for="C">CodeStar provides a unified project dashboard; it does not propagate runtime configurations.</aside>
-    <aside data-rationale-for="D">CloudTrail records API calls; it does not manage application configuration.</aside>
-    <aside class="explanation">AppConfig is correct. It provides validated, monitored, and rollback-capable configuration propagation without redeployment.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a> and <a href="0021-test-applications-in-dev-environments.html">Task 3.2 configuration</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. AppConfig validates configuration data, deploys it gradually, watches alarms, and rolls back automatically when needed.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. CodeBuild compiles and tests source code, but it does not manage runtime configuration rollouts.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. CodeStar organizes project resources and is not the best answer for safe runtime configuration deployment.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. CloudTrail records API calls and does not validate or distribute application configuration.</aside>
+    <aside class="explanation">Option A is the correct answer. Validated runtime configuration with progressive rollout and rollback is the AppConfig use case.</aside>
+    <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a> and <a href="0021-test-applications-in-dev-environments.html">Lesson 0021</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">

@@ -52,108 +52,108 @@ Traffic shifting, rollback, safe rollout   → CodeDeploy, Elastic Beanstalk, EC
 
   <h2>Retrieval drill: choose the best answer</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>1. An AWS team asks how much of the <mark>DVA-C02 exam covers Domain 3 Deployment</mark>. You need the accurate percentage to calibrate your study time. <mark>Which answer is correct?</mark></h3>
-    <button class="choice" data-correct>A) 20 percent</button>
-    <button class="choice">B) 12 percent</button>
-    <button class="choice">C) 26 percent</button>
-    <button class="choice">D) 32 percent</button>
+    <h3>1. A team is preparing a serverless release and must build Lambda dependencies, store versioned artifacts, and prepare configuration values before anything is deployed. Which Domain 3 task statement is primarily being tested in this scenario?</h3>
+    <button class="choice" data-correct>A) Task 3.1: Prepare application artifacts</button>
+    <button class="choice">B) Task 3.2: Test in development environments</button>
+    <button class="choice">C) Task 3.3: Automate deployment testing</button>
+    <button class="choice">D) Task 3.4: Deploy with CI/CD services</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Domain 3 Deployment is exactly <strong>20 percent</strong> of DVA-C02, or roughly 13 questions out of 65.</aside>
-    <aside data-rationale-for="B">12 percent understates the weight—Domain 1 alone is closer to that range.</aside>
-    <aside data-rationale-for="C">26 percent overstates Domain 3; it is close to Domain 1's actual weight.</aside>
-    <aside data-rationale-for="D">32 percent is far too high—Domain 1 (40%) and Domain 2 (30%) absorb most of the exam.</aside>
-    <aside class="explanation">Domain 3 Deployment is 20 percent of DVA-C02, roughly 13 questions. This is the lightest of the four domains.</aside>
-    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/certification/certified-developer-associate/">AWS DVA-C02 exam guide</a> to ground the percentage in actual service clusters.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. The clues are build dependencies, artifact storage, and configuration preparation, which all belong to Task 3.1.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Development-environment testing focuses on mock endpoints, stack updates, and validating behavior after code is deployed.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Automated deployment testing is about repeatable tests or temporary environments inside the pipeline, not artifact preparation itself.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. CI/CD services handle orchestration and promotion, but the stem stops earlier at preparing the release inputs.</aside>
+    <aside class="explanation">Option A is the correct answer. Artifact preparation is the first Domain 3 task statement and a common exam starting point.</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Lesson 0020</a> and <a href="https://docs.aws.amazon.com/certification/certified-developer-associate/">the DVA-C02 exam guide</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>2. A DVA-C02 scenario describes a workload that <mark>stores versioned packages in an S3 bucket before deploying</mark>. You must name the artifact stage. <mark>Which answer labels the correct artifact operation?</mark></h3>
-    <button class="choice" data-correct>A) Artifacts</button>
-    <button class="choice">B) Mock APIs</button>
-    <button class="choice">C) Rollbacks</button>
-    <button class="choice">D) Branches</button>
+    <h3>2. A frontend team needs an Amazon API Gateway endpoint that returns sample order responses while the real backend is still under development. The API should not invoke any Lambda function or HTTP service. Which integration type should the developer choose?</h3>
+    <button class="choice" data-correct>A) MOCK integration</button>
+    <button class="choice">B) Lambda proxy integration</button>
+    <button class="choice">C) AWS Step Functions integration</button>
+    <button class="choice">D) DynamoDB service integration</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Storing versioned packages before deployment is the <strong>Artifacts</strong> stage of the CI/CD pipeline, covered by Task 3.1.</aside>
-    <aside data-rationale-for="B">Mock APIs are used in development testing (Task 3.2), not for storing packages.</aside>
-    <aside data-rationale-for="C">Rollbacks are a deployment safety feature in Task 3.4, not an artifact storage operation.</aside>
-    <aside data-rationale-for="D">Branches trigger pipelines (Task 3.4) but do not store or version packages.</aside>
-    <aside class="explanation">Artifacts is correct. Versioned package storage is the prepare stage in Task 3.1, done with S3, CodeArtifact, or ECR before any deployment occurs.</aside>
-    <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-about.html">CodePipeline artifacts</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. MOCK integrations let API Gateway return configured responses without any backend call, which is ideal for development testing.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Lambda proxy integration requires a live Lambda backend and does not satisfy the no-backend requirement.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Step Functions can be integrated with API Gateway, but it is still a real backend service invocation.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. A DynamoDB service integration also invokes a real backend and is not the best answer for stubbed responses.</aside>
+    <aside class="explanation">Option A is the correct answer. When API Gateway must return fixed test data with no backend, choose MOCK integration.</aside>
+    <aside class="knowledge-gap">Study <a href="0021-test-applications-in-dev-environments.html">Lesson 0021</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-integration-types.html">API Gateway integration types</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>3. A scenario describes an API Gateway integration that <mark>returns test responses without invoking a Lambda backend</mark>. You must select the correct integration type. <mark>Which answer names the right AWS integration?</mark></h3>
-    <button class="choice" data-correct>A) MOCK</button>
-    <button class="choice">B) Lambda proxy</button>
-    <button class="choice">C) Step Functions</button>
-    <button class="choice">D) DynamoDB streams</button>
+    <h3>3. A pipeline must create a temporary stack from infrastructure as code, run integration tests against that stack on every change, and fail the release automatically if the tests do not pass. Which Domain 3 task statement is primarily being tested?</h3>
+    <button class="choice">A) Task 3.1: Prepare application artifacts</button>
+    <button class="choice">B) Task 3.2: Test in development environments</button>
+    <button class="choice" data-correct>C) Task 3.3: Automate deployment testing</button>
+    <button class="choice">D) Task 3.4: Deploy with CI/CD services</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>MOCK</strong> integration makes API Gateway return configured responses with no backend call—perfect for consumer-driven contract testing.</aside>
-    <aside data-rationale-for="B">Lambda proxy integration invokes a Lambda function; it requires a live backend.</aside>
-    <aside data-rationale-for="C">Step Functions invokes state machines—not a direct API Gateway integration type.</aside>
-    <aside data-rationale-for="D">DynamoDB streams capture table changes—they are not an API Gateway integration type.</aside>
-    <aside class="explanation">MOCK is correct. API Gateway MOCK integrations return fixed responses without calling any backend, used in development testing (Task 3.2).</aside>
-    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Task 3.2 dev testing</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-integration-types.html">API Gateway integration types</a>.</aside>
+    <aside data-rationale-for="A">Option A is incorrect. Task 3.1 is about building and packaging the release inputs, not automatically testing deployed stacks.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Task 3.2 involves development testing patterns, but the key clue here is automation inside the release flow.</aside>
+    <aside data-rationale-for="C">Option C is the correct answer. Temporary IaC test environments and automatic pass/fail gates are core Task 3.3 signals.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. CI/CD orchestration may be present, but the stem is specifically about the testing phase within deployment automation.</aside>
+    <aside class="explanation">Option C is the correct answer. Automated deployment testing is the task statement behind IaC-created test environments and release gates.</aside>
+    <aside class="knowledge-gap">Review <a href="0022-automate-deployment-testing.html">Lesson 0022</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/concepts.html">CodePipeline concepts</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>4. A scenario describes a pipeline that <mark>builds, tests, and deploys automatically on every code commit</mark>. You must name the orchestration service. <mark>Which AWS service manages the ordered stages?</mark></h3>
-    <button class="choice" data-correct>A) CodePipeline</button>
-    <button class="choice">B) CloudTrail</button>
-    <button class="choice">C) CloudFront</button>
-    <button class="choice">D) CodeGuru</button>
+    <h3>4. A company wants every commit to its main branch to trigger a source stage, a build stage, an automated test stage, and then a deployment stage in a fixed order. Which AWS service should the developer use to orchestrate these stages?</h3>
+    <button class="choice" data-correct>A) AWS CodePipeline</button>
+    <button class="choice">B) AWS CloudTrail</button>
+    <button class="choice">C) Amazon CloudFront</button>
+    <button class="choice">D) Amazon CodeGuru Reviewer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>CodePipeline</strong> orchestrates ordered stages (source, build, test, deploy) triggered by repository changes—Task 3.4.</aside>
-    <aside data-rationale-for="B">CloudTrail records API calls; it does not orchestrate CI/CD pipelines.</aside>
-    <aside data-rationale-for="C">CloudFront is a CDN; it does not manage deployment pipelines.</aside>
-    <aside data-rationale-for="D">CodeGuru reviews code quality; it does not orchestrate build and deploy stages.</aside>
-    <aside class="explanation">CodePipeline is correct. It is the release automation spine that chains source, build, test, and deploy actions on commit events (Task 3.4).</aside>
-    <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 testing automation</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. CodePipeline is the managed service that organizes source, build, test, approval, and deploy actions into ordered stages.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. CloudTrail records API activity for auditing and does not run release stages.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. CloudFront is a content delivery network, not a deployment orchestrator.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. CodeGuru Reviewer analyzes code quality but does not manage end-to-end CI/CD stages.</aside>
+    <aside class="explanation">Option A is the correct answer. Ordered source-to-deploy orchestration is a direct CodePipeline clue.</aside>
+    <aside class="knowledge-gap">Study <a href="0023-deploy-code-using-ci-cd-services.html">Lesson 0023</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">AWS CodePipeline</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>5. A DVA-C02 scenario involves a <mark>Lambda trigger that must keep pointing to the same ARN while function versions change</mark>. You must identify the stable pointer. <mark>Which Lambda feature provides the unchanging trigger target?</mark></h3>
+    <h3>5. A team runs an SQS event source that invokes a Lambda function. The queue configuration should keep targeting the same Lambda ARN even when the team promotes new function versions from test to production. Which Lambda feature best meets this requirement?</h3>
     <button class="choice" data-correct>A) Lambda alias</button>
     <button class="choice">B) Lambda layer</button>
-    <button class="choice">C) Container image</button>
-    <button class="choice">D) SQS queue</button>
+    <button class="choice">C) Lambda container image</button>
+    <button class="choice">D) Lambda reserved concurrency</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">A <strong>Lambda alias</strong> is a stable, movable pointer to a specific version—event sources can target the alias ARN without updates after version promotion.</aside>
-    <aside data-rationale-for="B">Lambda layers share dependencies across functions; they do not serve as stable trigger targets.</aside>
-    <aside data-rationale-for="C">Container images package runtime and code but are referenced by image URIs, not used as stable aliases.</aside>
-    <aside data-rationale-for="D">An SQS queue is an event source; it does not solve the stable-version-pointer problem.</aside>
-    <aside class="explanation">Lambda alias is correct. Aliases (dev, beta, prod) allow event sources to remain unchanged while versions are promoted—Task 3.2.</aside>
-    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Task 3.2 Lambda promotion</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. A Lambda alias provides a stable ARN that can be repointed to different published versions during promotion.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Layers share dependencies across functions, but they do not provide a stable version pointer for invocations.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. Container images package code, but event sources do not target image URIs instead of function aliases.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. Reserved concurrency controls scaling and does not keep the trigger target stable across version changes.</aside>
+    <aside class="explanation">Option A is the correct answer. Stable trigger ARN while versions move is the Lambda alias pattern.</aside>
+    <aside class="knowledge-gap">Review <a href="0021-test-applications-in-dev-environments.html">Lesson 0021</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>6. A scenario describes a <mark>CodeDeploy Lambda deployment that shifts 10 percent of traffic every 15 minutes</mark>. You must name the traffic-shifting configuration. <mark>Which deployment configuration performs equal increments at fixed intervals?</mark></h3>
-    <button class="choice" data-correct>A) Linear</button>
-    <button class="choice">B) Canary</button>
-    <button class="choice">C) In-place</button>
-    <button class="choice">D) AllAtATime</button>
+    <h3>6. A serverless application uses AWS CodeDeploy for Lambda deployments. The release plan requires CodeDeploy to send 10% of production traffic to the new version every 15 minutes until all traffic has shifted. Which deployment configuration should the developer select?</h3>
+    <button class="choice" data-correct>A) Linear deployment</button>
+    <button class="choice">B) Canary deployment</button>
+    <button class="choice">C) In-place deployment</button>
+    <button class="choice">D) All-at-once deployment</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 15 minutes)—Task 3.3.</aside>
-    <aside data-rationale-for="B">Canary shifts a small initial percentage, then shifts the rest at once—fixed intervals are not canary behavior.</aside>
-    <aside data-rationale-for="C">In-place replaces the function code on the same instances; it does not shift traffic incrementally.</aside>
-    <aside data-rationale-for="D">AllAtATime shifts all traffic immediately—equal increments are not all-at-once behavior.</aside>
-    <aside class="explanation">Linear is correct. CodeDeploy linear configuration shifts traffic in equal increments at fixed intervals (Task 3.3).</aside>
-    <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 traffic shifting</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. Linear deployments move equal percentages of traffic at fixed intervals, exactly matching 10% every 15 minutes.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. Canary sends a small initial portion first and then shifts the remainder later, not equal repeated increments.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. In-place is not the Lambda traffic-shifting pattern being tested by this serverless scenario.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. All-at-once would shift 100% immediately, which violates the gradual rollout requirement.</aside>
+    <aside class="explanation">Option A is the correct answer. Equal traffic increments plus fixed intervals always point to a linear CodeDeploy configuration.</aside>
+    <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Lesson 0022</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy deployment configurations</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
-    <h3>7. A scenario involves <mark>feature flags that must be validated before rollout and applied without redeploying code</mark>. You must choose the configuration management service. <mark>Which AWS service validates and propagates runtime configuration safely?</mark></h3>
+    <h3>7. A product team uses feature flags for a checkout workflow. They need validators before rollout, gradual configuration deployment, and automatic rollback if CloudWatch alarms fire, all without redeploying application code. Which AWS service should they use?</h3>
     <button class="choice" data-correct>A) AWS AppConfig</button>
     <button class="choice">B) AWS CodeBuild</button>
     <button class="choice">C) AWS CodeArtifact</button>
     <button class="choice">D) AWS CloudTrail</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>AppConfig</strong> validates configuration profiles and propagates them to applications without redeployment—Task 3.1 configuration lifecycle.</aside>
-    <aside data-rationale-for="B">CodeBuild runs build commands; it does not manage runtime feature flags.</aside>
-    <aside data-rationale-for="C">CodeArtifact manages package dependencies; it does not propagate runtime configuration.</aside>
-    <aside data-rationale-for="D">CloudTrail records API activity; it does not manage application configuration.</aside>
-    <aside class="explanation">AppConfig is correct. It validates configurations and rolls them out safely without redeploying code (Task 3.1).</aside>
-    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 configuration management</a> and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a>.</aside>
+    <aside data-rationale-for="A">Option A is the correct answer. AppConfig validates configuration, rolls it out gradually, and can roll back automatically based on alarms.</aside>
+    <aside data-rationale-for="B">Option B is incorrect. CodeBuild compiles and tests code, but it does not manage runtime feature-flag rollout.</aside>
+    <aside data-rationale-for="C">Option C is incorrect. CodeArtifact stores packages and dependencies, not runtime configuration deployments.</aside>
+    <aside data-rationale-for="D">Option D is incorrect. CloudTrail records API calls for auditing and does not deploy application configuration.</aside>
+    <aside class="explanation">Option A is the correct answer. Safe runtime configuration rollout without code redeploy is the AppConfig use case.</aside>
+    <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Lesson 0020</a> and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
