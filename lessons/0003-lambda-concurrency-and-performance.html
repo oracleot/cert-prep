@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0003 — Lambda Concurrency and Performance</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0003</p>
+  <h1>Lambda performance starts with concurrency, memory, and cold starts.</h1>
+  <p class="subtitle">DVA-C02 expects you to choose the right Lambda knob from a scenario: cap concurrency, reduce latency, or tune memory/CPU.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>After the last lesson, you can classify how Lambda is invoked. Now ask the next exam question: <strong>what resource pressure is the scenario describing?</strong></p>
+    <p>Use the <a href="../reference/dva-c02-lambda-quick-sheet.html">Lambda quick sheet</a> as your reference.</p>
+  </section>
+
+  <h2>Three knobs to separate</h2>
+  <section class="card">
+    <h3>Reserved concurrency</h3>
+    <p>Reserved concurrency sets the maximum concurrent executions for one function. It can protect the rest of the account by preventing one function from using all available concurrency.</p>
+  </section>
+
+  <section class="card">
+    <h3>Provisioned concurrency</h3>
+    <p>Provisioned concurrency prepares execution environments before requests arrive. Choose it when the scenario demands consistently low latency and cold starts are the problem.</p>
+  </section>
+
+  <section class="card">
+    <h3>Memory setting</h3>
+    <p>Lambda allocates CPU in proportion to memory. If a function is CPU-bound or memory-bound, increasing memory can reduce duration, but you should tune for cost and speed together.</p>
+  </section>
+
+  <h2>Cold start mental model</h2>
+  <div class="diagram">First request or changed function config
+  → Lambda creates execution environment
+  → downloads code / image
+  → initializes runtime and code outside handler
+  → invokes handler
+
+Next request may reuse the environment → warm start</div>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>Do not rely on warmers.</strong> Scheduled invocations do not guarantee low latency during scaling or across Availability Zones.</li>
+    <li><strong>Provisioned concurrency is the low-latency answer.</strong> Use it when cold starts must be minimized.</li>
+    <li><strong>Reserved concurrency is the blast-radius answer.</strong> Use it to cap or guarantee concurrency for a function.</li>
+    <li><strong>Memory tuning changes CPU too.</strong> More memory can make CPU-bound functions faster.</li>
+    <li><strong>Lambda Power Tuning uses Step Functions.</strong> It tests multiple memory settings and compares speed/cost.</li>
+  </ul>
+
+  <h2>Practice: choose the knob</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. A production API has unpredictable cold-start latency and must respond faster.</h3>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Provisioned concurrency')">Reserved concurrency</button>
+    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Provisioned concurrency')">Provisioned concurrency</button>
+    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Provisioned concurrency')">Lambda layers</button>
+    <button class="choice" data-answer="EventBridge rules" onclick="choose(this, 'Provisioned concurrency')">EventBridge rules</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. One function is consuming too much account concurrency and starving others.</h3>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Reserved concurrency')">Reserved concurrency</button>
+    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Reserved concurrency')">Provisioned concurrency</button>
+    <button class="choice" data-answer="Lambda destination" onclick="choose(this, 'Reserved concurrency')">Lambda destination</button>
+    <button class="choice" data-answer="Memory increase" onclick="choose(this, 'Reserved concurrency')">Memory increase</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A CPU-bound function runs too slowly, and you need a simple config change to test.</h3>
+    <button class="choice" data-answer="Increase memory" onclick="choose(this, 'Increase memory')">Increase memory</button>
+    <button class="choice" data-answer="Add a DLQ" onclick="choose(this, 'Increase memory')">Add a DLQ</button>
+    <button class="choice" data-answer="Use an alias" onclick="choose(this, 'Increase memory')">Use an alias</button>
+    <button class="choice" data-answer="Add Macie" onclick="choose(this, 'Increase memory')">Add Macie</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. You need to compare several memory sizes for cost and duration automatically.</h3>
+    <button class="choice" data-answer="AWS X-Ray" onclick="choose(this, 'Lambda Power Tuning')">AWS X-Ray</button>
+    <button class="choice" data-answer="Lambda Power Tuning" onclick="choose(this, 'Lambda Power Tuning')">Lambda Power Tuning</button>
+    <button class="choice" data-answer="AWS CloudHSM" onclick="choose(this, 'Lambda Power Tuning')">AWS CloudHSM</button>
+    <button class="choice" data-answer="CodeArtifact" onclick="choose(this, 'Lambda Power Tuning')">CodeArtifact</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A Kinesis stream has 100 active shards. What limits parallel Lambda processing?</h3>
+    <button class="choice" data-answer="Shard count" onclick="choose(this, 'Shard count')">Shard count</button>
+    <button class="choice" data-answer="Queue delay" onclick="choose(this, 'Shard count')">Queue delay</button>
+    <button class="choice" data-answer="Layer count" onclick="choose(this, 'Shard count')">Layer count</button>
+    <button class="choice" data-answer="Alias count" onclick="choose(this, 'Shard count')">Alias count</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html">AWS Lambda concurrency docs</a>. Then review Lambda performance tuning in Domain 1 Lesson 3 of <a href="../docs/aws%20dva-c02.md">the local curriculum</a>.</p>
+  <p>If you miss any question, ask me to drill that exact keyword pattern.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
