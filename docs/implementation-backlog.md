@@ -674,32 +674,32 @@ Status: reshuffled | Date: 2026-06-16
 
 ---
 
-### 9.1 — Resource graph schema + quality gate (P0, M, agents) — ✅ Complete
+### 9.1 — Resource graph schema + quality gate (P0, M, agents)
 **Acceptance criteria:**
-- [x] Human-editable DVA-C02 concept schema exists under `agents/data/` or `agents/resources/`
-- [x] Each record includes `id`, domain, task statement, lesson reference, facts, exam traps, expected answer criteria, official docs links, optional Skill Builder/lab/SimuLearn links, and `ready`
-- [x] Quality gate requires stable ID, domain/task, 2–4 grounded facts, at least one trap, at least one official docs URL, and evaluator criteria
-- [x] Runtime helpers can find by ID, filter by domain, and exclude `ready: false` records
+- [ ] Human-editable DVA-C02 concept schema exists under `agents/data/` or `agents/resources/`
+- [ ] Each record includes `id`, domain, task statement, lesson reference, facts, exam traps, expected answer criteria, official docs links, optional Skill Builder/lab/SimuLearn links, and `ready`
+- [ ] Quality gate requires stable ID, domain/task, 2–4 grounded facts, at least one trap, at least one official docs URL, and evaluator criteria
+- [ ] Runtime helpers can find by ID, filter by domain, and exclude `ready: false` records
 
 ---
 
-### 9.2 — Curate all DVA-C02 concepts from Skill Builder resource doc (P0, L, agents) — ✅ Complete
+### 9.2 — Curate all DVA-C02 concepts from Skill Builder resource doc (P0, L, agents)
 **Acceptance criteria:**
-- [x] `docs/aws dva-c02.md` is converted into concept-level records across all four domains
-- [x] Records are concept-level, not transcript dumps
-- [x] Lesson transcript claims are distilled into facts/traps, separated from user-visible links
-- [x] Skill Builder lessons without URLs are stored as internal source references only
-- [x] Coverage matrix shows every curated concept by domain/task and flags missing links or incomplete records
+- [ ] `docs/aws dva-c02.md` is converted into concept-level records across all four domains
+- [ ] Records are concept-level, not transcript dumps
+- [ ] Lesson transcript claims are distilled into facts/traps, separated from user-visible links
+- [ ] Skill Builder lessons without URLs are stored as internal source references only
+- [ ] Coverage matrix shows every curated concept by domain/task and flags missing links or incomplete records
 
 ---
 
-### 9.3 — Closed-book concept selection in session router (P0, M, agents) — ✅ Complete
+### 9.3 — Closed-book concept selection in session router (P0, M, agents)
 **Acceptance criteria:**
-- [x] App/session code selects `conceptId` before Rex runs
-- [x] Rex never chooses unsupported topics; it receives only the selected concept packet
-- [x] Challenge output stores `conceptId`, domain, topic, task statement, and source IDs
-- [x] Rechallenge stays in-domain and uses an app-selected related/weak/uncovered concept
-- [x] If no ready concept exists for a route, session start fails clearly instead of falling back to ungrounded generation
+- [ ] App/session code selects `conceptId` before Rex runs
+- [ ] Rex never chooses unsupported topics; it receives only the selected concept packet
+- [ ] Challenge output stores `conceptId`, domain, topic, task statement, and source IDs
+- [ ] Rechallenge stays in-domain and uses an app-selected related/weak/uncovered concept
+- [ ] If no ready concept exists for a route, session start fails clearly instead of falling back to ungrounded generation
 
 ---
 
