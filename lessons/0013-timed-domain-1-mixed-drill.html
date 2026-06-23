@@ -10,181 +10,170 @@
 <main>
   <p class="kicker">Lesson 0013</p>
   <h1>Beat the clock on Domain 1 service selection.</h1>
-  <p class="subtitle">Twenty mixed DVA-C02 scenarios. Choose fast, then review misses by keyword.</p>
+  <p class="subtitle">Ten mixed DVA-C02 scenarios. Choose fast, then review misses by keyword.</p>
 
   <section class="card">
     <h2>Rules</h2>
-    <p>Target: <strong>25 minutes</strong>. Click Start, answer every question once, then revisit only the ones you missed.</p>
-    <p>Score goal: 16/20. Below that, ask me to drill your weakest three service pairs.</p>
+    <p>Target: <strong>12 minutes</strong>. Answer every question once, then revisit only the ones you missed.</p>
+    <p>Score goal: 8/10. Below that, ask me to drill your weakest service pairs.</p>
   </section>
 
-  <section class="timer" data-timer-minutes="25">
+  <section class="timer" data-timer-minutes="12">
     <p class="kicker">Timer</p>
-    <strong data-timer-display>25:00</strong>
+    <strong data-timer-display>12:00</strong>
     <button data-timer-start>Start</button>
     <button data-timer-reset>Reset</button>
   </section>
 
   <h2>Timed drill</h2>
-  <section class="quiz" data-quiz>
-    <h3>1. Public HTTPS API invokes business code and returns JSON.</h3>
-    <button class="choice" data-answer="API Gateway + Lambda" onclick="choose(this, 'API Gateway + Lambda')">API Gateway + Lambda</button>
-    <button class="choice" data-answer="S3 + Data Firehose" onclick="choose(this, 'API Gateway + Lambda')">S3 + Data Firehose</button>
-    <button class="choice" data-answer="DAX + DynamoDB" onclick="choose(this, 'API Gateway + Lambda')">DAX + DynamoDB</button>
-    <button class="choice" data-answer="SNS + EventBridge" onclick="choose(this, 'API Gateway + Lambda')">SNS + EventBridge</button>
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>1. A <mark>public HTTPS API invokes Lambda and returns JSON</mark>. <mark>What is the serverless API pattern?</mark></h3>
+    <button class="choice" data-correct>A) API Gateway + Lambda</button>
+    <button class="choice">B) S3 + Data Firehose</button>
+    <button class="choice">C) DAX + DynamoDB</button>
+    <button class="choice">D) SNS + EventBridge</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">API Gateway receives HTTP; Lambda runs logic and returns JSON.</aside>
+    <aside data-rationale-for="B">S3 + Firehose handles streaming—not HTTP APIs.</aside>
+    <aside data-rationale-for="C">DAX caches DynamoDB reads—it does not handle APIs.</aside>
+    <aside data-rationale-for="D">SNS + EventBridge routes events—not an API pattern.</aside>
+    <aside class="explanation">API Gateway + Lambda is the standard serverless API pattern.</aside>
+    <aside class="knowledge-gap"><a href="0007-api-gateway-request-response-mapping.html">Lesson 0007</a>. <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html">API Gateway HTTP API</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>2. One image upload triggers one resize job.</h3>
-    <button class="choice" data-answer="S3 event to Lambda" onclick="choose(this, 'S3 event to Lambda')">S3 event to Lambda</button>
-    <button class="choice" data-answer="API cache to DAX" onclick="choose(this, 'S3 event to Lambda')">API cache to DAX</button>
-    <button class="choice" data-answer="Glue crawler job" onclick="choose(this, 'S3 event to Lambda')">Glue crawler job</button>
-    <button class="choice" data-answer="MSK topic replay" onclick="choose(this, 'S3 event to Lambda')">MSK topic replay</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>2. A media processing application receives <mark>image uploads via Amazon S3</mark> that must automatically trigger a Lambda resize job each time a new object is created. The resize function must run serverlessly with no dedicated infrastructure. <mark>Which event-driven pattern fits this workflow?</mark></h3>
+    <button class="choice" data-correct>A) S3 event to Lambda</button>
+    <button class="choice">B) API cache to DAX</button>
+    <button class="choice">C) Glue crawler job</button>
+    <button class="choice">D) MSK topic replay</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">S3 triggers Lambda on object creation; Lambda resizes the image.</aside>
+    <aside data-rationale-for="B">DAX caches DynamoDB reads—not for image processing.</aside>
+    <aside data-rationale-for="C">Glue crawlers discover schemas—not for image processing.</aside>
+    <aside data-rationale-for="D">MSK is Kafka-managed—overkill for single image processing.</aside>
+    <aside class="explanation">S3 event to Lambda is correct. S3 object-created events trigger Lambda.</aside>
+    <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html">Lambda with S3</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>3. Order processing needs buffering and retries between services.</h3>
-    <button class="choice" data-answer="Amazon SQS" onclick="choose(this, 'Amazon SQS')">Amazon SQS</button>
-    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon SQS')">Amazon DAX</button>
-    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon SQS')">Amazon EFS</button>
-    <button class="choice" data-answer="Amazon X-Ray" onclick="choose(this, 'Amazon SQS')">Amazon X-Ray</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>3. An order processing microservice requires <mark>durable message buffering and automatic retry behavior between the order intake Lambda and the fulfillment service</mark>. The queue must survive Lambda failures and maintain message ordering. <mark>Which AWS queue service provides this durability?</mark></h3>
+    <button class="choice" data-correct>A) Amazon SQS</button>
+    <button class="choice">B) Amazon DAX</button>
+    <button class="choice">C) Amazon EFS</button>
+    <button class="choice">D) Amazon X-Ray</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SQS provides durable message queuing with visibility timeout and retry support.</aside>
+    <aside data-rationale-for="B">DAX caches DynamoDB reads—not for message buffering.</aside>
+    <aside data-rationale-for="C">EFS is a shared file system—not a message queue.</aside>
+    <aside data-rationale-for="D">X-Ray traces requests—not message buffering.</aside>
+    <aside class="explanation">Amazon SQS is correct. SQS buffers messages between services with built-in retry behavior.</aside>
+    <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html">SQS</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>4. One event must fan out to email, Lambda, and queues.</h3>
-    <button class="choice" data-answer="Amazon SNS" onclick="choose(this, 'Amazon SNS')">Amazon SNS</button>
-    <button class="choice" data-answer="Amazon SQS" onclick="choose(this, 'Amazon SNS')">Amazon SQS</button>
-    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon SNS')">Amazon DAX</button>
-    <button class="choice" data-answer="Amazon EBS" onclick="choose(this, 'Amazon SNS')">Amazon EBS</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>4. <mark>One event must fan out to email, Lambda, and queues</mark>. <mark>Which AWS service broadcasts?</mark></h3>
+    <button class="choice" data-correct>A) Amazon SNS</button>
+    <button class="choice">B) Amazon SQS</button>
+    <button class="choice">C) Amazon DAX</button>
+    <button class="choice">D) Amazon EBS</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SNS pub/sub fans out one message to email, Lambda, SQS, HTTP endpoints, and more.</aside>
+    <aside data-rationale-for="B">SQS delivers to one consumer—not fan out to multiple.</aside>
+    <aside data-rationale-for="C">DAX is a DynamoDB cache—not a fanout service.</aside>
+    <aside data-rationale-for="D">EBS is a block volume—not a fanout service.</aside>
+    <aside class="explanation">Amazon SNS is correct. SNS broadcasts to multiple subscribers simultaneously.</aside>
+    <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/sns/latest/dg/welcome.html">SNS</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>5. SaaS events need routing by source and detail fields.</h3>
-    <button class="choice" data-answer="EventBridge rule" onclick="choose(this, 'EventBridge rule')">EventBridge rule</button>
-    <button class="choice" data-answer="DynamoDB stream" onclick="choose(this, 'EventBridge rule')">DynamoDB stream</button>
-    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'EventBridge rule')">Lambda layer</button>
-    <button class="choice" data-answer="S3 lifecycle" onclick="choose(this, 'EventBridge rule')">S3 lifecycle</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>5. An ISV's multi-tenant SaaS platform emits events that must <mark>route to different AWS Lambda functions based on the event source and detail-type field values</mark>. The routing rules must be configurable without changing application code. <mark>Which AWS service routes events by content?</mark></h3>
+    <button class="choice" data-correct>A) EventBridge rule</button>
+    <button class="choice">B) DynamoDB stream</button>
+    <button class="choice">C) Lambda layer</button>
+    <button class="choice">D) S3 lifecycle</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">EventBridge rules route events to targets based on content patterns.</aside>
+    <aside data-rationale-for="B">DynamoDB Streams capture item changes—not route SaaS events.</aside>
+    <aside data-rationale-for="C">Lambda layers share code—they do not route events.</aside>
+    <aside data-rationale-for="D">S3 lifecycle expires objects—it does not route events.</aside>
+    <aside class="explanation">EventBridge rule is correct. Routes based on content, source, and detail fields.</aside>
+    <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html">EventBridge rules</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>6. Workflow needs waits, branches, and per-step retries.</h3>
-    <button class="choice" data-answer="Step Functions" onclick="choose(this, 'Step Functions')">Step Functions</button>
-    <button class="choice" data-answer="API Gateway" onclick="choose(this, 'Step Functions')">API Gateway</button>
-    <button class="choice" data-answer="Data Firehose" onclick="choose(this, 'Step Functions')">Data Firehose</button>
-    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Step Functions')">Secrets Manager</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>6. An expense approval workflow requires <mark>conditional branching for manager vs. director approval, timed wait states for SLA enforcement, and per-task retry policies for transient failures</mark>. The team also needs a human-readable execution history for auditing. <mark>Which AWS service orchestrates this workflow?</mark></h3>
+    <button class="choice" data-correct>A) Step Functions</button>
+    <button class="choice">B) API Gateway</button>
+    <button class="choice">C) Data Firehose</button>
+    <button class="choice">D) Secrets Manager</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Step Functions state machines support waits, branches, retries, and human-readable history.</aside>
+    <aside data-rationale-for="B">API Gateway handles HTTP routing—not workflow orchestration.</aside>
+    <aside data-rationale-for="C">Data Firehose delivers streaming data—not workflow orchestration.</aside>
+    <aside data-rationale-for="D">Secrets Manager stores credentials—not workflow orchestration.</aside>
+    <aside class="explanation">Step Functions is correct. State machines manage complex workflows with built-in control flow.</aside>
+    <aside class="knowledge-gap"><a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a>. <a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html">Step Functions</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>7. DynamoDB reads need microsecond latency.</h3>
-    <button class="choice" data-answer="DAX" onclick="choose(this, 'DAX')">DAX</button>
-    <button class="choice" data-answer="DLQ" onclick="choose(this, 'DAX')">DLQ</button>
-    <button class="choice" data-answer="EBS" onclick="choose(this, 'DAX')">EBS</button>
-    <button class="choice" data-answer="MSK" onclick="choose(this, 'DAX')">MSK</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>7. DynamoDB reads need <mark>microsecond latency</mark>. <mark>Which DynamoDB feature provides this?</mark></h3>
+    <button class="choice" data-correct>A) DAX</button>
+    <button class="choice">B) DLQ</button>
+    <button class="choice">C) EBS</button>
+    <button class="choice">D) MSK</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">DynamoDB Accelerator (DAX) is an in-memory cache providing microsecond read latency.</aside>
+    <aside data-rationale-for="B">DLQ captures failed messages—it does not speed up reads.</aside>
+    <aside data-rationale-for="C">EBS is an EC2 block volume—it is not for DynamoDB.</aside>
+    <aside data-rationale-for="D">MSK is Kafka-managed—it does not cache DynamoDB reads.</aside>
+    <aside class="explanation">DAX is correct. DynamoDB Accelerator provides microsecond latency for read-heavy workloads.</aside>
+    <aside class="knowledge-gap"><a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a>. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html">DAX</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>8. Strongly consistent reads are required from a table.</h3>
-    <button class="choice" data-answer="Base table read" onclick="choose(this, 'Base table read')">Base table read</button>
-    <button class="choice" data-answer="GSI read path" onclick="choose(this, 'Base table read')">GSI read path</button>
-    <button class="choice" data-answer="DAX read path" onclick="choose(this, 'Base table read')">DAX read path</button>
-    <button class="choice" data-answer="Scan all items" onclick="choose(this, 'Base table read')">Scan all items</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>8. A single tenant creates a <mark>hot DynamoDB partition</mark>. <mark>How do you distribute write traffic?</mark></h3>
+    <button class="choice" data-correct>A) Shard the key</button>
+    <button class="choice">B) Add a DLQ</button>
+    <button class="choice">C) Use a scan</button>
+    <button class="choice">D) Add X-Ray</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Sharding the partition key (e.g., random suffix) distributes writes across partitions.</aside>
+    <aside data-rationale-for="B">DLQ handles failed messages—it does not fix hot partitions.</aside>
+    <aside data-rationale-for="C">Scan reads all items—it worsens performance.</aside>
+    <aside data-rationale-for="D">X-Ray traces requests—it does not fix hot partition writes.</aside>
+    <aside class="explanation">Shard the key is correct. Random suffix sharding distributes hot partition writes.</aside>
+    <aside class="knowledge-gap"><a href="0010-dynamodb-capacity-consistency-and-indexes.html">Lesson 0010</a>. <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html">Partition key design</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>9. A single tenant creates a hot DynamoDB partition.</h3>
-    <button class="choice" data-answer="Shard the key" onclick="choose(this, 'Shard the key')">Shard the key</button>
-    <button class="choice" data-answer="Add a DLQ" onclick="choose(this, 'Shard the key')">Add a DLQ</button>
-    <button class="choice" data-answer="Use a scan" onclick="choose(this, 'Shard the key')">Use a scan</button>
-    <button class="choice" data-answer="Add X-Ray" onclick="choose(this, 'Shard the key')">Add X-Ray</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>9. Failed <mark>async Lambda events need later inspection</mark>. <mark>Which feature isolates poison events?</mark></h3>
+    <button class="choice" data-correct>A) Dead-letter queue</button>
+    <button class="choice">B) Provisioned concurrency</button>
+    <button class="choice">C) Stage variable</button>
+    <button class="choice">D) Mapping template</button>
     <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">DLQ captures failed async events for later inspection and reprocessing.</aside>
+    <aside data-rationale-for="B">Provisioned concurrency pre-warms environments—it does not capture failures.</aside>
+    <aside data-rationale-for="C">Stage variables pass per-stage values—they do not capture failures.</aside>
+    <aside data-rationale-for="D">Mapping templates transform requests—they do not capture failures.</aside>
+    <aside class="explanation">Dead-letter queue is correct. DLQ isolates events that exceed retry limits.</aside>
+    <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq">Lambda DLQ</a>.</aside>
   </section>
-  <section class="quiz" data-quiz>
-    <h3>10. Failed async Lambda events need later inspection.</h3>
-    <button class="choice" data-answer="Dead-letter queue" onclick="choose(this, 'Dead-letter queue')">Dead-letter queue</button>
-    <button class="choice" data-answer="Provisioned concurrency" onclick="choose(this, 'Dead-letter queue')">Provisioned concurrency</button>
-    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Dead-letter queue')">Stage variable</button>
-    <button class="choice" data-answer="Mapping template" onclick="choose(this, 'Dead-letter queue')">Mapping template</button>
+
+  <section class="quiz" data-quiz data-walkthrough="true">
+    <h3>10. <mark>Durable object storage with lifecycle transitions</mark> is needed. <mark>Which AWS storage supports lifecycle policies?</mark></h3>
+    <button class="choice" data-correct>A) Amazon S3</button>
+    <button class="choice">B) Amazon EBS</button>
+    <button class="choice">C) Amazon EFS</button>
+    <button class="choice">D) Amazon DAX</button>
     <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>11. API backend returns an error body; client needs HTTP 400.</h3>
-    <button class="choice" data-answer="Response mapping" onclick="choose(this, 'Response mapping')">Response mapping</button>
-    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Response mapping')">Reserved concurrency</button>
-    <button class="choice" data-answer="DynamoDB TTL" onclick="choose(this, 'Response mapping')">DynamoDB TTL</button>
-    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Response mapping')">Lambda layer</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>12. AWS SDK calls should survive transient throttling.</h3>
-    <button class="choice" data-answer="Exponential backoff" onclick="choose(this, 'Exponential backoff')">Exponential backoff</button>
-    <button class="choice" data-answer="Strong consistency" onclick="choose(this, 'Exponential backoff')">Strong consistency</button>
-    <button class="choice" data-answer="Write-through cache" onclick="choose(this, 'Exponential backoff')">Write-through cache</button>
-    <button class="choice" data-answer="Resource policy" onclick="choose(this, 'Exponential backoff')">Resource policy</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>13. Retried create requests must not duplicate orders.</h3>
-    <button class="choice" data-answer="Idempotency token" onclick="choose(this, 'Idempotency token')">Idempotency token</button>
-    <button class="choice" data-answer="Lazy loading cache" onclick="choose(this, 'Idempotency token')">Lazy loading cache</button>
-    <button class="choice" data-answer="Provisioned poller" onclick="choose(this, 'Idempotency token')">Provisioned poller</button>
-    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Idempotency token')">Stage variable</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>14. Durable object storage with lifecycle transitions is needed.</h3>
-    <button class="choice" data-answer="Amazon S3" onclick="choose(this, 'Amazon S3')">Amazon S3</button>
-    <button class="choice" data-answer="Amazon EBS" onclick="choose(this, 'Amazon S3')">Amazon EBS</button>
-    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon S3')">Amazon EFS</button>
-    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon S3')">Amazon DAX</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>15. Lambda needs shared file storage across invocations.</h3>
-    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon EFS')">Amazon EFS</button>
-    <button class="choice" data-answer="Amazon EBS" onclick="choose(this, 'Amazon EFS')">Amazon EBS</button>
-    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon EFS')">Amazon DAX</button>
-    <button class="choice" data-answer="Amazon SNS" onclick="choose(this, 'Amazon EFS')">Amazon SNS</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>16. App cache should store only requested keys after misses.</h3>
-    <button class="choice" data-answer="Lazy loading" onclick="choose(this, 'Lazy loading')">Lazy loading</button>
-    <button class="choice" data-answer="Write-through" onclick="choose(this, 'Lazy loading')">Write-through</button>
-    <button class="choice" data-answer="Strong read" onclick="choose(this, 'Lazy loading')">Strong read</button>
-    <button class="choice" data-answer="Fanout topic" onclick="choose(this, 'Lazy loading')">Fanout topic</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>17. Records need replay and multiple custom consumers.</h3>
-    <button class="choice" data-answer="Kinesis Data Streams" onclick="choose(this, 'Kinesis Data Streams')">Kinesis Data Streams</button>
-    <button class="choice" data-answer="Kinesis Data Firehose" onclick="choose(this, 'Kinesis Data Streams')">Kinesis Data Firehose</button>
-    <button class="choice" data-answer="Amazon API Gateway" onclick="choose(this, 'Kinesis Data Streams')">Amazon API Gateway</button>
-    <button class="choice" data-answer="AWS Secrets Manager" onclick="choose(this, 'Kinesis Data Streams')">AWS Secrets Manager</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>18. Stream data should deliver to S3 with minimal code.</h3>
-    <button class="choice" data-answer="Data Firehose" onclick="choose(this, 'Data Firehose')">Data Firehose</button>
-    <button class="choice" data-answer="DynamoDB DAX" onclick="choose(this, 'Data Firehose')">DynamoDB DAX</button>
-    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Data Firehose')">Lambda layers</button>
-    <button class="choice" data-answer="API mapping" onclick="choose(this, 'Data Firehose')">API mapping</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>19. Existing Kafka apps should run on managed brokers.</h3>
-    <button class="choice" data-answer="Amazon MSK" onclick="choose(this, 'Amazon MSK')">Amazon MSK</button>
-    <button class="choice" data-answer="Amazon SQS" onclick="choose(this, 'Amazon MSK')">Amazon SQS</button>
-    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'Amazon MSK')">Amazon DAX</button>
-    <button class="choice" data-answer="Amazon EFS" onclick="choose(this, 'Amazon MSK')">Amazon EFS</button>
-    <p data-feedback class="feedback"></p>
-  </section>
-  <section class="quiz" data-quiz>
-    <h3>20. ETL needs crawlers and a shared data catalog.</h3>
-    <button class="choice" data-answer="AWS Glue" onclick="choose(this, 'AWS Glue')">AWS Glue</button>
-    <button class="choice" data-answer="AWS Lambda" onclick="choose(this, 'AWS Glue')">AWS Lambda</button>
-    <button class="choice" data-answer="Amazon SNS" onclick="choose(this, 'AWS Glue')">Amazon SNS</button>
-    <button class="choice" data-answer="Amazon DAX" onclick="choose(this, 'AWS Glue')">Amazon DAX</button>
-    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">S3 supports lifecycle policies that transition objects to cheaper tiers or expire them.</aside>
+    <aside data-rationale-for="B">EBS volumes do not have lifecycle policies for tiering or expiration.</aside>
+    <aside data-rationale-for="C">EFS has lifecycle management for storage classes—not object lifecycle transitions.</aside>
+    <aside data-rationale-for="D">DAX is a DynamoDB cache—it does not store objects with lifecycle policies.</aside>
+    <aside class="explanation">Amazon S3 is correct. S3 lifecycle policies automate object transitions and expirations.</aside>
+    <aside class="knowledge-gap"><a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a>. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html">S3 lifecycle</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
