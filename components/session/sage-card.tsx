@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { AnswerIntent, Citation, SageFeedback, SageFeedbackType } from "@/lib/types";
+import type { AnswerIntent, Citation, ReviewNext, SageFeedback, SageFeedbackType } from "@/lib/types";
+import { hasReviewNextItems } from "@/lib/types";
 import { SageFeedbackControl } from "./sage-feedback-control";
 import { MarkdownStream } from "./markdown-stream";
 
@@ -14,6 +15,7 @@ type Props = {
   cycle: number;
   maxCycles: number;
   feedback: SageFeedback | null;
+  reviewNext: ReviewNext | null;
   onNext: () => void;
   onFeedbackSubmit: (feedbackType: SageFeedbackType, comment: string) => Promise<void>;
 };
@@ -27,6 +29,7 @@ export function SageCard({
   cycle,
   maxCycles,
   feedback,
+  reviewNext,
   onNext,
   onFeedbackSubmit,
 }: Props) {
@@ -87,6 +90,31 @@ export function SageCard({
               </a>
             ))}
           </div>
+        </div>
+      )}
+
+      {!isStreaming && hasReviewNextItems(reviewNext) && (
+        <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-300/5 p-3 dark:border-amber-300/30 dark:bg-amber-300/5">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-amber-800 dark:text-amber-300">
+            Review next
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {reviewNext!.items.map((item) => (
+              <li key={`${item.source}-${item.url}`} className="flex items-start gap-2">
+                <span className="mt-0.5 shrink-0 rounded-full border border-zinc-300 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+                  {item.source === "skill_builder" ? "lab" : item.source === "lab" ? "hands-on" : "docs"}
+                </span>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block flex-1 truncate text-xs font-medium text-zinc-800 underline-offset-4 hover:underline dark:text-zinc-200"
+                >
+                  {item.title}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
