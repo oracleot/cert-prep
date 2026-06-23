@@ -13,12 +13,19 @@ export type Challenge = {
   familiarity_level?: "new" | "building" | "review";
   scenario: string;
   question: string;
+  // Closed-book grounding (Phase 9). Optional so payloads without concept packets still parse.
+  official_docs?: string[];
+  skill_builder_links?: string[];
+  lab_links?: string[];
 };
 
 export type EvaluationResult = {
   outcome: "correct" | "incorrect";
   reasoning: string;
   answer_intent?: AnswerIntent;
+  // Phase 9.4 — concept packet miss tracking (internal, optional).
+  missed_criteria?: string[];
+  triggered_traps?: string[];
 };
 
 export type Citation = {
@@ -26,6 +33,24 @@ export type Citation = {
   title: string;
   snippet_id: string;
 };
+
+// Phase 9.5 — Review next block.
+// Compact resource block rendered after Sage's explanation, derived from the
+// selected concept packet (official_docs, skill_builder_links, lab_links).
+// Empty/missing fields render as an omitted block; the component checks `hasItems`.
+export type ReviewNext = {
+  items: ReviewNextItem[];
+};
+
+export type ReviewNextItem = {
+  url: string;
+  title: string;
+  source: "official_docs" | "skill_builder" | "lab";
+};
+
+export function hasReviewNextItems(review: ReviewNext | null | undefined): boolean {
+  return Boolean(review && review.items.length > 0);
+}
 
 export type SessionResult = {
   cycle: number;
