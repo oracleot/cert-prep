@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0005 — Lambda Configuration Traps</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0005</p>
+  <h1>Lambda config traps are mostly “which knob owns this?”</h1>
+  <p class="subtitle">DVA-C02 scenarios often hide the answer in one word: stage, runtime, handler, layer, extension, or package.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will classify Lambda configuration questions by ownership: Lambda function config, API Gateway stage config, deployment package, layer, or extension.</p>
+    <p>Review with the <a href="../reference/dva-c02-lambda-quick-sheet.html">Lambda quick sheet</a> after the drill.</p>
+  </section>
+
+  <h2>The ownership map</h2>
+  <div class="diagram">Function code + dependencies → deployment package
+Shared libraries / custom runtimes → Lambda layer
+Runtime process add-on → Lambda extension
+Language execution environment → runtime
+Entry point Lambda calls → handler
+Per-function values → environment variables
+Per-API-stage values → API Gateway stage variables</div>
+
+  <section class="card">
+    <h3>Environment variables vs stage variables</h3>
+    <p>Use <strong>Lambda environment variables</strong> for values attached to a function version, such as log level or table name for that function.</p>
+    <p>Use <strong>API Gateway stage variables</strong> when one API deployment stage must pass different values to the same integration, such as dev vs prod table names.</p>
+  </section>
+
+  <section class="card">
+    <h3>Runtime, handler, package</h3>
+    <ul>
+      <li><strong>Runtime:</strong> the language environment Lambda uses to run code.</li>
+      <li><strong>Handler:</strong> the method Lambda calls when the function is invoked.</li>
+      <li><strong>Deployment package:</strong> the code and dependencies uploaded as a zip file or container image.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h3>Layers vs extensions</h3>
+    <p>A <strong>layer</strong> is reusable content mounted into the execution environment: libraries, dependencies, custom runtimes, or config files.</p>
+    <p>An <strong>extension</strong> is a companion process that integrates with the Lambda lifecycle, often for monitoring, security, or configuration tools.</p>
+  </section>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>Stage clue means API Gateway.</strong> “Different table per API stage” points to stage variables plus mapping/integration config.</li>
+    <li><strong>Environment variables are not secret storage.</strong> For sensitive values, prefer Secrets Manager or Parameter Store.</li>
+    <li><strong>Handler is not runtime.</strong> Runtime selects language; handler selects the entry point.</li>
+    <li><strong>Layer is not invocation logic.</strong> Layers package shared dependencies; they do not trigger functions.</li>
+    <li><strong>Container images do not use layers.</strong> Package dependencies inside the image instead.</li>
+  </ul>
+
+  <h2>Practice: pick the owner</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. Same Lambda serves dev and prod API stages, each with a different table.</h3>
+    <button class="choice" data-answer="Stage variables" onclick="choose(this, 'Stage variables')">Stage variables</button>
+    <button class="choice" data-answer="Lambda layers" onclick="choose(this, 'Stage variables')">Lambda layers</button>
+    <button class="choice" data-answer="Handler setting" onclick="choose(this, 'Stage variables')">Handler setting</button>
+    <button class="choice" data-answer="Runtime setting" onclick="choose(this, 'Stage variables')">Runtime setting</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. A Python Lambda needs shared SDK helper code used by five functions.</h3>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Lambda layer')">Stage variable</button>
+    <button class="choice" data-answer="Lambda layer" onclick="choose(this, 'Lambda layer')">Lambda layer</button>
+    <button class="choice" data-answer="Async destination" onclick="choose(this, 'Lambda layer')">Async destination</button>
+    <button class="choice" data-answer="Reserved concurrency" onclick="choose(this, 'Lambda layer')">Reserved concurrency</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. Lambda must know which function method to call after invocation.</h3>
+    <button class="choice" data-answer="Runtime" onclick="choose(this, 'Handler')">Runtime</button>
+    <button class="choice" data-answer="Handler" onclick="choose(this, 'Handler')">Handler</button>
+    <button class="choice" data-answer="Layer" onclick="choose(this, 'Handler')">Layer</button>
+    <button class="choice" data-answer="Trigger" onclick="choose(this, 'Handler')">Trigger</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A monitoring agent must run beside the function during lifecycle events.</h3>
+    <button class="choice" data-answer="Extension" onclick="choose(this, 'Extension')">Extension</button>
+    <button class="choice" data-answer="Stage var" onclick="choose(this, 'Extension')">Stage var</button>
+    <button class="choice" data-answer="Handler" onclick="choose(this, 'Extension')">Handler</button>
+    <button class="choice" data-answer="Timeout" onclick="choose(this, 'Extension')">Timeout</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. A function needs a database password at runtime.</h3>
+    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Secrets Manager')">Secrets Manager</button>
+    <button class="choice" data-answer="Stage variable" onclick="choose(this, 'Secrets Manager')">Stage variable</button>
+    <button class="choice" data-answer="Layer version" onclick="choose(this, 'Secrets Manager')">Layer version</button>
+    <button class="choice" data-answer="Runtime name" onclick="choose(this, 'Secrets Manager')">Runtime name</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <h2>Read next</h2>
+  <p>Primary sources: <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html">Lambda environment variables</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/stage-variables.html">API Gateway stage variables</a>, and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-zip.html">Lambda deployment packages</a>.</p>
+  <p>Ask me to grill you on “stage variable vs environment variable” if that distinction still feels slippery.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
