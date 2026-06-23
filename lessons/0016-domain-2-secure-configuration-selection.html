@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0016 — Domain 2 Secure Configuration Selection</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0016</p>
+  <h1>Choose the secure config store before wiring Lambda.</h1>
+  <p class="subtitle">DVA-C02 Domain 2 secure-configuration questions usually test one fork: secret, parameter, KMS key, environment variable, or certificate.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>When the scenario says <strong>credentials, connection strings, encryption, rotation, or environment variables</strong>, classify the data before choosing the service.</p>
+    <p>Related review: <a href="0005-lambda-configuration-traps.html">Lambda configuration traps</a> and <a href="0015-domain-2-error-handling-and-security-logging.html">security error handling</a>.</p>
+  </section>
+
+  <h2>The exam decision path</h2>
+  <div class="diagram">Database password / API key / rotation required?
+  → AWS Secrets Manager
+
+Hierarchical app config or simple encrypted string?
+  → SSM Parameter Store SecureString + KMS
+
+Per-function non-secret setting?
+  → Lambda environment variable
+
+Encrypt data locally or use envelope encryption?
+  → AWS KMS GenerateDataKey
+
+TLS certificate for a website or load balancer?
+  → AWS Certificate Manager
+
+Direct control of dedicated HSM hardware?
+  → AWS CloudHSM</div>
+
+  <section class="card">
+    <h3>1. KMS manages keys, not application secrets</h3>
+    <p>AWS KMS creates and controls cryptographic keys. Use it for server-side encryption integrations and envelope encryption. For local encryption, call <code>GenerateDataKey</code>, encrypt with the plaintext data key, erase it from memory, and store the encrypted data key with the ciphertext.</p>
+    <p>Source: <a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html">AWS KMS Developer Guide</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>2. Secrets Manager vs Parameter Store</h3>
+    <ul>
+      <li><strong>Secrets Manager:</strong> credentials, API keys, RDS passwords, built-in rotation, KMS encryption, resource policies.</li>
+      <li><strong>Parameter Store:</strong> hierarchy paths, config values, versioning, labels, plaintext strings, or encrypted <code>SecureString</code> values.</li>
+      <li><strong>Exam shortcut:</strong> if rotation is required, choose Secrets Manager.</li>
+    </ul>
+    <p>Sources: <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">Secrets Manager</a> and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>3. Lambda environment variables are not shared secret storage</h3>
+    <p>Lambda encrypts environment variables at rest. A customer managed KMS key can add control, but environment variables are per function and can be visible to principals allowed to view function configuration. For shared sensitive values, retrieve Secrets Manager or Parameter Store values at runtime, often with a Lambda extension or cache.</p>
+    <p>Source: <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html">Lambda environment variable encryption</a>.</p>
+  </section>
+
+  <section class="card">
+    <h3>4. Configuration pitfalls the exam likes</h3>
+    <ul>
+      <li><strong>Stage variable:</strong> API Gateway stage-specific value passed to an integration.</li>
+      <li><strong>Environment variable:</strong> function-specific setting, not cross-function sharing.</li>
+      <li><strong>SecureString:</strong> encrypted Parameter Store value using KMS.</li>
+      <li><strong>Secrets extension:</strong> retrieves and caches secrets without writing SDK boilerplate.</li>
+      <li><strong>Interface endpoint:</strong> private VPC access to Secrets Manager or SSM APIs.</li>
+    </ul>
+  </section>
+
+  <h2>Exam traps</h2>
+  <ul>
+    <li><strong>KMS is not where you store the password.</strong> KMS protects keys used by services that store data.</li>
+    <li><strong>Parameter Store can be plaintext.</strong> Look for <code>SecureString</code> when encryption is required.</li>
+    <li><strong>Lambda env vars are per function.</strong> They do not share one secret across functions.</li>
+    <li><strong>CloudHSM is a distractor.</strong> Choose it only when the scenario requires dedicated HSM control.</li>
+    <li><strong>ACM is for TLS certificates.</strong> It is not for database password rotation.</li>
+  </ul>
+
+  <h2>Practice: choose the secure configuration</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. RDS credentials must be encrypted and rotated automatically.</h3>
+    <button class="choice" data-answer="Secrets Manager" onclick="choose(this, 'Secrets Manager')">Secrets Manager</button>
+    <button class="choice" data-answer="Parameter Store" onclick="choose(this, 'Secrets Manager')">Parameter Store</button>
+    <button class="choice" data-answer="Certificate Manager" onclick="choose(this, 'Secrets Manager')">Certificate Manager</button>
+    <button class="choice" data-answer="Identity Center" onclick="choose(this, 'Secrets Manager')">Identity Center</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Five Lambdas need the same encrypted connection string.</h3>
+    <button class="choice" data-answer="SecureString parameter" onclick="choose(this, 'SecureString parameter')">SecureString parameter</button>
+    <button class="choice" data-answer="Function env variable" onclick="choose(this, 'SecureString parameter')">Function env variable</button>
+    <button class="choice" data-answer="API stage variable" onclick="choose(this, 'SecureString parameter')">API stage variable</button>
+    <button class="choice" data-answer="Lambda handler name" onclick="choose(this, 'SecureString parameter')">Lambda handler name</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. A function needs a non-secret table name setting.</h3>
+    <button class="choice" data-answer="Environment variable" onclick="choose(this, 'Environment variable')">Environment variable</button>
+    <button class="choice" data-answer="Secrets rotation" onclick="choose(this, 'Environment variable')">Secrets rotation</button>
+    <button class="choice" data-answer="Certificate import" onclick="choose(this, 'Environment variable')">Certificate import</button>
+    <button class="choice" data-answer="CloudHSM cluster" onclick="choose(this, 'Environment variable')">CloudHSM cluster</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. The app encrypts large data locally before storing it.</h3>
+    <button class="choice" data-answer="KMS data key" onclick="choose(this, 'KMS data key')">KMS data key</button>
+    <button class="choice" data-answer="ACM public cert" onclick="choose(this, 'KMS data key')">ACM public cert</button>
+    <button class="choice" data-answer="Cognito token" onclick="choose(this, 'KMS data key')">Cognito token</button>
+    <button class="choice" data-answer="CloudWatch alarm" onclick="choose(this, 'KMS data key')">CloudWatch alarm</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. Lambda decrypt fails after switching to a customer KMS key.</h3>
+    <button class="choice" data-answer="Check key policy" onclick="choose(this, 'Check key policy')">Check key policy</button>
+    <button class="choice" data-answer="Check DLQ target" onclick="choose(this, 'Check key policy')">Check DLQ target</button>
+    <button class="choice" data-answer="Check cache mode" onclick="choose(this, 'Check key policy')">Check cache mode</button>
+    <button class="choice" data-answer="Check image tag" onclick="choose(this, 'Check key policy')">Check image tag</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. A workload must privately call Secrets Manager from a VPC.</h3>
+    <button class="choice" data-answer="Interface endpoint" onclick="choose(this, 'Interface endpoint')">Interface endpoint</button>
+    <button class="choice" data-answer="Gateway endpoint" onclick="choose(this, 'Interface endpoint')">Gateway endpoint</button>
+    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Interface endpoint')">Lambda alias</button>
+    <button class="choice" data-answer="S3 lifecycle" onclick="choose(this, 'Interface endpoint')">S3 lifecycle</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0015-domain-2-error-handling-and-security-logging.html">← Previous: Lesson 0015</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary source: <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager User Guide</a>. Then compare <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars-encryption.html">Lambda environment encryption</a>.</p>
+  <p>Ask me to drill Secrets Manager vs Parameter Store until rotation, hierarchy, and SecureString clues are automatic.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
