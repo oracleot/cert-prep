@@ -1,7 +1,6 @@
-"""Task 9.7a — Eval harness: resource-grounding checks.
+"""Task 9.7a — Eval harness: resource-grounding AC1 checks.
 
-AC1: Eval samples ready concepts across all domains.
-AC2: Harness detects fake/out-of-packet links in Sage responses.
+AC1: Eval harness includes resource_grounding check in analyze() output.
 
 All tests compile and run; they fail until 9.7 is implemented.
 """
@@ -12,49 +11,19 @@ from pathlib import Path
 
 import pytest
 
+from test_task97_shared import _fake_concept
+
 _AGENTS_DIR = Path(__file__).resolve().parent
 if str(_AGENTS_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENTS_DIR))
 
 
 # ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _fake_concept(**overrides) -> dict:
-    base = {
-        "id": "deploy-codepipeline-basics",
-        "domain": "Deployment",
-        "task_statement": "Deploy via CI/CD pipelines.",
-        "topic": "CodePipeline Basics",
-        "topic_id": "deploy-codepipeline-basics",
-        "task_statement_id": "deploy-codepipeline-basics",
-        "services": ["CodePipeline"],
-        "source_ids": ["sb-deploy-pipelines"],
-        "familiarity_level": "new",
-        "ready": True,
-        "facts": [
-            "CodePipeline has at least three stages: Source, Build, Deploy.",
-            "CodeBuild projects run in isolated build environments.",
-        ],
-        "traps": ["CodeBuild does NOT run inside a VPC by default."],
-        "expected_answer_criteria": (
-            "Answer must mention at least one CodePipeline stage type."
-        ),
-        "official_docs": ["https://docs.aws.amazon.com/codepipeline/latest/userguide/"],
-        "skill_builder_links": ["https://skillbuilder.aws/labs/"],
-        "lab_links": ["https://clouderlabs.example.com/codepipeline-lab"],
-    }
-    base.update(overrides)
-    return base
-
-
-# ---------------------------------------------------------------------------
-# AC1 — Eval samples ready concepts across all domains
+# AC1 — Eval harness includes resource_grounding in analyze() output
 # ---------------------------------------------------------------------------
 
 class TestAC1_EvalSamplesReadyConcepts:
-    """The eval harness must sample only concepts where ready=True."""
+    """The eval harness must include resource_grounding check in analyze()."""
 
     def test_evals_module_has_resource_grounding_check(self):
         """agents/evals/checks.py must have check_resource_grounding function."""
@@ -181,68 +150,4 @@ class TestAC1_EvalSamplesReadyConcepts:
         checks = report.get("checks", {})
         assert "resource_grounding" in checks, (
             f"analyze() checks must include 'resource_grounding'. Got: {list(checks.keys())}"
-        )
-
-
-# ---------------------------------------------------------------------------
-# AC2 — Harness detects fake/out-of-packet links
-# ---------------------------------------------------------------------------
-
-class TestAC2_HarnessDetectsFakeLinks:
-    """The harness must fail when Sage cites URLs outside the concept packet."""
-
-    def test_detects_fake_anthropic_url(self):
-        """A non-existent Anthropic URL not in the packet must fail."""
-        from agents.evals.checks import check_resource_grounding
-
-        concept = _fake_concept()
-        challenge = {"concept_id": concept["id"], "topic": concept["topic"]}
-        fake_url = "https://docs.anthropic.com/en/docs/claude-code/nonexistent-page"
-        sage_response = f"See {fake_url}"
-        citations = [{"url": fake_url, "title": "Fake Anthropic page", "snippet_id": "x"}]
-
-        result = check_resource_grounding(
-            challenge=challenge,
-            concept_record=concept,
-            sage_response=sage_response,
-            citations=citations,
-        )
-        assert result.get("pass") is False, f"Fake Anthropic URL must fail. Got: {result}"
-
-    def test_detects_totally_fake_domain(self):
-        """A URL from a random non-AWS domain must fail."""
-        from agents.evals.checks import check_resource_grounding
-
-        concept = _fake_concept()
-        challenge = {"concept_id": concept["id"], "topic": concept["topic"]}
-        fake_url = "https://random-blog.example.com/aws-tips"
-        sage_response = f"See {fake_url}"
-        citations = [{"url": fake_url, "title": "Random blog", "snippet_id": "x"}]
-
-        result = check_resource_grounding(
-            challenge=challenge,
-            concept_record=concept,
-            sage_response=sage_response,
-            citations=citations,
-        )
-        assert result.get("pass") is False, f"Random domain URL must fail. Got: {result}"
-
-    def test_detects_url_not_in_official_docs_or_skill_builder_or_lab(self):
-        """A valid-looking AWS URL not in the concept's official_docs must fail."""
-        from agents.evals.checks import check_resource_grounding
-
-        concept = _fake_concept()
-        challenge = {"concept_id": concept["id"], "topic": concept["topic"]}
-        fake_aws_url = "https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
-        sage_response = f"See {fake_aws_url}"
-        citations = [{"url": fake_aws_url, "title": "Lambda docs", "snippet_id": "x"}]
-
-        result = check_resource_grounding(
-            challenge=challenge,
-            concept_record=concept,
-            sage_response=sage_response,
-            citations=citations,
-        )
-        assert result.get("pass") is False, (
-            f"URL not in concept packet must fail. Got: {result}"
         )

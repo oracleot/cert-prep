@@ -14,7 +14,7 @@ from unittest.mock import patch
 import pytest
 
 from test_task93_shared import _node_graph, _seed_state
-from test_task96a_exchange_miss_fields import FAKE_CONCEPT
+from test_task96_shared import FAKE_CONCEPT
 from test_task95_shared import FakeSageLLM
 
 _AGENTS_DIR = Path(__file__).resolve().parent
