@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0021 — Test Applications in Development Environments</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 0021</p>
+  <h1>Test deployments without touching production.</h1>
+  <p class="subtitle">Task Statement 3.2: pick the safest dev/test pattern when the scenario mentions versions, mock APIs, stages, templates, or EC2 bootstrapping.</p>
+
+  <section class="card">
+    <h2>The win</h2>
+    <p>You will classify Domain 3 test-environment questions by the clue: <strong>deployment risk</strong>, <strong>Lambda promotion</strong>, <strong>API dependency</strong>, <strong>SAM template</strong>, or <strong>CloudFormation helper script</strong>.</p>
+    <p>Source review: Domain 3 Task 3.2 in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
+  </section>
+
+  <h2>Fast selector</h2>
+  <div class="diagram">Least time, highest blast radius           → all-at-once
+Major runtime/platform change               → blue/green
+Stop app, install version, validate          → in-place
+EC2 package/files/services from metadata     → cfn-init
+Wait for EC2 config before stack continues   → cfn-signal
+Deploy one SAM template, not project root    → sam deploy --template
+Backend not ready, API consumers must test   → API Gateway mock integration
+Same API, different dev/test config          → API Gateway stages + variables
+Stable event source while Lambda changes     → Lambda alias ARN</div>
+
+  <h2>1. Choose the deployment strategy</h2>
+  <ul>
+    <li><strong>All-at-once</strong> is fastest, but the riskiest. Pick it when speed matters and downtime/blast radius is acceptable.</li>
+    <li><strong>Blue/green</strong> is the exam answer for major runtime, server, or platform changes because the new environment is separate.</li>
+    <li><strong>In-place</strong> means stop the app, install the latest version, start it, then validate it on the same resources.</li>
+    <li><strong>Combine tools</strong> when needed: CloudFormation manages infrastructure; CodeDeploy, Elastic Beanstalk, ECS, or similar services manage application updates.</li>
+  </ul>
+
+  <h2>2. Promote Lambda safely</h2>
+  <section class="card">
+    <h3>Exam shortcut</h3>
+    <p><strong>Versions are immutable.</strong> <strong>Aliases are movable pointers.</strong> Point S3, API Gateway, or other event sources at the alias ARN so promotion only changes the alias target.</p>
+  </section>
+  <ul>
+    <li>Develop against <code>$LATEST</code>, publish a numbered version, then test that version in dev or beta.</li>
+    <li>Move aliases such as <code>dev</code>, <code>beta</code>, and <code>prod</code> to approved versions as testing completes.</li>
+    <li>Do not make every event source update its function ARN after each release; use the alias ARN as the stable integration target.</li>
+  </ul>
+
+  <h2>3. Mock and stage APIs</h2>
+  <ul>
+    <li><strong>Mock integration</strong> lets API Gateway return configured responses when the backend service is missing, unstable, or not ready for consumer tests.</li>
+    <li><strong>Stages</strong> represent deployed API environments such as dev, test, beta, and prod.</li>
+    <li><strong>Stage settings</strong> can enable caching, throttling, logging, and canary testing per environment.</li>
+    <li><strong>Stage variables</strong> hold environment-specific values, such as which backend or Lambda alias a stage should call.</li>
+  </ul>
+
+  <h2>4. Template and EC2 bootstrap clues</h2>
+  <ul>
+    <li>Use <code>sam deploy --template</code> when the question asks SAM to deploy a specific template instead of the current project root.</li>
+    <li>Use <strong>cfn-init</strong> to read CloudFormation metadata and install packages, create files, enable services, or start services on EC2.</li>
+    <li>Use <strong>cfn-signal</strong> with a CreationPolicy or wait condition when CloudFormation must wait for an instance to finish configuration before continuing.</li>
+    <li><strong>Prebaked AMIs</strong> reduce instance startup work; <strong>bootstrapping</strong> configures instances at launch.</li>
+  </ul>
+
+  <h2>Mixed drill: choose the best answer</h2>
+  <section class="quiz" data-quiz>
+    <h3>1. A test API needs responses before the backend exists.</h3>
+    <button class="choice" data-answer="Mock integration" onclick="choose(this, 'Mock integration')">Mock integration</button>
+    <button class="choice" data-answer="Lambda alias" onclick="choose(this, 'Mock integration')">Lambda alias</button>
+    <button class="choice" data-answer="cfn-init script" onclick="choose(this, 'Mock integration')">cfn-init script</button>
+    <button class="choice" data-answer="SAM package" onclick="choose(this, 'Mock integration')">SAM package</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>2. Same API needs dev and prod configuration values.</h3>
+    <button class="choice" data-answer="Stage variables" onclick="choose(this, 'Stage variables')">Stage variables</button>
+    <button class="choice" data-answer="Layer versions" onclick="choose(this, 'Stage variables')">Layer versions</button>
+    <button class="choice" data-answer="Wait conditions" onclick="choose(this, 'Stage variables')">Wait conditions</button>
+    <button class="choice" data-answer="Public mappings" onclick="choose(this, 'Stage variables')">Public mappings</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>3. S3 should invoke prod Lambda without ARN updates.</h3>
+    <button class="choice" data-answer="Alias ARN" onclick="choose(this, 'Alias ARN')">Alias ARN</button>
+    <button class="choice" data-answer="Layer ARN" onclick="choose(this, 'Alias ARN')">Layer ARN</button>
+    <button class="choice" data-answer="Stack ARN" onclick="choose(this, 'Alias ARN')">Stack ARN</button>
+    <button class="choice" data-answer="Stage ARN" onclick="choose(this, 'Alias ARN')">Stage ARN</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>4. A major platform version changes with lower cutover risk.</h3>
+    <button class="choice" data-answer="Blue/green" onclick="choose(this, 'Blue/green')">Blue/green</button>
+    <button class="choice" data-answer="All-at-once" onclick="choose(this, 'Blue/green')">All-at-once</button>
+    <button class="choice" data-answer="In-place" onclick="choose(this, 'Blue/green')">In-place</button>
+    <button class="choice" data-answer="Mock API" onclick="choose(this, 'Blue/green')">Mock API</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>5. EC2 must install packages from template metadata.</h3>
+    <button class="choice" data-answer="cfn-init" onclick="choose(this, 'cfn-init')">cfn-init</button>
+    <button class="choice" data-answer="cfn-hup" onclick="choose(this, 'cfn-init')">cfn-hup</button>
+    <button class="choice" data-answer="SAM init" onclick="choose(this, 'cfn-init')">SAM init</button>
+    <button class="choice" data-answer="API mock" onclick="choose(this, 'cfn-init')">API mock</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>6. CloudFormation must wait until EC2 finishes setup.</h3>
+    <button class="choice" data-answer="cfn-signal" onclick="choose(this, 'cfn-signal')">cfn-signal</button>
+    <button class="choice" data-answer="cfn-init" onclick="choose(this, 'cfn-signal')">cfn-init</button>
+    <button class="choice" data-answer="SAM build" onclick="choose(this, 'cfn-signal')">SAM build</button>
+    <button class="choice" data-answer="API stage" onclick="choose(this, 'cfn-signal')">API stage</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>7. SAM must deploy a specific staging template.</h3>
+    <button class="choice" data-answer="--template" onclick="choose(this, '--template')">--template</button>
+    <button class="choice" data-answer="--guided" onclick="choose(this, '--template')">--guided</button>
+    <button class="choice" data-answer="--cached" onclick="choose(this, '--template')">--cached</button>
+    <button class="choice" data-answer="--use-container" onclick="choose(this, '--template')">--use-container</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <section class="quiz" data-quiz>
+    <h3>8. The fastest deployment can tolerate full blast radius.</h3>
+    <button class="choice" data-answer="All-at-once" onclick="choose(this, 'All-at-once')">All-at-once</button>
+    <button class="choice" data-answer="Blue/green" onclick="choose(this, 'All-at-once')">Blue/green</button>
+    <button class="choice" data-answer="Canary API" onclick="choose(this, 'All-at-once')">Canary API</button>
+    <button class="choice" data-answer="Rolling app" onclick="choose(this, 'All-at-once')">Rolling app</button>
+    <p data-feedback class="feedback"></p>
+  </section>
+
+  <nav class="lesson-nav" aria-label="Lesson navigation">
+    <a href="0020-prepare-application-artifacts.html">← Previous: Lesson 0020</a><a href="0022-automate-deployment-testing.html">Next: Lesson 0022 →</a>
+  </nav>
+
+  <h2>Read next</h2>
+  <p>Primary sources: AWS docs for <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-versions.html">Lambda versions</a>, <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>, <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html">API Gateway mock integrations</a>, <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html">sam deploy</a>, and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a>.</p>
+  <p>Ask me for a Domain 3 deployment-strategy rematch if any distractor felt plausible.</p>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
