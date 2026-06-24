@@ -1,86 +1,261 @@
 # Railway Deployment Guide
 
-## Services
+This repo deploys to Railway as **two app services** plus **managed Postgres** and **managed Redis**:
 
-| Service | Builder | Port | Health endpoint |
-|---------|---------|------|-----------------|
-| Next.js frontend | Nixpacks (root `railway.toml`) | 3000 | `GET /api/health` |
-| Agents LangGraph API | Dockerfile (`agents/Dockerfile`) | 8000 | `GET /health` |
+| Service | Source | Builder | Port | Health check |
+| --- | --- | --- | --- | --- |
+| Next.js frontend | repo root | Nixpacks via `railway.toml` | `3000` | `GET /api/health` |
+| Agents API | `agents/` | Docker via `agents/railway.toml` + `agents/Dockerfile` | `8000` | `GET /health` |
+| Postgres | Railway managed DB | Railway | n/a | Railway managed |
+| Redis | Railway managed Redis | Railway | n/a | Railway managed |
 
-Both services are provisioned as independent Railway services sharing managed Postgres and Redis instances.
+The frontend talks to the Python agents service over Railway internal networking through `LANGGRAPH_URL`.
 
-## Provisioning Steps
+## 1. What Railway should contain
 
-1. Create a Railway project.
-2. Add a **Postgres** database (note the connection string).
-3. Add a **Redis** instance (note the connection string).
-4. Connect the repo and add each service:
-   - **Next.js**: repo root, Railway auto-detects Nixpacks → select the root `railway.toml`.
-   - **Agents**: repo root, Railway auto-detects the `dockerfilePath = "agents/Dockerfile"` from `agents/railway.toml` and uses it automatically.
-5. Set environment variables on each service (see below).
-6. Deploy both services.
+Create one Railway project with these four services/resources:
 
-## Required Environment Variables
+1. **Frontend** — the Next.js app from the repo root
+2. **Agents** — the FastAPI/LangGraph service from the same repo
+3. **Postgres** — Railway managed Postgres
+4. **Redis** — Railway managed Redis
 
-### Next.js (Frontend)
+Keep the app split exactly this way. The agents service is a separate HTTP service, not an in-process Next.js dependency.
 
-| Variable | Source | Notes |
-|----------|--------|-------|
-| `OPENROUTER_API_KEY` | OpenRouter dashboard | Required. Phase 1 needs this; without it the LLM calls fail. |
-| `DATABASE_URL` | Railway Postgres | Required from Phase 2. Format: `postgresql://user:pass@host:5432/db`. |
-| `LANGGRAPH_URL` | Railway internal | Agents service internal URL, e.g. `http://cert-prep-agents.railway.internal:8000`. Next.js uses this to proxy to `/api/sage`, `/api/rex`, etc. |
-| `NODE_ENV` | Railway (auto) | Set to `production`. |
-| `NEXT_PUBLIC_APP_URL` | Railway (manual) | Public URL of the Next.js service, e.g. `https://cert-prep-nextjs.up.railway.app`. Used for CORS origins. |
+## 2. Before you start
 
-### Agents (FastAPI / LangGraph)
+You will need:
 
-| Variable | Source | Notes |
-|----------|--------|-------|
-| `DATABASE_URL` | Railway Postgres | Same connection string as above. Agents raises `RuntimeError` at startup if absent. |
-| `REDIS_URL` | Railway Redis | Format: `redis://user:pass@host:6379`. Used by BullMQ in Phase 2.5. |
-| `OPENROUTER_API_KEY` | OpenRouter dashboard | Required for all agent LLM calls. |
-| `LANGGRAPH_URL` | — | Not used by the agents service. Next.js sets this for its own internal routing to agents. |
+- this GitHub repo connected to Railway
+- an `OPENROUTER_API_KEY`
+- Railway Postgres provisioned
+- Railway Redis provisioned
 
-## Service-to-Service Communication
+Safe local reference values live in `.env.example`:
 
-On Railway, internal service URLs follow the pattern:
+- `DATABASE_URL=postgresql://gauntlet:gauntlet@localhost:5432/gauntlet`
+- `REDIS_URL=redis://localhost:6379`
+- `LANGGRAPH_URL=http://localhost:8000`
+
+## 3. Frontend service setup
+
+Create a Railway service from this repo for the frontend.
+
+Railway should use the repo root `railway.toml`:
+
+- builder: `NIXPACKS`
+- build command: `npm install && npm run build`
+- health check: `/api/health`
+- restart policy: `ON_FAILURE`
+- deploy strategy: `duplicate`
+
+### Frontend env vars
+
+Set these on the **frontend** service:
+
+| Variable | Required | Value |
+| --- | --- | --- |
+| `OPENROUTER_API_KEY` | yes | your OpenRouter key |
+| `DATABASE_URL` | yes | Railway Postgres connection string |
+| `REDIS_URL` | yes | Railway Redis connection string |
+| `LANGGRAPH_URL` | yes | agents internal URL, e.g. `http://<agents-service>.railway.internal:8000` |
+| `NODE_ENV` | yes | `production` |
+
+Notes:
+
+- `LANGGRAPH_URL` is for **Next.js → agents** calls.
+- The frontend also boots the BullMQ worker through `instrumentation.ts`/`lib/queue.ts`, so it needs `REDIS_URL` too.
+- `/api/health` reports `langgraph_configured` only when `DATABASE_URL` and `LANGGRAPH_URL` are both present.
+
+## 4. Agents service setup
+
+Create a second Railway service from the same repo for the Python agents API.
+
+Railway should use `agents/railway.toml`:
+
+- builder: `DOCKERFILE`
+- dockerfile path: `agents/Dockerfile`
+- health check: `/health`
+- restart policy: `ON_FAILURE`
+- deploy strategy: `duplicate`
+
+`agents/Dockerfile` copies both `agents/` and `migrations/` into the image so startup migrations can run inside Railway.
+
+### Agents env vars
+
+Set these on the **agents** service:
+
+| Variable | Required | Value |
+| --- | --- | --- |
+| `OPENROUTER_API_KEY` | yes | your OpenRouter key |
+| `DATABASE_URL` | yes for production | Railway Postgres connection string |
+
+Current code does **not** require `REDIS_URL` or `LANGGRAPH_URL` on the agents service.
+
+Notes:
+
+- `OPENROUTER_API_KEY` is startup-critical: `agents/main.py` raises if it is missing.
+- If `DATABASE_URL` is missing or broken, current code falls back to in-memory persistence. Do **not** rely on that on Railway; set the real Railway Postgres URL.
+- Redis is currently consumed by the Next.js service worker, not by the agents process itself.
+
+## 5. Managed Postgres and Redis
+
+### Postgres
+
+Attach Railway Postgres and copy its connection string into:
+
+- frontend `DATABASE_URL`
+- agents `DATABASE_URL`
+
+Why both services get it:
+
+- agents uses it for application tables and the LangGraph checkpointer
+- frontend health checks expect `DATABASE_URL` to be configured
+
+### Redis
+
+Attach Railway Redis and copy its connection string into:
+
+- frontend `REDIS_URL`
+
+Why the frontend gets it:
+
+- `lib/queue.ts` runs BullMQ inside the Next.js server process
+- onboarding/background jobs depend on that worker being able to connect to Redis
+
+## 6. Internal service-to-service URL
+
+Set frontend `LANGGRAPH_URL` to the agents service's **internal** Railway URL, not the public URL.
+
+Use the Railway internal hostname/port for the agents service, for example:
+
+```text
+http://<agents-service>.railway.internal:8000
 ```
-http://<service-name>.<project-name>.railway.internal:<port>
-```
 
-Next.js proxies agent requests to the internal `LANGGRAPH_URL`. No public exposure of port 8000 is required.
+The important rule is:
 
-## Database Migrations
+- **frontend uses `LANGGRAPH_URL` to call agents**
+- **agents does not self-reference `LANGGRAPH_URL`**
 
-The agents service runs migrations automatically on startup via `agents/db.py:run_migrations()`. The `migrations/` directory is baked into the Docker image at build time (see `agents/Dockerfile`). Migrations use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS` for idempotency.
+You do not need to expose the agents service publicly just for frontend-to-backend calls.
 
-## Health Checks
+## 7. Startup, migrations, and persistence behavior
 
-- **Next.js**: `GET /api/health` returns `200` with `{"status": "ok", "database_configured": bool, "langgraph_configured": bool}`.
-- **Agents**: `GET /health` returns `{"status": "ok", "openrouter_configured": bool, "database_configured": bool}`.
+On agents startup, `agents/main.py` does this in its lifespan:
 
-Both endpoints are used by Railway for liveness probing.
+1. validates `OPENROUTER_API_KEY`
+2. opens the Postgres pool
+3. initializes the LangGraph checkpointer
+4. runs SQL migrations from `migrations/`
+5. runs `setup_checkpointer_tables()`
+6. seeds exam artifacts
 
-## Local Development with Railway Services
+Operationally important details:
+
+- `run_migrations()` applies every `migrations/*.sql` file in lexical order
+- migrations are intended to be idempotent
+- `setup_checkpointer_tables()` is a deliberate workaround for `langgraph-checkpoint-postgres==2.0.3`
+- do not remove or bypass that workaround in deploy changes
+
+This means you do **not** need a separate Railway migration job for the current app. The agents service handles schema setup on boot.
+
+## 8. Deploy order
+
+Recommended order:
+
+1. create Postgres
+2. create Redis
+3. deploy agents with `OPENROUTER_API_KEY` and `DATABASE_URL`
+4. copy the agents internal URL into frontend `LANGGRAPH_URL`
+5. deploy frontend with `OPENROUTER_API_KEY`, `DATABASE_URL`, `REDIS_URL`, and `LANGGRAPH_URL`
+
+If the frontend comes up before `LANGGRAPH_URL` is set correctly, health stays up but app flows that proxy to the agents service will fail.
+
+## 9. Verification checklist
+
+After deploy, verify all of this:
+
+### Frontend
+
+- `GET /api/health` returns `200`
+- response includes:
+  - `status: "ok"`
+  - `database_configured: true`
+  - `langgraph_configured: true`
+
+### Agents
+
+- `GET /health` returns `200`
+- response includes:
+  - `status: "ok"`
+  - `openrouter_configured: true`
+  - `database_configured: true`
+
+### Functional checks
+
+- frontend can load without server boot errors
+- an onboarding/session request that proxies through Next.js reaches the agents service successfully
+- background job flows that depend on BullMQ do not fail on Redis connection errors
+- agents logs do not show migration or checkpointer setup failures
+
+## 10. Troubleshooting
+
+### Frontend health says `langgraph_configured: false`
+
+Usually one of these is wrong on the frontend service:
+
+- `DATABASE_URL` missing
+- `LANGGRAPH_URL` missing
+
+### Frontend API routes fail talking to agents
+
+Usually one of these is wrong:
+
+- `LANGGRAPH_URL` points to the wrong host
+- `LANGGRAPH_URL` uses a public URL instead of the Railway internal URL
+- agents service is unhealthy
+
+### Agents boot but persistence is degraded
+
+If agents logs mention missing `DATABASE_URL` or Postgres connection failures, the service can fall back to in-memory state. That is not production-safe; fix the Railway Postgres wiring.
+
+### Agents health says `openrouter_configured: false`
+
+`OPENROUTER_API_KEY` is missing on the agents service.
+
+### Background jobs fail
+
+Check frontend `REDIS_URL`. The BullMQ worker lives in the Next.js process, so Redis problems show up there first.
+
+## 11. Local parity
+
+Local development matches the Railway shape closely:
 
 ```bash
-# Start managed Postgres + Redis via Docker Compose
-docker compose up -d
-
-# Copy env and fill in values
 cp .env.example .env.local
-
-# Override LANGGRAPH_URL for local agents
-# LANGGRAPH_URL=http://localhost:8000
-
-npm run dev         # Next.js on :3000
-cd agents && python -m uvicorn main:app --reload  # Agents on :8000
+docker compose up -d
+npm install
+npm run dev
+cd agents && pip install -r requirements.txt
+python -m uvicorn main:app --reload
 ```
 
-## Rollback
+Local defaults map to:
 
-Railway retains deploy history. To roll back a service, use the Railway dashboard or CLI:
-```bash
-railway up --service cert-prep-nextjs
-railway rollback --deployment <id>
-```
+- Postgres: `localhost:5432`
+- Redis: `localhost:6379`
+- agents URL for frontend: `http://localhost:8000`
+
+That is the same four-part topology as Railway, just with Docker Compose instead of Railway managed services.
+
+## 12. Release review points
+
+Before marking a Railway deploy change ready, double-check:
+
+- frontend and agents are still documented as separate services
+- frontend `LANGGRAPH_URL` points to agents internal networking
+- frontend still gets `REDIS_URL`
+- both services still get `DATABASE_URL`
+- agents startup migrations/checkpointer behavior is described accurately
+- health endpoints match `railway.toml` and `agents/railway.toml`
