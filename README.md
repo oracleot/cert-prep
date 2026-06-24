@@ -36,13 +36,10 @@ pip install -r requirements.txt
 python -m uvicorn main:app --reload          # :8000
 ```
 
-### 4. Apply DB migrations
-Migrations live in `migrations/`. Apply with:
-```bash
-psql "$DATABASE_URL" < migrations/001_initial.sql
-# or, against the compose container:
-docker exec -i cert-prep-postgres-1 psql -U gauntlet -d gauntlet < migrations/001_initial.sql
-```
+### 4. DB migrations
+Migrations live in `migrations/` and are applied automatically by the agents service on startup, along with LangGraph checkpointer table setup.
+
+No manual `psql` step is required for normal local or Railway boot.
 
 ## Endpoints
 - `GET http://localhost:3000` — Next.js UI
