@@ -13,7 +13,7 @@ Status: reshuffled | Date: 2026-06-16
 - M — 0.5–2 days
 - L — 2–5 days
 
-**Phase:** 1 · 2 · 3 · 4 · 5 · 6 · 7 · 8
+**Phase:** 1 · 2 · 3 · 4 · 5 · 6 · 7 · 8 · 9 · 10
 
 **Area:** frontend · agents · infra · auth · gamification
 
@@ -741,8 +741,83 @@ Status: reshuffled | Date: 2026-06-16
 
 ---
 
+## Phase 10: Architecture Deepening — Issues 10.1 through 10.6
+
+**Done when:** All four architecture deepening candidates are implemented with behavior preserved end-to-end, existing Phase 9 grounding tests pass, new tests target the deepened module interfaces, deleted shallow modules have no remaining imports, and Phase 8 test targets are reconciled against the new module shapes.
+
+**Scope note:** This phase is refactor-only. No product behavior changes: no prompt behavior changes unless required by existing packet semantics, no LangGraph graph shape changes, no readiness-score formula changes, and no onboarding UX changes.
+
+**Issue order:** 10.1 → 10.2 must ship first. 10.3 and 10.4 can run after 10.1. 10.5 and 10.6 ship last.
+
+---
+
+### 10.1 — Deepen concept packet module (P0, M, agents)
+**Acceptance criteria:**
+- [ ] `agents/concepts/packet.py` owns concept packet normalization, packet field preservation, and node-facing packet access in one deep module
+- [ ] Rex, Evaluator, Sage, and rechallenge read packet facts/traps/resources through the deepened packet interface instead of copying packet fields ad hoc
+- [ ] `current_challenge` carries cycle-specific challenge data; packet source-of-truth fields are not defensively reconstructed in `rex_rechallenge`
+- [ ] Existing Phase 9 behavior is preserved: selected `conceptId`, expected criteria, traps, official docs, Skill Builder links, lab links, and miss tracking still flow end-to-end
+- [ ] Targeted tests cover initial challenge, knowledge-gap rechallenge, normal rechallenge, evaluator grounding, Sage grounding, and exchange metadata preservation through the packet interface
+- [ ] No LangGraph graph node or edge structure is hidden or generalized
+
+---
+
+### 10.2 — Collapse the Session ledger (P0, L, agents)
+**Acceptance criteria:**
+- [ ] One Session ledger module owns Exchange write rules, active/excluded review rules, aggregate update coordination, and read projections for session state/history
+- [ ] `sage_respond`, `coach_close`, feedback handling, session state restore, and history routes call the ledger interface instead of duplicating Exchange semantics
+- [ ] Review feedback metric reversal remains behavior-preserving for readiness, Rex record, review status, and history rendering
+- [ ] Existing Readiness Score formula and domain difficulty progression are unchanged
+- [ ] Targeted tests cover active vs excluded exchanges, feedback reversal idempotency, session summary counts, history projections, and persisted exchange metadata
+- [ ] Deleted shallow repository/projection helpers have no remaining imports
+
+---
+
+### 10.3 — Introduce Session submit stream seam (P1, M, agents + frontend)
+**Acceptance criteria:**
+- [ ] A deep Session submit stream module translates LangGraph events into typed Session stream events
+- [ ] `agents/routes/session.py` stops matching raw LangGraph node-name strings inline except through the stream module interface
+- [ ] Browser stream handling consumes typed Session events without duplicating server event-shape assumptions
+- [ ] SSE transport remains unchanged and streaming behavior is preserved end-to-end
+- [ ] Targeted tests cover token, evaluation, citations, done, and error event translation without live LLM calls
+- [ ] Node renames require one local stream-module update, not coordinated route/client edits
+
+---
+
+### 10.4 — Collapse onboarding run/feed module (P1, M, frontend)
+**Acceptance criteria:**
+- [ ] One onboarding run/feed module owns start, restore, live feed connection, stale-feed recovery, and plan-reveal handoff
+- [ ] Storage, fetch, and EventSource remain thin adapters behind the onboarding run/feed interface
+- [ ] `useOnboarding` keeps UI state orchestration but no longer owns EventSource lifecycle or stale-timer recovery details
+- [ ] Onboarding UX is unchanged: refresh resume, failed build recovery, delayed build recovery, and plan load behavior remain intact
+- [ ] Targeted tests cover restore paths, feed completion, feed failure, stale feed reconciliation, and retry plan behavior
+- [ ] Deleted shallow wrapper modules have no remaining imports unless they remain as adapters
+
+---
+
+### 10.5 — Cross-cutting regression tests for deepened modules (P0, M, agents + frontend)
+**Acceptance criteria:**
+- [ ] Existing Phase 9 packet/grounding/miss-tracking tests pass unchanged or are updated only to target the new deepened interfaces
+- [ ] Session end-to-end smoke coverage still proves Rex → Evaluator → Sage → rechallenge → summary with mocked LLMs
+- [ ] Frontend smoke coverage still proves session streaming, Sage citations/resources, onboarding feed recovery, and history rendering
+- [ ] No test relies on deleted shallow modules as the primary test surface
+- [ ] Test runtime stays suitable for local iteration; no network or secret-dependent tests are introduced
+
+---
+
+### 10.6 — Reconcile Phase 8 test backlog after architecture deepening (P1, S, infra)
+**Acceptance criteria:**
+- [ ] Phase 8 test targets that reference deleted shallow modules are removed or rewritten against deepened module interfaces
+- [ ] Runner and CI setup issues in Phase 8 remain intact
+- [ ] Phase 8 still covers Rex/Sage/session/onboarding behavior after the module shapes change
+- [ ] Ready Queue is updated if Phase 10 completion changes the best next testing issue
+- [ ] No coverage is intentionally reduced; redundant test surfaces are pruned only when the deepened interface covers the same behavior
+
+---
+
 ## Ready Queue
 Issues startable right now (no dependencies unmet):
+- **10.1** — Deepen concept packet module
 - **8.1** — Choose test runners + record in docs
 - **8.2** — Wire Vitest into the Next.js app
 - **8.3** — Wire pytest into the agents service
