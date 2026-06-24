@@ -41,6 +41,31 @@ async def rex_rechallenge(state: AppState) -> dict:
         target["difficulty"] = _gap_followup_difficulty(
             current.get("difficulty", "medium"), state.get("learning_style", "")
         )
+        # Phase 9 — knowledge-gap rechallenge rebuilds target from the current
+        # Challenge TypedDict, which omits `facts` (and may be missing any
+        # packet field if upstream nodes dropped it). Without this merge,
+        # concept_packet_fields clears `packet["facts"]` to [] and the
+        # returned `current_concept_facts` overwrites the previously good
+        # facts with [], sending Rex an ungrounded rechallenge prompt.
+        # Merge state-level packet fields defensively — current_challenge
+        # already carries traps / links / criteria, so setdefault keeps them.
+        target.setdefault("facts", list(state.get("current_concept_facts", []) or []))
+        target.setdefault("traps", list(state.get("current_concept_traps", []) or []))
+        target.setdefault(
+            "expected_answer_criteria",
+            state.get("current_expected_answer_criteria", "") or "",
+        )
+        target.setdefault(
+            "official_docs",
+            list(state.get("current_official_docs", []) or []),
+        )
+        target.setdefault(
+            "skill_builder_links",
+            list(state.get("current_skill_builder_links", []) or []),
+        )
+        target.setdefault(
+            "lab_links", list(state.get("current_lab_links", []) or [])
+        )
     else:
         history = await exchange_history_for_user(
             state["exam_id"],
