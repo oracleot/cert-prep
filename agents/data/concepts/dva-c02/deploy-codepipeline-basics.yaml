@@ -21,6 +21,5 @@ skill_builder_links:
   - https://skillbuilder.aws/labs/
   - https://explore.skillbuilder.aws/learn/course/134/
 lab_links:
-  - https://clouderlabs.example.com/codepipeline-lab
   - https://aws.amazon.com/getting-started/hands-on/set-up-continuous-deployment-pipeline/
 ready: true

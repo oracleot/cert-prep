@@ -144,6 +144,9 @@ def _concept_for_target(exam_id: str, target: dict[str, Any]) -> dict[str, Any]:
 def _mock_challenge(target: dict[str, Any], sample_index: int) -> dict[str, str]:
     service = target["services"][0] if target["services"] else "the platform"
     return {
+        # concept_id is included so the runnable eval exercises the same
+        # packet-id enforcement that live Rex output goes through.
+        "concept_id": target.get("concept_id") or target.get("topic_id", ""),
         "domain": target["domain"],
         "topic": target["topic"],
         "scenario": (

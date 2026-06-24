@@ -77,7 +77,13 @@ def check_concept_id_match(
     challenge_concept_id: str,
     selected_concept: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """Fail when Rex's challenge drifted off the selected concept packet."""
+    """Fail when Rex's challenge drifted off the selected concept packet.
+
+    A selected concept always carries an ``id`` (it's the curated packet's
+    stable kebab-case identifier). When the challenge omits or blanks the
+    concept_id, that's a Phase 9 regression — Rex was supposed to echo it
+    verbatim. Treat that as a hard fail rather than a pass.
+    """
     if not selected_concept:
         return {"pass": True, "mismatch": None, "note": "no concept_record available"}
 
@@ -86,7 +92,7 @@ def check_concept_id_match(
     actual_id = str(challenge_concept_id or "")
     actual_topic = str(challenge_topic or "").strip().lower()
 
-    id_mismatch = bool(expected_id) and bool(actual_id) and actual_id != expected_id
+    id_mismatch = bool(expected_id) and actual_id != expected_id
     topic_mismatch = (
         bool(expected_topic) and bool(actual_topic) and actual_topic != expected_topic
     )

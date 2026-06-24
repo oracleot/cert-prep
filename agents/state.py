@@ -20,12 +20,24 @@ class Challenge(TypedDict):
     familiarity_level: str
     scenario: str
     question: str
+    # Phase 9.4 / 9.5 — packet-derived resources and grading contract.
+    # Forwarded from coach_open/rex_rechallenge so evaluate_answer and
+    # sage_respond operate on the same packet the challenge came from.
+    official_docs: list[str]
+    skill_builder_links: list[str]
+    lab_links: list[str]
+    expected_answer_criteria: str
+    traps: list[str]
 
 
 class EvaluationResult(TypedDict):
     outcome: str  # "correct" | "incorrect"
     reasoning: str
     answer_intent: str
+    # Phase 9.6 — internal concept-miss audit fields. Not used by readiness
+    # math; persisted on exchanges for the gap tracker / coach report.
+    missed_criteria: list[str]
+    triggered_traps: list[str]
 
 
 class Citation(TypedDict):
@@ -78,6 +90,17 @@ class AppState(TypedDict):
     current_services: list[str]
     current_source_ids: list[str]
     familiarity_level: str
+    # Phase 9.4 / 9.5 — packet fields forwarded by coach_open and refreshed
+    # by rex_rechallenge. Declared here so the compiled LangGraph runtime
+    # preserves them through every node boundary (rex_challenge, evaluate,
+    # sage, rechallenge). The full graph filters output keys against the
+    # state schema; any key not declared is silently dropped.
+    current_concept_facts: list[str]
+    current_concept_traps: list[str]
+    current_expected_answer_criteria: str
+    current_official_docs: list[str]
+    current_skill_builder_links: list[str]
+    current_lab_links: list[str]
     rex_difficulty: str  # "easy" | "medium" | "hard"
     max_cycles: int
     focus_domain: str
@@ -127,6 +150,12 @@ def initial_state(
         "current_task_statement": "",
         "current_services": [],
         "current_source_ids": [],
+        "current_concept_facts": [],
+        "current_concept_traps": [],
+        "current_expected_answer_criteria": "",
+        "current_official_docs": [],
+        "current_skill_builder_links": [],
+        "current_lab_links": [],
         "familiarity_level": "new",
         "rex_difficulty": "medium",
         "max_cycles": max_cycles,
