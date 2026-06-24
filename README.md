@@ -1,6 +1,6 @@
 # cert-prep
 
-AI certification prep app (working name: Gauntlet). Phase 9 shipped; Phase 2 LangGraph + state persistence is long complete.
+AI certification prep app (working name: Gauntlet). Phase 9 shipped; the shipped Phase 2 LangGraph + state persistence work is in place, with Phase 2 deploy cleanup still open.
 
 ## Stack
 - Next.js (App Router, shadcn/ui) on `:3000`
