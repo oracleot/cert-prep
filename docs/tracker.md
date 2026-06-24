@@ -4,9 +4,9 @@
 - **Name:** AI Certification Prep App (working name: Gauntlet)
 - **Type:** greenfield
 - **Started:** 2026-06-15
-- **Last updated:** 2026-06-22
+- **Last updated:** 2026-06-24
 - **Phase 6 closed 2026-06-16** — all dogfood-driven UX refinements shipped; 2-cycle default kept (ADR-0001).
-- **Skill Builder grounding planned 2026-06-22** — `docs/aws dva-c02.md` becomes the seed for a curated concept-level resource graph.
+- **Phase 9 closed 2026-06-24** — Skill Builder Resource Graph + Closed-Book Grounding shipped: curated DVA-C02 concept records, app-selected `conceptId`, Rex/Evaluator/Sage grounded to concept packets, Sage `Review next` block, internal concept miss tracking, and grounding eval harness all in.
 
 ## Sessions
 | # | Session | Status | Output Doc | Last Updated |
@@ -25,7 +25,7 @@
 | P6 | Phase 6 — Dogfood-Driven UX Refinements | ✅ Complete | issues 6.1–6.8 shipped locally; dogfood validation done | 2026-06-16 |
 | P7 | Phase 7 — Exam Reliability + Grounded Content | 🔄 In Progress | issues 7.1–7.8 shipped locally; eval/manual sign-off remains | 2026-06-16 |
 | P8 | Phase 8 — Testing Infrastructure | ⏳ Planned | test runners for Next.js + agents, smoke tests for highest-value targets, CI wiring | 2026-06-16 |
-| P9 | Phase 9 — Skill Builder Resource Graph + Closed-Book Grounding | ⏳ Planned | curated DVA-C02 concept records, app-selected `conceptId`, Sage `Review next`, concept miss tracking | 2026-06-22 |
+| P9 | Phase 9 — Skill Builder Resource Graph + Closed-Book Grounding | ✅ Complete | issues 9.1–9.7 shipped; Rex/Evaluator/Sage grounded to concept packets, Sage `Review next`, concept miss tracking, grounding eval harness | 2026-06-24 |
 | 9 | Pilot/Launch Checklist | ⏭ Skipped | docs/pilot/ | post-MVP |
 
 ## Key Constraints

@@ -674,70 +674,70 @@ Status: reshuffled | Date: 2026-06-16
 
 ---
 
-### 9.1 — Resource graph schema + quality gate (P0, M, agents)
+### 9.1 — Resource graph schema + quality gate (P0, M, agents) — ✅ Complete
 **Acceptance criteria:**
-- [ ] Human-editable DVA-C02 concept schema exists under `agents/data/` or `agents/resources/`
-- [ ] Each record includes `id`, domain, task statement, lesson reference, facts, exam traps, expected answer criteria, official docs links, optional Skill Builder/lab/SimuLearn links, and `ready`
-- [ ] Quality gate requires stable ID, domain/task, 2–4 grounded facts, at least one trap, at least one official docs URL, and evaluator criteria
-- [ ] Runtime helpers can find by ID, filter by domain, and exclude `ready: false` records
+- [x] Human-editable DVA-C02 concept schema exists under `agents/data/` or `agents/resources/`
+- [x] Each record includes `id`, domain, task statement, lesson reference, facts, exam traps, expected answer criteria, official docs links, optional Skill Builder/lab/SimuLearn links, and `ready`
+- [x] Quality gate requires stable ID, domain/task, 2–4 grounded facts, at least one trap, at least one official docs URL, and evaluator criteria
+- [x] Runtime helpers can find by ID, filter by domain, and exclude `ready: false` records
 
 ---
 
-### 9.2 — Curate all DVA-C02 concepts from Skill Builder resource doc (P0, L, agents)
+### 9.2 — Curate all DVA-C02 concepts from Skill Builder resource doc (P0, L, agents) — ✅ Complete
 **Acceptance criteria:**
-- [ ] `docs/aws dva-c02.md` is converted into concept-level records across all four domains
-- [ ] Records are concept-level, not transcript dumps
-- [ ] Lesson transcript claims are distilled into facts/traps, separated from user-visible links
-- [ ] Skill Builder lessons without URLs are stored as internal source references only
-- [ ] Coverage matrix shows every curated concept by domain/task and flags missing links or incomplete records
+- [x] `docs/aws dva-c02.md` is converted into concept-level records across all four domains
+- [x] Records are concept-level, not transcript dumps
+- [x] Lesson transcript claims are distilled into facts/traps, separated from user-visible links
+- [x] Skill Builder lessons without URLs are stored as internal source references only
+- [x] Coverage matrix shows every curated concept by domain/task and flags missing links or incomplete records
 
 ---
 
-### 9.3 — Closed-book concept selection in session router (P0, M, agents)
+### 9.3 — Closed-book concept selection in session router (P0, M, agents) — ✅ Complete
 **Acceptance criteria:**
-- [ ] App/session code selects `conceptId` before Rex runs
-- [ ] Rex never chooses unsupported topics; it receives only the selected concept packet
-- [ ] Challenge output stores `conceptId`, domain, topic, task statement, and source IDs
-- [ ] Rechallenge stays in-domain and uses an app-selected related/weak/uncovered concept
-- [ ] If no ready concept exists for a route, session start fails clearly instead of falling back to ungrounded generation
+- [x] App/session code selects `conceptId` before Rex runs
+- [x] Rex never chooses unsupported topics; it receives only the selected concept packet
+- [x] Challenge output stores `conceptId`, domain, topic, task statement, and source IDs
+- [x] Rechallenge stays in-domain and uses an app-selected related/weak/uncovered concept
+- [x] If no ready concept exists for a route, session start fails clearly instead of falling back to ungrounded generation
 
 ---
 
-### 9.4 — Ground Rex + Evaluator prompts to concept packets (P0, M, agents)
+### 9.4 — Ground Rex + Evaluator prompts to concept packets (P0, M, agents) — ✅ Complete
 **Acceptance criteria:**
-- [ ] Rex prompt requires scenario generation from provided facts/traps only
-- [ ] Rex JSON includes the selected `conceptId` unchanged
-- [ ] Evaluator receives expected answer criteria and traps for the selected concept
-- [ ] Evaluator returns concept miss IDs or criteria missed internally
-- [ ] Offline eval checks that generated topics match selected concept IDs
+- [x] Rex prompt requires scenario generation from provided facts/traps only
+- [x] Rex JSON includes the selected `conceptId` unchanged
+- [x] Evaluator receives expected answer criteria and traps for the selected concept
+- [x] Evaluator returns concept miss IDs or criteria missed internally
+- [x] Offline eval checks that generated topics match selected concept IDs
 
 ---
 
-### 9.5 — Ground Sage + `Review next` resources (P0, M, agents + frontend)
+### 9.5 — Ground Sage + `Review next` resources (P0, M, agents + frontend) — ✅ Complete
 **Acceptance criteria:**
-- [ ] Sage receives the same concept packet used by Rex/Evaluator
-- [ ] Sage can cite only links present in that packet
-- [ ] If no acceptable URL exists, Sage omits clickable review links instead of inventing citations
-- [ ] Frontend renders `Review next` as a compact block after the explanation
-- [ ] Stored exchanges include selected resource metadata for audit
+- [x] Sage receives the same concept packet used by Rex/Evaluator
+- [x] Sage can cite only links present in that packet
+- [x] If no acceptable URL exists, Sage omits clickable review links instead of inventing citations
+- [x] Frontend renders `Review next` as a compact block after the explanation
+- [x] Stored exchanges include selected resource metadata for audit
 
 ---
 
-### 9.6 — Internal concept miss tracking (P1, M, agents)
+### 9.6 — Internal concept miss tracking (P1, M, agents) — ✅ Complete
 **Acceptance criteria:**
-- [ ] Concept-level outcomes are persisted separately from domain-level readiness
-- [ ] Missed criteria/traps are stored for future routing
-- [ ] Dashboard and progress UI remain domain-level for now
-- [ ] Existing Readiness Score formula does not change in this issue
+- [x] Concept-level outcomes are persisted separately from domain-level readiness
+- [x] Missed criteria/traps are stored for future routing
+- [x] Dashboard and progress UI remain domain-level for now
+- [x] Existing Readiness Score formula does not change in this issue
 
 ---
 
-### 9.7 — Resource-grounding evaluation harness (P1, M, agents)
+### 9.7 — Resource-grounding evaluation harness (P1, M, agents) — ✅ Complete
 **Acceptance criteria:**
-- [ ] Eval samples ready concepts across all domains
-- [ ] Report checks concept coverage, prompt grounding, fake-link absence, Sage `Review next` validity, and evaluator criteria use
-- [ ] Human review rubric includes hallucination checks for Rex scenarios and Sage explanations
-- [ ] Phase cannot close if any generated citation is not present in the selected concept packet
+- [x] Eval samples ready concepts across all domains
+- [x] Report checks concept coverage, prompt grounding, fake-link absence, Sage `Review next` validity, and evaluator criteria use
+- [x] Human review rubric includes hallucination checks for Rex scenarios and Sage explanations
+- [x] Phase cannot close if any generated citation is not present in the selected concept packet
 
 ---
 
