@@ -21,4 +21,6 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Railway assigns the listen port via $PORT at runtime.
+# Healthcheck points at $PORT, so uvicorn must bind there, not to a hardcoded 8000.
+CMD ["sh", "-c", "python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -81,6 +81,8 @@ Railway should use `agents/railway.toml`:
 
 `agents/Dockerfile` copies both `agents/` and `migrations/` into the image so startup migrations can run inside Railway.
 
+**Port binding:** the Dockerfile's `CMD` runs uvicorn on `${PORT:-8000}`. Railway injects `PORT` at runtime and its healthcheck probes that exact port — hardcoding `--port 8000` here would make the service unreachable when Railway assigns a different port. The `EXPOSE 8000` line stays as documentation for local Docker only.
+
 ### Agents env vars
 
 Set these on the **agents** service:
