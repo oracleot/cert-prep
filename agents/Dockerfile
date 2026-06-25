@@ -23,4 +23,5 @@ EXPOSE 8000
 
 # Railway assigns the listen port via $PORT at runtime.
 # Healthcheck points at $PORT, so uvicorn must bind there, not to a hardcoded 8000.
-CMD ["sh", "-c", "python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# `exec` replaces the shell with uvicorn so it becomes PID 1 and receives signals.
+CMD ["sh", "-c", "exec python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
