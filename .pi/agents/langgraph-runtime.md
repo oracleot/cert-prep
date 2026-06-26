@@ -1,6 +1,7 @@
 ---
 name: langgraph-runtime
 description: Owns the Python LangGraph runtime, FastAPI routes, node wiring, streaming behavior, and graph-state integrity for the session and onboarding agent services.
+model: minimax/MiniMax-M3
 tools: read, grep, find, ls, bash, edit, write
 ---
 

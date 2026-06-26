@@ -1,6 +1,7 @@
 ---
 name: release-deploy-ops
 description: Owns repo-wide release readiness, Railway deployment wiring, runtime health checks, and environment-safe operational changes across the Next.js and LangGraph services.
+model: minimax/MiniMax-M2.7
 tools: read, grep, find, ls, bash, edit, write
 ---
 

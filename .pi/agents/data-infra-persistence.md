@@ -1,6 +1,7 @@
 ---
 name: data-infra-persistence
 description: Owns Postgres, Redis, repositories, migrations, queue infrastructure, and deployment-facing persistence concerns for the repo's app and agent services.
+model: minimax/MiniMax-M3
 tools: read, grep, find, ls, bash, edit, write
 ---
 

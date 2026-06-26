@@ -1,6 +1,7 @@
 ---
 name: qa-reliability
 description: Owns high-signal verification, regression detection, manual QA discipline, and reliability checks across the app, agent runtime, grounding flows, and deployment-critical paths.
+model: minimax/MiniMax-M2.7
 tools: read, grep, find, ls, bash, edit, write
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: senior-fullstack-hub
 description: Repo-wide implementation lead for cross-cutting changes, sequencing work across Next.js, FastAPI/LangGraph, and persistence without losing the current MVP constraints.
+model: minimax/MiniMax-M3
 tools: read, grep, find, ls, bash, edit, write
 ---
 

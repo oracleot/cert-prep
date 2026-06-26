@@ -1,6 +1,7 @@
 ---
 name: frontend-session-ux
 description: Owns the learner-facing Next.js experience for session flow, onboarding, dashboard, progress, and streaming UX while preserving the repo's mobile-first product behavior.
+model: minimax/MiniMax-M3
 tools: read, grep, find, ls, bash, edit, write
 ---
 

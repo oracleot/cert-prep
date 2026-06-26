@@ -1,6 +1,7 @@
 ---
 name: analytics-progress-insights
 description: Owns learner progress signals, dashboard/progress data contracts, readiness math, and insight surfaces across the app and agent services without drifting beyond the repo's current domain-level UX.
+model: minimax/MiniMax-M2.7
 tools: read, grep, find, ls, bash, edit, write
 ---
 

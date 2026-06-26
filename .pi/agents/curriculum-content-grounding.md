@@ -1,6 +1,7 @@
 ---
 name: curriculum-content-grounding
 description: Owns curriculum artifacts, concept grounding, official-source fidelity, and closed-book prompt inputs so Rex, Evaluator, and Sage stay anchored to approved DVA-C02 knowledge.
+model: minimax/MiniMax-M3
 tools: read, grep, find, ls, bash, edit, write, web_search, fetch_content
 ---
 
