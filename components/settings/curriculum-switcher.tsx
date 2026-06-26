@@ -5,7 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useActiveCurriculum } from "@/lib/active-curriculum";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
-import { getExamName } from "@/lib/exam-names";
+import { EXAM_NAMES, getExamName } from "@/lib/exam-names";
+
+// All three V1-bundled exams render as switch targets regardless of DB state.
+// The API only decides "Active" chip vs "Switch to X" vs "Build X curriculum".
+const BUNDLED_EXAMS = Object.keys(EXAM_NAMES) as Array<keyof typeof EXAM_NAMES>;
 
 type Curriculum = {
   curriculum_id: string;
@@ -100,6 +104,7 @@ export function CurriculumSwitcher() {
   );
 
   const activeId = active?.curriculum_id ?? null;
+  const initialLoading = loading && curricula.length === 0;
 
   return (
     <div className="rounded-[2rem] border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950 lg:col-span-2">
@@ -113,52 +118,55 @@ export function CurriculumSwitcher() {
         <Button variant="outline" onClick={refresh} disabled={loading}>Refresh</Button>
       </div>
 
-      {loading && curricula.length === 0 ? (
+      {initialLoading ? (
         <p className="mt-5 text-sm text-zinc-500 dark:text-zinc-400">Loading curricula…</p>
-      ) : error ? (
+      ) : error && curricula.length === 0 ? (
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <p className="text-sm text-rose-700 dark:text-rose-300">{error}</p>
           <Button variant="outline" onClick={refresh}>Retry</Button>
         </div>
-      ) : curricula.length === 0 ? (
-        <div className="mt-5">
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">
-            No curricula built yet. Start with DVA-C02 to activate your account.
-          </p>
-          <Button asChild className="mt-4 bg-amber-300 text-zinc-950 hover:bg-amber-200">
-            <a href="/onboarding?exam=dva-c02&source=settings">Build DVA-C02 curriculum</a>
-          </Button>
-        </div>
       ) : (
         <ul className="mt-5 grid gap-3">
-          {curricula.map((c) => {
-            const isActive = c.curriculum_id === activeId || c.active;
-            const isPending = pendingExamId === c.exam_id;
+          {BUNDLED_EXAMS.map((examId) => {
+            const apiCurriculum = curricula.find((c) => c.exam_id === examId);
+            const examName = getExamName(examId);
+            const isActive = !!apiCurriculum && apiCurriculum.curriculum_id === activeId;
+            const isLocallyActive = !apiCurriculum && active?.exam_id === examId;
+            const showActiveChip = isActive || isLocallyActive;
+            const isPending = pendingExamId === examId;
+            const redirectHere =
+              switchRedirect && switchRedirect.exam_id === examId ? switchRedirect : null;
+
             return (
               <li
-                key={c.curriculum_id}
+                key={examId}
                 className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-black text-zinc-950 dark:text-zinc-50">{c.exam_name || getExamName(c.exam_id)}</span>
-                    {isActive ? (
+                    <span className="font-black text-zinc-950 dark:text-zinc-50">{examName}</span>
+                    {showActiveChip ? (
                       <span className="rounded-full bg-amber-300 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-zinc-950">Active</span>
                     ) : null}
                   </div>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                    {c.exam_id} · {c.learning_style}
+                    {examId}
+                    {apiCurriculum ? ` · ${apiCurriculum.learning_style}` : " · not built"}
                   </p>
                 </div>
-                {switchRedirect && switchRedirect.exam_id === c.exam_id ? (
+                {redirectHere ? (
                   <Button asChild className="bg-amber-300 text-zinc-950 hover:bg-amber-200">
-                    <a href={switchRedirect.href}>Build {switchRedirect.exam_name || getExamName(c.exam_id)} curriculum</a>
+                    <a href={redirectHere.href}>Build {redirectHere.exam_name || examName} curriculum</a>
                   </Button>
-                ) : isActive ? (
+                ) : showActiveChip ? (
                   <Button variant="outline" disabled>Current</Button>
+                ) : apiCurriculum ? (
+                  <Button onClick={() => onSwitch(examId)} disabled={isPending} className="bg-amber-300 text-zinc-950 hover:bg-amber-200">
+                    {isPending ? "Switching…" : `Switch to ${examName}`}
+                  </Button>
                 ) : (
-                  <Button onClick={() => onSwitch(c.exam_id)} disabled={isPending} className="bg-amber-300 text-zinc-950 hover:bg-amber-200">
-                    {isPending ? "Switching…" : `Switch to ${c.exam_name || getExamName(c.exam_id)}`}
+                  <Button asChild className="bg-amber-300 text-zinc-950 hover:bg-amber-200">
+                    <a href={`/onboarding?exam=${examId}&source=settings`}>Build {examName} curriculum</a>
                   </Button>
                 )}
               </li>
