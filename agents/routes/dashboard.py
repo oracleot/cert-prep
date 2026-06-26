@@ -3,7 +3,12 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from curriculum_repository import dashboard_summary, progress_map
+from curriculum_repository import (
+    dashboard_summary,
+    get_active_curriculum,
+    progress_map,
+)
+from exam_artifacts import validate_exam_id
 from onboarding_repository import get_latest_onboarding
 
 router = APIRouter()
@@ -22,9 +27,22 @@ async def _exam_id_for(req: UserScopedRequest) -> str:
     return run["exam_id"] if run else "dva-c02"
 
 
+def _canonical_exam_name(exam_id: str) -> str:
+    """Resolve canonical_name from the on-disk artifact; falls back to upper-cased id."""
+    result = validate_exam_id(exam_id)
+    return result.canonical_name or exam_id.upper()
+
+
 @router.post("/dashboard/summary")
 async def summary(req: UserScopedRequest):
-    return await dashboard_summary(req.user_id, await _exam_id_for(req), req.timezone)
+    exam_id = await _exam_id_for(req)
+    result = await dashboard_summary(req.user_id, exam_id, req.timezone)
+    # Enrich with curriculum_id and exam_name so the frontend can render the
+    # switcher affordance and the exam header without a second roundtrip.
+    curriculum = await get_active_curriculum(req.user_id, exam_id)
+    result["curriculum_id"] = curriculum["id"] if curriculum else ""
+    result["exam_name"] = _canonical_exam_name(exam_id)
+    return result
 
 
 @router.post("/progress")

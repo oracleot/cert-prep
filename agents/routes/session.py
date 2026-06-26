@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from langchain_core.runnables import RunnableConfig
 
 from answer_intent import KNOWLEDGE_GAP_ANSWER, normalize_answer_intent
+from curriculum_repository import get_active_curriculum
 from feedback_repository import feedback_by_cycle
 from graphs.session import get_session_graph
 from llm import llm_runtime
@@ -57,11 +58,14 @@ async def start_session(req: SessionStartRequest):
     config = cast(RunnableConfig, {"configurable": {"thread_id": thread_id}})
     latest = await get_latest_onboarding(req.user_id) if not req.exam_id else None
     exam_id = req.exam_id or (latest["exam_id"] if latest else "dva-c02")
+    curriculum = await get_active_curriculum(req.user_id, exam_id)
     state = initial_state(
         user_id=req.user_id, exam_id=exam_id, local_timezone=req.timezone,
         max_cycles=_clamp_cycles(req.max_cycles),
         learning_style=req.learning_style, focus_domain=req.focus_domain,
     )
+    if curriculum:
+        state["curriculum_id"] = curriculum["id"]
     state["openrouter_api_key"] = req.openrouter_api_key
 
     try:
@@ -73,7 +77,9 @@ async def start_session(req: SessionStartRequest):
         raise HTTPException(status_code=500, detail=str(e)) from e
 
     snap = await graph.aget_state(config)
+    curriculum_id = snap.values.get("curriculum_id") or (curriculum["id"] if curriculum else "")
     return {"thread_id": thread_id, "exam_id": snap.values.get("exam_id"),
+            "curriculum_id": curriculum_id,
             "max_cycles": snap.values.get("max_cycles") or 2,
             "challenge": snap.values.get("current_challenge")}
 
@@ -140,6 +146,7 @@ async def session_state(req: SessionStateRequest):
         evaluation = None
 
     return {"thread_id": req.thread_id, "exam_id": snap.values.get("exam_id"),
+            "curriculum_id": snap.values.get("curriculum_id", "") or "",
             "phase": _snapshot_phase(snap), "cycle": snap.values.get("cycle") or 1,
             "max_cycles": snap.values.get("max_cycles") or 2,
             "challenge": snap.values.get("current_challenge") or None,
