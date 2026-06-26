@@ -61,9 +61,17 @@ python -m uvicorn main:app --reload  # target: :8000
 ## Phase guardrails
 - **Phase 1 is done.** Phase 2 is next: LangGraph graph + FastAPI service + Postgres checkpointer.
 - Do not wire Clerk auth before Phase 4.
-- Keep DVA-C02 hardcoded; no multi-exam generalization in V1.
+- Keep DVA-C02 hardcoded as the primary exam; no broad multi-exam generalization in V1. See "Narrow exception: cross-exam curriculum switcher" below for the only permitted multi-exam surface.
 - LangGraph graph structure/state/edges must stay explicit — no heavy abstractions. The user is learning LangGraph deeply.
 - `agents/main.py` exists as the FastAPI entry point for Phase 2; keep graph wiring explicit as routes and nodes are added.
+
+### Narrow exception: cross-exam curriculum switcher (V1, added 2026-06-26)
+> Keep DVA-C02 hardcoded; no multi-exam generalization in V1.
+
+- Switching the *active* curriculum/exam among already-bundled exam artifacts (`dva-c02`, `saa-c03`, `cca-foundations`) via a Settings affordance is allowed in V1. This does not generalize to other exams, onboarding flow variants, or multi-curriculum-per-same-exam scenarios.
+- Invariant — exactly one active curriculum per `(user_id, exam_id)`; partial unique index `curricula_one_active_per_user_exam_idx` enforces this.
+- Frontend active-curriculum state lives in browser-local storage keyed by `curriculum_id`. Backend `thread_id` stays opaque/global; per-curriculum resumability is achieved by a frontend `sessionStorage` map keyed by `curriculum_id`.
+- The `lib/openrouter.ts` 266-line violation is unrelated to this exception and remains outstanding.
 
 ## Known violation to fix before editing `lib/openrouter.ts`
 - `lib/openrouter.ts` is 266 lines — violates the 200-line hard rule. Split before adding any more code to it.
