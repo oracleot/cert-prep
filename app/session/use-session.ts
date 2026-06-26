@@ -1,13 +1,13 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Challenge, Citation, EvaluationResult, SageFeedback, SageFeedbackType, SessionResult } from "@/lib/types";
+import type { AnswerIntent, Challenge, Citation, EvaluationResult, SageFeedback, SageFeedbackType, SessionResult } from "@/lib/types";
 import { DEFAULT_SETTINGS, loadSettings } from "@/lib/settings";
 import { nextSessionRequest, restoreSessionRequest, startSessionRequest, submitSageFeedbackRequest, submitSessionRequest } from "./session-api";
-import { clearThreadId, loadThreadId, type RestoredSession, saveThreadId } from "./session-persistence";
+import { type RestoredSession } from "./session-persistence";
 import { readSessionStream } from "./session-stream";
 import { useRexRecord } from "./use-rex-record";
 import { answerIntentFor, answerTextFor } from "./answer-intent";
-import type { AnswerIntent } from "@/lib/types";
+import { bindThreadToActiveCurriculum, clearActiveThreadId, useActiveExamId, useResumableThreadId } from "./session-scope";
 export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
 type SessionAction = "start" | "resume" | "submit" | "next";
 export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void) {
@@ -26,9 +26,11 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
   const lastActionRef = useRef<SessionAction>("start");
   const activeRequestRef = useRef(0);
   const { rexRecord, refreshRexRecord } = useRexRecord();
+  const resumableThreadId = useResumableThreadId();
+  const examId = useActiveExamId();
   const applySnapshot = useCallback((snapshot: RestoredSession) => {
     setThreadId(snapshot.thread_id);
-    saveThreadId(snapshot.thread_id);
+    bindThreadToActiveCurriculum(snapshot.thread_id);
     setCycle(snapshot.cycle);
     setMaxCycles(snapshot.max_cycles);
     setChallenge(snapshot.challenge); setAnswer(snapshot.user_answer);
@@ -44,7 +46,7 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
     if (showLoading) setPhase("loading_challenge");
     setChallenge(null); setAnswer("");
     setEvaluation(null); setSageText(""); setSageCitations([]); setSageFeedback(null);
-    const res = await startSessionRequest(focusDomain);
+    const res = await startSessionRequest(focusDomain, examId);
     if (requestId !== activeRequestRef.current) return;
     if (!res.ok) {
       setErrorMsg("Rex couldn't generate a challenge. Try again.");
@@ -53,7 +55,7 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
     }
     const data = await res.json();
     if (requestId !== activeRequestRef.current) return;
-    saveThreadId(data.thread_id);
+    bindThreadToActiveCurriculum(data.thread_id);
     setThreadId(data.thread_id);
     setCycle(1);
     setMaxCycles(data.max_cycles ?? loadSettings().sessionCycles);
@@ -61,7 +63,7 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
     setChallenge(data.challenge);
     setPhase("ready");
     onFocusDomainConsumed?.();
-  }, [focusDomain, onFocusDomainConsumed]);
+  }, [focusDomain, examId, onFocusDomainConsumed]);
   const restoreSession = useCallback(async (sessionThreadId: string, showLoading = true): Promise<RestoredSession["phase"] | null | undefined> => {
       const requestId = ++activeRequestRef.current;
       lastActionRef.current = "resume";
@@ -69,7 +71,7 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
       const res = await restoreSessionRequest(sessionThreadId);
       if (requestId !== activeRequestRef.current) return undefined;
       if (res.status === 404) {
-        clearThreadId();
+        clearActiveThreadId();
         setThreadId(null);
         return null;
       }
@@ -178,22 +180,19 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
     if (action === "next" && restoredPhase === "sage_done") await loadNextChallenge();
   }, [answer, loadNextChallenge, restoreSession, startSession, submitAnswer, threadId]);
   const restart = useCallback(() => {
-    clearThreadId();
+    clearActiveThreadId();
     setCycle(1); setResults([]);
     setErrorMsg(""); setThreadId(null);
     void startSession();
   }, [startSession]);
-  const abandonSession = useCallback(() => { activeRequestRef.current += 1; clearThreadId(); setThreadId(null); }, []);
+  const abandonSession = useCallback(() => { activeRequestRef.current += 1; clearActiveThreadId(); setThreadId(null); }, []);
   useEffect(() => {
-    const savedThreadId = loadThreadId();
+    const saved = resumableThreadId;
     queueMicrotask(() => {
-      if (savedThreadId) {
-        onFocusDomainConsumed?.();
-        void restoreSession(savedThreadId, false).then((restoredPhase) => restoredPhase === null && void startSession(false));
-        return;
-      }
-      void startSession(false);
+      if (!saved) return void startSession(false);
+      onFocusDomainConsumed?.();
+      void restoreSession(saved, false).then((p) => p === null && void startSession(false));
     });
-  }, [restoreSession, startSession, onFocusDomainConsumed]);
+  }, [restoreSession, startSession, onFocusDomainConsumed, resumableThreadId]);
   return { phase, cycle, maxCycles, domain: challenge?.domain ?? "Exam", challenge, answer, setAnswer, evaluation, sageText, sageCitations, sageFeedback, results, rexRecord, errorMsg, submitAnswer, submitSageFeedback, nextChallenge, retry, restart, abandonSession };
 }
