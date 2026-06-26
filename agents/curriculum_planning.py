@@ -1,0 +1,151 @@
+"""Curriculum planning and composition helpers.
+
+Builds, ranks, and surfaces curriculum artifacts for daily/rechallenge
+selection and the dashboard summary. The DB-level CRUD lives in
+`curriculum_repository`; this module only shapes and selects.
+"""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import Any
+
+from blueprint import default_curriculum
+from curriculum_progress import domain_overview, performance_map, topic_performance_map
+from coverage_scheduler import select_rechallenge_target, select_today_target
+from curriculum_repository import get_active_curriculum
+from curriculum_topics import coverage_matrix
+from domain_difficulty_repository import read_domain_difficulties
+from exam_artifacts.loader import load_artifact_from_file
+from performance_repository import calculate_readiness, read_rex_record
+from streak_repository import read_session_streak
+
+
+def _fallback_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
+    domains = deepcopy(blueprint) if blueprint else default_curriculum()
+    if learning_style == "pressure_drills":
+        order = ["development", "deployment", "security", "troubleshooting"]
+    elif learning_style == "guided_explanations":
+        order = ["security", "development", "deployment", "troubleshooting"]
+    else:
+        order = ["deployment", "development", "security", "troubleshooting"]
+
+    def rank_for(name: str) -> int:
+        lower = name.lower()
+        for index, token in enumerate(order, start=1):
+            if token in lower:
+                return index
+        return 99
+
+    for domain in domains:
+        domain["study_order"] = rank_for(domain["name"])
+        domain.setdefault("performance_score", 0)
+    return sorted(domains, key=lambda item: item["study_order"])
+
+
+def build_curriculum(blueprint: list[dict], learning_style: str) -> list[dict]:
+    """Order the four blueprint domains for this learning_style.
+
+    The blueprint is static and the LLM had no signal beyond learning_style —
+    the deterministic fallback does the same job without a roundtrip.
+    """
+    return _fallback_curriculum(blueprint, learning_style)
+
+
+def _fallback_for_exam(exam_id: str) -> list[dict]:
+    try:
+        return _fallback_curriculum(load_artifact_from_file(exam_id)["domains"], "mixed_review")
+    except Exception:
+        return default_curriculum()
+
+
+def _active_domains(curriculum: dict[str, Any] | None, exam_id: str) -> list[dict]:
+    return curriculum["domains"] if curriculum else _fallback_for_exam(exam_id)
+
+
+async def active_domains_for(user_id: str, exam_id: str) -> list[dict]:
+    curriculum = await get_active_curriculum(user_id, exam_id)
+    return _active_domains(curriculum, exam_id)
+
+
+async def choose_today_target(user_id: str, exam_id: str, focus_domain: str = "") -> dict[str, Any]:
+    curriculum = await get_active_curriculum(user_id, exam_id)
+    domains = _active_domains(curriculum, exam_id)
+    domain_stats = await performance_map(user_id, exam_id)
+    topic_stats = await topic_performance_map(user_id, exam_id)
+    domain_difficulties = await read_domain_difficulties(user_id, exam_id)
+    target = select_today_target(
+        domains,
+        domain_stats,
+        topic_stats,
+        curriculum["id"] if curriculum else "",
+        domain_difficulties,
+        focus_domain,
+    )
+    target["familiarity_level"] = _familiarity_level(target["domain"], target["topic"], domain_stats, topic_stats)
+    return target
+
+
+def _familiarity_level(
+    domain: str,
+    topic: str,
+    domain_stats: dict[str, dict[str, int]],
+    topic_stats: dict[str, dict[str, int]],
+) -> str:
+    domain_total = domain_stats.get(domain, {}).get("total_count", 0)
+    topic_total = topic_stats.get(topic, {}).get("total_count", 0)
+    if domain_total < 2 or topic_total == 0:
+        return "new"
+    correct = topic_stats.get(topic, {}).get("correct_count", 0)
+    return "building" if correct / topic_total < 0.7 else "review"
+
+
+async def choose_rechallenge_target(
+    user_id: str,
+    exam_id: str,
+    domain: str,
+    previous_topic: str,
+    previous_task_statement_id: str = "",
+) -> dict[str, Any]:
+    curriculum = await get_active_curriculum(user_id, exam_id)
+    domains = _active_domains(curriculum, exam_id)
+    topic_stats = await topic_performance_map(user_id, exam_id)
+    return select_rechallenge_target(
+        domains,
+        domain,
+        previous_topic,
+        previous_task_statement_id,
+        topic_stats,
+        curriculum["id"] if curriculum else "",
+    )
+
+
+async def dashboard_summary(
+    user_id: str,
+    exam_id: str,
+    timezone_name: str = "UTC",
+) -> dict[str, Any]:
+    curriculum = await get_active_curriculum(user_id, exam_id)
+    domains = _active_domains(curriculum, exam_id)
+    stats = await performance_map(user_id, exam_id)
+    topic_stats = await topic_performance_map(user_id, exam_id)
+    overview = domain_overview(domains, stats, topic_stats)
+    readiness = calculate_readiness(domains, stats, topic_stats)[0]
+    rex_record = await read_rex_record(user_id, exam_id)
+    streak = await read_session_streak(user_id, exam_id, timezone_name)
+    today = await choose_today_target(user_id, exam_id)
+    return {
+        "exam_id": exam_id,
+        "readiness_score": readiness,
+        "today_domain": today["domain"],
+        "today_topic": today["topic"],
+        "rex_record": rex_record,
+        "streak": streak,
+        "domains": overview,
+    }
+
+
+async def progress_map(user_id: str, exam_id: str) -> dict[str, Any]:
+    summary = await dashboard_summary(user_id, exam_id)
+    topic_stats = await topic_performance_map(user_id, exam_id)
+    return {"domains": coverage_matrix(summary["domains"], topic_stats)}
