@@ -27,6 +27,12 @@ export default function OnboardingPage() {
             <span>{onboarding.step}</span>
           </div>
 
+          {onboarding.preflight ? (
+            <div className="mb-5 rounded-2xl border border-amber-300 bg-amber-100/80 px-5 py-4 text-sm font-bold text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100" role="status">
+              Building curriculum for {onboarding.preflight.examName}. Complete onboarding to activate.
+            </div>
+          ) : null}
+
           {onboarding.step === "welcome" ? (
             <WelcomeStep onContinue={() => onboarding.setStep("exam")} />
           ) : null}

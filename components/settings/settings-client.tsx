@@ -4,9 +4,12 @@ import { useState } from "react";
 
 import { clearThreadId } from "@/app/session/session-persistence";
 import { AppNav } from "@/components/navigation/app-nav";
+import { CurriculumSwitcher } from "@/components/settings/curriculum-switcher";
 import { ResetProgressDialog } from "@/components/settings/reset-progress-dialog";
 import { Button } from "@/components/ui/button";
+import { useActiveCurriculum } from "@/lib/active-curriculum";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { getExamName } from "@/lib/exam-names";
 import { DEFAULT_MODELS, DEFAULT_SETTINGS, loadSettings, saveSettings, type AgentModelKey, type AppSettings } from "@/lib/settings";
 import type { LearningStyle } from "@/lib/types";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -45,6 +48,8 @@ function SettingsForm({ initialSettings }: FormProps) {
   const [isResetting, setIsResetting] = useState(false);
   const [isRebuilding, setIsRebuilding] = useState(false);
   const hasUnsavedChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings);
+  const { active } = useActiveCurriculum();
+  const activeExamName = active?.exam_name ?? getExamName("dva-c02");
 
   function persistSettings(nextSettings: AppSettings) {
     saveSettings(nextSettings);
@@ -79,7 +84,7 @@ function SettingsForm({ initialSettings }: FormProps) {
       body: JSON.stringify({ user_id: getAnonymousUserId(), learning_style: nextSettings.learningStyle }),
     });
     setIsRebuilding(false);
-    setSaveState(res.ok ? "Curriculum rebuild queued" : "Rebuild failed");
+    setSaveState(res.ok ? `${activeExamName} rebuild queued` : "Rebuild failed");
   }
 
   async function resetProgress() {
@@ -155,9 +160,11 @@ function SettingsForm({ initialSettings }: FormProps) {
             <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">Stored only in this browser and sent with agent requests. Not stored server-side.</p>
           </div>
 
+          <CurriculumSwitcher />
+
           <div className="rounded-[2rem] border border-rose-300 bg-rose-50 p-6 dark:border-rose-900 dark:bg-rose-950/30">
             <h2 className="text-xl font-black text-rose-900 dark:text-rose-100">Reset exam progress</h2>
-            <p className="mt-3 text-sm text-rose-800 dark:text-rose-200">This permanently deletes your DVA-C02 progress. This cannot be undone.</p>
+            <p className="mt-3 text-sm text-rose-800 dark:text-rose-200">This permanently deletes your {activeExamName} progress. This cannot be undone.</p>
             <Button onClick={openResetDialog} variant="destructive" className="mt-5">Reset progress</Button>
           </div>
         </section>

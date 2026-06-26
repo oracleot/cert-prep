@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   dashboardSummaryRequest,
@@ -9,14 +9,25 @@ import {
   startOnboardingRequest,
   supportedExamsRequest,
 } from "./onboarding-api";
+import { useFeedController } from "./feed-controller";
 import { loadOnboardingId, saveOnboardingId } from "./onboarding-persistence";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
-import { openOnboardingFeed, type FeedIssue } from "@/lib/onboarding-feed";
+import { getExamName } from "@/lib/exam-names";
+import type { FeedIssue } from "@/lib/onboarding-feed";
 import type { AgentFeedEvent, DomainPlan, ExamOption, LearningStyle } from "@/lib/types";
 
 type Step = "welcome" | "exam" | "style" | "feed" | "plan";
 
-const STALE_FEED_MS = 60_000;
+type SettingsPreflight = { examId: string; examName: string };
+
+function readSettingsPreflight(): SettingsPreflight | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("source") !== "settings") return null;
+  const examId = params.get("exam");
+  if (!examId) return null;
+  return { examId, examName: getExamName(examId) };
+}
 
 export function useOnboarding() {
   const router = useRouter();
@@ -29,14 +40,7 @@ export function useOnboarding() {
   const [error, setError] = useState("");
   const [feedIssue, setFeedIssue] = useState<FeedIssue | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const feedRef = useRef<EventSource | null>(null);
-  const staleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearStaleTimer = useCallback(() => {
-    if (!staleTimerRef.current) return;
-    clearTimeout(staleTimerRef.current);
-    staleTimerRef.current = null;
-  }, []);
+  const [preflight, setPreflight] = useState<SettingsPreflight | null>(null);
 
   const loadPlan = useCallback(async (userId: string) => {
     const res = await dashboardSummaryRequest(userId);
@@ -54,55 +58,7 @@ export function useOnboarding() {
     return true;
   }, []);
 
-  const reconcileFeed = useCallback(async (onboardingId: string, userId: string) => {
-    const res = await onboardingStateRequest(userId);
-    const data = res.ok ? await res.json() : null;
-    if (data?.run?.id === onboardingId && data.run.status === "complete") {
-      await loadPlan(userId);
-      return;
-    }
-    setFeedIssue({
-      message: data?.run?.status === "failed"
-        ? "The build failed. Try again with the same choices."
-        : "The build is taking longer than expected. Try again.",
-      action: "build",
-    });
-  }, [loadPlan]);
-
-  const connectFeed = useCallback((onboardingId: string, userId: string) => {
-    const resetStaleTimer = () => {
-      clearStaleTimer();
-      staleTimerRef.current = setTimeout(() => {
-        feedRef.current?.close();
-        void reconcileFeed(onboardingId, userId);
-      }, STALE_FEED_MS);
-    };
-
-    feedRef.current?.close();
-    resetStaleTimer();
-    feedRef.current = openOnboardingFeed(onboardingId, {
-      onEvent: (event) => {
-        setFeedIssue(null);
-        resetStaleTimer();
-        setEvents((current) => {
-          if (event.id && current.some((item) => item.id === event.id)) return current;
-          return [...current, event];
-        });
-      },
-      onComplete: () => {
-        clearStaleTimer();
-        void loadPlan(userId);
-      },
-      onFailure: (message) => {
-        clearStaleTimer();
-        setFeedIssue({ message, action: "build" });
-      },
-      onError: () => {
-        clearStaleTimer();
-        void reconcileFeed(onboardingId, userId);
-      },
-    });
-  }, [clearStaleTimer, loadPlan, reconcileFeed]);
+  const { connectFeed, disconnect } = useFeedController({ setFeedIssue, setEvents, loadPlan });
 
   useEffect(() => {
     let active = true;
@@ -110,6 +66,9 @@ export function useOnboarding() {
 
     async function restore() {
       try {
+        const preflightParams = readSettingsPreflight();
+        if (preflightParams) setPreflight(preflightParams);
+
         const examsRes = await supportedExamsRequest();
         if (examsRes.ok) setExamOptions((await examsRes.json()).exams || []);
         const res = await onboardingStateRequest(userId);
@@ -121,6 +80,9 @@ export function useOnboarding() {
         if (data?.run) {
           setExamName(data.run.exam_name || "");
           setLearningStyle(data.run.learning_style || "mixed_review");
+        } else if (preflightParams) {
+          // No existing run — apply URL prefill so the chosen exam is pre-selected.
+          setExamName(preflightParams.examId);
         }
         if (data?.run && onboardingId && data.run.status !== "complete") {
           saveOnboardingId(onboardingId);
@@ -146,15 +108,14 @@ export function useOnboarding() {
     void restore();
     return () => {
       active = false;
-      feedRef.current?.close();
-      clearStaleTimer();
+      disconnect();
     };
-  }, [clearStaleTimer, connectFeed, loadPlan, router]);
+  }, [connectFeed, disconnect, loadPlan, router]);
 
   async function start() {
     setError("");
     setFeedIssue(null);
-    clearStaleTimer();
+    disconnect();
     setIsLoading(true);
     const userId = getAnonymousUserId();
     const res = await startOnboardingRequest({
@@ -194,6 +155,7 @@ export function useOnboarding() {
     error,
     feedIssue,
     isLoading,
+    preflight,
     start,
     retryPlan,
   };
