@@ -11,22 +11,24 @@ import {
 } from "./onboarding-api";
 import { useFeedController } from "./feed-controller";
 import { loadOnboardingId, saveOnboardingId } from "./onboarding-persistence";
+import { saveActiveCurriculum } from "@/lib/active-curriculum";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
 import { getExamName } from "@/lib/exam-names";
 import type { FeedIssue } from "@/lib/onboarding-feed";
 import type { AgentFeedEvent, DomainPlan, ExamOption, LearningStyle } from "@/lib/types";
 
 type Step = "welcome" | "exam" | "style" | "feed" | "plan";
+type OnboardingSource = "settings" | null;
 
-type SettingsPreflight = { examId: string; examName: string };
+type SettingsPreflight = { examId: string; examName: string; source: OnboardingSource };
 
 function readSettingsPreflight(): SettingsPreflight | null {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
-  if (params.get("source") !== "settings") return null;
+  const source: OnboardingSource = params.get("source") === "settings" ? "settings" : null;
   const examId = params.get("exam");
-  if (!examId) return null;
-  return { examId, examName: getExamName(examId) };
+  if (!source || !examId) return null;
+  return { examId, examName: getExamName(examId), source };
 }
 
 export function useOnboarding() {
@@ -55,6 +57,17 @@ export function useOnboarding() {
     setDomains(summary.domains || []);
     setFeedIssue(null);
     setStep("plan");
+    // Curriculum was just created — promote it to active so /session and
+    // /dashboard pick it up without a second roundtrip. Only fires when the
+    // summary actually carries a curriculum_id (i.e. a build just landed).
+    if (summary.curriculum_id && summary.exam_id) {
+      saveActiveCurriculum({
+        exam_id: summary.exam_id,
+        exam_name: summary.exam_name || getExamName(summary.exam_id),
+        curriculum_id: summary.curriculum_id,
+        saved_at: new Date().toISOString(),
+      });
+    }
     return true;
   }, []);
 
@@ -156,6 +169,8 @@ export function useOnboarding() {
     feedIssue,
     isLoading,
     preflight,
+    source: preflight?.source ?? null,
+    nextStep: (preflight ? "style" : "exam") as Step,
     start,
     retryPlan,
   };

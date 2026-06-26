@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { AgentFeed } from "@/components/onboarding/agent-feed";
 import { ExamStep } from "@/components/onboarding/exam-step";
 import { PlanReveal } from "@/components/onboarding/plan-reveal";
@@ -10,6 +12,14 @@ import { useOnboarding } from "./use-onboarding";
 
 export default function OnboardingPage() {
   const onboarding = useOnboarding();
+
+  // Settings prefill flow: once the build lands, bounce back so the user
+  // can continue swapping or starting a session from /settings.
+  useEffect(() => {
+    if (onboarding.source === "settings" && onboarding.step === "plan") {
+      window.location.href = "/settings";
+    }
+  }, [onboarding.source, onboarding.step]);
 
   if (onboarding.isLoading) {
     return (
@@ -34,7 +44,7 @@ export default function OnboardingPage() {
           ) : null}
 
           {onboarding.step === "welcome" ? (
-            <WelcomeStep onContinue={() => onboarding.setStep("exam")} />
+            <WelcomeStep onContinue={() => onboarding.setStep(onboarding.nextStep)} />
           ) : null}
           {onboarding.step === "exam" ? (
             <ExamStep
@@ -64,7 +74,9 @@ export default function OnboardingPage() {
               onBack={() => onboarding.setStep("style")}
             />
           ) : null}
-          {onboarding.step === "plan" ? <PlanReveal domains={onboarding.domains} /> : null}
+          {onboarding.step === "plan" ? (
+            <PlanReveal domains={onboarding.domains} source={onboarding.source} />
+          ) : null}
         </div>
       </div>
     </main>

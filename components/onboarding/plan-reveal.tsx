@@ -4,13 +4,14 @@ import type { DomainPlan, TopicPlan } from "@/lib/types";
 
 type Props = {
   domains: DomainPlan[];
+  source?: "settings" | null;
 };
 
 function topicName(topic: string | TopicPlan | undefined) {
   return typeof topic === "string" ? topic : topic?.name;
 }
 
-export function PlanReveal({ domains }: Props) {
+export function PlanReveal({ domains, source }: Props) {
   return (
     <section className="rounded-[2rem] border border-zinc-200 bg-white/90 p-7 sm:p-10 dark:border-zinc-800 dark:bg-zinc-950/85">
       <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-600 dark:text-amber-300">
@@ -34,12 +35,22 @@ export function PlanReveal({ domains }: Props) {
           </div>
         ))}
       </div>
-      <Link
-        href="/dashboard"
-        className="mt-8 inline-flex min-h-11 items-center rounded-full bg-amber-300 px-6 text-sm font-black text-zinc-950 hover:bg-amber-200"
-      >
-        Let&apos;s go
-      </Link>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link
+          href="/dashboard"
+          className="inline-flex min-h-11 items-center rounded-full bg-amber-300 px-6 text-sm font-black text-zinc-950 hover:bg-amber-200"
+        >
+          Let&apos;s go
+        </Link>
+        {source === "settings" ? (
+          <Link
+            href="/settings"
+            className="inline-flex min-h-11 items-center rounded-full border border-zinc-300 px-6 text-sm font-bold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+          >
+            Go to Settings
+          </Link>
+        ) : null}
+      </div>
     </section>
   );
 }
