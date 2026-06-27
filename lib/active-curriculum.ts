@@ -25,10 +25,14 @@ const STORAGE_KEY = "gauntlet.active-curriculum.v1";
 const EVENT_NAME = "gauntlet:active-curriculum-changed";
 const isBrowser = typeof window !== "undefined";
 
+/** Cached snapshot so useSyncExternalStore sees a stable reference. */
+let _cached: ActiveCurriculum | null | "__unknown__" = "__unknown__";
+
 function read(): ActiveCurriculum | null {
   if (!isBrowser) return null;
+  if (_cached !== "__unknown__") return _cached;
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
+  if (!raw) { _cached = null; return null; }
   try {
     const parsed: unknown = JSON.parse(raw);
     if (
@@ -39,12 +43,12 @@ function read(): ActiveCurriculum | null {
       typeof (parsed as ActiveCurriculum).curriculum_id === "string" &&
       typeof (parsed as ActiveCurriculum).saved_at === "string"
     ) {
-      return parsed as ActiveCurriculum;
+      _cached = parsed as ActiveCurriculum;
+      return _cached;
     }
-    return null;
-  } catch {
-    return null;
-  }
+  } catch { /* fall through */ }
+  _cached = null;
+  return null;
 }
 
 export function loadActiveCurriculum(): ActiveCurriculum | null {
@@ -53,12 +57,14 @@ export function loadActiveCurriculum(): ActiveCurriculum | null {
 
 export function saveActiveCurriculum(c: ActiveCurriculum): void {
   if (!isBrowser) return;
+  _cached = c;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(c));
   window.dispatchEvent(new CustomEvent<ActiveCurriculum>(EVENT_NAME, { detail: c }));
 }
 
 export function clearActiveCurriculum(): void {
   if (!isBrowser) return;
+  _cached = null;
   window.localStorage.removeItem(STORAGE_KEY);
   window.dispatchEvent(new CustomEvent<ActiveCurriculum | null>(EVENT_NAME, { detail: null }));
 }
@@ -73,7 +79,12 @@ function subscribe(notify: () => void): () => void {
   if (!isBrowser) return () => {};
   const onCustom = () => notify();
   const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY || event.key === null) notify();
+    if (event.key === STORAGE_KEY || event.key === null) {
+      // Cross-tab write or full clear: drop the cached snapshot so the next
+      // read() re-parses localStorage instead of returning stale state.
+      _cached = "__unknown__";
+      notify();
+    }
   };
   window.addEventListener(EVENT_NAME, onCustom);
   window.addEventListener("storage", onStorage);
