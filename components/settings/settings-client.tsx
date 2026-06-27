@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { clearThreadId } from "@/app/session/session-persistence";
+import { clearAllThreadMappings } from "@/app/session/session-persistence";
 import { AppNav } from "@/components/navigation/app-nav";
 import { CurriculumSwitcher } from "@/components/settings/curriculum-switcher";
 import { ResetProgressDialog } from "@/components/settings/reset-progress-dialog";
@@ -102,7 +102,7 @@ function SettingsForm({ initialSettings }: FormProps) {
       } catch {}
       setSaveState(`Reset failed: ${detail}`);
     } else {
-      clearThreadId();
+      clearAllThreadMappings();
       setSaveState("Progress reset");
     }
     setIsResetting(false);
