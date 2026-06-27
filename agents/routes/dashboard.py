@@ -21,6 +21,11 @@ class UserScopedRequest(BaseModel):
 
 
 async def _exam_id_for(req: UserScopedRequest) -> str:
+    # INTENTIONAL FALLBACK: this `exam_id`-less resolution is load-bearing for
+    # the post-build activation path in app/onboarding/use-onboarding.ts:loadPlan,
+    # where the just-built curriculum is discovered via /dashboard/summary BEFORE
+    # `useActiveCurriculum()` has been populated. Do NOT remove without also
+    # rewriting that activation path.
     if req.exam_id:
         return req.exam_id
     run = await get_latest_onboarding(req.user_id)
