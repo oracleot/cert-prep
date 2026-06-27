@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 
-import { clearAllThreadMappings } from "@/app/session/session-persistence";
+import { clearAllThreadMappings, clearThreadIdForCurriculum } from "@/app/session/session-persistence";
+import { waitForRebuild } from "@/app/session/rebuild-waiter";
 import { AppNav } from "@/components/navigation/app-nav";
 import { CurriculumSwitcher } from "@/components/settings/curriculum-switcher";
 import { ResetProgressDialog } from "@/components/settings/reset-progress-dialog";
 import { Button } from "@/components/ui/button";
-import { useActiveCurriculum } from "@/lib/active-curriculum";
+import { saveActiveCurriculum, useActiveCurriculum } from "@/lib/active-curriculum";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
 import { getExamName } from "@/lib/exam-names";
 import { DEFAULT_MODELS, DEFAULT_SETTINGS, loadSettings, saveSettings, type AgentModelKey, type AppSettings } from "@/lib/settings";
@@ -77,14 +78,23 @@ function SettingsForm({ initialSettings }: FormProps) {
 
   async function rebuildCurriculum() {
     const nextSettings = hasUnsavedChanges ? persistSettings(settings) : settings;
+    const prevCurriculumId = active?.curriculum_id;
+    const userId = getAnonymousUserId();
+    const examId = active?.exam_id ?? "";
     setIsRebuilding(true);
     const res = await fetch("/api/settings/learning-style", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: getAnonymousUserId(), exam_id: active?.exam_id ?? "", learning_style: nextSettings.learningStyle }),
+      body: JSON.stringify({ user_id: userId, exam_id: examId, learning_style: nextSettings.learningStyle }),
     });
+    if (!res.ok) { setIsRebuilding(false); setSaveState("Rebuild failed"); return; }
+    setSaveState(`${activeExamName} rebuild queued`);
+    const rebuilt = await waitForRebuild({ userId, examId, prevCurriculumId });
     setIsRebuilding(false);
-    setSaveState(res.ok ? `${activeExamName} rebuild queued` : "Rebuild failed");
+    if (!rebuilt) { setSaveState("Rebuild is taking longer than expected. Refresh to check status."); return; }
+    saveActiveCurriculum({ exam_id: rebuilt.exam_id, exam_name: rebuilt.exam_name, curriculum_id: rebuilt.curriculum_id, saved_at: new Date().toISOString() });
+    if (prevCurriculumId) clearThreadIdForCurriculum(prevCurriculumId);
+    setSaveState("Rebuild complete — using new curriculum");
   }
 
   async function resetProgress() {
