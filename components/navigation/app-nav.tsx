@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useActiveCurriculum } from "@/lib/active-curriculum";
+import { getExamName } from "@/lib/exam-names";
+import { useHydrated } from "@/lib/use-hydrated";
+
 import { ThemeToggle } from "./theme-toggle";
 
 export function AppNav() {
@@ -12,6 +16,10 @@ export function AppNav() {
   const isLessons = pathname.startsWith("/lessons");
   const isProgress = pathname === "/progress";
   const isSettings = pathname === "/settings";
+  const hydrated = useHydrated();
+  const { active } = useActiveCurriculum();
+  const showExamBadge = hydrated && active !== null;
+  const badgeLabel = showExamBadge ? getExamName(active.exam_id) : "";
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3 text-sm">
@@ -22,6 +30,16 @@ export function AppNav() {
         Gauntlet
       </Link>
       <div className="flex flex-wrap items-center gap-2">
+        {showExamBadge ? (
+          <Link
+            href="/settings"
+            aria-label={`Active exam: ${badgeLabel}. Open settings to switch.`}
+            className="rounded-full border border-zinc-200 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"
+          >
+            <span className="font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Exam</span>
+            <span className="ml-2 font-black text-zinc-700 dark:text-zinc-200">{badgeLabel}</span>
+          </Link>
+        ) : null}
         <ThemeToggle />
         {!isDashboard ? (
           <Link
