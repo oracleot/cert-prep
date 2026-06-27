@@ -81,7 +81,7 @@ function SettingsForm({ initialSettings }: FormProps) {
     const res = await fetch("/api/settings/learning-style", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: getAnonymousUserId(), learning_style: nextSettings.learningStyle }),
+      body: JSON.stringify({ user_id: getAnonymousUserId(), exam_id: active?.exam_id ?? "", learning_style: nextSettings.learningStyle }),
     });
     setIsRebuilding(false);
     setSaveState(res.ok ? `${activeExamName} rebuild queued` : "Rebuild failed");
@@ -92,12 +92,21 @@ function SettingsForm({ initialSettings }: FormProps) {
     const res = await fetch("/api/settings/reset-progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: getAnonymousUserId() }),
+      body: JSON.stringify({ user_id: getAnonymousUserId(), exam_id: active?.exam_id ?? "" }),
     });
-    clearThreadId();
+    if (!res.ok) {
+      let detail = `HTTP ${res.status}`;
+      try {
+        const data = await res.json();
+        if (data && typeof data.detail === "string") detail = data.detail;
+      } catch {}
+      setSaveState(`Reset failed: ${detail}`);
+    } else {
+      clearThreadId();
+      setSaveState("Progress reset");
+    }
     setIsResetting(false);
     setResetOpen(false);
-    setSaveState(res.ok ? "Progress reset" : "Reset failed");
   }
 
   return (
@@ -169,7 +178,7 @@ function SettingsForm({ initialSettings }: FormProps) {
           </div>
         </section>
       </div>
-      <ResetProgressDialog isOpen={resetOpen} isReady={resetReady} isResetting={isResetting} onClose={() => { setResetOpen(false); setResetReady(false); }} onConfirm={resetProgress} />
+      <ResetProgressDialog examName={activeExamName} isOpen={resetOpen} isReady={resetReady} isResetting={isResetting} onClose={() => { setResetOpen(false); setResetReady(false); }} onConfirm={resetProgress} />
     </main>
   );
 }

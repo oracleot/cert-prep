@@ -5,6 +5,7 @@ import { Lock } from "lucide-react";
 
 import { AppNav } from "@/components/navigation/app-nav";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { useActiveCurriculum } from "@/lib/active-curriculum";
 import type { DomainPlan, TopicPlan } from "@/lib/types";
 
 function toTopic(topic: string | TopicPlan): TopicPlan {
@@ -12,6 +13,7 @@ function toTopic(topic: string | TopicPlan): TopicPlan {
 }
 
 export function ProgressClient() {
+  const { active } = useActiveCurriculum();
   const [domains, setDomains] = useState<DomainPlan[]>([]);
 
   useEffect(() => {
@@ -20,7 +22,7 @@ export function ProgressClient() {
       const res = await fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -29,7 +31,7 @@ export function ProgressClient() {
     }
 
     void load();
-  }, []);
+  }, [active?.exam_id]);
 
   return (
     <main className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">

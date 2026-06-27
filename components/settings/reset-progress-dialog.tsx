@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 
 type Props = {
+  examName: string;
   isOpen: boolean;
   isReady: boolean;
   isResetting: boolean;
@@ -8,7 +9,7 @@ type Props = {
   onConfirm: () => void;
 };
 
-export function ResetProgressDialog({ isOpen, isReady, isResetting, onClose, onConfirm }: Props) {
+export function ResetProgressDialog({ examName, isOpen, isReady, isResetting, onClose, onConfirm }: Props) {
   if (!isOpen) return null;
 
   return (
@@ -21,10 +22,10 @@ export function ResetProgressDialog({ isOpen, isReady, isResetting, onClose, onC
       >
         <p className="text-xs font-black uppercase tracking-[0.35em] text-rose-700 dark:text-rose-300">Permanent action</p>
         <h2 id="reset-progress-title" className="mt-3 text-2xl font-black text-zinc-950 dark:text-zinc-50">
-          Reset DVA-C02 progress?
+          Reset {examName} progress?
         </h2>
         <p className="mt-4 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
-          This will permanently delete your DVA-C02 progress. This cannot be undone.
+          This will permanently delete your {examName} progress. This cannot be undone.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button type="button" variant="outline" onClick={onClose} disabled={isResetting}>

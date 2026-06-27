@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { AppNav } from "@/components/navigation/app-nav";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { useActiveCurriculum } from "@/lib/active-curriculum";
 import type { SessionHistoryDetail, SessionHistoryItem } from "@/lib/types";
 
 import { SessionDetail } from "./session-detail";
@@ -23,6 +24,7 @@ function EmptyHistory() {
 }
 
 export function HistoryClient() {
+  const { active } = useActiveCurriculum();
   const [items, setItems] = useState<SessionHistoryItem[] | null>(null);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export function HistoryClient() {
       const res = await fetch("/api/history/list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "" }),
       });
       if (!res.ok) {
         setError("History is waiting for the agent service.");
@@ -45,7 +47,7 @@ export function HistoryClient() {
       setItems(data.sessions || []);
     }
     void load();
-  }, []);
+  }, [active?.exam_id]);
 
   async function selectSession(id: string) {
     setSelectedId(id);
@@ -55,7 +57,7 @@ export function HistoryClient() {
     const res = await fetch("/api/history/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId, session_id: id }),
+      body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "", session_id: id }),
     });
     if (res.ok) {
       const data: SessionHistoryDetail = await res.json();

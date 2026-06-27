@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AppNav } from "@/components/navigation/app-nav";
 import { FocusDomainPicker } from "@/components/dashboard/focus-domain-picker";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
+import { useActiveCurriculum } from "@/lib/active-curriculum";
 import { getBrowserTimezone } from "@/lib/browser-timezone";
 import { clearThreadId, loadThreadId } from "@/app/session/session-persistence";
 import type { DashboardSummary, DomainPlan } from "@/lib/types";
@@ -59,6 +60,7 @@ const CTA_COPY: Record<CtaState, string> = {
 };
 
 export function DashboardClient() {
+  const { active } = useActiveCurriculum();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState("");
   const [focusDomain, setFocusDomain] = useState("");
@@ -75,7 +77,7 @@ export function DashboardClient() {
       const res = await fetch("/api/dashboard/summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, timezone: getBrowserTimezone() }),
+        body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "", timezone: getBrowserTimezone() }),
       });
       if (!res.ok) {
         setError("Dashboard is waiting for the agent service.");
@@ -85,7 +87,7 @@ export function DashboardClient() {
     }
 
     void load();
-  }, []);
+  }, [active?.exam_id]);
 
   if (error) {
     return <main className="min-h-screen bg-background p-6 text-amber-700 dark:text-amber-200">{error}</main>;
