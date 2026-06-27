@@ -109,7 +109,7 @@ export function useOnboarding() {
           return;
         }
 
-        if (data?.curriculum) {
+        if (data?.curriculum && !preflightParams) {
           router.replace("/dashboard");
           return;
         }
