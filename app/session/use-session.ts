@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { AnswerIntent, Challenge, Citation, EvaluationResult, SageFeedback, SageFeedbackType, SessionResult } from "@/lib/types";
 import { DEFAULT_SETTINGS, loadSettings } from "@/lib/settings";
 import { nextSessionRequest, restoreSessionRequest, startSessionRequest, submitSageFeedbackRequest, submitSessionRequest } from "./session-api";
@@ -8,6 +8,7 @@ import { readSessionStream } from "./session-stream";
 import { useRexRecord } from "./use-rex-record";
 import { answerIntentFor, answerTextFor } from "./answer-intent";
 import { bindThreadToActiveCurriculum, clearActiveThreadId, useActiveExamId, useResumableThreadId } from "./session-scope";
+import { useSessionLifecycle } from "./use-session-lifecycle";
 export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
 type SessionAction = "start" | "resume" | "submit" | "next";
 export function useSession(
@@ -185,21 +186,8 @@ export function useSession(
     setErrorMsg(""); setThreadId(null);
     void startSession();
   }, [startSession]);
-  const abandonSession = useCallback(() => { activeRequestRef.current += 1; clearActiveThreadId(); setThreadId(null); }, []);
-  useEffect(() => {
-    const saved = resumableThreadId;
-    const reviewOverride = startOverrides.mode === "review";
-    queueMicrotask(() => {
-      if (reviewOverride) {
-        // Review sessions are always fresh — never resume a thread that was
-        // started in a different mode (URL params would be silently dropped).
-        if (saved) clearActiveThreadId();
-        return void startSession(false);
-      }
-      if (!saved) return void startSession(false);
-      onFocusDomainConsumed?.();
-      void restoreSession(saved, false).then((p) => p === null && void startSession(false));
-    });
-  }, [restoreSession, startSession, onFocusDomainConsumed, resumableThreadId, startOverrides.mode, startOverrides.conceptId]);
+  const clearThread = () => setThreadId(null);
+  const bumpRequest = () => { activeRequestRef.current += 1; };
+  const { abandonSession } = useSessionLifecycle({ startSession, restoreSession, onFocusDomainConsumed, resumableThreadId, startOverrides, clearThread, bumpRequest });
   return { phase, cycle, maxCycles, domain: challenge?.domain ?? "Exam", challenge, answer, setAnswer, evaluation, sageText, sageCitations, sageFeedback, results, rexRecord, errorMsg, submitAnswer, submitSageFeedback, nextChallenge, retry, restart, abandonSession };
 }
