@@ -10,7 +10,11 @@ import { answerIntentFor, answerTextFor } from "./answer-intent";
 import { bindThreadToActiveCurriculum, clearActiveThreadId, useActiveExamId, useResumableThreadId } from "./session-scope";
 export type SessionPhase = "loading_challenge" | "ready" | "evaluating" | "streaming_sage" | "sage_done" | "loading_rechallenge" | "summary" | "error";
 type SessionAction = "start" | "resume" | "submit" | "next";
-export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void) {
+export function useSession(
+  focusDomain = "",
+  onFocusDomainConsumed?: () => void,
+  startOverrides: { mode?: "new" | "review"; conceptId?: string } = {},
+) {
   const [phase, setPhase] = useState<SessionPhase>("loading_challenge");
   const [cycle, setCycle] = useState(1);
   const [maxCycles, setMaxCycles] = useState(DEFAULT_SETTINGS.sessionCycles);
@@ -46,7 +50,12 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
     if (showLoading) setPhase("loading_challenge");
     setChallenge(null); setAnswer("");
     setEvaluation(null); setSageText(""); setSageCitations([]); setSageFeedback(null);
-    const res = await startSessionRequest(focusDomain, examId);
+    const res = await startSessionRequest({
+      focusDomain,
+      examId,
+      mode: startOverrides.mode ?? "new",
+      conceptId: startOverrides.conceptId ?? "",
+    });
     if (requestId !== activeRequestRef.current) return;
     if (!res.ok) {
       setErrorMsg("Rex couldn't generate a challenge. Try again.");
@@ -63,7 +72,7 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
     setChallenge(data.challenge);
     setPhase("ready");
     onFocusDomainConsumed?.();
-  }, [focusDomain, examId, onFocusDomainConsumed]);
+  }, [focusDomain, examId, onFocusDomainConsumed, startOverrides.mode, startOverrides.conceptId]);
   const restoreSession = useCallback(async (sessionThreadId: string, showLoading = true): Promise<RestoredSession["phase"] | null | undefined> => {
       const requestId = ++activeRequestRef.current;
       lastActionRef.current = "resume";
@@ -127,23 +136,14 @@ export function useSession(focusDomain = "", onFocusDomainConsumed?: () => void)
         setEvaluation(nextEvaluation);
         setPhase("streaming_sage");
       },
-      onToken: (token) => {
-        accumulatedSageText += token;
-        setSageText(accumulatedSageText);
-      },
+      onToken: (token) => { accumulatedSageText += token; setSageText(accumulatedSageText); },
       onCitations: setSageCitations,
       onDone: () => {
-        const completedEvaluation = currentEvaluation;
-        if (completedEvaluation) {
-          setResults((prev) => [...prev, { cycle, topic: challenge.topic, outcome: completedEvaluation.outcome, answer_intent: nextIntent }]);
-        }
+        if (currentEvaluation) setResults((prev) => [...prev, { cycle, topic: challenge.topic, outcome: currentEvaluation!.outcome, answer_intent: nextIntent }]);
         void refreshRexRecord();
         setPhase("sage_done");
       },
-      onError: (message) => {
-        setErrorMsg(message);
-        setPhase("error");
-      },
+      onError: (message) => { setErrorMsg(message); setPhase("error"); },
     });
   }, [challenge, answer, cycle, refreshRexRecord, threadId]);
   const nextChallenge = useCallback(async () => {

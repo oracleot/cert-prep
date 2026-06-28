@@ -17,7 +17,23 @@ const JSON_HEADERS = { "Content-Type": "application/json" };
  * `thread_id` is intentionally not sent here — the server generates one.
  * Resumes go through `restoreSessionRequest` instead.
  */
-export function startSessionRequest(focusDomain = "", examId: string | null = null) {
+export type StartSessionOptions = {
+  focusDomain?: string;
+  examId?: string | null;
+  // Phase 10 — Review Queue. Defaults to "new". "review" forces the agent
+  // service to pick the supplied concept_id instead of running its own
+  // selection logic. `conceptId` is required when `mode === "review"`.
+  mode?: "new" | "review";
+  conceptId?: string;
+};
+
+export function startSessionRequest(options: StartSessionOptions | string = {}) {
+  // Back-compat: older call sites pass the focus domain as a positional
+  // string. Normalize to the options object shape.
+  const opts: StartSessionOptions = typeof options === "string"
+    ? { focusDomain: options }
+    : options;
+  const { focusDomain = "", examId = null, mode = "new", conceptId = "" } = opts;
   return fetch("/api/session/start", {
     method: "POST",
     headers: JSON_HEADERS,
@@ -27,6 +43,8 @@ export function startSessionRequest(focusDomain = "", examId: string | null = nu
       ...(examId ? { exam_id: examId } : {}),
       ...sessionSettingsPayload(loadSettings()),
       ...(focusDomain ? { focus_domain: focusDomain } : {}),
+      ...(mode === "review" ? { mode: "review" } : {}),
+      ...(conceptId ? { concept_id: conceptId } : {}),
     }),
   });
 }
