@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
 import { AppNav } from "@/components/navigation/app-nav";
+import { DashboardSummaryCard } from "@/components/dashboard/dashboard-summary-card";
 import { FocusDomainPicker } from "@/components/dashboard/focus-domain-picker";
+import { ReviewQueueCta } from "@/components/dashboard/review-queue-cta";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
 import { useActiveCurriculum } from "@/lib/active-curriculum";
 import { getBrowserTimezone } from "@/lib/browser-timezone";
@@ -65,6 +66,9 @@ export function DashboardClient() {
   const [error, setError] = useState("");
   const [focusDomain, setFocusDomain] = useState("");
   const [hasInProgressThread, setHasInProgressThread] = useState<boolean>(() => Boolean(loadThreadId()));
+  const [reviewCount, setReviewCount] = useState(0);
+  const [reviewLoading, setReviewLoading] = useState(true);
+  const [reviewError, setReviewError] = useState(false);
 
   function endSession() {
     clearThreadId();
@@ -74,16 +78,33 @@ export function DashboardClient() {
   useEffect(() => {
     async function load() {
       const userId = getAnonymousUserId();
-      const res = await fetch("/api/dashboard/summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "", timezone: getBrowserTimezone() }),
-      });
-      if (!res.ok) {
+      const examId = active?.exam_id ?? "";
+      const [summaryRes, queueRes] = await Promise.all([
+        fetch("/api/dashboard/summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId, exam_id: examId, timezone: getBrowserTimezone() }),
+        }),
+        // Phase 10 — Review Queue. Capped at limit=1 because the dashboard
+        // only reads total_due; the full queue list lives at /review.
+        fetch("/api/review/queue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId, exam_id: examId, limit: 1 }),
+        }),
+      ]);
+      if (!summaryRes.ok) {
         setError("Dashboard is waiting for the agent service.");
         return;
       }
-      setSummary(await res.json());
+      setSummary(await summaryRes.json());
+      if (queueRes.ok) {
+        const queue = await queueRes.json();
+        setReviewCount(typeof queue.total_due === "number" ? queue.total_due : 0);
+      } else {
+        setReviewError(true);
+      }
+      setReviewLoading(false);
     }
 
     void load();
@@ -107,24 +128,7 @@ export function DashboardClient() {
       <div className="mx-auto max-w-6xl">
         <AppNav />
         <section className="mt-8 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 sm:p-10 dark:border-zinc-800 dark:bg-zinc-950">
-            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-amber-600 dark:text-amber-300">
-              Readiness score
-            </p>
-            <div className="mt-6 flex items-end gap-3">
-              <span className="text-7xl font-black tracking-tighter sm:text-8xl">
-                {formatPercent(summary.readiness_score)}%
-              </span>
-              {summary.readiness_score === 0 ? (
-                <span className="mb-3 rounded-full border border-zinc-300 px-3 py-1 text-xs font-bold text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-                  ghost baseline
-                </span>
-              ) : null}
-            </div>
-            <p className="mt-5 max-w-xl text-zinc-500 dark:text-zinc-400">
-              Weighted from domain performance; coverage bars track blueprint topics actually answered correctly.
-            </p>
-          </div>
+          <DashboardSummaryCard.ReadinessTile summary={summary} />
           <div className="rounded-[2rem] border border-zinc-800 bg-amber-300 p-7 text-zinc-950 sm:p-10">
             <p className="text-xs font-black uppercase tracking-[0.35em]">{hasFocus ? "Focus drill" : "Next up"}</p>
             <h1 className="mt-4 text-4xl font-black tracking-tight">
@@ -146,6 +150,7 @@ export function DashboardClient() {
               >
                 {ctaLabel}
               </Link>
+              <ReviewQueueCta count={reviewCount} loading={reviewLoading} error={reviewError} />
               {hasInProgressThread ? (
                 <button
                   type="button"
@@ -159,24 +164,7 @@ export function DashboardClient() {
           </div>
         </section>
         <section className="mt-5 grid gap-5 lg:grid-cols-2">
-          <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-950">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500 dark:text-zinc-500">
-              Daily streak
-            </p>
-            <p className="mt-5 text-5xl font-black">{summary.streak.current_streak}</p>
-            <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">
-              completed-session days
-            </p>
-          </div>
-          <div className="rounded-[2rem] border border-zinc-200 bg-white p-7 dark:border-zinc-800 dark:bg-zinc-950">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-500 dark:text-zinc-500">
-              Rex&apos;s record
-            </p>
-            <p className="mt-5 text-5xl font-black">
-              {summary.rex_record.user_wins}-{summary.rex_record.rex_wins}
-            </p>
-            <p className="mt-3 text-sm font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">YOU vs REX</p>
-          </div>
+          <DashboardSummaryCard.StatTiles summary={summary} />
           <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
             {summary.domains.map((domain) => <DomainTile key={domain.name} domain={domain} />)}
           </div>
