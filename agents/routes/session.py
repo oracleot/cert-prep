@@ -14,6 +14,7 @@ from feedback_repository import feedback_by_cycle
 from graphs.session import get_session_graph
 from llm import llm_runtime
 from onboarding_repository import get_latest_onboarding
+from routes.session_mode import NoReadyConcept, apply_mode_to_state
 from routes.session_models import SessionNextRequest, SessionStartRequest, SessionStateRequest, SessionSubmitRequest
 from state import initial_state
 
@@ -67,6 +68,11 @@ async def start_session(req: SessionStartRequest):
     if curriculum:
         state["curriculum_id"] = curriculum["id"]
     state["openrouter_api_key"] = req.openrouter_api_key
+
+    try:
+        state.update(await apply_mode_to_state(state, req))
+    except NoReadyConcept as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):
