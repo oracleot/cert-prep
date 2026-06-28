@@ -7,7 +7,9 @@ from __future__ import annotations
 import random
 from typing import Any
 
-from .loader import filter_ready, load_all_concepts
+from review_queue_repository import review_queue_for_user
+
+from .loader import filter_ready, find_concept, load_all_concepts
 
 
 class NoReadyConcept(Exception):
@@ -63,6 +65,19 @@ def _prioritise_concepts(
     if not others:
         raise NoReadyConcept(domain=None)
     return random.choice(others)
+
+
+async def select_review_concept(user_id: str, exam_id: str) -> dict[str, Any]:
+    """Pick the next review concept from the user's spaced-review queue.
+
+    Caps the repo query at ``limit=1`` and intersects with
+    ``load_all_concepts`` via ``find_concept`` (which only returns ready
+    records). Raises :class:`NoReadyConcept` if nothing is due.
+    """
+    rows = await review_queue_for_user(user_id, exam_id, limit=1)
+    if not rows:
+        raise NoReadyConcept(exam_id=exam_id, domain=None)
+    return find_concept(exam_id, rows[0]["concept_id"])
 
 
 def select_rechallenge_concept(
