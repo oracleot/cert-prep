@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -12,6 +14,12 @@ class SessionStartRequest(BaseModel):
     focus_domain: str = ""
     model_overrides: dict[str, str] = Field(default_factory=dict)
     openrouter_api_key: str = ""
+    # Phase 11 — review queue. ``mode`` switches between fresh concept
+    # selection (default ``"new"``) and spaced-review. ``concept_id`` pins
+    # the session to a specific concept when provided; otherwise
+    # ``select_review_concept`` picks the top due concept.
+    mode: Literal["new", "review"] = "new"
+    concept_id: str | None = None
 
 
 class SessionSubmitRequest(BaseModel):
