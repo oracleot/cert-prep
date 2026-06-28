@@ -22,6 +22,10 @@ function SessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const focusDomain = searchParams.get("focus_domain")?.trim() ?? "";
+  // Phase 10 — Review Queue. URL-driven entry: /session?mode=review&concept_id=X
+  // passes through to the start request. Otherwise the default "new" flow runs.
+  const mode = (searchParams.get("mode") === "review" ? "review" : "new") as "new" | "review";
+  const conceptId = searchParams.get("concept_id")?.trim() ?? "";
   const clearFocusDomain = useCallback(() => {
     if (focusDomain) router.replace("/session", { scroll: false });
   }, [focusDomain, router]);
@@ -45,7 +49,7 @@ function SessionContent() {
     nextChallenge,
     retry,
     restart,
-  } = useSession(focusDomain, clearFocusDomain);
+  } = useSession(focusDomain, clearFocusDomain, { mode, conceptId });
 
   // Phase 9.5 — derive the compact `Review next` block from the challenge's
   // closed-book concept packet (official_docs, skill_builder_links, lab_links).
