@@ -188,11 +188,18 @@ export function useSession(
   const abandonSession = useCallback(() => { activeRequestRef.current += 1; clearActiveThreadId(); setThreadId(null); }, []);
   useEffect(() => {
     const saved = resumableThreadId;
+    const reviewOverride = startOverrides.mode === "review";
     queueMicrotask(() => {
+      if (reviewOverride) {
+        // Review sessions are always fresh — never resume a thread that was
+        // started in a different mode (URL params would be silently dropped).
+        if (saved) clearActiveThreadId();
+        return void startSession(false);
+      }
       if (!saved) return void startSession(false);
       onFocusDomainConsumed?.();
       void restoreSession(saved, false).then((p) => p === null && void startSession(false));
     });
-  }, [restoreSession, startSession, onFocusDomainConsumed, resumableThreadId]);
+  }, [restoreSession, startSession, onFocusDomainConsumed, resumableThreadId, startOverrides.mode, startOverrides.conceptId]);
   return { phase, cycle, maxCycles, domain: challenge?.domain ?? "Exam", challenge, answer, setAnswer, evaluation, sageText, sageCitations, sageFeedback, results, rexRecord, errorMsg, submitAnswer, submitSageFeedback, nextChallenge, retry, restart, abandonSession };
 }
