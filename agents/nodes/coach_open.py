@@ -9,6 +9,7 @@ from onboarding_repository import get_learning_style
 from repositories import create_session
 from state import AppState
 
+from concepts.loader import find_concept
 from concepts.packet import concept_packet_fields
 # Top-level import so test patches on this module name succeed.
 from concepts.selector import NoReadyConcept, select_initial_concept  # noqa: F401
@@ -52,10 +53,14 @@ async def coach_open(state: AppState) -> dict:
     exam_id = state["exam_id"]
     focus_domain = state.get("focus_domain") or None
 
-    try:
-        concept = select_initial_concept(exam_id, domain=focus_domain)
-    except NoReadyConcept as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if state.get("current_concept_id"):
+        # Honor the pinned concept set by apply_mode_to_state (mode=review); do NOT re-select.
+        concept = find_concept(exam_id, state["current_concept_id"])
+    else:
+        try:
+            concept = select_initial_concept(exam_id, domain=focus_domain)
+        except NoReadyConcept as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     domain = concept["domain"]
     concept_id = concept["id"]

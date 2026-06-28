@@ -10,6 +10,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from concepts.loader import load_all_concepts
+from concepts.packet import concept_topic
 from review_queue_repository import review_queue_for_user
 
 router = APIRouter()
@@ -56,7 +57,7 @@ async def review_queue(req: ReviewQueueRequest) -> dict:
         due.append(
             {
                 "concept_id": concept["id"],
-                "topic": concept.get("topic", ""),
+                "topic": concept_topic(concept),
                 "domain": concept.get("domain", ""),
                 "last_outcome": row["last_outcome"],
                 "days_since_seen": row["days_since_seen"],
