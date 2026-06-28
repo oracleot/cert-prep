@@ -15,6 +15,7 @@ export function AppNav() {
   const isHistory = pathname === "/history";
   const isLessons = pathname.startsWith("/lessons");
   const isProgress = pathname === "/progress";
+  const isReview = pathname === "/review";
   const isSettings = pathname === "/settings";
   const hydrated = useHydrated();
   const { active } = useActiveCurriculum();
@@ -71,6 +72,14 @@ export function AppNav() {
             className="rounded-full border border-zinc-200 px-4 py-2 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
           >
             Progress
+          </Link>
+        ) : null}
+        {!isReview ? (
+          <Link
+            href="/review"
+            className="rounded-full border border-zinc-200 px-4 py-2 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
+          >
+            Review
           </Link>
         ) : null}
         {!isSettings ? (
