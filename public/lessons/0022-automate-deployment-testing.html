@@ -120,6 +120,36 @@ Promote only approved container image → ECR tags or digests</div>
     <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html">AWS Amplify</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>7. A developer is iterating on a Lambda function locally and wants <mark>realistic test events and a Lambda-like runtime before pushing to the pipeline</mark>. <mark>Which statements about SAM CLI local testing are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) <code>sam local generate-event</code> produces realistic test event payloads such as API Gateway or S3 events for local invocation</button>
+    <button class="choice">B) <code>sam local invoke</code> deploys the function directly to AWS Lambda once the local run succeeds</button>
+    <button class="choice" data-correct>C) <code>sam local invoke</code> executes the function inside a local Docker container similar to the Lambda runtime</button>
+    <button class="choice">D) SAM local testing fully replaces the need for any cloud-based integration testing</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A"><code>sam local generate-event</code> produces realistic event payloads (API Gateway, S3, SQS, DynamoDB) for use with <code>sam local invoke</code>—Task 3.3.</aside>
+    <aside data-rationale-for="B"><code>sam local invoke</code> runs the function in a local Docker container; it does not push code to AWS Lambda. Deployments run through <code>sam deploy</code>.</aside>
+    <aside data-rationale-for="C"><code>sam local invoke</code> runs the function in a local Docker container built from the Lambda runtime image, mimicking the cloud environment—Task 3.3.</aside>
+    <aside data-rationale-for="D">SAM local testing is a development convenience, not a substitute for cloud-based integration tests that exercise live AWS service integrations.</aside>
+    <aside class="explanation"><code>sam local generate-event</code> produces test payloads and <code>sam local invoke</code> runs them in a local Docker container, but neither deploys to AWS nor replaces cloud integration testing.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-generate-event.html">SAM local generate-event</a> and <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html">SAM local invoke</a>.</aside>
+  </section>
+
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>8. A team must release a Lambda function update with <mark>a partial traffic shift and a bake interval before completing the rollout</mark>. <mark>Which statements about CodeDeploy deployment configurations for Lambda are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Linear configuration shifts equal traffic percentages at fixed intervals until all traffic is moved</button>
+    <button class="choice">B) Canary configuration shifts all traffic at once with no bake interval before completion</button>
+    <button class="choice" data-correct>C) Canary configuration shifts a small slice, holds for a bake interval, then completes the shift to all traffic</button>
+    <button class="choice">D) The same Linear, Canary, and AllAtOnce deployment configurations apply identically to Lambda, ECS, and EC2</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Linear shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 15 minutes) until 100 percent of traffic is on the new version—Task 3.3.</aside>
+    <aside data-rationale-for="B">Canary does not shift all traffic at once; it moves a small initial slice, holds, then completes the shift in a second step.</aside>
+    <aside data-rationale-for="C">Canary shifts a small slice (e.g., 10 percent), holds for a bake interval to monitor alarms, then completes the shift in a second step—Task 3.3.</aside>
+    <aside data-rationale-for="D">CodeDeploy Linear/Canary/AllAtOnce configurations apply to Lambda and ECS; EC2 uses a different set of in-place and blue/green deployment configurations.</aside>
+    <aside class="explanation">Linear shifts equal increments at fixed intervals and Canary holds a small initial slice before completing. All-at-once shifts all traffic immediately, and EC2 uses a different configuration set than Lambda.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy deployment configurations</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-lambda.html">Lambda deployment reference</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0021-test-applications-in-dev-environments.html">← Previous: Lesson 0021</a><a href="0023-deploy-code-using-ci-cd-services.html">Next: Lesson 0023 →</a>
   </nav>
