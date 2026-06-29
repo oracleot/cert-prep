@@ -190,6 +190,21 @@
     <aside class="knowledge-gap">Review <a href="0001-dva-c02-domain-triage.html">IAM least privilege patterns</a> and <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege">IAM least privilege</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>11. A mobile app needs to <mark>authenticate end users with sign-up and sign-in</mark> and then <mark>give those users temporary AWS credentials for S3 object access</mark>. <mark>Which AWS mechanisms are valid for this flow?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Cognito user pools authenticate app users and issue JWT tokens</button>
+    <button class="choice">B) Cognito identity pools authenticate app users and issue session tokens</button>
+    <button class="choice" data-correct>C) Cognito identity pools exchange authenticated identities for temporary AWS credentials mapped to IAM roles</button>
+    <button class="choice">D) Create one IAM user per end user with long-term access keys for S3 access</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Cognito user pools provide sign-up and sign-in flows and issue JWT tokens that downstream services (including identity pools) can consume.</aside>
+    <aside data-rationale-for="B">Cognito identity pools do not authenticate users; they exchange already-authenticated identities (JWT, SAML, or anonymous) for AWS temporary credentials.</aside>
+    <aside data-rationale-for="C">Cognito identity pools federate identities into IAM roles and return temporary STS credentials scoped to those roles for direct AWS service access.</aside>
+    <aside data-rationale-for="D">Creating one IAM user per end user is unscalable, requires long-term access keys, and violates least-privilege and security best practices.</aside>
+    <aside class="explanation">Cognito user pools authenticate users and identity pools issue the AWS credentials. Identity pools do not authenticate, and IAM users are not the right answer for end-user app identity.</aside>
+    <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">Cognito identity pools</a> and <a href="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-identity.html">Cognito identity pools</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0013-timed-domain-1-mixed-drill.html">← Previous: Lesson 0013</a><a href="0015-domain-2-error-handling-and-security-logging.html">Next: Lesson 0015 →</a>
   </nav>
