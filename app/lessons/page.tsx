@@ -61,7 +61,7 @@ export default async function LessonsPage() {
                 {lessons.filter((lesson) => lesson.domain === domain).map((lesson) => (
                   <Link
                     key={lesson.file}
-                    href={`/lessons/${lesson.file}`}
+                    href={`/lessons/${lesson.file.replace(/\.html$/, "")}`}
                     className="block rounded-2xl border border-zinc-200 px-4 py-3 text-sm font-bold text-zinc-700 hover:border-amber-300 hover:bg-amber-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-amber-300/70 dark:hover:bg-amber-300/10"
                   >
                     {String(lesson.number).padStart(4, "0")} · {lesson.title}

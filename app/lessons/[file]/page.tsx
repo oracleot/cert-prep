@@ -22,7 +22,7 @@ function stripScriptTags(html: string): string {
 }
 
 function sanitizeFile(file: string): string | null {
-  if (!/^\d{4}-[\w-]+\.html$/.test(file)) return null;
+  if (!/^\d{4}-[\w-]+$/.test(file)) return null;
   return file;
 }
 
@@ -30,7 +30,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const { file } = await params;
   const safe = sanitizeFile(file);
   if (!safe) notFound();
-  const path = join(process.cwd(), "public", "lessons", safe);
+  const path = join(process.cwd(), "public", "lessons", `${safe}.html`);
   let raw: string;
   try {
     raw = await readFile(path, "utf8");
