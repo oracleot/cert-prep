@@ -37,12 +37,13 @@ def _collect_distractors(results, allowlist):
 def _snapshot(results):
     total_dist = {"A": 0, "B": 0, "C": 0, "D": 0}
     total_q, all_a, multi = 0, 0, 0
+    multi_dist = {"A": 0, "B": 0, "C": 0, "D": 0}
     for r in results:
         for k, v in r.get("dist", {}).items(): total_dist[k] += v
         total_q += r.get("total_questions", 0)
         if r.get("all_a"): all_a += 1
-        for q in r.get("quizzes", []):
-            if q.get("multi"): multi += 1
+        for k, v in r.get("multi_dist", {}).items(): multi_dist[k] += v
+        multi += r.get("multi_count", 0)
     return {
         "files": [{"file": r["file"], "lessons": r.get("lessons", 1),
             "quizzes": len(r.get("quizzes", [])), "total_questions": r.get("total_questions", 0),
@@ -55,20 +56,23 @@ def _snapshot(results):
             "all_a_lessons": all_a,
         },
         "multi_count": multi,
+        "multi_dist": multi_dist,
+        "multi_dist_pct": {k: round(v / sum(multi_dist.values()) * 100, 1) if sum(multi_dist.values()) else 0.0 for k, v in multi_dist.items()},
     }
 
 
 def _print_report(results, allowlist, before_snap=None):
     total_dist = {"A": 0, "B": 0, "C": 0, "D": 0}
     total_q, multi_count, all_a_lessons, over50 = 0, 0, [], []
+    multi_dist = {"A": 0, "B": 0, "C": 0, "D": 0}
     for r in results:
         for k, v in r.get("dist", {}).items(): total_dist[k] += v
         total_q += r.get("total_questions", 0)
         if r.get("all_a"): all_a_lessons.append(r["file"])
         a_pct = r.get("dist_pct", {}).get("A", 0.0)
         if a_pct > 50.0 and r.get("total_questions", 0) > 0: over50.append(r["file"])
-        for q in r.get("quizzes", []):
-            if q.get("multi"): multi_count += 1
+        for k, v in r.get("multi_dist", {}).items(): multi_dist[k] += v
+        multi_count += r.get("multi_count", 0)
 
     print("## Per-lesson A% (single-select only)")
     print(f"{'file':<52} {'N':>2}  {'A%':>5}  {'B%':>5}  {'C%':>5}  {'D%':>5}  flag")
@@ -84,14 +88,11 @@ def _print_report(results, allowlist, before_snap=None):
         print(f"{k}: {v:3d} ({v/total_q*100:.1f}%)" if total_q else f"{k}:   0 (0.0%)")
 
     print("\n## Multi-select coverage")
-    soft_multi = sum(
-        1 for r in results
-        for q in r.get("quizzes", [])
-        for ch in q.get("choices", [])
-        if ("choose two" in (q.get("id") or "").lower() or "select all" in (q.get("id") or "").lower())
-    )
-    print(f'data-multi attrs found: {multi_count}')
-    print(f'"choose two" / "select all" cues: {soft_multi}')
+    print(f"Multi-select questions: {multi_count}")
+    print(f"Multi-select correct-button distribution: total correct buttons = {sum(multi_dist.values())}")
+    for k in "ABCD":
+        v = multi_dist[k]
+        print(f"  {k}: {v}")
 
     print("\n## Distractor check")
     hard_hits, soft_hits = _collect_distractors(results, allowlist)
@@ -108,9 +109,8 @@ def _print_report(results, allowlist, before_snap=None):
     else: print("[PASS] no lesson >50% A")
     if a_pct <= 35.0: print("[PASS] global A ≤ 35%")
     else: print(f"[FAIL] global A ≤ 35%: current {a_pct:.1f}%")
-    total_multi = multi_count + soft_multi
-    if total_multi >= 10: print("[PASS] ≥10 multi-select")
-    else: print(f"[FAIL] ≥10 multi-select: current {total_multi}")
+    if multi_count >= 10: print("[PASS] ≥10 multi-select")
+    else: print(f"[FAIL] ≥10 multi-select: current {multi_count}")
     if not hard_hits: print("[PASS] no non-AWS distractor (hard list)")
     else: print(f"[FAIL] no non-AWS distractor: {len(hard_hits)} found (hard list)")
 

@@ -100,20 +100,28 @@ def parse_file(path: str) -> dict[str, Any]:
     quizzes = parser.parse(html, source_file)
     for i, q in enumerate(quizzes):
         if q["id"] is None: q["id"] = str(i + 1)
+    single_quizzes = [q for q in quizzes if not q["multi"]]
+    multi_quizzes = [q for q in quizzes if q["multi"]]
     for q in quizzes:
         dist: dict[str, int] = {"A": 0, "B": 0, "C": 0, "D": 0}
         for ch in q["choices"]:
             if ch["correct"]: dist[ch["letter"]] = dist.get(ch["letter"], 0) + 1
         q["answer_dist"] = dist; q["answers_count"] = sum(dist.values())
-    total = sum(q["answers_count"] for q in quizzes)
-    dist: dict[str, int] = {"A": 0, "B": 0, "C": 0, "D": 0}
-    for q in quizzes:
-        for k, v in q["answer_dist"].items(): dist[k] += v
+    ss_dist: dict[str, int] = {"A": 0, "B": 0, "C": 0, "D": 0}
+    for q in single_quizzes:
+        for k, v in q["answer_dist"].items(): ss_dist[k] += v
+    multi_dist: dict[str, int] = {"A": 0, "B": 0, "C": 0, "D": 0}
+    for q in multi_quizzes:
+        for k, v in q["answer_dist"].items(): multi_dist[k] += v
+    ss_total = sum(q["answers_count"] for q in single_quizzes)
     return {
         "file": source_file, "lessons": 1, "quizzes": quizzes,
-        "total_questions": total, "dist": dist,
-        "dist_pct": {k: round(v / total * 100, 1) if total else 0.0 for k, v in dist.items()},
-        "all_a": all(q["answer_dist"].get("A", 0) == q["answers_count"] and q["answers_count"] > 0 for q in quizzes) if quizzes else False,
+        "total_questions": ss_total, "dist": ss_dist,
+        "dist_pct": {k: round(v / ss_total * 100, 1) if ss_total else 0.0 for k, v in ss_dist.items()},
+        "all_a": all(q["answer_dist"].get("A", 0) == q["answers_count"] and q["answers_count"] > 0 for q in single_quizzes) if single_quizzes else False,
+        "multi_count": len(multi_quizzes),
+        "multi_dist": multi_dist,
+        "multi_dist_pct": {k: round(v / sum(multi_dist.values()) * 100, 1) if sum(multi_dist.values()) else 0.0 for k, v in multi_dist.items()},
     }
 def scan_lessons(lessons_dir: str) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
