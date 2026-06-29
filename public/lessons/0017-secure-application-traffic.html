@@ -142,13 +142,13 @@ Bucket policy       Restrict S3 access with aws:sourceVpce</div>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>7. A VPC has <mark>private subnets with no internet gateway or NAT gateway</mark>. The application must reach certain AWS services privately without traversing the public internet. <mark>Which VPC endpoint scenarios are valid for this requirement?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) A gateway endpoint routes private subnet traffic to Amazon S3 via the route table</button>
-    <button class="choice" data-correct>B) An interface endpoint with PrivateLink exposes an elastic network interface for Amazon SNS APIs</button>
-    <button class="choice">C) A NAT gateway with no internet gateway attached still provides private S3 access</button>
+    <button class="choice">B) A NAT gateway with no internet gateway attached still provides private S3 access</button>
+    <button class="choice" data-correct>C) An interface endpoint with PrivateLink exposes an elastic network interface for Amazon SNS APIs</button>
     <button class="choice">D) A public subnet route table entry alone provides internet-free access to AWS services</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Gateway endpoints are route-table targets for S3 and DynamoDB that keep traffic inside the AWS network without needing public IPs or an internet path.</aside>
-    <aside data-rationale-for="B">Interface VPC endpoints create PrivateLink ENIs in private subnets and support most AWS service APIs, including SNS, SQS, and Secrets Manager.</aside>
-    <aside data-rationale-for="C">A NAT gateway requires an attached internet gateway and elastic IPs to function. Without an internet gateway, no NAT path exists to AWS services.</aside>
+    <aside data-rationale-for="B">A NAT gateway requires an attached internet gateway and elastic IPs to function. Without an internet gateway, no NAT path exists to AWS services.</aside>
+    <aside data-rationale-for="C">Interface VPC endpoints create PrivateLink ENIs in private subnets and support most AWS service APIs, including SNS, SQS, and Secrets Manager.</aside>
     <aside data-rationale-for="D">Public subnet route table entries route through an internet gateway—without one there is no path. Endpoints, not public subnets, give internet-free service access.</aside>
     <aside class="explanation">Gateway endpoints and interface endpoints are both valid ways to reach AWS services from private subnets without an internet gateway. NAT gateways and public subnets require internet gateways.</aside>
     <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">VPC PrivateLink</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>.</aside>
@@ -157,14 +157,14 @@ Bucket policy       Restrict S3 access with aws:sourceVpce</div>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>8. A team must allow <mark>subnet traffic from a Lambda function to a database</mark> while explicitly denying a specific CIDR range at the subnet boundary. <mark>Which statements about VPC security groups and network ACLs are valid?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Security groups attach to ENIs, are stateful, and automatically allow return traffic for allowed sessions</button>
-    <button class="choice" data-correct>B) Network ACLs attach to subnets, are stateless, and evaluate rules in numerical order with both allow and deny</button>
+    <button class="choice">B) Network ACLs are stateful and remember connections, while security groups evaluate every packet</button>
     <button class="choice">C) Security groups can explicitly deny specific CIDRs while NACLs only allow traffic by default</button>
-    <button class="choice">D) Network ACLs are stateful and remember connections, while security groups evaluate every packet</button>
+    <button class="choice" data-correct>D) Network ACLs attach to subnets, are stateless, and evaluate rules in numerical order with both allow and deny</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Security groups attach to ENIs, are stateful, and automatically allow return traffic for sessions they permit; subnet-wide explicit deny usually belongs to NACLs.</aside>
-    <aside data-rationale-for="B">NACLs attach to subnets, are stateless, and evaluate rules in numerical order with both allow and deny, including ephemeral port rules for return traffic.</aside>
+    <aside data-rationale-for="B">NACLs are stateless and require explicit return-traffic rules; security groups are stateful and automatically allow return traffic for allowed sessions.</aside>
     <aside data-rationale-for="C">Security groups only support allow rules; they cannot explicitly deny traffic. NACLs support both allow and deny, so the choice reverses the actual capabilities.</aside>
-    <aside data-rationale-for="D">NACLs are stateless and require explicit return-traffic rules; security groups are stateful and automatically allow return traffic for allowed sessions.</aside>
+    <aside data-rationale-for="D">NACLs attach to subnets, are stateless, and evaluate rules in numerical order with both allow and deny, including ephemeral port rules for return traffic.</aside>
     <aside class="explanation">Security groups are stateful ENI-level allow-only filters, while NACLs are stateless subnet-level allow/deny rule lists. Subnet-wide explicit deny belongs in NACLs.</aside>
     <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">security groups vs NACLs</a> and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html">NACL rules</a>.</aside>
   </section>
