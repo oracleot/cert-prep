@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -41,12 +42,12 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
     <div className="min-h-screen bg-background text-foreground">
       <AppNav />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
-        <a
+        <Link
           href="/lessons"
           className="mb-4 inline-block text-sm font-bold text-amber-700 hover:underline dark:text-amber-300"
         >
           ← All lessons
-        </a>
+        </Link>
         <div dangerouslySetInnerHTML={{ __html: body }} />
         <script src="/quiz-hydrator.js" defer></script>
       </div>

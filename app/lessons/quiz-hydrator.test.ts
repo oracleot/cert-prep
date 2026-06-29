@@ -10,6 +10,11 @@ import { resolve } from "node:path";
 
 type Handler = (e: { currentTarget: MockEl }) => void;
 
+function walkClosest(start: MockEl, sel: string): MockEl | null {
+  if (start.matches(sel)) return start;
+  return start.parent ? walkClosest(start.parent, sel) : null;
+}
+
 class MockEl {
   tag: string;
   classes = new Set<string>();
@@ -45,13 +50,8 @@ class MockEl {
 
   querySelector(sel: string) { return this.querySelectorAll(sel)[0] ?? null; }
 
-  closest(sel: string) {
-    let cur: MockEl | null = this;
-    while (cur) {
-      if (cur.matches(sel)) return cur;
-      cur = cur.parent;
-    }
-    return null;
+  closest(sel: string): MockEl | null {
+    return walkClosest(this, sel);
   }
 
   hasAttribute(n: string) { return n in this.attrs; }
