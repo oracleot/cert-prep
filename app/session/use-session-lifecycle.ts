@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { clearActiveThreadId } from "./session-scope";
 
 type LifecycleDeps = {
@@ -14,6 +14,7 @@ type LifecycleDeps = {
 
 export function useSessionLifecycle(deps: LifecycleDeps): { abandonSession: () => void } {
   const { startSession, restoreSession, clearThread, bumpRequest, onFocusDomainConsumed, resumableThreadId, startOverrides } = deps;
+  const reviewLaunchedRef = useRef(false);
 
   const abandonSession = useCallback(() => {
     bumpRequest();
@@ -24,8 +25,13 @@ export function useSessionLifecycle(deps: LifecycleDeps): { abandonSession: () =
   useEffect(() => {
     const saved = resumableThreadId;
     const reviewOverride = startOverrides.mode === "review";
+    // Reset the launch guard whenever mode leaves "review", so a later new-mode
+    // session can still be started normally, and a return to "review" can fire.
+    if (!reviewOverride) reviewLaunchedRef.current = false;
     queueMicrotask(() => {
       if (reviewOverride) {
+        if (reviewLaunchedRef.current) return; // already in-flight
+        reviewLaunchedRef.current = true;
         // Review sessions are always fresh — never resume a thread that was
         // started in a different mode (URL params would be silently dropped).
         if (saved) clearActiveThreadId();

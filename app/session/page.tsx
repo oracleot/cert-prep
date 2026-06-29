@@ -29,6 +29,7 @@ function SessionContent() {
   const clearFocusDomain = useCallback(() => {
     if (focusDomain) router.replace("/session", { scroll: false });
   }, [focusDomain, router]);
+  const startOverrides = useMemo(() => ({ mode, conceptId }), [mode, conceptId]);
   const {
     phase,
     cycle,
@@ -49,7 +50,7 @@ function SessionContent() {
     nextChallenge,
     retry,
     restart,
-  } = useSession(focusDomain, clearFocusDomain, { mode, conceptId });
+  } = useSession(focusDomain, clearFocusDomain, startOverrides);
 
   // Phase 9.5 — derive the compact `Review next` block from the challenge's
   // closed-book concept packet (official_docs, skill_builder_links, lab_links).
