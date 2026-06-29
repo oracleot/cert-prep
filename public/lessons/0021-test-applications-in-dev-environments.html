@@ -135,7 +135,7 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
     <aside data-rationale-for="C">CloudFormation change sets preview stack updates before execution and are the standard safety tool; skipping them removes the preview step but does not validate changes.</aside>
     <aside data-rationale-for="D">API Gateway MOCK integrations and stage variables exist exactly to validate contracts in development without production traffic.</aside>
     <aside class="explanation">MOCK integrations and Step Functions Local both enable pre-backend testing of contracts and logic. Change sets are preview tools, not gatekeepers, and require production traffic only when explicitly testing real backends.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integrations.html">API Gateway MOCK integrations</a> and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/sfn-local.html">Step Functions Local</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integrations.html">API Gateway MOCK integrations</a>, <a href="https://docs.aws.amazon.com/step-functions/latest/dg/sfn-local.html">Step Functions Local</a>, and <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
@@ -150,7 +150,7 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
     <aside data-rationale-for="C">An alias is a stable, movable pointer to a single version; event sources target the alias ARN and continue to work unchanged after version promotion—Task 3.2.</aside>
     <aside data-rationale-for="D"><code>$LATEST</code> is mutable and not recommended for production. Production traffic should target a numbered version, directly or via alias.</aside>
     <aside class="explanation">Versions are immutable and aliases point at one version, so event sources stay bound to the alias ARN across promotion. <code>$LATEST</code> is the working copy; production should use a numbered version or alias.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-versions.html">Lambda versions</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-versions.html">Lambda versions</a>, <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>, and <a href="0020-prepare-application-artifacts.html">Task 3.1 Lambda packaging</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
