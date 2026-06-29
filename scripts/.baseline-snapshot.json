@@ -1,0 +1,627 @@
+{
+  "files": [
+    {
+      "file": "0001-dva-c02-domain-triage.html",
+      "lessons": 1,
+      "quizzes": 8,
+      "total_questions": 8,
+      "dist": {
+        "A": 3,
+        "B": 3,
+        "C": 1,
+        "D": 1
+      },
+      "dist_pct": {
+        "A": 37.5,
+        "B": 37.5,
+        "C": 12.5,
+        "D": 12.5
+      },
+      "all_a": false
+    },
+    {
+      "file": "0002-lambda-invocation-and-failures.html",
+      "lessons": 1,
+      "quizzes": 6,
+      "total_questions": 6,
+      "dist": {
+        "A": 3,
+        "B": 2,
+        "C": 1,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 50.0,
+        "B": 33.3,
+        "C": 16.7,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0003-lambda-concurrency-and-performance.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 3,
+        "B": 2,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 60.0,
+        "B": 40.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0004-lambda-event-source-mappings.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 4,
+        "B": 1,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 80.0,
+        "B": 20.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0005-lambda-configuration-traps.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 3,
+        "B": 2,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 60.0,
+        "B": 40.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0006-lambda-vpc-permissions-and-failure-routing.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 4,
+        "B": 1,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 80.0,
+        "B": 20.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0007-api-gateway-request-response-mapping.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 3,
+        "B": 1,
+        "C": 1,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 60.0,
+        "B": 20.0,
+        "C": 20.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 2,
+        "B": 1,
+        "C": 1,
+        "D": 1
+      },
+      "dist_pct": {
+        "A": 40.0,
+        "B": 20.0,
+        "C": 20.0,
+        "D": 20.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0009-retries-idempotency-backoff-and-dlqs.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 5,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0010-dynamodb-capacity-consistency-and-indexes.html",
+      "lessons": 1,
+      "quizzes": 4,
+      "total_questions": 4,
+      "dist": {
+        "A": 1,
+        "B": 0,
+        "C": 3,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 25.0,
+        "B": 0.0,
+        "C": 75.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0011-storage-selection-and-lifecycle.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 2,
+        "B": 1,
+        "C": 1,
+        "D": 1
+      },
+      "dist_pct": {
+        "A": 40.0,
+        "B": 20.0,
+        "C": 20.0,
+        "D": 20.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0012-caching-streaming-etl-and-domain-1-mixed-drill.html",
+      "lessons": 1,
+      "quizzes": 8,
+      "total_questions": 8,
+      "dist": {
+        "A": 4,
+        "B": 3,
+        "C": 1,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 50.0,
+        "B": 37.5,
+        "C": 12.5,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0013-timed-domain-1-mixed-drill.html",
+      "lessons": 1,
+      "quizzes": 10,
+      "total_questions": 10,
+      "dist": {
+        "A": 1,
+        "B": 3,
+        "C": 3,
+        "D": 3
+      },
+      "dist_pct": {
+        "A": 10.0,
+        "B": 30.0,
+        "C": 30.0,
+        "D": 30.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0014-authentication-and-authorization-selection.html",
+      "lessons": 1,
+      "quizzes": 10,
+      "total_questions": 10,
+      "dist": {
+        "A": 10,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0015-domain-2-error-handling-and-security-logging.html",
+      "lessons": 1,
+      "quizzes": 5,
+      "total_questions": 5,
+      "dist": {
+        "A": 3,
+        "B": 0,
+        "C": 2,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 60.0,
+        "B": 0.0,
+        "C": 40.0,
+        "D": 0.0
+      },
+      "all_a": false
+    },
+    {
+      "file": "0016-domain-2-secure-configuration-selection.html",
+      "lessons": 1,
+      "quizzes": 6,
+      "total_questions": 6,
+      "dist": {
+        "A": 6,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0017-secure-application-traffic.html",
+      "lessons": 1,
+      "quizzes": 6,
+      "total_questions": 6,
+      "dist": {
+        "A": 6,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0018-security-best-practices-patterns.html",
+      "lessons": 1,
+      "quizzes": 8,
+      "total_questions": 8,
+      "dist": {
+        "A": 8,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0019-domain-3-introduction.html",
+      "lessons": 1,
+      "quizzes": 7,
+      "total_questions": 7,
+      "dist": {
+        "A": 7,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0020-prepare-application-artifacts.html",
+      "lessons": 1,
+      "quizzes": 8,
+      "total_questions": 8,
+      "dist": {
+        "A": 8,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0021-test-applications-in-dev-environments.html",
+      "lessons": 1,
+      "quizzes": 6,
+      "total_questions": 6,
+      "dist": {
+        "A": 6,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0022-automate-deployment-testing.html",
+      "lessons": 1,
+      "quizzes": 6,
+      "total_questions": 6,
+      "dist": {
+        "A": 6,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    },
+    {
+      "file": "0023-deploy-code-using-ci-cd-services.html",
+      "lessons": 1,
+      "quizzes": 8,
+      "total_questions": 8,
+      "dist": {
+        "A": 8,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "dist_pct": {
+        "A": 100.0,
+        "B": 0.0,
+        "C": 0.0,
+        "D": 0.0
+      },
+      "all_a": true
+    }
+  ],
+  "summary": {
+    "total_files": 23,
+    "total_questions": 146,
+    "dist": {
+      "A": 106,
+      "B": 20,
+      "C": 14,
+      "D": 6
+    },
+    "dist_pct": {
+      "A": 72.6,
+      "B": 13.7,
+      "C": 9.6,
+      "D": 4.1
+    },
+    "all_a_lessons": 10
+  },
+  "multi_count": 0,
+  "hard_hits": [
+    [
+      "0009-retries-idempotency-backoff-and-dlqs.html",
+      "1",
+      "Skip write"
+    ],
+    [
+      "0009-retries-idempotency-backoff-and-dlqs.html",
+      "1",
+      "Manual page"
+    ],
+    [
+      "0009-retries-idempotency-backoff-and-dlqs.html",
+      "2",
+      "Add cache"
+    ],
+    [
+      "0009-retries-idempotency-backoff-and-dlqs.html",
+      "2",
+      "Add layer"
+    ],
+    [
+      "0014-authentication-and-authorization-selection.html",
+      "1",
+      "Root keys"
+    ]
+  ],
+  "soft_hits": [
+    [
+      "0001-dva-c02-domain-triage.html",
+      "1",
+      "B",
+      "Domain 2"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "1",
+      "C",
+      "Domain 3"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "1",
+      "D",
+      "Domain 4"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "2",
+      "A",
+      "Domain 1"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "2",
+      "C",
+      "Domain 3"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "2",
+      "D",
+      "Domain 4"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "3",
+      "A",
+      "Domain 1"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "3",
+      "B",
+      "Domain 2"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "3",
+      "D",
+      "Domain 4"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "4",
+      "A",
+      "Domain 1"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "4",
+      "B",
+      "Domain 2"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "4",
+      "C",
+      "Domain 3"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "6",
+      "C",
+      "Rolling batch"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "6",
+      "D",
+      "Immutable swap"
+    ],
+    [
+      "0001-dva-c02-domain-triage.html",
+      "7",
+      "B",
+      "AWS Config"
+    ],
+    [
+      "0002-lambda-invocation-and-failures.html",
+      "6",
+      "C",
+      "Memory setting"
+    ],
+    [
+      "0003-lambda-concurrency-and-performance.html",
+      "2",
+      "D",
+      "Memory increase"
+    ],
+    [
+      "0003-lambda-concurrency-and-performance.html",
+      "4",
+      "D",
+      "CodeArtifact"
+    ],
+    [
+      "0003-lambda-concurrency-and-performance.html",
+      "5",
+      "B",
+      "Queue delay"
+    ],
+    [
+      "0005-lambda-configuration-traps.html",
+      "1",
+      "C",
+      "Handler setting"
+    ]
+  ],
+  "over50_lessons": [
+    "0003-lambda-concurrency-and-performance.html",
+    "0004-lambda-event-source-mappings.html",
+    "0005-lambda-configuration-traps.html",
+    "0006-lambda-vpc-permissions-and-failure-routing.html",
+    "0007-api-gateway-request-response-mapping.html",
+    "0009-retries-idempotency-backoff-and-dlqs.html",
+    "0014-authentication-and-authorization-selection.html",
+    "0015-domain-2-error-handling-and-security-logging.html",
+    "0016-domain-2-secure-configuration-selection.html",
+    "0017-secure-application-traffic.html",
+    "0018-security-best-practices-patterns.html",
+    "0019-domain-3-introduction.html",
+    "0020-prepare-application-artifacts.html",
+    "0021-test-applications-in-dev-environments.html",
+    "0022-automate-deployment-testing.html",
+    "0023-deploy-code-using-ci-cd-services.html"
+  ],
+  "global_a_pct": 72.6
+}
