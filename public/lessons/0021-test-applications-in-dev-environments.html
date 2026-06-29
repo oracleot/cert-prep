@@ -35,29 +35,29 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
   <h2>Mixed drill: choose the best answer</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A DVA-C02 scenario describes a <mark>development team that needs API responses before the Lambda backend is built</mark>. You must choose the API Gateway integration that returns test data. <mark>Which integration type returns responses without invoking any backend?</mark></h3>
-    <button class="choice" data-correct>A) MOCK</button>
+    <button class="choice">A) SAM package</button>
     <button class="choice">B) Lambda alias</button>
     <button class="choice">C) cfn-init script</button>
-    <button class="choice">D) SAM package</button>
+    <button class="choice" data-correct>D) MOCK</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>MOCK</strong> integration makes API Gateway return fixed, configured responses with no backend call—Task 3.2.</aside>
+    <aside data-rationale-for="D"><strong>MOCK</strong> integration makes API Gateway return fixed, configured responses with no backend call—Task 3.2.</aside>
     <aside data-rationale-for="B">Lambda alias is a stable pointer to a version; it does not replace a missing backend.</aside>
     <aside data-rationale-for="C">cfn-init configures EC2 instances at launch; it is not an API Gateway integration type.</aside>
-    <aside data-rationale-for="D">SAM package zips and uploads artifacts; it does not return API responses.</aside>
+    <aside data-rationale-for="A">SAM package zips and uploads artifacts; it does not return API responses.</aside>
     <aside class="explanation">MOCK is correct. It returns test responses without invoking Lambda—used when the backend is not yet available.</aside>
     <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html">API Gateway mock integrations</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A scenario involves a <mark>Lambda function whose versions are promoted through dev, beta, and prod environments</mark>. You must choose the feature that keeps event source ARNs unchanged during promotion. <mark>Which Lambda construct provides a stable trigger target that can be moved between versions?</mark></h3>
-    <button class="choice" data-correct>A) Lambda alias</button>
+    <button class="choice">A) Wait condition</button>
     <button class="choice">B) Lambda layer version</button>
-    <button class="choice">C) Wait condition</button>
+    <button class="choice" data-correct>C) Lambda alias</button>
     <button class="choice">D) Public mappings</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">A <strong>Lambda alias</strong> is a movable pointer to a specific version—event sources targeting the alias ARN do not need updates after promotion—Task 3.2.</aside>
+    <aside data-rationale-for="C">A <strong>Lambda alias</strong> is a movable pointer to a specific version—event sources targeting the alias ARN do not need updates after promotion—Task 3.2.</aside>
     <aside data-rationale-for="B">Lambda layer versions share dependencies; they do not serve as stable trigger targets.</aside>
-    <aside data-rationale-for="C">Wait conditions synchronize CloudFormation stack creation; they do not provide stable Lambda trigger targets.</aside>
+    <aside data-rationale-for="A">Wait conditions synchronize CloudFormation stack creation; they do not provide stable Lambda trigger targets.</aside>
     <aside data-rationale-for="D">Public mappings route API requests; they do not point to Lambda versions.</aside>
     <aside class="explanation">Lambda alias is correct. Aliases (dev, beta, prod) allow stable event source ARNs while versions are promoted.</aside>
     <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
@@ -65,13 +65,13 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. A DVA-C02 scenario describes an <mark>S3 event trigger that must keep invoking the same Lambda function even after new versions are published</mark>. You must choose the stable pointer. <mark>Which Lambda construct should the S3 trigger target instead of a version ARN?</mark></h3>
-    <button class="choice" data-correct>A) Lambda alias ARN</button>
-    <button class="choice">B) Lambda layer ARN</button>
+    <button class="choice">A) Lambda layer ARN</button>
+    <button class="choice" data-correct>B) Lambda alias ARN</button>
     <button class="choice">C) CloudFormation stack ARN</button>
     <button class="choice">D) API Gateway stage ARN</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">An <strong>alias ARN</strong> is the stable trigger target—S3 and other event sources pointing to the alias do not need updates after version promotion—Task 3.2.</aside>
-    <aside data-rationale-for="B">Lambda layer ARNs reference shared dependencies, not the function itself; they cannot serve as event source targets.</aside>
+    <aside data-rationale-for="B">An <strong>alias ARN</strong> is the stable trigger target—S3 and other event sources pointing to the alias do not need updates after version promotion—Task 3.2.</aside>
+    <aside data-rationale-for="A">Lambda layer ARNs reference shared dependencies, not the function itself; they cannot serve as event source targets.</aside>
     <aside data-rationale-for="C">CloudFormation stack ARN identifies the stack, not a specific Lambda function version.</aside>
     <aside data-rationale-for="D">API Gateway stage ARN identifies a deployed API, not a Lambda version pointer.</aside>
     <aside class="explanation">Lambda alias ARN is correct. Event sources should target the alias, not the version ARN, so promotions do not require trigger updates.</aside>
@@ -80,14 +80,14 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. A DVA-C02 scenario involves a <mark>major runtime version change for a Lambda function where cutover risk must be minimized</mark>. You must choose the deployment strategy. <mark>Which deployment approach provisions a new environment in parallel before switching traffic?</mark></h3>
-    <button class="choice" data-correct>A) Blue/green</button>
+    <button class="choice">A) In-place</button>
     <button class="choice">B) All-at-once</button>
-    <button class="choice">C) In-place</button>
+    <button class="choice" data-correct>C) Blue/green</button>
     <button class="choice">D) API Gateway mock</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Blue/green</strong> provisions a new environment in parallel and shifts traffic—minimizing cutover risk for major changes—Task 3.2.</aside>
+    <aside data-rationale-for="C"><strong>Blue/green</strong> provisions a new environment in parallel and shifts traffic—minimizing cutover risk for major changes—Task 3.2.</aside>
     <aside data-rationale-for="B">All-at-once shifts all traffic immediately; it has the highest cutover risk.</aside>
-    <aside data-rationale-for="C">In-place replaces code on the same instances; it does not provision a parallel environment.</aside>
+    <aside data-rationale-for="A">In-place replaces code on the same instances; it does not provision a parallel environment.</aside>
     <aside data-rationale-for="D">API Gateway mock returns test responses; it is not a Lambda deployment strategy.</aside>
     <aside class="explanation">Blue/green is correct. It creates a parallel environment and shifts traffic, providing instant rollback capability.</aside>
     <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 traffic shifting</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a>.</aside>
@@ -95,13 +95,13 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. A scenario describes an <mark>EC2 instance that must install packages, create directories, and start services automatically from CloudFormation template metadata during provisioning</mark>. You must name the bootstrap script. <mark>Which CloudFormation helper script applies metadata-driven configuration to an EC2 instance?</mark></h3>
-    <button class="choice" data-correct>A) cfn-init</button>
-    <button class="choice">B) cfn-hup</button>
+    <button class="choice">A) cfn-hup</button>
+    <button class="choice" data-correct>B) cfn-init</button>
     <button class="choice">C) sam init</button>
     <button class="choice">D) API Gateway mock</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>cfn-init</code> reads <code>AWS::CloudFormation::Init</code> metadata and installs packages, creates files, and starts services—Task 3.2.</aside>
-    <aside data-rationale-for="B">cfn-hup detects metadata changes and re-runs cfn-init; it does not perform the initial configuration.</aside>
+    <aside data-rationale-for="B"><code>cfn-init</code> reads <code>AWS::CloudFormation::Init</code> metadata and installs packages, creates files, and starts services—Task 3.2.</aside>
+    <aside data-rationale-for="A">cfn-hup detects metadata changes and re-runs cfn-init; it does not perform the initial configuration.</aside>
     <aside data-rationale-for="C">sam init creates a new SAM project; it does not configure EC2 from CloudFormation metadata.</aside>
     <aside data-rationale-for="D">API Gateway mock returns test responses; it does not configure EC2 instances.</aside>
     <aside class="explanation">cfn-init is correct. It applies CloudFormation metadata to configure EC2 at launch.</aside>
@@ -110,15 +110,15 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>6. A DVA-C02 scenario involves a <mark>CloudFormation stack that must pause until an EC2 instance finishes its cfn-init configuration</mark>. You must choose the synchronization mechanism. <mark>Which CloudFormation feature makes the stack wait for a successful EC2 configuration signal before proceeding?</mark></h3>
-    <button class="choice" data-correct>A) cfn-signal</button>
+    <button class="choice">A) API Gateway stage</button>
     <button class="choice">B) cfn-init</button>
     <button class="choice">C) sam build</button>
-    <button class="choice">D) API Gateway stage</button>
+    <button class="choice" data-correct>D) cfn-signal</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>cfn-signal</code> sends a success or failure signal to CloudFormation so the stack can proceed or roll back—Task 3.2.</aside>
+    <aside data-rationale-for="D"><code>cfn-signal</code> sends a success or failure signal to CloudFormation so the stack can proceed or roll back—Task 3.2.</aside>
     <aside data-rationale-for="B">cfn-init configures the instance; it does not signal CloudFormation to continue.</aside>
     <aside data-rationale-for="C">sam build compiles Lambda artifacts; it does not synchronize CloudFormation.</aside>
-    <aside data-rationale-for="D">API Gateway stage is a deployed API environment; it does not synchronize CloudFormation.</aside>
+    <aside data-rationale-for="A">API Gateway stage is a deployed API environment; it does not synchronize CloudFormation.</aside>
     <aside class="explanation">cfn-signal is correct. Combined with a CreationPolicy or wait condition, it tells CloudFormation the instance is ready.</aside>
     <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a>.</aside>
   </section>

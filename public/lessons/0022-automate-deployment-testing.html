@@ -32,28 +32,28 @@ Promote only approved container image → ECR tags or digests</div>
   <h2>Retrieval drill: pick the tested feature</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A DVA-C02 scenario describes a <mark>commit to a Git repository that must trigger build, test, staging, and production actions automatically</mark>. You must name the orchestration service. <mark>Which AWS service chains source, build, test, and deploy stages triggered by code changes?</mark></h3>
-    <button class="choice" data-correct>A) AWS CodePipeline</button>
+    <button class="choice">A) AWS CodeGuru</button>
     <button class="choice">B) AWS CodeArtifact</button>
     <button class="choice">C) AWS CodeCommit</button>
-    <button class="choice">D) AWS CodeGuru</button>
+    <button class="choice" data-correct>D) AWS CodePipeline</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>CodePipeline</strong> orchestrates ordered stages (source, build, test, deploy) triggered by repository changes—Task 3.3.</aside>
+    <aside data-rationale-for="D"><strong>CodePipeline</strong> orchestrates ordered stages (source, build, test, deploy) triggered by repository changes—Task 3.3.</aside>
     <aside data-rationale-for="B">CodeArtifact stores package dependencies; it does not orchestrate pipeline stages.</aside>
     <aside data-rationale-for="C">CodeCommit hosts the Git repository; it does not chain pipeline stages.</aside>
-    <aside data-rationale-for="D">CodeGuru performs code reviews; it does not orchestrate CI/CD stages.</aside>
+    <aside data-rationale-for="A">CodeGuru performs code reviews; it does not orchestrate CI/CD stages.</aside>
     <aside class="explanation">CodePipeline is correct. It is the release automation spine that chains stages on commit events.</aside>
     <aside class="knowledge-gap">Review <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD services</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A scenario involves <mark>a CodeBuild project where unit tests and lint commands must run during the build phase</mark>. You must name the configuration file. <mark>Which YAML file defines install, build, and post-build commands that CodeBuild executes?</mark></h3>
-    <button class="choice" data-correct>A) buildspec.yml</button>
-    <button class="choice">B) AppSpec file</button>
+    <button class="choice">A) AppSpec file</button>
+    <button class="choice" data-correct>B) buildspec.yml</button>
     <button class="choice">C) CloudFormation template</button>
     <button class="choice">D) Runbook</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>buildspec.yml</code> defines install, pre_build, build, and post_build phases for CodeBuild—Task 3.3.</aside>
-    <aside data-rationale-for="B">AppSpec file configures CodeDeploy application and deployment lifecycle hooks; it does not run in CodeBuild.</aside>
+    <aside data-rationale-for="B"><code>buildspec.yml</code> defines install, pre_build, build, and post_build phases for CodeBuild—Task 3.3.</aside>
+    <aside data-rationale-for="A">AppSpec file configures CodeDeploy application and deployment lifecycle hooks; it does not run in CodeBuild.</aside>
     <aside data-rationale-for="C">CloudFormation template defines infrastructure resources; it does not run build commands.</aside>
     <aside data-rationale-for="D">Runbook documents operational procedures; it is not a CodeBuild configuration file.</aside>
     <aside class="explanation">buildspec.yml is correct. CodeBuild reads this file to run the install, build, and test phases of the project.</aside>
@@ -62,14 +62,14 @@ Promote only approved container image → ECR tags or digests</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. A DVA-C02 scenario describes a <mark>CodeDeploy Lambda deployment where traffic shifts to the new version in equal increments at fixed intervals</mark>. You must name the traffic configuration. <mark>Which CodeDeploy Lambda deployment configuration shifts traffic in equal percentages at fixed intervals?</mark></h3>
-    <button class="choice" data-correct>A) Linear</button>
+    <button class="choice">A) Blue/green</button>
     <button class="choice">B) Canary</button>
-    <button class="choice">C) Blue/green</button>
+    <button class="choice" data-correct>C) Linear</button>
     <button class="choice">D) Immutable</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 10 minutes)—Task 3.3.</aside>
+    <aside data-rationale-for="C"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 10 minutes)—Task 3.3.</aside>
     <aside data-rationale-for="B">Canary shifts an initial small percentage, then shifts the remainder at once—fixed equal increments are not canary.</aside>
-    <aside data-rationale-for="C">Blue/green deploys to a separate environment before shifting traffic; it is not equal increments.</aside>
+    <aside data-rationale-for="A">Blue/green deploys to a separate environment before shifting traffic; it is not equal increments.</aside>
     <aside data-rationale-for="D">Immutable deploys to a new fleet and terminates the old one; it does not shift traffic incrementally.</aside>
     <aside class="explanation">Linear is correct. CodeDeploy linear configuration shifts traffic in equal increments at fixed intervals.</aside>
     <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4</a>.</aside>
@@ -77,14 +77,14 @@ Promote only approved container image → ECR tags or digests</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. A scenario involves an <mark>API Gateway integration that must return test responses before any Lambda backend exists</mark>. You must choose the correct integration type. <mark>Which API Gateway integration type returns a configured response without invoking any backend?</mark></h3>
-    <button class="choice" data-correct>A) MOCK</button>
+    <button class="choice">A) AWS</button>
     <button class="choice">B) HTTP</button>
-    <button class="choice">C) AWS</button>
+    <button class="choice" data-correct>C) MOCK</button>
     <button class="choice">D) VPC</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>MOCK</strong> integration returns fixed responses configured in API Gateway without calling any backend—Task 3.3.</aside>
+    <aside data-rationale-for="C"><strong>MOCK</strong> integration returns fixed responses configured in API Gateway without calling any backend—Task 3.3.</aside>
     <aside data-rationale-for="B">HTTP integration calls an HTTP backend; it requires a live endpoint.</aside>
-    <aside data-rationale-for="C">AWS integration invokes an AWS service or Lambda; it requires a real backend.</aside>
+    <aside data-rationale-for="A">AWS integration invokes an AWS service or Lambda; it requires a real backend.</aside>
     <aside data-rationale-for="D">VPC is not an API Gateway integration type.</aside>
     <aside class="explanation">MOCK is correct. It enables API Gateway to return configured responses for contract testing or when backends are unavailable.</aside>
     <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-integration-types.html">API Gateway integration types</a> and <a href="0021-test-applications-in-dev-environments.html">Task 3.2</a>.</aside>
@@ -92,13 +92,13 @@ Promote only approved container image → ECR tags or digests</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. A DVA-C02 scenario involves <mark>a pipeline that must deploy to another AWS account using temporary, time-limited credentials</mark>. You must name the security mechanism. <mark>Which AWS service provides temporary, role-based credentials for cross-account pipeline access?</mark></h3>
-    <button class="choice" data-correct>A) AWS STS (AssumeRole)</button>
-    <button class="choice">B) AWS KMS key</button>
+    <button class="choice">A) AWS KMS key</button>
+    <button class="choice" data-correct>B) AWS STS (AssumeRole)</button>
     <button class="choice">C) SCP rule</button>
     <button class="choice">D) Network ACL</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>STS AssumeRole</strong> returns temporary security credentials with an expiration time for cross-account access—Task 3.3.</aside>
-    <aside data-rationale-for="B">KMS keys encrypt and decrypt data; they do not provide temporary credentials.</aside>
+    <aside data-rationale-for="B"><strong>STS AssumeRole</strong> returns temporary security credentials with an expiration time for cross-account access—Task 3.3.</aside>
+    <aside data-rationale-for="A">KMS keys encrypt and decrypt data; they do not provide temporary credentials.</aside>
     <aside data-rationale-for="C">SCPs (Service Control Policies) restrict permissions in AWS Organizations; they do not issue credentials.</aside>
     <aside data-rationale-for="D">Network ACLs filter subnet traffic; they do not provide cross-account credentials.</aside>
     <aside class="explanation">STS AssumeRole is correct. It is the standard mechanism for pipelines to assume cross-account IAM roles with temporary credentials.</aside>
@@ -107,15 +107,15 @@ Promote only approved container image → ECR tags or digests</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>6. A DVA-C02 scenario involves <mark>a frontend application where test and production environments must follow Git branches automatically</mark>. You must name the service. <mark>Which AWS service connects Git branches to frontend and backend environments, deploying updates on every commit?</mark></h3>
-    <button class="choice" data-correct>A) AWS Amplify</button>
+    <button class="choice">A) AWS DataSync</button>
     <button class="choice">B) AWS AppConfig</button>
     <button class="choice">C) AWS OpsWorks</button>
-    <button class="choice">D) AWS DataSync</button>
+    <button class="choice" data-correct>D) AWS Amplify</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Amplify</strong> connects Git branches to hosting environments and deploys automatically on commits—Task 3.3.</aside>
+    <aside data-rationale-for="D"><strong>Amplify</strong> connects Git branches to hosting environments and deploys automatically on commits—Task 3.3.</aside>
     <aside data-rationale-for="B">AppConfig manages runtime feature flags and configurations; it does not connect Git branches to environments.</aside>
     <aside data-rationale-for="C">OpsWorks manages configuration with Chef or Puppet; it does not follow Git branch deployments.</aside>
-    <aside data-rationale-for="D">DataSync transfers data between storage systems; it does not manage deployments.</aside>
+    <aside data-rationale-for="A">DataSync transfers data between storage systems; it does not manage deployments.</aside>
     <aside class="explanation">Amplify is correct. It maps Git branches to environments and triggers automatic deployments on code commits.</aside>
     <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html">AWS Amplify</a> and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD</a>.</aside>
   </section>

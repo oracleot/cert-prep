@@ -42,13 +42,13 @@
   <h2>Retrieval drill: choose the best answer</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. ECS tasks need <mark>access to AWS services</mark>. <mark>Which IAM identity attaches to the task?</mark></h3>
-    <button class="choice" data-correct>A) IAM role</button>
-    <button class="choice">B) IAM group</button>
+    <button class="choice">A) IAM group</button>
+    <button class="choice" data-correct>B) IAM role</button>
     <button class="choice">C) Root keys</button>
     <button class="choice">D) Access key</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">ECS task roles attach to tasks and provide temporary AWS credentials for service access.</aside>
-    <aside data-rationale-for="B">IAM groups organize users—they do not attach to ECS tasks.</aside>
+    <aside data-rationale-for="B">ECS task roles attach to tasks and provide temporary AWS credentials for service access.</aside>
+    <aside data-rationale-for="A">IAM groups organize users—they do not attach to ECS tasks.</aside>
     <aside data-rationale-for="C">Root keys violate least privilege and should never be used in applications.</aside>
     <aside data-rationale-for="D">Access keys are long-term credentials—ECS tasks use temporary role credentials.</aside>
     <aside class="explanation">IAM role is correct. ECS task roles provide temporary credentials via STS.</aside>
@@ -57,14 +57,14 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A <mark>partner AWS account needs temporary access</mark> to your resources. <mark>Which mechanism provides time-limited credentials?</mark></h3>
-    <button class="choice" data-correct>A) STS AssumeRole</button>
+    <button class="choice">A) Root login</button>
     <button class="choice">B) Static keys</button>
-    <button class="choice">C) Root login</button>
+    <button class="choice" data-correct>C) STS AssumeRole</button>
     <button class="choice">D) Shared user</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">AssumeRole returns temporary security credentials with optional expiration.</aside>
+    <aside data-rationale-for="C">AssumeRole returns temporary security credentials with optional expiration.</aside>
     <aside data-rationale-for="B">Static keys are long-term and violate least privilege for cross-account access.</aside>
-    <aside data-rationale-for="C">Root login grants full account access—it is not a temporary access mechanism.</aside>
+    <aside data-rationale-for="A">Root login grants full account access—it is not a temporary access mechanism.</aside>
     <aside data-rationale-for="D">Shared users create security risks and violate least privilege.</aside>
     <aside class="explanation">STS AssumeRole is correct. It provides temporary credentials for cross-account or federated access.</aside>
     <aside class="knowledge-gap">Study <a href="0013-timed-domain-1-mixed-drill.html">cross-account access patterns</a> and <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html">STS AssumeRole</a>.</aside>
@@ -72,28 +72,28 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. <mark>Mobile users need sign-up and sign-in</mark> for your app. <mark>Which Cognito feature authenticates users?</mark></h3>
-    <button class="choice" data-correct>A) User pool</button>
+    <button class="choice">A) API key</button>
     <button class="choice">B) Identity pool</button>
     <button class="choice">C) IAM role</button>
-    <button class="choice">D) API key</button>
+    <button class="choice" data-correct>D) User pool</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Cognito user pools authenticate users with sign-up, sign-in, and token issuance.</aside>
+    <aside data-rationale-for="D">Cognito user pools authenticate users with sign-up, sign-in, and token issuance.</aside>
     <aside data-rationale-for="B">Identity pools exchange identities for AWS credentials—they do not handle sign-up/sign-in.</aside>
     <aside data-rationale-for="C">IAM roles are for AWS service access—not mobile user authentication.</aside>
-    <aside data-rationale-for="D">API keys are for usage plans and throttling—not user authentication.</aside>
+    <aside data-rationale-for="A">API keys are for usage plans and throttling—not user authentication.</aside>
     <aside class="explanation">User pool is correct. User pools handle user authentication, sign-up, and token management.</aside>
     <aside class="knowledge-gap">Compare <a href="0016-domain-2-secure-configuration-selection.html">Cognito pools vs identity pools</a> and <a href="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html">Cognito user pools</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. Signed-in users need <mark>temporary AWS credentials</mark> for S3 access. <mark>Which Cognito feature provides these?</mark></h3>
-    <button class="choice" data-correct>A) Identity pool</button>
-    <button class="choice">B) User pool</button>
+    <button class="choice">A) User pool</button>
+    <button class="choice" data-correct>B) Identity pool</button>
     <button class="choice">C) API key</button>
     <button class="choice">D) Stage cache</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Identity pools exchange Cognito or federated identities for temporary AWS credentials.</aside>
-    <aside data-rationale-for="B">User pools issue tokens for authentication—they do not provide AWS credentials.</aside>
+    <aside data-rationale-for="B">Identity pools exchange Cognito or federated identities for temporary AWS credentials.</aside>
+    <aside data-rationale-for="A">User pools issue tokens for authentication—they do not provide AWS credentials.</aside>
     <aside data-rationale-for="C">API keys are for usage plans—not temporary AWS credentials.</aside>
     <aside data-rationale-for="D">Stage caching stores responses—it does not provide AWS credentials.</aside>
     <aside class="explanation">Identity pool is correct. Identity pools exchange identities for temporary AWS credentials mapped to IAM roles.</aside>
@@ -102,14 +102,14 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. <mark>Internal Lambda callers sign API requests with SigV4</mark>. <mark>Which authorization method validates signed requests?</mark></h3>
-    <button class="choice" data-correct>A) IAM authorization</button>
+    <button class="choice">A) User pool</button>
     <button class="choice">B) API key</button>
-    <button class="choice">C) User pool</button>
+    <button class="choice" data-correct>C) IAM authorization</button>
     <button class="choice">D) Stage var</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">IAM authorization validates Signature Version 4 signed requests from AWS principals.</aside>
+    <aside data-rationale-for="C">IAM authorization validates Signature Version 4 signed requests from AWS principals.</aside>
     <aside data-rationale-for="B">API keys do not validate SigV4 signatures—they are for usage plans.</aside>
-    <aside data-rationale-for="C">User pools authenticate app users with tokens—not SigV4 signatures.</aside>
+    <aside data-rationale-for="A">User pools authenticate app users with tokens—not SigV4 signatures.</aside>
     <aside data-rationale-for="D">Stage variables pass per-stage values—they do not validate signatures.</aside>
     <aside class="explanation">IAM authorization is correct. API Gateway validates SigV4 signatures from IAM principals.</aside>
     <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">API Gateway authorization</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-authorization-flow.html">API Gateway IAM authorization</a>.</aside>
@@ -117,44 +117,44 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>6. <mark>Custom OAuth bearer-token logic</mark> is required for API Gateway. <mark>Which authorizer type fits this scenario?</mark></h3>
-    <button class="choice" data-correct>A) TOKEN Lambda authorizer</button>
+    <button class="choice">A) Stage cache</button>
     <button class="choice">B) REQUEST authorizer</button>
     <button class="choice">C) Usage plan</button>
-    <button class="choice">D) Stage cache</button>
+    <button class="choice" data-correct>D) TOKEN Lambda authorizer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">TOKEN authorizers receive a bearer token and run custom validation logic in Lambda.</aside>
+    <aside data-rationale-for="D">TOKEN authorizers receive a bearer token and run custom validation logic in Lambda.</aside>
     <aside data-rationale-for="B">REQUEST authorizers receive the full request context—not a bearer token.</aside>
     <aside data-rationale-for="C">Usage plans control throttling and quotas—they do not handle authorization.</aside>
-    <aside data-rationale-for="D">Stage caching stores responses—it does not handle authorization.</aside>
+    <aside data-rationale-for="A">Stage caching stores responses—it does not handle authorization.</aside>
     <aside class="explanation">TOKEN Lambda authorizer is correct. It receives bearer tokens and runs custom authorization logic.</aside>
     <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Lambda authorizer patterns</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html">Lambda authorizers</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>7. <mark>API Gateway authorization depends on request headers and query strings</mark>. The Lambda function needs full request context. <mark>Which authorizer type reads this context?</mark></h3>
-    <button class="choice" data-correct>A) REQUEST authorizer</button>
+    <button class="choice">A) Stage cache</button>
     <button class="choice">B) TOKEN authorizer</button>
     <button class="choice">C) Usage plan</button>
-    <button class="choice">D) Stage cache</button>
+    <button class="choice" data-correct>D) REQUEST authorizer</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">REQUEST authorizers receive headers, query strings, stage variables, and context.</aside>
+    <aside data-rationale-for="D">REQUEST authorizers receive headers, query strings, stage variables, and context.</aside>
     <aside data-rationale-for="B">TOKEN authorizers receive only the bearer token—not full request context.</aside>
     <aside data-rationale-for="C">Usage plans control throttling—they do not handle authorization.</aside>
-    <aside data-rationale-for="D">Stage caching stores responses—it does not handle authorization.</aside>
+    <aside data-rationale-for="A">Stage caching stores responses—it does not handle authorization.</aside>
     <aside class="explanation">REQUEST authorizer is correct. It receives headers, query strings, and full request context for Lambda-based authorization.</aside>
     <aside class="knowledge-gap">Study <a href="0015-domain-2-error-handling-and-security-logging.html">Lambda authorizer request context</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html">Lambda authorizers</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>8. API Gateway <mark>cannot invoke Lambda</mark>. <mark>Which Lambda policy grants invocation permission?</mark></h3>
-    <button class="choice" data-correct>A) Resource policy</button>
+    <button class="choice">A) User pool</button>
     <button class="choice">B) Execution role</button>
-    <button class="choice">C) User pool</button>
+    <button class="choice" data-correct>C) Resource policy</button>
     <button class="choice">D) Access keys</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda resource-based policies grant services permission to invoke the function.</aside>
+    <aside data-rationale-for="C">Lambda resource-based policies grant services permission to invoke the function.</aside>
     <aside data-rationale-for="B">Execution role controls what Lambda can call—not who can invoke Lambda.</aside>
-    <aside data-rationale-for="C">User pools authenticate users—they do not grant Lambda invocation permission.</aside>
+    <aside data-rationale-for="A">User pools authenticate users—they do not grant Lambda invocation permission.</aside>
     <aside data-rationale-for="D">Access keys are long-term credentials—they do not grant invocation permission.</aside>
     <aside class="explanation">Resource policy is correct. Lambda resource-based policies grant API Gateway invocation permission.</aside>
     <aside class="knowledge-gap">Review <a href="0005-lambda-configuration-traps.html">Lambda resource-based policies</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html">Lambda resource policies</a>.</aside>
@@ -162,13 +162,13 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>9. Lambda code must <mark>write to DynamoDB</mark>. <mark>Which IAM identity provides table access?</mark></h3>
-    <button class="choice" data-correct>A) Execution role</button>
-    <button class="choice">B) Resource policy</button>
+    <button class="choice">A) Resource policy</button>
+    <button class="choice" data-correct>B) Execution role</button>
     <button class="choice">C) Usage plan</button>
     <button class="choice">D) Access token</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda execution role grants the function permission to call AWS services like DynamoDB.</aside>
-    <aside data-rationale-for="B">Resource policy controls who can invoke Lambda—not what Lambda can access.</aside>
+    <aside data-rationale-for="B">Lambda execution role grants the function permission to call AWS services like DynamoDB.</aside>
+    <aside data-rationale-for="A">Resource policy controls who can invoke Lambda—not what Lambda can access.</aside>
     <aside data-rationale-for="C">Usage plans control throttling—they do not grant DynamoDB access.</aside>
     <aside data-rationale-for="D">Access tokens are for API authentication—not AWS service access.</aside>
     <aside class="explanation">Execution role is correct. Lambda execution role grants permission to write to DynamoDB.</aside>
@@ -177,14 +177,14 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>10. <mark>A DVA-C02 scenario applies least privilege</mark> to an IAM policy. The policy must scope access to a specific resource. <mark>Which permission scope follows this principle?</mark></h3>
-    <button class="choice" data-correct>A) Specific ARN</button>
+    <button class="choice">A) Root allow</button>
     <button class="choice">B) Wildcard all</button>
-    <button class="choice">C) Root allow</button>
+    <button class="choice" data-correct>C) Specific ARN</button>
     <button class="choice">D) Shared keys</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Least privilege grants only the specific resource ARN needed—not broader access.</aside>
+    <aside data-rationale-for="C">Least privilege grants only the specific resource ARN needed—not broader access.</aside>
     <aside data-rationale-for="B">Wildcard <code>*</code> grants overly broad access and violates least privilege.</aside>
-    <aside data-rationale-for="C">Root access grants full account permissions—it violates least privilege.</aside>
+    <aside data-rationale-for="A">Root access grants full account permissions—it violates least privilege.</aside>
     <aside data-rationale-for="D">Shared keys create security risks and violate least privilege.</aside>
     <aside class="explanation">Specific ARN is correct. Least privilege scopes permissions to specific resources.</aside>
     <aside class="knowledge-gap">Review <a href="0001-dva-c02-domain-triage.html">IAM least privilege patterns</a> and <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege">IAM least privilege</a>.</aside>

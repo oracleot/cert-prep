@@ -76,13 +76,13 @@ Security incident or audit trail needed?
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. An <mark>API Gateway Lambda</mark> returns raw stack traces and IAM policy names to users. The security team flags this as a data leak. <mark>Which response is correct?</mark></h3>
     <button class="choice">A) Return the full error for debugging</button>
-    <button class="choice">B) Return a generic 500 with a request ID</button>
-    <button class="choice" data-correct>C) Redact the error and log details server-side</button>
+    <button class="choice" data-correct>B) Redact the error and log details server-side</button>
+    <button class="choice">C) Return a generic 500 with a request ID</button>
     <button class="choice">D) Disable error responses entirely</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Exposing stack traces and policy names leaks internal architecture and attack surface to users.</aside>
-    <aside data-rationale-for="B">A generic 500 tells users something failed but does not log evidence for investigation.</aside>
-    <aside data-rationale-for="C">Redact client-facing errors while logging request IDs, principal context, and sanitized codes server-side.</aside>
+    <aside data-rationale-for="C">A generic 500 tells users something failed but does not log evidence for investigation.</aside>
+    <aside data-rationale-for="B">Redact client-facing errors while logging request IDs, principal context, and sanitized codes server-side.</aside>
     <aside data-rationale-for="D">Disabling all errors prevents debugging and blocks legitimate troubleshooting.</aside>
     <aside class="explanation">Redact client-facing errors while logging structured facts server-side. Stack traces, policy names, and credentials must never reach users.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">safe error patterns and logging</a> and <a href="https://docs.aws.amazon.com/lambda/latest/operatorguide/logging.html">Lambda logging best practices</a>.</aside>
@@ -90,14 +90,14 @@ Security incident or audit trail needed?
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A <mark>Lambda async invocation</mark> fails repeatedly after all retry attempts. The event cannot be discarded. <mark>Where should failed async events be routed?</mark></h3>
-    <button class="choice" data-correct>A) Lambda Destinations or a DLQ</button>
+    <button class="choice">A) CloudFront cache purge</button>
     <button class="choice">B) S3 bucket lifecycle rule</button>
-    <button class="choice">C) CloudFront cache purge</button>
+    <button class="choice" data-correct>C) Lambda Destinations or a DLQ</button>
     <button class="choice">D) DynamoDB TTL expiration</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda Destinations route async failures to SQS, SNS, Lambda, or EventBridge without data loss.</aside>
+    <aside data-rationale-for="C">Lambda Destinations route async failures to SQS, SNS, Lambda, or EventBridge without data loss.</aside>
     <aside data-rationale-for="B">S3 lifecycle rules handle object expiration—they do not receive Lambda async failures.</aside>
-    <aside data-rationale-for="C">CloudFront cache purge clears cached responses—it does not handle Lambda event failures.</aside>
+    <aside data-rationale-for="A">CloudFront cache purge clears cached responses—it does not handle Lambda event failures.</aside>
     <aside data-rationale-for="D">DynamoDB TTL expiration removes old items—it does not receive Lambda failure events.</aside>
     <aside class="explanation">Lambda Destinations or a DLQ routes failed async events to SQS, SNS, or EventBridge for later processing.</aside>
     <aside class="knowledge-gap">Study <a href="0009-retries-idempotency-backoff-and-dlqs.html">Lambda async failure destinations</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async invocation errors</a>.</aside>
@@ -105,15 +105,15 @@ Security incident or audit trail needed?
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. A <mark>Step Functions workflow</mark> needs to branch to a compensation handler when a Lambda task throws a known error. <mark>Which feature handles this?</mark></h3>
-    <button class="choice" data-correct>A) Retry and Catch blocks</button>
+    <button class="choice">A) CloudWatch alarm threshold</button>
     <button class="choice">B) EventBridge scheduled rule</button>
     <button class="choice">C) SQS visibility timeout</button>
-    <button class="choice">D) CloudWatch alarm threshold</button>
+    <button class="choice" data-correct>D) Retry and Catch blocks</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Step Functions Retry retries failed tasks and Catch redirects to an alternate branch when errors are unrecoverable.</aside>
+    <aside data-rationale-for="D">Step Functions Retry retries failed tasks and Catch redirects to an alternate branch when errors are unrecoverable.</aside>
     <aside data-rationale-for="B">EventBridge scheduled rules trigger on time—they do not handle Step Functions task failures.</aside>
     <aside data-rationale-for="C">SQS visibility timeout hides messages during processing—it does not redirect failed workflow tasks.</aside>
-    <aside data-rationale-for="D">CloudWatch alarms fire on metric thresholds—they do not redirect Step Functions execution branches.</aside>
+    <aside data-rationale-for="A">CloudWatch alarms fire on metric thresholds—they do not redirect Step Functions execution branches.</aside>
     <aside class="explanation">Step Functions Retry and Catch blocks handle known errors by retrying or routing to a compensation branch.</aside>
     <aside class="knowledge-gap">Study <a href="0009-retries-idempotency-backoff-and-dlqs.html">workflow error handling</a> and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html">Step Functions error handling</a>.</aside>
   </section>
@@ -122,27 +122,27 @@ Security incident or audit trail needed?
     <h3>4. An <mark>IAM role has an explicit allow</mark> but requests are still denied. The Lambda function cannot access DynamoDB. <mark>What is the next step in troubleshooting?</mark></h3>
     <button class="choice">A) Increase Lambda memory allocation</button>
     <button class="choice">B) Check CloudWatch metric filters</button>
-    <button class="choice" data-correct>C) Check for an explicit deny in SCPs, permission boundaries, or session policies</button>
-    <button class="choice">D) Restart the Lambda function cold start</button>
+    <button class="choice">C) Restart the Lambda function cold start</button>
+    <button class="choice" data-correct>D) Check for an explicit deny in SCPs, permission boundaries, or session policies</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Increasing Lambda memory does not affect IAM permission evaluation.</aside>
     <aside data-rationale-for="B">CloudWatch metric filters do not reveal IAM policy evaluation results.</aside>
-    <aside data-rationale-for="C">Explicit deny in SCPs, permission boundaries, or session policies overrides any allow, regardless of the role's identity policy.</aside>
-    <aside data-rationale-for="D">Restarting Lambda does not change IAM policy evaluation logic.</aside>
+    <aside data-rationale-for="D">Explicit deny in SCPs, permission boundaries, or session policies overrides any allow, regardless of the role's identity policy.</aside>
+    <aside data-rationale-for="C">Restarting Lambda does not change IAM policy evaluation logic.</aside>
     <aside class="explanation">Explicit deny wins in IAM policy evaluation. Check SCPs, permission boundaries, and session policies when an allow is present but access is denied.</aside>
     <aside class="knowledge-gap">Review <a href="0014-authentication-and-authorization-selection.html">IAM policy evaluation order</a> and <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">IAM policy evaluation logic</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. Compliance requires knowing <mark>which principal called <code>kms:Decrypt</code></mark> on a customer managed key. <mark>Which AWS service records this API call?</mark></h3>
-    <button class="choice" data-correct>A) AWS CloudTrail</button>
+    <button class="choice">A) AWS X-Ray sampling</button>
     <button class="choice">B) Amazon CloudWatch Metrics</button>
-    <button class="choice">C) AWS X-Ray sampling</button>
+    <button class="choice" data-correct>C) AWS CloudTrail</button>
     <button class="choice">D) AWS Config rule evaluation</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">CloudTrail records all AWS API calls including kms:Decrypt, capturing principal identity, timestamp, and source IP.</aside>
+    <aside data-rationale-for="C">CloudTrail records all AWS API calls including kms:Decrypt, capturing principal identity, timestamp, and source IP.</aside>
     <aside data-rationale-for="B">CloudWatch Metrics measure performance—they do not record API call history.</aside>
-    <aside data-rationale-for="C">X-Ray traces application request paths—it does not log KMS API calls.</aside>
+    <aside data-rationale-for="A">X-Ray traces application request paths—it does not log KMS API calls.</aside>
     <aside data-rationale-for="D">AWS Config records resource configuration changes—it does not log KMS API invocation details.</aside>
     <aside class="explanation">CloudTrail is correct. It records principal identity, timestamp, and source IP for every kms:Decrypt call.</aside>
     <aside class="knowledge-gap">Study <a href="0009-retries-idempotency-backoff-and-dlqs.html">CloudTrail audit trails</a> and <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html">CloudTrail user guide</a>.</aside>

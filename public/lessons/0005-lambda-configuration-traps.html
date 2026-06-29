@@ -60,13 +60,13 @@ Per-API-stage values → API Gateway stage variables</div>
   <h2>Practice: pick the owner</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. The same Lambda serves <mark>dev and prod API stages</mark>, each with a different DynamoDB table. <mark>How do you pass different table names per stage?</mark></h3>
-    <button class="choice" data-correct>A) Stage variables</button>
-    <button class="choice">B) Lambda layers</button>
+    <button class="choice">A) Lambda layers</button>
+    <button class="choice" data-correct>B) Stage variables</button>
     <button class="choice">C) Handler setting</button>
     <button class="choice">D) Runtime setting</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway stage variables pass per-stage values to integrations—the same function serves both stages with different values.</aside>
-    <aside data-rationale-for="B">Lambda layers share code packages—they do not pass per-stage configuration values.</aside>
+    <aside data-rationale-for="B">API Gateway stage variables pass per-stage values to integrations—the same function serves both stages with different values.</aside>
+    <aside data-rationale-for="A">Lambda layers share code packages—they do not pass per-stage configuration values.</aside>
     <aside data-rationale-for="C">Handler setting defines the entry point—it does not control per-stage configuration.</aside>
     <aside data-rationale-for="D">Runtime selects the language—it does not pass environment-specific values.</aside>
     <aside class="explanation">Stage variables is correct. API Gateway passes stage-specific values to the Lambda integration without code changes.</aside>
@@ -76,14 +76,14 @@ Per-API-stage values → API Gateway stage variables</div>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A Python Lambda needs <mark>shared SDK helper code used by five functions</mark>. <mark>Which feature avoids duplicating code in each deployment package?</mark></h3>
     <button class="choice">A) Stage variable</button>
-    <button class="choice" data-correct>B) Lambda layer</button>
+    <button class="choice">B) Reserved concurrency</button>
     <button class="choice">C) Async destination</button>
-    <button class="choice">D) Reserved concurrency</button>
+    <button class="choice" data-correct>D) Lambda layer</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Stage variables pass per-stage values to integrations—they do not package shared code.</aside>
-    <aside data-rationale-for="B">Lambda layers are mounted into the execution environment and shared across functions without duplicating in each zip.</aside>
+    <aside data-rationale-for="D">Lambda layers are mounted into the execution environment and shared across functions without duplicating in each zip.</aside>
     <aside data-rationale-for="C">Async destinations route invocation records—they do not share code.</aside>
-    <aside data-rationale-for="D">Reserved concurrency controls maximum executions—it does not share code.</aside>
+    <aside data-rationale-for="B">Reserved concurrency controls maximum executions—it does not share code.</aside>
     <aside class="explanation">Lambda layer is correct. Layers mount shared libraries into function execution environments.</aside>
     <aside class="knowledge-gap"><a href="0003-lambda-concurrency-and-performance.html">Lesson 0003</a>. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">Lambda layers</a>.</aside>
   </section>
@@ -91,13 +91,13 @@ Per-API-stage values → API Gateway stage variables</div>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. Lambda must know <mark>which function method to call</mark> after invocation. <mark>Which configuration specifies the entry point?</mark></h3>
     <button class="choice">A) Runtime</button>
-    <button class="choice" data-correct>B) Handler</button>
-    <button class="choice">C) Layer</button>
+    <button class="choice">B) Layer</button>
+    <button class="choice" data-correct>C) Handler</button>
     <button class="choice">D) Trigger</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Runtime selects the language (Python, Node.js, etc.)—it does not specify the entry point.</aside>
-    <aside data-rationale-for="B">Handler specifies the module and method Lambda calls when invoked (e.g., index.handler).</aside>
-    <aside data-rationale-for="C">Lambda layers package shared code—they do not define the entry point.</aside>
+    <aside data-rationale-for="C">Handler specifies the module and method Lambda calls when invoked (e.g., index.handler).</aside>
+    <aside data-rationale-for="B">Lambda layers package shared code—they do not define the entry point.</aside>
     <aside data-rationale-for="D">Triggers invoke functions—they do not define the handler method.</aside>
     <aside class="explanation">Handler is correct. The handler configuration (module.method) tells Lambda which function code to execute.</aside>
     <aside class="knowledge-gap"><a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/lambda/latest/dg/foundation-handler.html">Lambda handler</a>.</aside>
@@ -105,13 +105,13 @@ Per-API-stage values → API Gateway stage variables</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. A monitoring agent must <mark>run beside the function during lifecycle events</mark>. <mark>Which Lambda feature runs companion processes?</mark></h3>
-    <button class="choice" data-correct>A) Extension</button>
-    <button class="choice">B) Stage var</button>
+    <button class="choice">A) Stage var</button>
+    <button class="choice" data-correct>B) Extension</button>
     <button class="choice">C) Handler</button>
     <button class="choice">D) Timeout</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda extensions run alongside the function during the execution lifecycle for monitoring, security, or configuration tools.</aside>
-    <aside data-rationale-for="B">Stage variables pass per-stage values to integrations—they do not run companion processes.</aside>
+    <aside data-rationale-for="B">Lambda extensions run alongside the function during the execution lifecycle for monitoring, security, or configuration tools.</aside>
+    <aside data-rationale-for="A">Stage variables pass per-stage values to integrations—they do not run companion processes.</aside>
     <aside data-rationale-for="C">Handler specifies the function entry point—it does not run companion processes.</aside>
     <aside data-rationale-for="D">Timeout controls maximum execution duration—it does not run companion processes.</aside>
     <aside class="explanation">Extension is correct. Extensions integrate with the Lambda runtime lifecycle and run alongside the function.</aside>
@@ -120,13 +120,13 @@ Per-API-stage values → API Gateway stage variables</div>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. A Lambda function connects to an RDS database. <mark>Which secure storage should the function retrieve the database password from?</mark> A developer wants to avoid hardcoding the password and needs automatic credential rotation without application code changes.</h3>
-    <button class="choice" data-correct>A) Secrets Manager</button>
-    <button class="choice">B) Stage variable</button>
+    <button class="choice">A) Stage variable</button>
+    <button class="choice" data-correct>B) Secrets Manager</button>
     <button class="choice">C) Layer version</button>
     <button class="choice">D) Runtime name</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Secrets Manager stores credentials securely with optional automatic rotation and retrieval via SDK or extension.</aside>
-    <aside data-rationale-for="B">Stage variables pass configuration values—they are not designed for sensitive credentials.</aside>
+    <aside data-rationale-for="B">Secrets Manager stores credentials securely with optional automatic rotation and retrieval via SDK or extension.</aside>
+    <aside data-rationale-for="A">Stage variables pass configuration values—they are not designed for sensitive credentials.</aside>
     <aside data-rationale-for="C">Lambda layer versions package code—they do not store credentials.</aside>
     <aside data-rationale-for="D">Runtime name selects the language—it does not store credentials.</aside>
     <aside class="explanation">Secrets Manager is correct. It is designed for sensitive values like database passwords with secure retrieval.</aside>

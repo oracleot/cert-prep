@@ -73,15 +73,15 @@
   <h2>Practice: place the control</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. An API must <mark>reject requests missing ?customerId=</mark> before Lambda runs. <mark>Which API Gateway component enforces this?</mark></h3>
-    <button class="choice" data-correct>A) Request validator</button>
+    <button class="choice">A) Usage plan</button>
     <button class="choice">B) Lambda layer</button>
     <button class="choice">C) Stage cache</button>
-    <button class="choice">D) Usage plan</button>
+    <button class="choice" data-correct>D) Request validator</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Request validators enforce parameter validation in API Gateway before the request reaches the backend.</aside>
+    <aside data-rationale-for="D">Request validators enforce parameter validation in API Gateway before the request reaches the backend.</aside>
     <aside data-rationale-for="B">Lambda layers package shared code—they do not validate API requests.</aside>
     <aside data-rationale-for="C">Stage caching stores responses—it does not validate request parameters.</aside>
-    <aside data-rationale-for="D">Usage plans control throttling and quotas—they do not validate request parameters.</aside>
+    <aside data-rationale-for="A">Usage plans control throttling and quotas—they do not validate request parameters.</aside>
     <aside class="explanation">Request validator is correct. It checks required parameters and request bodies before Lambda is invoked.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers Lambda configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-settings-method-request.html">API Gateway request validators</a>.</aside>
   </section>
@@ -89,13 +89,13 @@
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. You need to <mark>convert a public query string into a DynamoDB GetItem payload</mark>. <mark>Where does this transformation occur?</mark></h3>
     <button class="choice">A) Method response</button>
-    <button class="choice">B) Access logging</button>
-    <button class="choice" data-correct>C) Integration request</button>
+    <button class="choice" data-correct>B) Integration request</button>
+    <button class="choice">C) Access logging</button>
     <button class="choice">D) Lambda version</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Method response defines the client-facing contract—it does not transform backend payloads.</aside>
-    <aside data-rationale-for="B">Access logging records requests—it does not transform payloads.</aside>
-    <aside data-rationale-for="C">Integration request mapping transforms client input into the format the backend expects.</aside>
+    <aside data-rationale-for="C">Access logging records requests—it does not transform payloads.</aside>
+    <aside data-rationale-for="B">Integration request mapping transforms client input into the format the backend expects.</aside>
     <aside data-rationale-for="D">Lambda versions are immutable snapshots—they do not transform API requests.</aside>
     <aside class="explanation">Integration request is correct. Mapping templates in the integration request transform client input for the backend.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers API Gateway configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/rest-api-data-transformations.html">API Gateway data transformations</a>.</aside>
@@ -104,13 +104,13 @@
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. Lambda returns the final <mark>statusCode, headers, and body itself</mark>. <mark>Which API Gateway integration type lets Lambda control the response?</mark></h3>
     <button class="choice">A) Mock integration</button>
-    <button class="choice" data-correct>B) Lambda proxy</button>
-    <button class="choice">C) Model schema</button>
+    <button class="choice">B) Model schema</button>
+    <button class="choice" data-correct>C) Lambda proxy</button>
     <button class="choice">D) Request model</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Mock integration returns configured responses without calling a backend—it does not process Lambda responses.</aside>
-    <aside data-rationale-for="B">Lambda proxy integration passes the full request to Lambda, which returns statusCode, headers, and body directly.</aside>
-    <aside data-rationale-for="C">Model schemas validate request/response bodies—they do not control response handling.</aside>
+    <aside data-rationale-for="C">Lambda proxy integration passes the full request to Lambda, which returns statusCode, headers, and body directly.</aside>
+    <aside data-rationale-for="B">Model schemas validate request/response bodies—they do not control response handling.</aside>
     <aside data-rationale-for="D">Request models define expected request structures—they do not control response handling.</aside>
     <aside class="explanation">Lambda proxy is correct. Lambda proxy integration lets Lambda return the full HTTP response directly.</aside>
     <aside class="knowledge-gap"><a href="0002-lambda-invocation-and-failures.html">Lesson 0002</a> covers Lambda invocation types. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html">Lambda proxy integration</a>.</aside>
@@ -118,14 +118,14 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. Backend Lambda returns <mark>{"error":"bad input"}</mark>; the client must receive HTTP 400. <mark>Which component changes the HTTP status code?</mark></h3>
-    <button class="choice" data-correct>A) Response override</button>
+    <button class="choice">A) Gateway timeout</button>
     <button class="choice">B) Reserved concurrency</button>
-    <button class="choice">C) Gateway timeout</button>
+    <button class="choice" data-correct>C) Response override</button>
     <button class="choice">D) Stage variable</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Integration response override with $context.responseOverride.status changes the HTTP status code.</aside>
+    <aside data-rationale-for="C">Integration response override with $context.responseOverride.status changes the HTTP status code.</aside>
     <aside data-rationale-for="B">Reserved concurrency controls maximum executions—it does not change HTTP status codes.</aside>
-    <aside data-rationale-for="C">Gateway timeout is a timeout setting—it does not change HTTP status codes.</aside>
+    <aside data-rationale-for="A">Gateway timeout is a timeout setting—it does not change HTTP status codes.</aside>
     <aside data-rationale-for="D">Stage variables pass per-stage values—they do not change HTTP status codes.</aside>
     <aside class="explanation">Response override is correct. Integration response mapping can override status codes using $context.responseOverride.status.</aside>
     <aside class="knowledge-gap"><a href="0005-lambda-configuration-traps.html">Lesson 0005</a> covers API Gateway configuration. See <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-data-transformations.html">API Gateway response overrides</a>.</aside>
@@ -133,13 +133,13 @@
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. An API Gateway REST API must <mark>declare that clients can receive a 201 with a custom header</mark>. <mark>Where is this contract defined?</mark> Before integrating, a developer wants to know which HTTP status codes and headers the API Gateway can return so client code can handle all valid responses.</h3>
-    <button class="choice" data-correct>A) Method response</button>
-    <button class="choice">B) Event source</button>
+    <button class="choice">A) Event source</button>
+    <button class="choice" data-correct>B) Method response</button>
     <button class="choice">C) Function URL</button>
     <button class="choice">D) Authorizer TTL</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Method response declares the status codes, headers, and models the API can return to clients.</aside>
-    <aside data-rationale-for="B">Event sources trigger Lambda invocations—they do not define API response contracts.</aside>
+    <aside data-rationale-for="B">Method response declares the status codes, headers, and models the API can return to clients.</aside>
+    <aside data-rationale-for="A">Event sources trigger Lambda invocations—they do not define API response contracts.</aside>
     <aside data-rationale-for="C">Function URLs provide direct HTTPS access to Lambda—they do not use method responses.</aside>
     <aside data-rationale-for="D">Authorizer TTL controls caching of authorizer results—it does not define response contracts.</aside>
     <aside class="explanation">Method response is correct. Method responses declare the public API contract including status codes and headers.</aside>

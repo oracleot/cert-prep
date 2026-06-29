@@ -72,14 +72,14 @@ DynamoDB  key-value/document: low-latency, serverless, partition-key access
   <h2>Practice: choose the store</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A serverless photo-sharing application stores <mark>user uploads as objects and must automatically expire raw files after 30 days</mark> to reduce storage costs. The solution must be fully managed without custom cleanup code. <mark>Which AWS storage service manages this object lifecycle?</mark></h3>
-    <button class="choice" data-correct>A) Amazon S3</button>
+    <button class="choice">A) Amazon EBS</button>
     <button class="choice">B) Amazon EFS</button>
-    <button class="choice">C) Amazon EBS</button>
+    <button class="choice" data-correct>C) Amazon S3</button>
     <button class="choice">D) Amazon RDS</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">S3 stores objects with lifecycle policies that can expire files after a specified number of days.</aside>
+    <aside data-rationale-for="C">S3 stores objects with lifecycle policies that can expire files after a specified number of days.</aside>
     <aside data-rationale-for="B">EFS is a shared file system for POSIX workloads—it does not have built-in object expiration.</aside>
-    <aside data-rationale-for="C">EBS provides block volumes for EC2 instances—it does not store objects with expiration.</aside>
+    <aside data-rationale-for="A">EBS provides block volumes for EC2 instances—it does not store objects with expiration.</aside>
     <aside data-rationale-for="D">RDS is a relational database—it does not store file objects.</aside>
     <aside class="explanation">S3 is correct. S3 lifecycle policies expire objects after a specified time period.</aside>
     <aside class="knowledge-gap">Review <a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a> on storage selection. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html">Amazon S3 lifecycle management</a>.</aside>
@@ -88,13 +88,13 @@ DynamoDB  key-value/document: low-latency, serverless, partition-key access
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. An image processing pipeline runs <mark>multiple Lambda functions that need concurrent read and write access to the same Linux file directory</mark> for shared scratch space and model files. <mark>Which AWS storage service provides shared POSIX file access for serverless functions?</mark></h3>
     <button class="choice">A) Amazon S3</button>
-    <button class="choice" data-correct>B) Amazon EFS</button>
-    <button class="choice">C) Amazon EBS</button>
+    <button class="choice">B) Amazon EBS</button>
+    <button class="choice" data-correct>C) Amazon EFS</button>
     <button class="choice">D) Amazon FSx</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">S3 provides object storage—not a mounted file system for Lambda.</aside>
-    <aside data-rationale-for="B">EFS provides shared POSIX file system access for multiple Lambda, EC2, and ECS clients.</aside>
-    <aside data-rationale-for="C">EBS provides block volumes for single EC2 instances—it cannot be mounted by multiple clients.</aside>
+    <aside data-rationale-for="C">EFS provides shared POSIX file system access for multiple Lambda, EC2, and ECS clients.</aside>
+    <aside data-rationale-for="B">EBS provides block volumes for single EC2 instances—it cannot be mounted by multiple clients.</aside>
     <aside data-rationale-for="D">FSx is for specialized workloads (Windows, Lustre)—EFS is the standard choice for Linux shared access.</aside>
     <aside class="explanation">EFS is correct. EFS provides elastic NFS file storage accessible from multiple Lambda functions.</aside>
     <aside class="knowledge-gap">Review <a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a> on EFS. <a href="https://docs.aws.amazon.com/efs/latest/ug/whatisfs.html">Amazon EFS</a>.</aside>
@@ -104,13 +104,13 @@ DynamoDB  key-value/document: low-latency, serverless, partition-key access
     <h3>3. A retail company's existing inventory management application requires <mark>SQL transactions, foreign-key relationships, and JOIN operations across supplier and product tables</mark>. The team wants a managed database to reduce operational overhead. <mark>Which AWS managed database supports these relational features?</mark></h3>
     <button class="choice">A) Amazon S3</button>
     <button class="choice">B) Amazon EFS</button>
-    <button class="choice">C) Amazon DynamoDB</button>
-    <button class="choice" data-correct>D) Amazon RDS/Aurora</button>
+    <button class="choice" data-correct>C) Amazon RDS/Aurora</button>
+    <button class="choice">D) Amazon DynamoDB</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">S3 stores objects—it does not support SQL transactions or foreign keys.</aside>
     <aside data-rationale-for="B">EFS provides file storage—it does not support SQL databases.</aside>
-    <aside data-rationale-for="C">DynamoDB is a NoSQL key-value store—it does not support SQL joins or foreign keys.</aside>
-    <aside data-rationale-for="D">RDS/Aurora are relational databases supporting SQL, transactions, and foreign keys.</aside>
+    <aside data-rationale-for="D">DynamoDB is a NoSQL key-value store—it does not support SQL joins or foreign keys.</aside>
+    <aside data-rationale-for="C">RDS/Aurora are relational databases supporting SQL, transactions, and foreign keys.</aside>
     <aside class="explanation">RDS/Aurora is correct. Relational databases support SQL, ACID transactions, and foreign-key relationships.</aside>
     <aside class="knowledge-gap">Review <a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a> on RDS. <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html">Amazon RDS</a>.</aside>
   </section>
@@ -119,27 +119,27 @@ DynamoDB  key-value/document: low-latency, serverless, partition-key access
     <h3>4. You must <mark>automate daily EBS snapshots and delete old ones</mark>. <mark>Which AWS feature automates this?</mark></h3>
     <button class="choice">A) S3 Lifecycle</button>
     <button class="choice">B) EFS Lifecycle</button>
-    <button class="choice" data-correct>C) Data Lifecycle Manager</button>
-    <button class="choice">D) DynamoDB TTL</button>
+    <button class="choice">C) DynamoDB TTL</button>
+    <button class="choice" data-correct>D) Data Lifecycle Manager</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">S3 Lifecycle manages S3 objects—it does not automate EBS snapshots.</aside>
     <aside data-rationale-for="B">EFS Lifecycle manages EFS file access times—it does not automate EBS snapshots.</aside>
-    <aside data-rationale-for="C">Amazon Data Lifecycle Manager automates EBS snapshot creation, retention, and deletion.</aside>
-    <aside data-rationale-for="D">DynamoDB TTL expires table items—it does not automate EBS snapshots.</aside>
+    <aside data-rationale-for="D">Amazon Data Lifecycle Manager automates EBS snapshot creation, retention, and deletion.</aside>
+    <aside data-rationale-for="C">DynamoDB TTL expires table items—it does not automate EBS snapshots.</aside>
     <aside class="explanation">Data Lifecycle Manager is correct. It automates EBS snapshot lifecycles including retention policies.</aside>
     <aside class="knowledge-gap">Review <a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a> on EBS lifecycle. <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/snapshot-lifecycle.html">Amazon Data Lifecycle Manager</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. A Lambda function <mark>downloads an image, resizes it, then uploads the result</mark>. The intermediate files should not persist. <mark>Where does the Lambda process work?</mark></h3>
-    <button class="choice" data-correct>A) Lambda /tmp</button>
+    <button class="choice">A) EBS volume</button>
     <button class="choice">B) RDS storage</button>
-    <button class="choice">C) EBS volume</button>
+    <button class="choice" data-correct>C) Lambda /tmp</button>
     <button class="choice">D) FSx volume</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Lambda /tmp provides up to 10 GB ephemeral storage for temporary processing—files do not persist after function completes.</aside>
+    <aside data-rationale-for="C">Lambda /tmp provides up to 10 GB ephemeral storage for temporary processing—files do not persist after function completes.</aside>
     <aside data-rationale-for="B">RDS is a database—it is not designed for temporary file processing.</aside>
-    <aside data-rationale-for="C">EBS provides block volumes for EC2 instances—it cannot be used by Lambda directly.</aside>
+    <aside data-rationale-for="A">EBS provides block volumes for EC2 instances—it cannot be used by Lambda directly.</aside>
     <aside data-rationale-for="D">FSx provides managed file systems—it is overkill for temporary Lambda scratch space.</aside>
     <aside class="explanation">Lambda /tmp is correct. Ephemeral storage is ideal for temporary processing where files should not persist.</aside>
     <aside class="knowledge-gap">Review <a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a> on ephemeral storage. <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-ephemeral-storage">Lambda ephemeral storage</a>.</aside>

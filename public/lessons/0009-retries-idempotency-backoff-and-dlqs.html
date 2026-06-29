@@ -77,43 +77,43 @@ Does the same message keep failing?
   <h2>Practice: choose the failure tool</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A Lambda function writes to a <mark>DynamoDB table and receives occasional ThrottlingException errors</mark>. The application needs to handle these transient failures automatically. <mark>How should the AWS SDK handle these errors?</mark></h3>
-    <button class="choice" data-correct>A) Backoff retry</button>
+    <button class="choice">A) Manual page</button>
     <button class="choice">B) Dead queue</button>
     <button class="choice">C) Skip write</button>
-    <button class="choice">D) Manual page</button>
+    <button class="choice" data-correct>D) Backoff retry</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Throttling is a transient error. SDK backoff retry waits progressively longer between attempts.</aside>
+    <aside data-rationale-for="D">Throttling is a transient error. SDK backoff retry waits progressively longer between attempts.</aside>
     <aside data-rationale-for="B">DLQ captures repeatedly failing messages—it does not handle transient throttling.</aside>
     <aside data-rationale-for="C">Skipping writes loses data—throttling should trigger retry, not skip.</aside>
-    <aside data-rationale-for="D">Manual paging is not an SDK retry strategy for transient errors.</aside>
+    <aside data-rationale-for="A">Manual paging is not an SDK retry strategy for transient errors.</aside>
     <aside class="explanation">Backoff retry is correct. Throttling responses should trigger exponential backoff and retry.</aside>
     <aside class="knowledge-gap">Review <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> on Lambda error handling. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry behavior</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. After an AWS Availability Zone recovers from an outage, <mark>thousands of Lambda functions retry their invocations simultaneously</mark>. The synchronized retries risk overloading downstream services again. <mark>Which technique prevents this retry storm?</mark></h3>
-    <button class="choice" data-correct>A) Add jitter</button>
+    <button class="choice">A) Add layer</button>
     <button class="choice">B) Add cache</button>
     <button class="choice">C) Add alarm</button>
-    <button class="choice">D) Add layer</button>
+    <button class="choice" data-correct>D) Add jitter</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Jitter adds random delay to retry intervals, spreading callers out to avoid synchronized retries.</aside>
+    <aside data-rationale-for="D">Jitter adds random delay to retry intervals, spreading callers out to avoid synchronized retries.</aside>
     <aside data-rationale-for="B">Caching reduces requests—it does not prevent retry storms.</aside>
     <aside data-rationale-for="C">Alarms notify operators—they do not prevent synchronized retries.</aside>
-    <aside data-rationale-for="D">Lambda layers package shared code—they do not affect retry timing.</aside>
+    <aside data-rationale-for="A">Lambda layers package shared code—they do not affect retry timing.</aside>
     <aside class="explanation">Add jitter is correct. Randomizing retry delays prevents thousands of clients from hitting the service simultaneously.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a> on backoff and jitter. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry and backoff</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. A payment service processes a customer order but a network timeout causes a retry. The retry must not create a duplicate charge or a second customer order. <mark>Which pattern prevents duplicate side effects from retried requests?</mark></h3>
-    <button class="choice" data-correct>A) Idempotent code</button>
-    <button class="choice">B) Reserved concurrency</button>
+    <button class="choice">A) Reserved concurrency</button>
+    <button class="choice" data-correct>B) Idempotent code</button>
     <button class="choice">C) Provisioned concurrency</button>
     <button class="choice">D) Stage variable</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Idempotent code ensures the second execution has no additional effect—the order is created once.</aside>
-    <aside data-rationale-for="B">Reserved concurrency caps maximum executions—it does not prevent duplicate side effects.</aside>
+    <aside data-rationale-for="B">Idempotent code ensures the second execution has no additional effect—the order is created once.</aside>
+    <aside data-rationale-for="A">Reserved concurrency caps maximum executions—it does not prevent duplicate side effects.</aside>
     <aside data-rationale-for="C">Provisioned concurrency pre-warms environments—it does not prevent duplicate side effects.</aside>
     <aside data-rationale-for="D">Stage variables pass per-stage values—they do not prevent duplicate operations.</aside>
     <aside class="explanation">Idempotent code is correct. Idempotency keys or conditional writes ensure duplicate requests have no additional effect.</aside>
@@ -122,14 +122,14 @@ Does the same message keep failing?
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. A Lambda function consuming from an <mark>Amazon SQS queue fails to process the same message repeatedly</mark>. After the queue's maxReceiveCount threshold is reached, the message must be removed from the processing queue for inspection. <mark>Where does this poison message go after maxReceiveCount?</mark></h3>
-    <button class="choice" data-correct>A) Use DLQ</button>
+    <button class="choice">A) Use WAF</button>
     <button class="choice">B) Use DAX</button>
-    <button class="choice">C) Use WAF</button>
+    <button class="choice" data-correct>C) Use DLQ</button>
     <button class="choice">D) Use EFS</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS redrive policy sends messages exceeding maxReceiveCount to the dead-letter queue.</aside>
+    <aside data-rationale-for="C">SQS redrive policy sends messages exceeding maxReceiveCount to the dead-letter queue.</aside>
     <aside data-rationale-for="B">DAX is a DynamoDB read cache—it does not handle SQS message failures.</aside>
-    <aside data-rationale-for="C">WAF filters web requests—it does not handle SQS message routing.</aside>
+    <aside data-rationale-for="A">WAF filters web requests—it does not handle SQS message routing.</aside>
     <aside data-rationale-for="D">EFS provides shared file storage—it does not handle SQS message failures.</aside>
     <aside class="explanation">Use DLQ is correct. SQS redrive policy routes messages exceeding maxReceiveCount to the dead-letter queue.</aside>
     <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">Lesson 0008</a> on event-driven patterns. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html">Amazon SQS DLQ</a>.</aside>
@@ -137,13 +137,13 @@ Does the same message keep failing?
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. An order fulfillment workflow needs <mark>different retry intervals and catch handlers per task state</mark>. Some steps should retry on throttling errors, while others should catch specific exception types. <mark>Which AWS orchestration service implements per-state retry and catch policies?</mark></h3>
-    <button class="choice" data-correct>A) Step Functions</button>
-    <button class="choice">B) API Gateway</button>
+    <button class="choice">A) API Gateway</button>
+    <button class="choice" data-correct>B) Step Functions</button>
     <button class="choice">C) CloudFront CDN</button>
     <button class="choice">D) Cognito Sync</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Step Functions state machine retry and catch blocks define per-state error handling.</aside>
-    <aside data-rationale-for="B">API Gateway handles request/response mapping—it does not implement workflow retry policies.</aside>
+    <aside data-rationale-for="B">Step Functions state machine retry and catch blocks define per-state error handling.</aside>
+    <aside data-rationale-for="A">API Gateway handles request/response mapping—it does not implement workflow retry policies.</aside>
     <aside data-rationale-for="C">CloudFront CDN caches content—it does not implement workflow retry policies.</aside>
     <aside data-rationale-for="D">Cognito Sync synchronizes user data—it does not implement workflow retry policies.</aside>
     <aside class="explanation">Step Functions is correct. State machine definitions include per-state Retry and Catch fields.</aside>

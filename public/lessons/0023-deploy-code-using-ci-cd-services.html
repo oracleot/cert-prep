@@ -34,14 +34,14 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
   <h2>Retrieval drill: pick the deployment control</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A DVA-C02 scenario describes a <mark>Git commit that must trigger source, build, approval, and production stages automatically</mark>. You must name the orchestration service. <mark>Which AWS service chains source, build, test, approval, and deploy stages triggered by repository changes?</mark></h3>
-    <button class="choice" data-correct>A) AWS CodePipeline</button>
+    <button class="choice">A) AWS CodeCommit</button>
     <button class="choice">B) AWS CodeArtifact</button>
-    <button class="choice">C) AWS CodeCommit</button>
+    <button class="choice" data-correct>C) AWS CodePipeline</button>
     <button class="choice">D) AWS CodeGuru</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>CodePipeline</strong> orchestrates source, build, approval, and deploy stages in sequence after a repository change—Task 3.4.</aside>
+    <aside data-rationale-for="C"><strong>CodePipeline</strong> orchestrates source, build, approval, and deploy stages in sequence after a repository change—Task 3.4.</aside>
     <aside data-rationale-for="B">CodeArtifact stores package dependencies; it does not orchestrate release stages.</aside>
-    <aside data-rationale-for="C">CodeCommit hosts the Git repository; it does not chain pipeline stages.</aside>
+    <aside data-rationale-for="A">CodeCommit hosts the Git repository; it does not chain pipeline stages.</aside>
     <aside data-rationale-for="D">CodeGuru performs code reviews; it does not orchestrate CI/CD stages.</aside>
     <aside class="explanation">CodePipeline is correct. It is the release workflow engine that chains all stages, including manual approval gates.</aside>
     <aside class="knowledge-gap">Review <a href="0022-automate-deployment-testing.html">Task 3.3 testing automation</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>.</aside>
@@ -49,28 +49,28 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A scenario involves a <mark>CodeBuild project where npm install, lint, test, and package commands must execute in sequence</mark>. You must name the configuration file. <mark>Which YAML file defines the build phases that CodeBuild executes during the project build?</mark></h3>
-    <button class="choice" data-correct>A) buildspec.yml</button>
+    <button class="choice">A) OpsWorks runbook</button>
     <button class="choice">B) AppSpec file</button>
     <button class="choice">C) CloudFormation template</button>
-    <button class="choice">D) OpsWorks runbook</button>
+    <button class="choice" data-correct>D) buildspec.yml</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><code>buildspec.yml</code> defines install, pre_build, build, and post_build commands that CodeBuild executes—Task 3.4.</aside>
+    <aside data-rationale-for="D"><code>buildspec.yml</code> defines install, pre_build, build, and post_build commands that CodeBuild executes—Task 3.4.</aside>
     <aside data-rationale-for="B">AppSpec file configures CodeDeploy lifecycle hooks; it does not run in CodeBuild.</aside>
     <aside data-rationale-for="C">CloudFormation template defines infrastructure; it does not run build commands.</aside>
-    <aside data-rationale-for="D">OpsWorks runbook documents operational steps; it is not a CodeBuild configuration.</aside>
+    <aside data-rationale-for="A">OpsWorks runbook documents operational steps; it is not a CodeBuild configuration.</aside>
     <aside class="explanation">buildspec.yml is correct. CodeBuild reads this file to run npm, lint, test, and package commands in defined phases.</aside>
     <aside class="knowledge-gap">Study <a href="0022-automate-deployment-testing.html">Task 3.3 testing automation</a> and <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html">CodeBuild buildspec</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>3. A DVA-C02 scenario describes a <mark>CodeDeploy Lambda deployment where traffic shifts to the new version in equal 10 percent increments every 10 minutes</mark>. You must name the traffic configuration. <mark>Which CodeDeploy Lambda deployment configuration performs equal increments at fixed intervals?</mark></h3>
-    <button class="choice" data-correct>A) Linear</button>
-    <button class="choice">B) Canary</button>
+    <button class="choice">A) Canary</button>
+    <button class="choice" data-correct>B) Linear</button>
     <button class="choice">C) Blue/green</button>
     <button class="choice">D) Immutable</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals—Task 3.4.</aside>
-    <aside data-rationale-for="B">Canary shifts an initial small percentage, then shifts the rest at once; it does not use equal fixed increments.</aside>
+    <aside data-rationale-for="B"><strong>Linear</strong> shifts equal traffic percentages at fixed intervals—Task 3.4.</aside>
+    <aside data-rationale-for="A">Canary shifts an initial small percentage, then shifts the rest at once; it does not use equal fixed increments.</aside>
     <aside data-rationale-for="C">Blue/green uses a separate environment; it does not incrementally shift traffic.</aside>
     <aside data-rationale-for="D">Immutable deploys to a fresh fleet and terminates the old one; it does not shift traffic incrementally.</aside>
     <aside class="explanation">Linear is correct. Equal increments at fixed intervals describe the CodeDeploy linear configuration.</aside>
@@ -79,13 +79,13 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>4. A scenario involves an <mark>ECS production service that must shift traffic from one task set to another during a deployment</mark>. You must name the AWS service managing the traffic shift. <mark>Which CodeDeploy compute platform manages ECS task set routing during blue/green deployments?</mark></h3>
-    <button class="choice" data-correct>A) AWS CodeDeploy</button>
-    <button class="choice">B) AWS CodeBuild</button>
+    <button class="choice">A) AWS CodeBuild</button>
+    <button class="choice" data-correct>B) AWS CodeDeploy</button>
     <button class="choice">C) AWS CodeArtifact</button>
     <button class="choice">D) AWS CodeCommit</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>CodeDeploy</strong> ECS blue/green deployments shift the production listener between the original and replacement task sets—Task 3.4.</aside>
-    <aside data-rationale-for="B">CodeBuild runs build and test commands; it does not manage ECS traffic shifting.</aside>
+    <aside data-rationale-for="B"><strong>CodeDeploy</strong> ECS blue/green deployments shift the production listener between the original and replacement task sets—Task 3.4.</aside>
+    <aside data-rationale-for="A">CodeBuild runs build and test commands; it does not manage ECS traffic shifting.</aside>
     <aside data-rationale-for="C">CodeArtifact stores package dependencies; it does not manage ECS deployments.</aside>
     <aside data-rationale-for="D">CodeCommit hosts the source repository; it does not manage ECS task set routing.</aside>
     <aside class="explanation">CodeDeploy is correct. Its ECS platform shifts the ALB/NLB listener between original and replacement task sets during blue/green deployments.</aside>
@@ -94,14 +94,14 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>5. A DVA-C02 scenario involves an <mark>EC2 application deployment where files must be copied and lifecycle hooks must run on instances during the deployment</mark>. You must name the configuration file. <mark>Which CodeDeploy file specifies hooks, file copy destinations, and application revision for EC2 deployments?</mark></h3>
-    <button class="choice" data-correct>A) AppSpec file</button>
+    <button class="choice">A) ECS task definition</button>
     <button class="choice">B) buildspec file</button>
-    <button class="choice">C) ECS task definition</button>
+    <button class="choice" data-correct>C) AppSpec file</button>
     <button class="choice">D) CloudFormation template</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>AppSpec file</strong> (AppSpec.yml) is required by the CodeDeploy agent for EC2/on-premises deployments—it defines hooks, file copies, and revisions—Task 3.4.</aside>
+    <aside data-rationale-for="C"><strong>AppSpec file</strong> (AppSpec.yml) is required by the CodeDeploy agent for EC2/on-premises deployments—it defines hooks, file copies, and revisions—Task 3.4.</aside>
     <aside data-rationale-for="B">buildspec file runs in CodeBuild; it is not read by the CodeDeploy agent.</aside>
-    <aside data-rationale-for="C">ECS task definition defines container settings; it does not configure CodeDeploy EC2 deployments.</aside>
+    <aside data-rationale-for="A">ECS task definition defines container settings; it does not configure CodeDeploy EC2 deployments.</aside>
     <aside data-rationale-for="D">CloudFormation template defines infrastructure resources; it does not replace the CodeDeploy AppSpec.</aside>
     <aside class="explanation">AppSpec file is correct. It is the CodeDeploy agent configuration for EC2/on-premises deployments.</aside>
     <aside class="knowledge-gap">Review <a href="0022-automate-deployment-testing.html">Task 3.3 testing automation</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/application-specification-files.html">AppSpec file</a>.</aside>
@@ -109,44 +109,44 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>6. A scenario describes a <mark>single CloudFormation template that must create and update the same infrastructure stack across multiple AWS accounts and Regions</mark>. You must name the CloudFormation feature. <mark>Which CloudFormation capability manages a stack template across accounts and Regions from one operation?</mark></h3>
-    <button class="choice" data-correct>A) CloudFormation StackSets</button>
+    <button class="choice">A) CloudFormation WaitHandles</button>
     <button class="choice">B) CloudFormation ChangeSets</button>
     <button class="choice">C) CloudFormation NestedStacks</button>
-    <button class="choice">D) CloudFormation WaitHandles</button>
+    <button class="choice" data-correct>D) CloudFormation StackSets</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>StackSets</strong> extend CloudFormation stacks across multiple accounts and Regions from a single template and operation—Task 3.4.</aside>
+    <aside data-rationale-for="D"><strong>StackSets</strong> extend CloudFormation stacks across multiple accounts and Regions from a single template and operation—Task 3.4.</aside>
     <aside data-rationale-for="B">ChangeSets preview changes before applying them; they do not deploy across accounts and Regions.</aside>
     <aside data-rationale-for="C">NestedStacks nest stacks within a parent stack; they do not span accounts and Regions.</aside>
-    <aside data-rationale-for="D">WaitHandles synchronize stack creation across resources; they do not span accounts.</aside>
+    <aside data-rationale-for="A">WaitHandles synchronize stack creation across resources; they do not span accounts.</aside>
     <aside class="explanation">CloudFormation StackSets is correct. StackSets enable one template to manage stacks in multiple accounts and Regions simultaneously.</aside>
     <aside class="knowledge-gap">Study <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html">CloudFormation StackSets</a> and <a href="0022-automate-deployment-testing.html">Task 3.3 cross-account</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>7. A DVA-C02 scenario involves a <mark>serverless application that must be built, tested, debugged, and deployed locally before shipping to AWS</mark>. You must name the serverless IaC tool. <mark>Which AWS tool provides local build, test, debug, and deploy capabilities specifically for Lambda, API Gateway, and DynamoDB serverless applications?</mark></h3>
-    <button class="choice" data-correct>A) AWS SAM</button>
+    <button class="choice">A) AWS WAF</button>
     <button class="choice">B) AWS FIS</button>
     <button class="choice">C) AWS DMS</button>
-    <button class="choice">D) AWS WAF</button>
+    <button class="choice" data-correct>D) AWS SAM</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>AWS SAM</strong> provides local build, test, debug, and deploy for serverless applications (Lambda, API Gateway, DynamoDB)—Task 3.4.</aside>
+    <aside data-rationale-for="D"><strong>AWS SAM</strong> provides local build, test, debug, and deploy for serverless applications (Lambda, API Gateway, DynamoDB)—Task 3.4.</aside>
     <aside data-rationale-for="B">AWS FIS (Fault Injection Simulator) runs chaos experiments; it does not build or deploy serverless applications.</aside>
     <aside data-rationale-for="C">AWS DMS (Database Migration Service) migrates databases; it does not build or deploy serverless applications.</aside>
-    <aside data-rationale-for="D">AWS WAF (Web Application Firewall) enforces security rules; it does not build or deploy serverless applications.</aside>
+    <aside data-rationale-for="A">AWS WAF (Web Application Firewall) enforces security rules; it does not build or deploy serverless applications.</aside>
     <aside class="explanation">AWS SAM is correct. The SAM CLI provides local equivalents of cloud operations for Lambda and API Gateway development.</aside>
     <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 artifact preparation</a> and <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html">AWS SAM</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>8. A scenario involves a <mark>CloudFormation stack update where the operation must roll back automatically if a CloudWatch alarm enters ALARM state</mark>. You must name the CloudFormation feature. <mark>Which CloudFormation stack update feature monitors alarms and rolls back on alarm breach during create or update operations?</mark></h3>
-    <button class="choice" data-correct>A) Rollback trigger</button>
+    <button class="choice">A) Parameter Store label</button>
     <button class="choice">B) API Gateway stage variable</button>
-    <button class="choice">C) Parameter Store label</button>
+    <button class="choice" data-correct>C) Rollback trigger</button>
     <button class="choice">D) CodeStar branch</button>
     <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A"><strong>Rollback triggers</strong> attach CloudWatch alarms to a stack update and automatically roll back if the alarm enters ALARM state—Task 3.4.</aside>
+    <aside data-rationale-for="C"><strong>Rollback triggers</strong> attach CloudWatch alarms to a stack update and automatically roll back if the alarm enters ALARM state—Task 3.4.</aside>
     <aside data-rationale-for="B">API Gateway stage variables pass environment-specific values to Lambda; they do not trigger stack rollbacks.</aside>
-    <aside data-rationale-for="C">Parameter Store labels mark versioned parameters; they do not trigger stack rollbacks.</aside>
+    <aside data-rationale-for="A">Parameter Store labels mark versioned parameters; they do not trigger stack rollbacks.</aside>
     <aside data-rationale-for="D">CodeStar branches manage project timelines; they do not trigger CloudFormation rollbacks.</aside>
     <aside class="explanation">Rollback trigger is correct. It monitors CloudWatch alarms during stack operations and initiates automatic rollback on failure.</aside>
     <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-rollback-triggers.html">CloudFormation rollback triggers</a> and <a href="0022-automate-deployment-testing.html">Task 3.3</a>.</aside>
