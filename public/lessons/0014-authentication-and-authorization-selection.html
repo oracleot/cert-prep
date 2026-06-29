@@ -44,12 +44,12 @@
     <h3>1. ECS tasks need <mark>access to AWS services</mark>. <mark>Which IAM identity attaches to the task?</mark></h3>
     <button class="choice">A) IAM group</button>
     <button class="choice" data-correct>B) IAM role</button>
-    <button class="choice">C) Root keys</button>
+    <button class="choice">C) Service Principal</button>
     <button class="choice">D) Access key</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="B">ECS task roles attach to tasks and provide temporary AWS credentials for service access.</aside>
     <aside data-rationale-for="A">IAM groups organize users—they do not attach to ECS tasks.</aside>
-    <aside data-rationale-for="C">Root keys violate least privilege and should never be used in applications.</aside>
+    <aside data-rationale-for="C">Service principals (e.g., ecs-tasks.amazonaws.com) identify AWS services inside IAM trust policies—they are not the IAM identity attached to an ECS task.</aside>
     <aside data-rationale-for="D">Access keys are long-term credentials—ECS tasks use temporary role credentials.</aside>
     <aside class="explanation">IAM role is correct. ECS task roles provide temporary credentials via STS.</aside>
     <aside class="knowledge-gap">Review <a href="0001-dva-c02-domain-triage.html">IAM fundamentals</a> and <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html">ECS task roles</a>.</aside>
