@@ -164,7 +164,7 @@ Point traffic without changing ARNs  → Lambda alias</div>
     <aside data-rationale-for="C">Container image packaging bundles the runtime, dependencies, and code into a single ECR image that Lambda deploys directly, including native binaries—Task 3.1.</aside>
     <aside data-rationale-for="D">A single layer cannot mix binaries compiled for different architectures. Container images (not layers) are the right tool when both architectures matter.</aside>
     <aside class="explanation">SAM <code>build --use-container</code> and container image packaging both produce Lambda-compatible deployment packages for native dependencies. Lambda does not translate layer architectures, and a single layer cannot hold both architectures.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-package.html">Lambda deployment packages</a> and <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html">SAM build</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-package.html">Lambda deployment packages</a>, <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html">SAM build</a>, and <a href="0021-test-applications-in-dev-environments.html">Task 3.2 Lambda packaging</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
@@ -179,7 +179,7 @@ Point traffic without changing ARNs  → Lambda alias</div>
     <aside data-rationale-for="C">Amazon ECR stores Docker OCI images, and Lambda functions configured for container image packaging pull the image directly from ECR at deploy time—Task 3.1.</aside>
     <aside data-rationale-for="D">Lambda supports both zip and container image packages; container image functions reference an ECR image URI, not just zips.</aside>
     <aside class="explanation">CodeArtifact serves language package formats and ECR stores container images used by Lambda container image deployments. CodeArtifact does not deploy Lambdas, and Lambda supports both zip and container packaging.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/images-create.html">Lambda container images</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact</a>, <a href="https://docs.aws.amazon.com/lambda/latest/dg/images-create.html">Lambda container images</a>, and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD pipeline</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
