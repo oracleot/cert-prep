@@ -77,30 +77,30 @@ Does the same message keep failing?
   <h2>Practice: choose the failure tool</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A Lambda function writes to a <mark>DynamoDB table and receives occasional ThrottlingException errors</mark>. The application needs to handle these transient failures automatically. <mark>How should the AWS SDK handle these errors?</mark></h3>
-    <button class="choice">A) Manual page</button>
+    <button class="choice">A) Page Iterator</button>
     <button class="choice">B) Dead queue</button>
-    <button class="choice">C) Skip write</button>
+    <button class="choice">C) Async Retry</button>
     <button class="choice" data-correct>D) Backoff retry</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="D">Throttling is a transient error. SDK backoff retry waits progressively longer between attempts.</aside>
     <aside data-rationale-for="B">DLQ captures repeatedly failing messages—it does not handle transient throttling.</aside>
-    <aside data-rationale-for="C">Skipping writes loses data—throttling should trigger retry, not skip.</aside>
-    <aside data-rationale-for="A">Manual paging is not an SDK retry strategy for transient errors.</aside>
+    <aside data-rationale-for="C">Async Retry applies to Lambda async invocations—it does not change how the AWS SDK handles ThrottlingException on synchronous DynamoDB writes.</aside>
+    <aside data-rationale-for="A">Page Iterator walks SDK query responses in chunks—it is not a retry strategy for transient throttling errors.</aside>
     <aside class="explanation">Backoff retry is correct. Throttling responses should trigger exponential backoff and retry.</aside>
     <aside class="knowledge-gap">Review <a href="0004-lambda-event-source-mappings.html">Lesson 0004</a> on Lambda error handling. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry behavior</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. After an AWS Availability Zone recovers from an outage, <mark>thousands of Lambda functions retry their invocations simultaneously</mark>. The synchronized retries risk overloading downstream services again. <mark>Which technique prevents this retry storm?</mark></h3>
-    <button class="choice">A) Add layer</button>
-    <button class="choice">B) Add cache</button>
+    <button class="choice">A) Add ProvisionedConcurrency</button>
+    <button class="choice">B) Add ElastiCache</button>
     <button class="choice">C) Add alarm</button>
     <button class="choice" data-correct>D) Add jitter</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="D">Jitter adds random delay to retry intervals, spreading callers out to avoid synchronized retries.</aside>
-    <aside data-rationale-for="B">Caching reduces requests—it does not prevent retry storms.</aside>
+    <aside data-rationale-for="B">ElastiCache caches backend responses to reduce load—it does not randomize retry delays to prevent synchronized retries.</aside>
     <aside data-rationale-for="C">Alarms notify operators—they do not prevent synchronized retries.</aside>
-    <aside data-rationale-for="A">Lambda layers package shared code—they do not affect retry timing.</aside>
+    <aside data-rationale-for="A">Provisioned concurrency eliminates cold starts for steady latency—it does not randomize retry intervals to spread callers out.</aside>
     <aside class="explanation">Add jitter is correct. Randomizing retry delays prevents thousands of clients from hitting the service simultaneously.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">Lesson 0009</a> on backoff and jitter. <a href="https://docs.aws.amazon.com/sdkref/latest/guide/feature-retry-behavior.html">AWS SDK retry and backoff</a>.</aside>
   </section>
