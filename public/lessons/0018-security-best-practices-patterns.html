@@ -11,22 +11,14 @@
   <p class="kicker">Lesson 0018</p>
   <h1>Pick the best-practice security pattern.</h1>
   <p class="subtitle">Task Statement 2.5: eliminate distractors by matching the risk to the smallest AWS control that fixes it.</p>
-
   <section class="card">
     <h2>The win</h2>
     <p>You will choose fast among <strong>S3 encryption/access</strong>, <strong>private service access</strong>, <strong>network controls</strong>, and <strong>edge protection</strong>.</p>
-    <p>Related review: <a href="0017-secure-application-traffic.html">secure application traffic</a> and the Domain 2 section in <a href="../docs/aws%20dva-c02.md">docs/aws dva-c02.md</a>.</p>
   </section>
-
   <h2>Best-practice selector</h2>
-  <div class="diagram">Encrypt objects with AWS-managed key       → SSE-S3
-Audit/control customer-managed key use      → SSE-KMS
-Temporary object download/upload            → S3 presigned URL
-Keep bucket private behind CDN              → CloudFront OAC
-Detect sensitive data in S3                 → Amazon Macie
-Block layer 7 attack patterns               → AWS WAF
+  <div class="diagram">Encrypt objects with AWS-managed key       → SSE-S3 | Audit/control customer-managed key use      → SSE-KMS | Temporary object download/upload            → S3 presigned URL
+Keep bucket private behind CDN              → CloudFront OAC | Detect sensitive data in S3                 → Amazon Macie | Block layer 7 attack patterns               → AWS WAF
 Baseline DDoS protection                    → Shield Standard</div>
-
   <h2>1. S3 access traps</h2>
   <ul>
     <li><strong>Block Public Access</strong> is the first cut when a bucket should not be public.</li>
@@ -34,18 +26,13 @@ Baseline DDoS protection                    → Shield Standard</div>
     <li><strong>Presigned URLs</strong> grant temporary object access without making the bucket public.</li>
     <li><strong>CloudFront OAC</strong> lets CloudFront access a private S3 origin; users should not access the bucket directly.</li>
   </ul>
-
   <h2>2. S3 encryption traps</h2>
-  <section class="card">
-    <h3>Exam shortcut</h3>
-    <p>When the clue says compliance, audit key usage, customer control, or key policies, prefer <strong>SSE-KMS</strong>. When it only says encrypt at rest with minimal management, <strong>SSE-S3</strong> is enough.</p>
-  </section>
   <ul>
     <li><strong>Default encryption</strong> handles new objects; a bucket policy can deny uploads that omit the required encryption header.</li>
     <li><strong>SSE-C</strong> means the customer supplies keys for S3 to use; AWS does not store those keys.</li>
     <li><strong>KMS key policy</strong> controls key use. An S3 bucket policy alone cannot grant KMS decrypt permission.</li>
+    <li><strong>Exam shortcut:</strong> prefer SSE-KMS for compliance/audit; SSE-S3 for transparent encrypt at rest.</li>
   </ul>
-
   <h2>3. Edge and detection controls</h2>
   <ul>
     <li><strong>AWS WAF:</strong> choose for API Gateway, CloudFront, and ALB web request filtering.</li>
@@ -53,7 +40,6 @@ Baseline DDoS protection                    → Shield Standard</div>
     <li><strong>Shield Advanced:</strong> choose when the scenario asks for enhanced DDoS response, cost protection, or DRT access.</li>
     <li><strong>Macie:</strong> choose for discovering sensitive data in S3, not for blocking live HTTP requests.</li>
   </ul>
-
   <h2>Mixed drill: choose the best answer</h2>
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>1. A <mark>private S3 bucket needs temporary download links</mark> for authenticated users without making the bucket public. <mark>Which S3 feature grants time-limited access?</mark></h3>
@@ -69,7 +55,6 @@ Baseline DDoS protection                    → Shield Standard</div>
     <aside class="explanation">S3 presigned URL is correct. It grants temporary object access using the bucket owner's credentials without exposing the bucket publicly.</aside>
     <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">S3 presigned URLs</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-urls.html">S3 presigned URLs</a>.</aside>
   </section>
-
   <section class="quiz" data-quiz data-walkthrough="true">
     <h3>2. A compliance team requires <mark>customer managed KMS keys</mark> with key policies that audit key usage and control who can decrypt. <mark>Which S3 encryption mode fits this requirement?</mark></h3>
     <button class="choice">A) SSE-C with customer supplied key</button>
@@ -188,6 +173,21 @@ Baseline DDoS protection                    → Shield Standard</div>
     <aside data-rationale-for="D">Long-term access keys for each downloader violate least privilege and are not scalable; short-lived STS credentials or presigned URLs are the exam-accepted answer.</aside>
     <aside class="explanation">Presigned URLs and CloudFront with OAC are the two standard ways to grant temporary, controlled access to private S3 object content. Both keep the bucket private.</aside>
     <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">S3 access patterns</a> and <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html">CloudFront OAC</a>.</aside>
+  </section>
+
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>10. A compliance team needs to <mark>discover sensitive data already stored in S3</mark> and <mark>filter layer 7 attack patterns</mark> in incoming web requests. <mark>Which AWS services are appropriate for these requirements?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Amazon Macie discovers and classifies sensitive data such as PII in S3 buckets using machine learning</button>
+    <button class="choice" data-correct>B) AWS WAF inspects HTTP requests on CloudFront, API Gateway, and ALB to block SQL injection and XSS patterns</button>
+    <button class="choice">C) Shield Standard scans S3 objects for sensitive data and triggers EventBridge remediation workflows</button>
+    <button class="choice">D) CloudTrail actively classifies data in S3 buckets and redacts sensitive findings</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Macie uses machine learning to discover and classify sensitive data such as PII in S3 buckets, and findings can trigger EventBridge rules for remediation workflows.</aside>
+    <aside data-rationale-for="B">AWS WAF filters layer 7 attack patterns like SQL injection and XSS on CloudFront, API Gateway, and ALB using managed or custom rule groups.</aside>
+    <aside data-rationale-for="C">Shield Standard protects against layer 3 and 4 DDoS attacks; it does not scan S3 object contents for sensitive data.</aside>
+    <aside data-rationale-for="D">CloudTrail records AWS API calls and resource changes; it does not scan S3 object contents for sensitive data or redact findings.</aside>
+    <aside class="explanation">Macie finds sensitive data in S3 and AWS WAF filters layer 7 attacks. Shield Standard handles DDoS protection and CloudTrail records API calls; neither scans S3 contents.</aside>
+    <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Macie and WAF patterns</a> and <a href="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html">Amazon Macie</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
