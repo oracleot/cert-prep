@@ -176,51 +176,6 @@
     <aside class="knowledge-gap"><a href="0011-storage-selection-and-lifecycle.html">Lesson 0011</a>. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html">S3 lifecycle</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
-    <h3>11. A team is reading data from a <mark>DynamoDB table</mark> using various access patterns. <mark>Which statements about DynamoDB read behavior are valid?</mark> Choose TWO.</h3>
-    <button class="choice" data-correct>A) A Scan operation consumes read capacity from the base table, not from a global secondary index</button>
-    <button class="choice">B) A strongly consistent GetItem on a 4 KB item consumes 0.5 RCU per second</button>
-    <button class="choice" data-correct>C) DAX reduces read latency for hot items but does not reduce RCU consumption on the base table</button>
-    <button class="choice">D) Global secondary indexes support strongly consistent reads by default with no extra cost</button>
-    <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Scanning reads every item in the base table and consumes RCU from the base table, not from any GSI, regardless of the filter expression applied.</aside>
-    <aside data-rationale-for="B">1 RCU provides 2 strongly consistent reads of 4 KB per second, so a 4 KB strongly consistent read consumes 0.5 RCU per second; the option stated uses the wrong unit.</aside>
-    <aside data-rationale-for="C">DAX is an in-memory cache that serves repeats of hot items with microsecond latency, but every cache miss still consumes RCU on the base table; DAX does not bill reduce RCU.</aside>
-    <aside data-rationale-for="D">GSIs support eventual consistency reads only. Strongly consistent reads are not supported on GSIs, so option D reverses an actual DynamoDB limitation.</aside>
-    <aside class="explanation">Scan consumes base-table RCU and DAX cache hits still cost the base table capacity when misses occur. Strongly consistent reads and GSI consistency are common trap topics.</aside>
-    <aside class="knowledge-gap">Review <a href="0010-dynamodb-capacity-consistency-and-indexes.html">DynamoDB capacity modes</a> and <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html">DynamoDB read/write capacity</a>.</aside>
-  </section>
-
-  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
-    <h3>12. A team manages a public REST API on <mark>Amazon API Gateway</mark> with traffic spikes that overwhelm the backend Lambda. <mark>Which API Gateway features are valid for protecting the backend from excess traffic?</mark> Choose TWO.</h3>
-    <button class="choice" data-correct>A) Enable API Gateway caching with a configurable TTL for cached responses</button>
-    <button class="choice" data-correct>B) Configure a usage plan with rate limits and throttling quotas</button>
-    <button class="choice">C) Add a Lambda REQUEST authorizer on every endpoint to inspect the body</button>
-    <button class="choice">D) Map the API to a single stage with no stage variables defined</button>
-    <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">API Gateway built-in caching stores responses for a configurable TTL and serves repeat requests from the cache, reducing calls to the backend Lambda.</aside>
-    <aside data-rationale-for="B">Usage plans with rate limits and throttling quotas cap requests per API key or client, protecting the backend from traffic spikes.</aside>
-    <aside data-rationale-for="C">Lambda REQUEST authorizers authenticate requests using request context; they do not throttle traffic or cache responses for backend protection.</aside>
-    <aside data-rationale-for="D">Defining stage variables does not by itself throttle traffic or reduce backend load; stage variables carry environment-specific config to the backend.</aside>
-    <aside class="explanation">Built-in caching and usage plan throttling are both API Gateway features that directly reduce backend load. Authorizers and stage variables serve other purposes.</aside>
-    <aside class="knowledge-gap">Review <a href="0007-api-gateway-request-response-mapping.html">API Gateway integration</a> and <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-basic-concept.html">API Gateway basic concepts</a>.</aside>
-  </section>
-
-  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
-    <h3>13. A Lambda function consumes messages from an <mark>Amazon SQS queue</mark>. The team must capture failing messages for inspection and provide an alternate branch in the wider workflow. <mark>Which approaches are valid for handling these poison messages?</mark> Choose TWO.</h3>
-    <button class="choice" data-correct>A) Configure an SQS redrive policy to move poison messages to a dead-letter queue</button>
-    <button class="choice" data-correct>B) Use Step Functions Retry and Catch to branch to a compensation handler on task failure</button>
-    <button class="choice">C) Add a Lambda DLQ configuration on the queue's event source mapping for additional retries</button>
-    <button class="choice">D) Replace the queue with a CloudFront distribution and rely on edge caching</button>
-    <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">SQS redrive policies move poison messages to a configured DLQ after the source queue's redrive threshold, enabling inspection and replay without losing data.</aside>
-    <aside data-rationale-for="B">Step Functions Retry and Catch provide built-in alternate-branch handling: Retry runs the same task again, Catch routes failures to a different state for compensation.</aside>
-    <aside data-rationale-for="C">A Lambda DLQ only applies to async invocations, not event source mappings; SQS-based ESMs rely on the source queue's redrive policy instead of a function-attached DLQ.</aside>
-    <aside data-rationale-for="D">CloudFront is a CDN for HTTP caching; it is not an SQS replacement and does not isolate poison messages for inspection or replay.</aside>
-    <aside class="explanation">SQS redrive policies and Step Functions Retry and Catch are the standard AWS mechanisms for capturing poison messages and providing alternate failure branches.</aside>
-    <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">retries and DLQs</a> and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html">Step Functions error handling</a>.</aside>
-  </section>
-
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">← Previous: Lesson 0012</a><a href="0014-authentication-and-authorization-selection.html">Next: Lesson 0014 →</a>
   </nav>
