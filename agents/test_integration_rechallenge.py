@@ -7,6 +7,8 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 _AGENTS_DIR = Path(__file__).resolve().parent
 if str(_AGENTS_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENTS_DIR))
@@ -39,6 +41,16 @@ def _graph():
     return get_session_graph()
 
 
+REQUIRES_INFRA = pytest.mark.skipif(
+    not os.environ.get("OPENROUTER_API_KEY") or not os.environ.get("DATABASE_URL"),
+    reason=(
+        "Integration test requires OPENROUTER_API_KEY and DATABASE_URL "
+        "(Postgres + OpenRouter); skipped when either is unset."
+    ),
+)
+
+
+@REQUIRES_INFRA
 class TestConceptPacketInRechallenge:
     """Rechallenge uses select_rechallenge_concept, not topic_stats."""
 
