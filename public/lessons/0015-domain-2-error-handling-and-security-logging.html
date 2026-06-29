@@ -147,13 +147,13 @@ Security incident or audit trail needed?
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>6. A Lambda function is <mark>invoked asynchronously</mark> and fails after exhausting all automatic retries. The events cannot be discarded and need to be routed for downstream processing. <mark>Which AWS destinations are valid receivers for these failed async events?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) An Amazon SQS queue configured as a Lambda destination</button>
-    <button class="choice" data-correct>B) An Amazon SNS topic configured as a Lambda destination</button>
-    <button class="choice">C) An Amazon CloudFront distribution configured as a Lambda destination</button>
+    <button class="choice">B) An Amazon CloudFront distribution configured as a Lambda destination</button>
+    <button class="choice" data-correct>C) An Amazon SNS topic configured as a Lambda destination</button>
     <button class="choice">D) A Step Functions state machine configured directly as a Lambda destination</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Lambda destinations can route async success and failure events to SQS queues so other consumers can pick up the events for inspection or replay.</aside>
-    <aside data-rationale-for="B">Lambda destinations can route async success and failure events to SNS topics for fan-out to multiple subscribers.</aside>
-    <aside data-rationale-for="C">CloudFront is a CDN service, not a Lambda destination type. Lambda destinations accept only SQS, SNS, Lambda, or EventBridge as targets.</aside>
+    <aside data-rationale-for="B">CloudFront is a CDN service, not a Lambda destination type. Lambda destinations accept only SQS, SNS, Lambda, or EventBridge as targets.</aside>
+    <aside data-rationale-for="C">Lambda destinations can route async success and failure events to SNS topics for fan-out to multiple subscribers.</aside>
     <aside data-rationale-for="D">Step Functions is not a direct destination type. To trigger a state machine from a failed Lambda, route the failure through EventBridge first.</aside>
     <aside class="explanation">SQS and SNS are valid Lambda destinations for failed async events. Destinations support exactly four target types: SQS, SNS, Lambda, and EventBridge.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">async failure routing</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async invocation</a>.</aside>
@@ -162,14 +162,14 @@ Security incident or audit trail needed?
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>7. A distributed application must <mark>trace requests across services</mark> and <mark>query structured application logs</mark> for failed requests. <mark>Which AWS services are appropriate for this observability need?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) X-Ray trace maps visualize the request path across services with filter expressions for path, user, or annotation</button>
-    <button class="choice" data-correct>B) CloudWatch Logs Insights uses a structured query language to search and aggregate log entries</button>
+    <button class="choice">B) CloudWatch Alarms record the IAM principal identity that triggered each alarm action</button>
     <button class="choice">C) Amazon Macie scans CloudWatch Logs streams for sensitive data patterns and redacts findings</button>
-    <button class="choice">D) CloudWatch Alarms record the IAM principal identity that triggered each alarm action</button>
+    <button class="choice" data-correct>D) CloudWatch Logs Insights uses a structured query language to search and aggregate log entries</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">X-Ray trace maps visualize request paths across distributed services and let you filter traces by path, user, or annotation to isolate issues.</aside>
-    <aside data-rationale-for="B">CloudWatch Logs Insights uses a structured query language to search and aggregate log entries from Lambda, ECS, API Gateway, and other AWS sources.</aside>
+    <aside data-rationale-for="B">CloudWatch Alarms notify operators when metric thresholds breach; they do not record the IAM principal that triggered each alarm action.</aside>
     <aside data-rationale-for="C">Macie discovers sensitive data in S3 buckets—it does not scan CloudWatch Logs streams and does not redact findings from log groups.</aside>
-    <aside data-rationale-for="D">CloudWatch Alarms notify operators when metric thresholds breach; they do not record the IAM principal that triggered each alarm action.</aside>
+    <aside data-rationale-for="D">CloudWatch Logs Insights uses a structured query language to search and aggregate log entries from Lambda, ECS, API Gateway, and other AWS sources.</aside>
     <aside class="explanation">X-Ray traces distributed requests and CloudWatch Logs Insights queries structured logs. Macie scans S3, and Alarms notify on thresholds; neither provides the requested observability.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">tracing and logging patterns</a> and <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html">CloudWatch Logs Insights</a>.</aside>
   </section>
@@ -177,13 +177,13 @@ Security incident or audit trail needed?
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>8. A team needs <mark>durable failure handling</mark> for failed messages and <mark>orchestrated multi-step workflows</mark> in a serverless application. <mark>Which statements about durable serverless patterns are valid?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Dead-letter queues capture failed messages for later inspection or replay</button>
-    <button class="choice" data-correct>B) Step Functions replaces complex Lambda orchestration with durable state machines</button>
-    <button class="choice">C) Lambda DLQ configurations capture poison messages from event source mappings the same way they do for async invocations</button>
+    <button class="choice">B) Lambda DLQ configurations capture poison messages from event source mappings the same way they do for async invocations</button>
+    <button class="choice" data-correct>C) Step Functions replaces complex Lambda orchestration with durable state machines</button>
     <button class="choice">D) Lambda synchronous invocations retry the function twice automatically before returning errors to the caller</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Dead-letter queues capture failed messages for later inspection or replay, allowing operators to debug poison messages without losing data.</aside>
-    <aside data-rationale-for="B">Step Functions provides durable state machines that replace complex Lambda chaining with built-in retry, catch, and execution history.</aside>
-    <aside data-rationale-for="C">Lambda function DLQ applies only to async invocations; event source mappings from queues use the queue's redrive policy, not a function-attached DLQ.</aside>
+    <aside data-rationale-for="B">Lambda function DLQ applies only to async invocations; event source mappings from queues use the queue's redrive policy, not a function-attached DLQ.</aside>
+    <aside data-rationale-for="C">Step Functions provides durable state machines that replace complex Lambda chaining with built-in retry, catch, and execution history.</aside>
     <aside data-rationale-for="D">Synchronous invocation returns errors directly to the caller with no automatic retry; the caller is responsible for retry logic.</aside>
     <aside class="explanation">DLQs capture failed messages for replay, and Step Functions provides durable orchestration that replaces fragile Lambda chaining. Function DLQs do not apply to event source mappings, and synchronous invocations do not auto-retry.</aside>
     <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">DLQs and Step Functions patterns</a> and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html">Step Functions error handling</a>.</aside>
