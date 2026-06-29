@@ -163,14 +163,14 @@ Baseline DDoS protection                    → Shield Standard</div>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>9. A private S3 bucket must serve <mark>authenticated downloads without making the bucket public</mark>. <mark>Which S3 and CloudFront features are valid for this requirement?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Generate S3 presigned URLs that grant time-limited object download access</button>
-    <button class="choice" data-correct>B) Place CloudFront in front of the bucket with Origin Access Control (OAC)</button>
-    <button class="choice">C) Mark the bucket public and rely on time-of-day policing in a cron job</button>
-    <button class="choice">D) Issue long-term IAM access keys for each downloader and rotate them weekly</button>
+    <button class="choice">B) Mark the bucket public and rely on time-of-day policing in a cron job</button>
+    <button class="choice">C) Issue long-term IAM access keys for each downloader and rotate them weekly</button>
+    <button class="choice" data-correct>D) Place CloudFront in front of the bucket with Origin Access Control (OAC)</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">S3 presigned URLs grant time-limited object access to specific users without making the bucket public or changing bucket policy.</aside>
-    <aside data-rationale-for="B">CloudFront with OAC can serve private S3 objects while preventing direct bucket access—the bucket stays private and the CloudFront distribution handles authentication.</aside>
-    <aside data-rationale-for="C">Marking the bucket public exposes every object to the internet and defeats the private-bucket requirement; cron-based policing is not an access control mechanism.</aside>
-    <aside data-rationale-for="D">Long-term access keys for each downloader violate least privilege and are not scalable; short-lived STS credentials or presigned URLs are the exam-accepted answer.</aside>
+    <aside data-rationale-for="B">Marking the bucket public exposes every object to the internet and defeats the private-bucket requirement; cron-based policing is not an access control mechanism.</aside>
+    <aside data-rationale-for="C">Long-term access keys for each downloader violate least privilege and are not scalable; short-lived STS credentials or presigned URLs are the exam-accepted answer.</aside>
+    <aside data-rationale-for="D">CloudFront with OAC can serve private S3 objects while preventing direct bucket access—the bucket stays private and the CloudFront distribution handles authentication.</aside>
     <aside class="explanation">Presigned URLs and CloudFront with OAC are the two standard ways to grant temporary, controlled access to private S3 object content. Both keep the bucket private.</aside>
     <aside class="knowledge-gap">Review <a href="0017-secure-application-traffic.html">S3 access patterns</a> and <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html">CloudFront OAC</a>.</aside>
   </section>
@@ -178,14 +178,14 @@ Baseline DDoS protection                    → Shield Standard</div>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>10. A compliance team needs to <mark>discover sensitive data already stored in S3</mark> and <mark>filter layer 7 attack patterns</mark> in incoming web requests. <mark>Which AWS services are appropriate for these requirements?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Amazon Macie discovers and classifies sensitive data such as PII in S3 buckets using machine learning</button>
-    <button class="choice" data-correct>B) AWS WAF inspects HTTP requests on CloudFront, API Gateway, and ALB to block SQL injection and XSS patterns</button>
-    <button class="choice">C) Shield Standard scans S3 objects for sensitive data and triggers EventBridge remediation workflows</button>
-    <button class="choice">D) CloudTrail actively classifies data in S3 buckets and redacts sensitive findings</button>
+    <button class="choice">B) Shield Standard scans S3 objects for sensitive data and triggers EventBridge remediation workflows</button>
+    <button class="choice">C) CloudTrail actively classifies data in S3 buckets and redacts sensitive findings</button>
+    <button class="choice" data-correct>D) AWS WAF inspects HTTP requests on CloudFront, API Gateway, and ALB to block SQL injection and XSS patterns</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Macie uses machine learning to discover and classify sensitive data such as PII in S3 buckets, and findings can trigger EventBridge rules for remediation workflows.</aside>
-    <aside data-rationale-for="B">AWS WAF filters layer 7 attack patterns like SQL injection and XSS on CloudFront, API Gateway, and ALB using managed or custom rule groups.</aside>
-    <aside data-rationale-for="C">Shield Standard protects against layer 3 and 4 DDoS attacks; it does not scan S3 object contents for sensitive data.</aside>
-    <aside data-rationale-for="D">CloudTrail records AWS API calls and resource changes; it does not scan S3 object contents for sensitive data or redact findings.</aside>
+    <aside data-rationale-for="B">Shield Standard protects against layer 3 and 4 DDoS attacks; it does not scan S3 object contents for sensitive data.</aside>
+    <aside data-rationale-for="C">CloudTrail records AWS API calls and resource changes; it does not scan S3 object contents for sensitive data or redact findings.</aside>
+    <aside data-rationale-for="D">AWS WAF filters layer 7 attack patterns like SQL injection and XSS on CloudFront, API Gateway, and ALB using managed or custom rule groups.</aside>
     <aside class="explanation">Macie finds sensitive data in S3 and AWS WAF filters layer 7 attacks. Shield Standard handles DDoS protection and CloudTrail records API calls; neither scans S3 contents.</aside>
     <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Macie and WAF patterns</a> and <a href="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html">Amazon Macie</a>.</aside>
   </section>
