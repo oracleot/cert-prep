@@ -148,27 +148,27 @@ Direct control of dedicated HSM hardware? → AWS CloudHSM</div>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>7. A team must encrypt objects in <mark>Amazon S3 with different controls over key management</mark>. Some buckets require audit and customer-managed key policy control; other buckets just need transparent encryption with no operational overhead. <mark>Which statements about S3 server-side encryption modes are valid?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) SSE-KMS uses per-object KMS keys and integrates with CloudTrail for key usage auditing</button>
-    <button class="choice" data-correct>B) SSE-S3 uses an AWS-managed key and is fully transparent to the application</button>
+    <button class="choice">B) SSE-S3 lets customers modify the underlying key policy for grant control</button>
     <button class="choice">C) SSE-C means AWS stores the customer-supplied key durably for durability and recovery</button>
-    <button class="choice">D) SSE-S3 lets customers modify the underlying key policy for grant control</button>
+    <button class="choice" data-correct>D) SSE-S3 uses an AWS-managed key and is fully transparent to the application</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">SSE-KMS uses per-object KMS keys, every decrypt call is logged in CloudTrail, and key usage can be controlled via the customer-managed CMK key policy.</aside>
-    <aside data-rationale-for="B">SSE-S3 uses a shared AWS-managed key, requires no customer configuration, and is the lowest-overhead server-side encryption option.</aside>
+    <aside data-rationale-for="B">SSE-S3 uses an AWS-managed key whose policy cannot be modified by the customer. Only customer-managed CMKs under SSE-KMS support custom key policies.</aside>
     <aside data-rationale-for="C">SSE-C lets customers supply their own key at request time, but AWS does not store those keys—customers must retain them or data becomes inaccessible.</aside>
-    <aside data-rationale-for="D">SSE-S3 uses an AWS-managed key whose policy cannot be modified by the customer. Only customer-managed CMKs under SSE-KMS support custom key policies.</aside>
+    <aside data-rationale-for="D">SSE-S3 uses a shared AWS-managed key, requires no customer configuration, and is the lowest-overhead server-side encryption option.</aside>
     <aside class="explanation">SSE-KMS and SSE-S3 are both valid server-side encryption options. SSE-KMS gives audit and control via customer-managed CMKs; SSE-S3 is fully transparent with AWS managing the key.</aside>
     <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">KMS key policies</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html">S3 encryption</a>.</aside>
   </section>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>8. A team must decide between <mark>AWS Secrets Manager and SSM Parameter Store</mark> for storing database credentials that rotate on a schedule. <mark>Which statements about these services are valid?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Secrets Manager stores encrypted secrets and supports automatic rotation on a defined schedule</button>
-    <button class="choice" data-correct>B) SSM Parameter Store SecureString encrypts parameter values with KMS but does not auto-rotate</button>
-    <button class="choice">C) Both Secrets Manager and Parameter Store auto-rotate secrets on a schedule using Lambda by default</button>
+    <button class="choice">B) Both Secrets Manager and Parameter Store auto-rotate secrets on a schedule using Lambda by default</button>
+    <button class="choice" data-correct>C) SSM Parameter Store SecureString encrypts parameter values with KMS but does not auto-rotate</button>
     <button class="choice">D) Parameter Store SecureString auto-rotates values natively every 30 days without additional configuration</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Secrets Manager stores encrypted secrets and supports automatic rotation on a schedule using a configured Lambda function.</aside>
-    <aside data-rationale-for="B">SSM Parameter Store SecureString encrypts parameter values with KMS but lacks native rotation; rotation requires custom Lambda logic.</aside>
-    <aside data-rationale-for="C">Only Secrets Manager auto-rotates secrets on a schedule by default. Parameter Store rotation requires custom Lambda logic; the two services have different rotation models.</aside>
+    <aside data-rationale-for="B">Only Secrets Manager auto-rotates secrets on a schedule by default. Parameter Store rotation requires custom Lambda logic; the two services have different rotation models.</aside>
+    <aside data-rationale-for="C">SSM Parameter Store SecureString encrypts parameter values with KMS but lacks native rotation; rotation requires custom Lambda logic.</aside>
     <aside data-rationale-for="D">Parameter Store SecureString does not auto-rotate. Native rotation is a Secrets Manager feature; Parameter Store requires custom Lambda rotation.</aside>
     <aside class="explanation">Secrets Manager rotates secrets automatically on a schedule using Lambda. Parameter Store SecureString encrypts values with KMS but does not auto-rotate; only Secrets Manager provides native rotation.</aside>
     <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">Secrets Manager vs Parameter Store</a> and <a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">Secrets Manager rotation</a>.</aside>
@@ -177,13 +177,13 @@ Direct control of dedicated HSM hardware? → AWS CloudHSM</div>
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
     <h3>9. A workload must <mark>encrypt large payloads locally</mark> using AWS KMS and needs <mark>dedicated FIPS 140-2 Level 3 hardware</mark> for key management. <mark>Which statements about KMS encryption patterns and CloudHSM are valid?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Envelope encryption uses a data key encrypted by a CMK to encrypt large payloads, with the plaintext data key erased after use</button>
-    <button class="choice" data-correct>B) CloudHSM provides dedicated FIPS 140-2 Level 3 hardware where the customer manages the HSM client and key lifecycle independently</button>
-    <button class="choice">C) KMS CMKs leave the HSM boundary so applications can perform cryptographic operations locally with the key</button>
+    <button class="choice">B) KMS CMKs leave the HSM boundary so applications can perform cryptographic operations locally with the key</button>
+    <button class="choice" data-correct>C) CloudHSM provides dedicated FIPS 140-2 Level 3 hardware where the customer manages the HSM client and key lifecycle independently</button>
     <button class="choice">D) AWS-managed CMKs can have their key policy modified for customer-controlled rotation and audit access</button>
     <p data-feedback class="feedback"></p>
     <aside data-rationale-for="A">Envelope encryption uses a data key encrypted by a CMK; applications encrypt payloads with the plaintext data key and erase it after use to minimize KMS API calls.</aside>
-    <aside data-rationale-for="B">CloudHSM provides dedicated FIPS 140-2 Level 3 hardware; the customer manages the HSM client, key lifecycle, and access policies independently from AWS.</aside>
-    <aside data-rationale-for="C">KMS CMKs never leave the HSM boundary; all cryptographic operations occur inside KMS, not in the calling application or on the host.</aside>
+    <aside data-rationale-for="B">KMS CMKs never leave the HSM boundary; all cryptographic operations occur inside KMS, not in the calling application or on the host.</aside>
+    <aside data-rationale-for="C">CloudHSM provides dedicated FIPS 140-2 Level 3 hardware; the customer manages the HSM client, key lifecycle, and access policies independently from AWS.</aside>
     <aside data-rationale-for="D">AWS-managed CMKs cannot have their key policy modified by the customer; only customer-managed CMKs support custom key policies and rotation.</aside>
     <aside class="explanation">Envelope encryption offloads large payload encryption to a data key, and CloudHSM provides dedicated hardware key management. KMS operations stay inside the HSM boundary, and only customer-managed CMKs allow key policy changes.</aside>
     <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">envelope encryption</a> and <a href="https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#enveloping">KMS envelope encryption</a>.</aside>
