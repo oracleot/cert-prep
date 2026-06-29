@@ -154,6 +154,21 @@ Bucket policy       Restrict S3 access with aws:sourceVpce</div>
     <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">VPC PrivateLink</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>8. A team must allow <mark>subnet traffic from a Lambda function to a database</mark> while explicitly denying a specific CIDR range at the subnet boundary. <mark>Which statements about VPC security groups and network ACLs are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Security groups attach to ENIs, are stateful, and automatically allow return traffic for allowed sessions</button>
+    <button class="choice" data-correct>B) Network ACLs attach to subnets, are stateless, and evaluate rules in numerical order with both allow and deny</button>
+    <button class="choice">C) Security groups can explicitly deny specific CIDRs while NACLs only allow traffic by default</button>
+    <button class="choice">D) Network ACLs are stateful and remember connections, while security groups evaluate every packet</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Security groups attach to ENIs, are stateful, and automatically allow return traffic for sessions they permit; subnet-wide explicit deny usually belongs to NACLs.</aside>
+    <aside data-rationale-for="B">NACLs attach to subnets, are stateless, and evaluate rules in numerical order with both allow and deny, including ephemeral port rules for return traffic.</aside>
+    <aside data-rationale-for="C">Security groups only support allow rules; they cannot explicitly deny traffic. NACLs support both allow and deny, so the choice reverses the actual capabilities.</aside>
+    <aside data-rationale-for="D">NACLs are stateless and require explicit return-traffic rules; security groups are stateful and automatically allow return traffic for allowed sessions.</aside>
+    <aside class="explanation">Security groups are stateful ENI-level allow-only filters, while NACLs are stateless subnet-level allow/deny rule lists. Subnet-wide explicit deny belongs in NACLs.</aside>
+    <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">security groups vs NACLs</a> and <a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html">NACL rules</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0016-domain-2-secure-configuration-selection.html">← Previous: Lesson 0016</a><a href="0018-security-best-practices-patterns.html">Next: Lesson 0018 →</a>
   </nav>
