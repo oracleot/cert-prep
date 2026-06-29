@@ -152,6 +152,36 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
     <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-rollback-triggers.html">CloudFormation rollback triggers</a> and <a href="0022-automate-deployment-testing.html">Task 3.3</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>9. A team must build a release pipeline that <mark>compiles code, runs tests, then deploys to production</mark>. <mark>Which statements about AWS CI/CD service roles are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) CodePipeline is the orchestration layer that orders the source, build, test, and deploy stages</button>
+    <button class="choice" data-correct>B) CodeBuild runs compile and unit test commands inside the build stage and produces deployable artifacts</button>
+    <button class="choice">C) CodePipeline executes shell build commands directly inside a stage without a CodeBuild action</button>
+    <button class="choice">D) CodeDeploy acts as the pipeline orchestrator that controls all stage transitions</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">CodePipeline is the orchestration layer; it sequences source, build, test, and deploy stages and triggers transitions on commit and completion events—Task 3.4.</aside>
+    <aside data-rationale-for="B">CodeBuild runs the compile, unit test, and packaging commands inside a pipeline stage, producing the artifact that downstream stages deploy—Task 3.4.</aside>
+    <aside data-rationale-for="C">CodePipeline cannot run shell commands directly; a CodeBuild action (or another provider) is required inside the build stage.</aside>
+    <aside data-rationale-for="D">CodeDeploy handles target deployments only. Pipeline orchestration and stage transitions are owned by CodePipeline.</aside>
+    <aside class="explanation">CodePipeline orchestrates the stages and CodeBuild runs compile and test commands. CodePipeline does not run shell directly, and CodeDeploy only handles target deployments.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a> and <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html">CodeBuild</a>.</aside>
+  </section>
+
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>10. A platform team needs <mark>zero-downtime deployments with the ability to keep the old fleet available for rollback</mark>. <mark>Which statements about safe rollout strategies are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Blue/green deployments shift traffic between parallel environments, keeping the old fleet available for rollback</button>
+    <button class="choice">B) Immutable deployments replace the entire auto-scaling group with a fresh fleet before traffic shifts</button>
+    <button class="choice">C) In-place deployments maintain parallel environments during the rollout for zero-downtime updates</button>
+    <button class="choice">D) Blue/green deployments require deleting the old fleet as soon as the new fleet starts serving traffic</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Blue/green shifts traffic between parallel environments; the old environment remains available so operators can roll back if alarms fire—Task 3.4.</aside>
+    <aside data-rationale-for="B">Immutable deployments replace the entire auto-scaling group with a freshly built one, then shift traffic to it; the old group is retired only after the new one is healthy—Task 3.4.</aside>
+    <aside data-rationale-for="C">In-place deployments replace existing instances directly; they do not maintain parallel environments and offer no zero-downtime rollback.</aside>
+    <aside data-rationale-for="D">Keeping the old fleet available is precisely what makes blue/green safe; deleting it eliminates the rollback path.</aside>
+    <aside class="explanation">Blue/green and immutable are both safe rollout strategies that keep the old fleet available. In-place updates do not maintain a parallel environment, and deleting the old fleet defeats the rollback safety of blue/green.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatepolicy.html">UpdatePolicy strategies</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html">CodeDeploy</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0022-automate-deployment-testing.html">← Previous: Lesson 0022</a><a href="../reference/dva-c02-deployment-quick-sheet.html">Next: Deployment quick sheet →</a>
   </nav>
