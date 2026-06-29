@@ -148,6 +148,21 @@ Security incident or audit trail needed?
     <aside class="knowledge-gap">Study <a href="0009-retries-idempotency-backoff-and-dlqs.html">CloudTrail audit trails</a> and <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html">CloudTrail user guide</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>6. A Lambda function is <mark>invoked asynchronously</mark> and fails after exhausting all automatic retries. The events cannot be discarded and need to be routed for downstream processing. <mark>Which AWS destinations are valid receivers for these failed async events?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) An Amazon SQS queue configured as a Lambda destination</button>
+    <button class="choice" data-correct>B) An Amazon SNS topic configured as a Lambda destination</button>
+    <button class="choice">C) An Amazon CloudFront distribution configured as a Lambda destination</button>
+    <button class="choice">D) A Step Functions state machine configured directly as a Lambda destination</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda destinations can route async success and failure events to SQS queues so other consumers can pick up the events for inspection or replay.</aside>
+    <aside data-rationale-for="B">Lambda destinations can route async success and failure events to SNS topics for fan-out to multiple subscribers.</aside>
+    <aside data-rationale-for="C">CloudFront is a CDN service, not a Lambda destination type. Lambda destinations accept only SQS, SNS, Lambda, or EventBridge as targets.</aside>
+    <aside data-rationale-for="D">Step Functions is not a direct destination type. To trigger a state machine from a failed Lambda, route the failure through EventBridge first.</aside>
+    <aside class="explanation">SQS and SNS are valid Lambda destinations for failed async events. Destinations support exactly four target types: SQS, SNS, Lambda, and EventBridge.</aside>
+    <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">async failure routing</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async invocation</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0014-authentication-and-authorization-selection.html">← Previous: Lesson 0014</a><a href="0016-domain-2-secure-configuration-selection.html">Next: Lesson 0016 →</a>
   </nav>
