@@ -156,6 +156,36 @@ Traffic shifting, rollback, safe rollout   → CodeDeploy, Elastic Beanstalk, EC
     <aside class="knowledge-gap">Review <a href="0020-prepare-application-artifacts.html">Task 3.1 configuration management</a> and <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>8. A team is releasing a Lambda function and wants <mark>safe traffic shifting with the ability to roll back</mark>. <mark>Which statements about Lambda deployment configurations with CodeDeploy are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) CodeDeploy linear configuration shifts equal traffic percentages at fixed intervals</button>
+    <button class="choice">B) CodeDeploy canary configuration holds a small initial slice for a bake time before completing the shift</button>
+    <button class="choice" data-correct>C) CodeDeploy can automatically roll back a Lambda deployment when a CloudWatch alarm fires</button>
+    <button class="choice">D) Lambda deployments are limited to in-place updates with no traffic-shifting options</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Linear shifts equal traffic percentages at fixed intervals (e.g., 10 percent every 15 minutes), giving operators predictable rollout progress—Task 3.3.</aside>
+    <aside data-rationale-for="B">Canary shifts a small initial slice, holds for a bake interval, then completes the shift; it does not take all traffic immediately.</aside>
+    <aside data-rationale-for="C">CodeDeploy can be configured to monitor CloudWatch alarms during deployment and automatically roll back to the previous version when an alarm fires—Task 3.3.</aside>
+    <aside data-rationale-for="D">Lambda deployments support linear, canary, and all-at-once traffic shifting through CodeDeploy; in-place is not the only option.</aside>
+    <aside class="explanation">Linear and canary are both safe Lambda deployment configurations, and CodeDeploy can automatically roll back on a CloudWatch alarm. All-at-once shifts traffic immediately and is not the only option for Lambda.</aside>
+    <aside class="knowledge-gap">Review <a href="0022-automate-deployment-testing.html">Task 3.3 traffic shifting</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy configurations</a>.</aside>
+  </section>
+
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>9. A development team wants to <mark>chain source, build, test, and deploy steps into an automated workflow on every commit</mark>. <mark>Which statements about AWS CI/CD pipeline orchestration are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) CodePipeline orchestrates source, build, test, and deploy stages in ordered transitions</button>
+    <button class="choice" data-correct>B) A CodeBuild action inside a pipeline stage runs the actual compile and test commands</button>
+    <button class="choice">C) CodePipeline itself executes shell build commands directly without requiring a CodeBuild action</button>
+    <button class="choice">D) CodeDeploy acts as the orchestrator that controls all stage transitions in a pipeline</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">CodePipeline is the orchestration layer; it orders source, build, test, and deploy stages and triggers transitions between them on commit events.</aside>
+    <aside data-rationale-for="B">CodeBuild is the build action provider that runs compile, unit test, and packaging commands inside a pipeline stage, producing build artifacts.</aside>
+    <aside data-rationale-for="C">CodePipeline cannot run shell commands directly; a CodeBuild action (or another action provider) is required inside the build stage.</aside>
+    <aside data-rationale-for="D">CodeDeploy handles target deployments after a successful build; it does not control stage transitions—CodePipeline does.</aside>
+    <aside class="explanation">CodePipeline orchestrates the pipeline and CodeBuild runs the compile/test commands. CodePipeline does not run shell directly, and CodeDeploy only handles target deployments.</aside>
+    <aside class="knowledge-gap">Review <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD services</a> and <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0018-security-best-practices-patterns.html">← Previous: Lesson 0018</a><a href="0020-prepare-application-artifacts.html">Next: Lesson 0020 →</a>
   </nav>
