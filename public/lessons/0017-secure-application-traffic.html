@@ -139,6 +139,21 @@ Bucket policy       Restrict S3 access with aws:sourceVpce</div>
     <aside class="knowledge-gap">Review <a href="0018-security-best-practices-patterns.html">WAF web filtering rules</a> and <a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html">AWS WAF</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>7. A VPC has <mark>private subnets with no internet gateway or NAT gateway</mark>. The application must reach certain AWS services privately without traversing the public internet. <mark>Which VPC endpoint scenarios are valid for this requirement?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) A gateway endpoint routes private subnet traffic to Amazon S3 via the route table</button>
+    <button class="choice" data-correct>B) An interface endpoint with PrivateLink exposes an elastic network interface for Amazon SNS APIs</button>
+    <button class="choice">C) A NAT gateway with no internet gateway attached still provides private S3 access</button>
+    <button class="choice">D) A public subnet route table entry alone provides internet-free access to AWS services</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Gateway endpoints are route-table targets for S3 and DynamoDB that keep traffic inside the AWS network without needing public IPs or an internet path.</aside>
+    <aside data-rationale-for="B">Interface VPC endpoints create PrivateLink ENIs in private subnets and support most AWS service APIs, including SNS, SQS, and Secrets Manager.</aside>
+    <aside data-rationale-for="C">A NAT gateway requires an attached internet gateway and elastic IPs to function. Without an internet gateway, no NAT path exists to AWS services.</aside>
+    <aside data-rationale-for="D">Public subnet route table entries route through an internet gateway—without one there is no path. Endpoints, not public subnets, give internet-free service access.</aside>
+    <aside class="explanation">Gateway endpoints and interface endpoints are both valid ways to reach AWS services from private subnets without an internet gateway. NAT gateways and public subnets require internet gateways.</aside>
+    <aside class="knowledge-gap">Review <a href="0016-domain-2-secure-configuration-selection.html">VPC PrivateLink</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0016-domain-2-secure-configuration-selection.html">← Previous: Lesson 0016</a><a href="0018-security-best-practices-patterns.html">Next: Lesson 0018 →</a>
   </nav>
