@@ -152,6 +152,36 @@ Point traffic without changing ARNs  → Lambda alias</div>
     <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/appconfig.html">AWS AppConfig</a> and <a href="0021-test-applications-in-dev-environments.html">Task 3.2 configuration</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>8. A development team needs to package a Lambda function with <mark>native dependencies that require the exact Lambda Amazon Linux runtime</mark>. <mark>Which packaging approaches satisfy this requirement?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Use <code>sam build --use-container</code> to build the deployment package inside a Docker image matching the Lambda runtime</button>
+    <button class="choice">B) Add a Lambda layer with the native binary and rely on Lambda to translate the architecture at runtime</button>
+    <button class="choice" data-correct>C) Package the function as a container image with runtime, dependencies, and code, then push to Amazon ECR</button>
+    <button class="choice">D) Build a single Lambda layer containing binaries compiled for both x86_64 and ARM64 architectures in one ZIP</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SAM <code>build --use-container</code> builds the deployment package inside a Docker container matching the Lambda runtime, which is required when native binaries are incompatible with the local OS—Task 3.1.</aside>
+    <aside data-rationale-for="B">Lambda does not translate architectures at runtime; a layer added for the wrong architecture will not load. Layers must match the function's architecture.</aside>
+    <aside data-rationale-for="C">Container image packaging bundles the runtime, dependencies, and code into a single ECR image that Lambda deploys directly, including native binaries—Task 3.1.</aside>
+    <aside data-rationale-for="D">A single layer cannot mix binaries compiled for different architectures. Container images (not layers) are the right tool when both architectures matter.</aside>
+    <aside class="explanation">SAM <code>build --use-container</code> and container image packaging both produce Lambda-compatible deployment packages for native dependencies. Lambda does not translate layer architectures, and a single layer cannot hold both architectures.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-package.html">Lambda deployment packages</a> and <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html">SAM build</a>.</aside>
+  </section>
+
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>9. A team needs <mark>managed repositories for versioned npm, pip, and Maven packages</mark> shared across Lambda functions, plus <mark>Docker images used as Lambda container image deployments</mark>. <mark>Which statements about AWS artifact storage are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) CodeArtifact provides a managed artifact repository compatible with npm, pip, Maven, and NuGet</button>
+    <button class="choice">B) CodeArtifact automatically deploys Lambda functions when a new package version is published</button>
+    <button class="choice" data-correct>C) Amazon ECR stores Docker OCI images that Lambda can deploy as container image functions</button>
+    <button class="choice">D) Lambda cannot reference container images stored in Amazon ECR; only zip packages are supported</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">CodeArtifact is a managed artifact repository that supports multiple package formats including npm, pip, Maven, and NuGet across teams—Task 3.1.</aside>
+    <aside data-rationale-for="B">CodeArtifact stores packages and resolves dependencies on demand; it does not trigger Lambda deployments. CodePipeline watches repositories and orchestrates deployments.</aside>
+    <aside data-rationale-for="C">Amazon ECR stores Docker OCI images, and Lambda functions configured for container image packaging pull the image directly from ECR at deploy time—Task 3.1.</aside>
+    <aside data-rationale-for="D">Lambda supports both zip and container image packages; container image functions reference an ECR image URI, not just zips.</aside>
+    <aside class="explanation">CodeArtifact serves language package formats and ECR stores container images used by Lambda container image deployments. CodeArtifact does not deploy Lambdas, and Lambda supports both zip and container packaging.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/images-create.html">Lambda container images</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0019-domain-3-introduction.html">← Previous: Lesson 0019</a><a href="0021-test-applications-in-dev-environments.html">Next: Lesson 0021 →</a>
   </nav>
