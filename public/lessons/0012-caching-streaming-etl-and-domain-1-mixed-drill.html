@@ -184,36 +184,6 @@ Kinesis  streaming transform/analytics before storage or delivery</div>
     <aside class="knowledge-gap">Review <a href="0012-caching-streaming-etl-and-domain-1-mixed-drill.html">Lesson 0012</a> on serverless patterns. <a href="https://docs.aws.amazon.com/lambda/latest/dg/services-ddb.html">AWS Lambda with DynamoDB</a>.</aside>
   </section>
 
-  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
-    <h3>9. A Lambda function is invoked from three different sources with different retry and failure-routing rules. <mark>Which statements about Lambda invocation behavior are valid?</mark> Choose TWO.</h3>
-    <button class="choice" data-correct>A) Asynchronous invocation retries the function twice before sending failures to the DLQ or destination</button>
-    <button class="choice" data-correct>B) Event source mappings from SQS rely on the source queue's visibility timeout to control retry intervals</button>
-    <button class="choice">C) Synchronous invocation retries automatically on failure and routes errors to a Lambda destination</button>
-    <button class="choice">D) A Lambda function DLQ applies to async invocations and to event source mapping failures alike</button>
-    <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Async invocation retries the function twice on failure before sending the event to the configured DLQ or Lambda destination for inspection.</aside>
-    <aside data-rationale-for="B">Event source mappings from SQS use the source queue's visibility timeout to control how long a message stays invisible before being retried; the function does not retry directly.</aside>
-    <aside data-rationale-for="C">Synchronous invocation returns errors to the caller immediately with no automatic retry and does not route through Lambda destinations; the caller must handle retries.</aside>
-    <aside data-rationale-for="D">A Lambda function DLQ applies only to async invocations. Event source mappings from queues use the queue's redrive policy, not a function DLQ, to capture poison messages.</aside>
-    <aside class="explanation">Async retries twice before DLQ and event source mappings use visibility timeout retries. Sync does not auto-retry and DLQ does not apply to event source mappings.</aside>
-    <aside class="knowledge-gap">Review <a href="0009-retries-idempotency-backoff-and-dlqs.html">retries and DLQs</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html">Lambda async invocation</a>.</aside>
-  </section>
-
-  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
-    <h3>10. A team needs two streaming workloads: one requires <mark>ordered records with replay within retention</mark>, and another needs <mark>managed Apache Kafka brokers</mark> for existing Kafka clients. <mark>Which AWS streaming services are valid choices?</mark> Choose TWO.</h3>
-    <button class="choice" data-correct>A) Amazon Kinesis Data Streams provides ordered records per shard with replay within retention</button>
-    <button class="choice" data-correct>B) Amazon MSK provides managed Apache Kafka brokers and Kafka client compatibility</button>
-    <button class="choice">C) Amazon Data Firehose supports replay within retention for ordered record replay</button>
-    <button class="choice">D) Amazon SNS topics provide pub/sub semantics and replay within retention</button>
-    <p data-feedback class="feedback"></p>
-    <aside data-rationale-for="A">Kinesis Data Streams retains records per shard for a configurable retention window and supports replay for custom consumers, ordered records, and Lambda event source mappings.</aside>
-    <aside data-rationale-for="B">Amazon MSK provides managed Kafka brokers with Kafka APIs, topics, partitions, and Kafka client compatibility for teams already running Kafka.</aside>
-    <aside data-rationale-for="C">Data Firehose is a serverless delivery service that streams to S3, Redshift, OpenSearch, or HTTP endpoints; it does not support record replay within retention.</aside>
-    <aside data-rationale-for="D">SNS is a pub/sub messaging service with fanout to subscribers; it does not retain records for replay and is not a streaming service with per-shard ordering.</aside>
-    <aside class="explanation">Kinesis Data Streams and Amazon MSK are the two AWS streaming options that match the stated requirements. Firehose is for delivery, not replay, and SNS is pub/sub without replay.</aside>
-    <aside class="knowledge-gap">Review <a href="0008-event-driven-patterns-sqs-sns-eventbridge-step-functions.html">streaming patterns</a> and <a href="https://docs.aws.amazon.com/streams/latest/dev/introduction.html">Kinesis Data Streams</a>.</aside>
-  </section>
-
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0011-storage-selection-and-lifecycle.html">← Previous: Lesson 0011</a>
     <a href="0013-timed-domain-1-mixed-drill.html">Next: Lesson 0013 →</a>
