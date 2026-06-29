@@ -132,7 +132,7 @@ Promote only approved container image → ECR tags or digests</div>
     <aside data-rationale-for="C"><code>sam local invoke</code> runs the function in a local Docker container built from the Lambda runtime image, mimicking the cloud environment—Task 3.3.</aside>
     <aside data-rationale-for="D">SAM local testing is a development convenience, not a substitute for cloud-based integration tests that exercise live AWS service integrations.</aside>
     <aside class="explanation"><code>sam local generate-event</code> produces test payloads and <code>sam local invoke</code> runs them in a local Docker container, but neither deploys to AWS nor replaces cloud integration testing.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-generate-event.html">SAM local generate-event</a> and <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html">SAM local invoke</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-generate-event.html">SAM local generate-event</a>, <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html">SAM local invoke</a>, and <a href="0020-prepare-application-artifacts.html">Task 3.1 SAM packaging</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
@@ -147,7 +147,7 @@ Promote only approved container image → ECR tags or digests</div>
     <aside data-rationale-for="C">Canary shifts a small slice (e.g., 10 percent), holds for a bake interval to monitor alarms, then completes the shift in a second step—Task 3.3.</aside>
     <aside data-rationale-for="D">CodeDeploy Linear/Canary/AllAtOnce configurations apply to Lambda and ECS; EC2 uses a different set of in-place and blue/green deployment configurations.</aside>
     <aside class="explanation">Linear shifts equal increments at fixed intervals and Canary holds a small initial slice before completing. All-at-once shifts all traffic immediately, and EC2 uses a different configuration set than Lambda.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy deployment configurations</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-lambda.html">Lambda deployment reference</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html">CodeDeploy deployment configurations</a>, <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-lambda.html">Lambda deployment reference</a>, and <a href="0023-deploy-code-using-ci-cd-services.html">Task 3.4 CI/CD pipeline</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
