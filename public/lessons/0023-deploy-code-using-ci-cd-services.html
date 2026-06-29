@@ -164,11 +164,11 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
     <aside data-rationale-for="C">CodePipeline cannot run shell commands directly; a CodeBuild action (or another provider) is required inside the build stage.</aside>
     <aside data-rationale-for="D">CodeDeploy handles target deployments only. Pipeline orchestration and stage transitions are owned by CodePipeline.</aside>
     <aside class="explanation">CodePipeline orchestrates the stages and CodeBuild runs compile and test commands. CodePipeline does not run shell directly, and CodeDeploy only handles target deployments.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a> and <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html">CodeBuild</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">CodePipeline</a>, <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html">CodeBuild</a>, and <a href="0022-automate-deployment-testing.html">Task 3.3 testing automation</a>.</aside>
   </section>
 
   <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
-    <h3>10. A platform team needs <mark>zero-downtime deployments with the ability to keep the old fleet available for rollback</mark>. <mark>Which statements about safe rollout strategies are valid?</mark> Choose TWO.</h3>
+    <h3>10. A platform team running production workloads on AWS EC2 and Lambda needs <mark>zero-downtime deployments with the ability to keep the old fleet available for rollback</mark>. <mark>Which statements about safe rollout strategies are valid?</mark> Choose TWO.</h3>
     <button class="choice" data-correct>A) Blue/green deployments shift traffic between parallel environments, keeping the old fleet available for rollback</button>
     <button class="choice" data-correct>B) Immutable deployments replace the entire auto-scaling group with a fresh fleet before traffic shifts</button>
     <button class="choice">C) In-place deployments maintain parallel environments during the rollout for zero-downtime updates</button>
@@ -179,7 +179,7 @@ Rollback on alarm during stack operation   → CloudFormation rollback trigger</
     <aside data-rationale-for="C">In-place deployments replace existing instances directly; they do not maintain parallel environments and offer no zero-downtime rollback.</aside>
     <aside data-rationale-for="D">Keeping the old fleet available is precisely what makes blue/green safe; deleting it eliminates the rollback path.</aside>
     <aside class="explanation">Blue/green and immutable are both safe rollout strategies that keep the old fleet available. In-place updates do not maintain a parallel environment, and deleting the old fleet defeats the rollback safety of blue/green.</aside>
-    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatepolicy.html">UpdatePolicy strategies</a> and <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html">CodeDeploy</a>.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatepolicy.html">UpdatePolicy strategies</a>, <a href="https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html">CodeDeploy</a>, and <a href="0022-automate-deployment-testing.html">Task 3.3 traffic shifting</a>.</aside>
   </section>
 
   <nav class="lesson-nav" aria-label="Lesson navigation">
