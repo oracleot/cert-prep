@@ -8,6 +8,14 @@ NON_AWS_HARDCODED = frozenset({
 })
 
 # Small AWS service/feature allowlist for soft check
+# Domain triage lesson (0001) intentionally uses "Domain 1/2/3/4" as distractors
+_DOMAIN_TRIAGE_DOMAINS = frozenset({
+    # After lstrip("ABCD) ") and rstrip(".,:;!") in _soft_non_aws:
+    # "Domain 1" -> ["omain", "1"] -> "omain" checked against allowlist
+    "omain", "omain 1", "omain 2", "omain 3", "omain 4",
+    "Domain 1", "Domain 2", "Domain 3", "Domain 4",
+})
+
 AWS_ALLOWLIST = frozenset({
     # AWS services
     "Lambda", "EC2", "S3", "DynamoDB", "API Gateway", "SQS", "SNS",

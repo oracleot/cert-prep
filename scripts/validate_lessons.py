@@ -4,14 +4,14 @@ import argparse, json, os, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from lessons_parser import scan_lessons, load_aws_terms
-from shared_terms import NON_AWS_HARDCODED, AWS_ALLOWLIST
+from shared_terms import NON_AWS_HARDCODED, AWS_ALLOWLIST, _DOMAIN_TRIAGE_DOMAINS
 
 LESSONS_DIR = Path(__file__).parent.parent / "public" / "lessons"
 CONCEPTS_DIR = Path(__file__).parent.parent / "agents" / "data" / "concepts" / "dva-c02"
 
 
 def _build_allowlist() -> set[str]:
-    return load_aws_terms(str(CONCEPTS_DIR)) | AWS_ALLOWLIST
+    return load_aws_terms(str(CONCEPTS_DIR)) | AWS_ALLOWLIST | _DOMAIN_TRIAGE_DOMAINS
 
 
 def _soft_non_aws(text: str, allowlist: set[str]) -> bool:

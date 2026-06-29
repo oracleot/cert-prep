@@ -5,7 +5,7 @@
 import { readdirSync, readFileSync } from "fs";
 import { extname, join } from "path";
 
-export const LESSONS_DIR = join(process.cwd(), "lessons");
+export const LESSONS_DIR = join(process.cwd(), "public", "lessons");
 export const REFERENCE_DIR = join(process.cwd(), "reference");
 export const MAX_LINES = 200;
 /** Domain 1 = 0001-0012, Domain 2 = 0013-0018, Domain 3 = 0019-0023 */

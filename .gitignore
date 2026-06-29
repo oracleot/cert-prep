@@ -36,6 +36,9 @@ agents/.playwright-mcp/
 .DS_Store
 *.pem
 
+# lessons backup (pre-reshuffle originals)
+public/lessons/.backup/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
