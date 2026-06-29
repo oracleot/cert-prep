@@ -123,6 +123,36 @@ Stable event source while Lambda changes     → Lambda alias ARN</div>
     <aside class="knowledge-gap">Study <a href="0020-prepare-application-artifacts.html">Task 3.1</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html">CloudFormation helper scripts</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>7. A developer is building a new API contract and needs to test it <mark>before any backend Lambda or service exists</mark>. <mark>Which statements about development-time testing on AWS are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) API Gateway MOCK integrations return configured static responses without invoking any backend</button>
+    <button class="choice" data-correct>B) Step Functions Local executes state machines against mocked service integrations for local testing</button>
+    <button class="choice">C) CloudFormation change sets can be skipped to apply stack updates without previewing the resource changes</button>
+    <button class="choice">D) Testing an API contract before launch requires real production traffic routed through the gateway</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">API Gateway MOCK integrations return configured static responses without calling any backend, enabling contract testing in early development—Task 3.2.</aside>
+    <aside data-rationale-for="B">Step Functions Local runs state machines against mocked service integrations, letting developers validate logic without calling real AWS services—Task 3.2.</aside>
+    <aside data-rationale-for="C">CloudFormation change sets preview stack updates before execution and are the standard safety tool; skipping them removes the preview step but does not validate changes.</aside>
+    <aside data-rationale-for="D">API Gateway MOCK integrations and stage variables exist exactly to validate contracts in development without production traffic.</aside>
+    <aside class="explanation">MOCK integrations and Step Functions Local both enable pre-backend testing of contracts and logic. Change sets are preview tools, not gatekeepers, and require production traffic only when explicitly testing real backends.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integrations.html">API Gateway MOCK integrations</a> and <a href="https://docs.aws.amazon.com/step-functions/latest/dg/sfn-local.html">Step Functions Local</a>.</aside>
+  </section>
+
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>8. A team must promote a Lambda function from <mark>dev to beta to production without updating the event source mapping ARNs</mark>. <mark>Which statements about Lambda versioning and alias-based promotion are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) Lambda function versions are immutable snapshots of the code; <code>$LATEST</code> always points to the most recent upload</button>
+    <button class="choice">B) After promotion, the alias ARN must be re-added to each event source mapping</button>
+    <button class="choice" data-correct>C) An alias is a stable pointer to a specific version, so event sources keep targeting the alias ARN unchanged</button>
+    <button class="choice">D) Lambda <code>$LATEST</code> is the recommended production version so triggers always run the latest code</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">Lambda function versions are immutable: each publish produces a new version and <code>$LATEST</code> is the working copy that updates on every upload—Task 3.2.</aside>
+    <aside data-rationale-for="B">Event sources keep the alias ARN across promotion; only the alias points to a new version. Re-adding the event source is not required.</aside>
+    <aside data-rationale-for="C">An alias is a stable, movable pointer to a single version; event sources target the alias ARN and continue to work unchanged after version promotion—Task 3.2.</aside>
+    <aside data-rationale-for="D"><code>$LATEST</code> is mutable and not recommended for production. Production traffic should target a numbered version, directly or via alias.</aside>
+    <aside class="explanation">Versions are immutable and aliases point at one version, so event sources stay bound to the alias ARN across promotion. <code>$LATEST</code> is the working copy; production should use a numbered version or alias.</aside>
+    <aside class="knowledge-gap">Review <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-versions.html">Lambda versions</a> and <a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html">Lambda aliases</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0020-prepare-application-artifacts.html">← Previous: Lesson 0020</a><a href="0022-automate-deployment-testing.html">Next: Lesson 0022 →</a>
   </nav>
