@@ -170,6 +170,21 @@ Direct control of dedicated HSM hardware?
     <aside class="knowledge-gap">Study <a href="0017-secure-application-traffic.html">VPC PrivateLink endpoints</a> and <a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html">VPC endpoints</a>.</aside>
   </section>
 
+  <section class="quiz" data-quiz data-walkthrough="true" data-multi data-answers="2">
+    <h3>7. A team must encrypt objects in <mark>Amazon S3 with different controls over key management</mark>. Some buckets require audit and customer-managed key policy control; other buckets just need transparent encryption with no operational overhead. <mark>Which statements about S3 server-side encryption modes are valid?</mark> Choose TWO.</h3>
+    <button class="choice" data-correct>A) SSE-KMS uses per-object KMS keys and integrates with CloudTrail for key usage auditing</button>
+    <button class="choice" data-correct>B) SSE-S3 uses an AWS-managed key and is fully transparent to the application</button>
+    <button class="choice">C) SSE-C means AWS stores the customer-supplied key durably for durability and recovery</button>
+    <button class="choice">D) SSE-S3 lets customers modify the underlying key policy for grant control</button>
+    <p data-feedback class="feedback"></p>
+    <aside data-rationale-for="A">SSE-KMS uses per-object KMS keys, every decrypt call is logged in CloudTrail, and key usage can be controlled via the customer-managed CMK key policy.</aside>
+    <aside data-rationale-for="B">SSE-S3 uses a shared AWS-managed key, requires no customer configuration, and is the lowest-overhead server-side encryption option.</aside>
+    <aside data-rationale-for="C">SSE-C lets customers supply their own key at request time, but AWS does not store those keys—customers must retain them or data becomes inaccessible.</aside>
+    <aside data-rationale-for="D">SSE-S3 uses an AWS-managed key whose policy cannot be modified by the customer. Only customer-managed CMKs under SSE-KMS support custom key policies.</aside>
+    <aside class="explanation">SSE-KMS and SSE-S3 are both valid server-side encryption options. SSE-KMS gives audit and control via customer-managed CMKs; SSE-S3 is fully transparent with AWS managing the key.</aside>
+    <aside class="knowledge-gap">Review <a href="0015-domain-2-error-handling-and-security-logging.html">KMS key policies</a> and <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html">S3 encryption</a>.</aside>
+  </section>
+
   <nav class="lesson-nav" aria-label="Lesson navigation">
     <a href="0015-domain-2-error-handling-and-security-logging.html">← Previous: Lesson 0015</a><a href="0017-secure-application-traffic.html">Next: Lesson 0017 →</a>
   </nav>
