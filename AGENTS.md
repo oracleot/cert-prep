@@ -43,6 +43,12 @@ python -m uvicorn main:app --reload  # target: :8000
 - No typecheck script in package.json; run `npx tsc --noEmit` manually.
 - No test command exists yet.
 
+## Railway project + pre-merge staging
+- Canonical Railway project for this repo: `136668ab-3a35-4c76-a587-7e1adf2bf39c` (`cert-prep`). Always scope Railway commands to this project ID; do not create or use duplicate `cert-prep` projects.
+- `main` auto-deploys to production after merge. Do not manually redeploy production for ordinary fixes.
+- For pre-merge validation, use the Railway `staging` environment in the same project instead of production.
+- When deploying to staging, target the existing project and environment explicitly (for example `railway up -p 136668ab-3a35-4c76-a587-7e1adf2bf39c -e staging -s cert-prep` and `-s agents` as needed).
+
 ## Architecture: what's actually wired
 - **Phase 1 loop (fully working):** `app/session/use-session.ts` orchestrates the full 2-cycle Rex→Sage loop via direct Next.js API routes (`/api/rex/challenge`, `/api/rex/rechallenge`, `/api/evaluate`, `/api/sage`). Domain hardcoded to `"Deployment"`, `MAX_CYCLES = 2` in `use-session.ts`.
 - **OpenRouter clients:** `lib/openrouter.ts` (SSE streaming) and `lib/openrouter-json.ts` (structured JSON). The SSE client strips markdown fences before `JSON.parse` in the JSON client.
