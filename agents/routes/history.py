@@ -1,4 +1,4 @@
-# Application route: list past sessions and load a session's exchanges.
+# Application route: list past sessions, load a session's exchanges, and delete completed sessions.
 # Reads from the existing `sessions` and `exchanges` tables.
 
 from __future__ import annotations
@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from db import get_pool, has_pool
+from history_deletion_repository import rebuild_deleted_session_progress
 
 router = APIRouter()
 
@@ -28,6 +29,11 @@ class HistoryListRequest(BaseModel):
 
 
 class HistorySessionRequest(BaseModel):
+    user_id: str
+    session_id: str
+
+
+class HistoryDeleteRequest(BaseModel):
     user_id: str
     session_id: str
 
@@ -132,3 +138,37 @@ async def history_session(req: HistorySessionRequest):
             for e in exchange_rows
         ],
     }
+
+
+@router.post("/history/delete")
+async def history_delete(req: HistoryDeleteRequest):
+    if not has_pool():
+        raise HTTPException(status_code=503, detail="Database not available")
+
+    pool = get_pool()
+    exam_id = ""
+    async with pool.connection() as conn:
+        try:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    "SELECT exam_id, ended_at FROM sessions WHERE id = %s AND user_id = %s",
+                    (req.session_id, req.user_id),
+                )
+                row = await cur.fetchone()
+                if not row:
+                    raise HTTPException(status_code=404, detail="Session not found")
+                if row[1] is None:
+                    raise HTTPException(status_code=409, detail="Only completed sessions can be deleted")
+                exam_id = row[0]
+
+            await conn.execute(
+                "DELETE FROM sessions WHERE id = %s AND user_id = %s",
+                (req.session_id, req.user_id),
+            )
+            await rebuild_deleted_session_progress(conn, req.user_id, exam_id)
+            await conn.commit()
+        except Exception:
+            await conn.rollback()
+            raise
+
+    return {"ok": True, "session_id": req.session_id, "exam_id": exam_id}

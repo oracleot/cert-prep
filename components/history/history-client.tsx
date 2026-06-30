@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { AppNav } from "@/components/navigation/app-nav";
 import { getAnonymousUserId } from "@/lib/anonymous-user";
 import { useActiveCurriculum } from "@/lib/active-curriculum";
 import type { SessionHistoryDetail, SessionHistoryItem } from "@/lib/types";
 
+import { HistoryList } from "./history-list";
 import { SessionDetail } from "./session-detail";
 
 function EmptyHistory() {
@@ -31,24 +32,24 @@ export function HistoryClient() {
   const [details, setDetails] = useState<Record<string, SessionHistoryDetail>>({});
   const [detailError, setDetailError] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [deletePromptId, setDeletePromptId] = useState<string | null>(null); const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      const userId = getAnonymousUserId();
-      const res = await fetch("/api/history/list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "" }),
-      });
-      if (!res.ok) {
-        setError("History is waiting for the agent service.");
-        return;
-      }
-      const data = await res.json();
-      setItems(data.sessions || []);
+  const loadHistory = useCallback(async () => {
+    const userId = getAnonymousUserId();
+    const res = await fetch("/api/history/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, exam_id: active?.exam_id ?? "" }),
+    });
+    if (!res.ok) {
+      setError("History is waiting for the agent service.");
+      return;
     }
-    void load();
+    const data = await res.json();
+    setItems(data.sessions || []);
   }, [active?.exam_id]);
+
+  useEffect(() => void loadHistory(), [loadHistory]);
 
   async function selectSession(id: string) {
     setSelectedId(id);
@@ -70,8 +71,36 @@ export function HistoryClient() {
     setLoadingId(null);
   }
 
-  const selectedItem = items?.find((item) => item.id === selectedId) || null;
-  const selectedDetail = selectedId ? details[selectedId] : null;
+  const deleteSession = useCallback(async (id: string) => {
+    const userId = getAnonymousUserId();
+    setDeletingId(id);
+    setDetailError("");
+    const res = await fetch("/api/history/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, session_id: id }),
+    });
+    if (!res.ok) {
+      setError("Couldn't delete this session.");
+      setDeletingId(null);
+      setDeletePromptId(null);
+      return;
+    }
+    if (selectedId === id) {
+      setSelectedId(null);
+      setDetailError("");
+    }
+    setDetails((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setDeletePromptId(null);
+    setDeletingId(null);
+    await loadHistory();
+  }, [loadHistory, selectedId]);
+
+  const selectedItem = items?.find((item) => item.id === selectedId) || null; const selectedDetail = selectedId ? details[selectedId] : null;
 
   if (error) {
     return <main className="min-h-screen bg-background p-6 text-amber-700 dark:text-amber-200">{error}</main>;
@@ -103,39 +132,16 @@ export function HistoryClient() {
                   Sessions
                 </p>
               </div>
-              <div className="grid gap-2">
-                {items.map((item) => {
-                  const isSelected = selectedId === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => selectSession(item.id)}
-                      className={
-                        isSelected
-                          ? "block w-full min-w-0 rounded-3xl border border-zinc-900 bg-zinc-950 p-4 text-left text-zinc-50 dark:border-amber-300 dark:bg-amber-300 dark:text-zinc-950"
-                          : "block w-full min-w-0 rounded-3xl border border-transparent p-4 text-left hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                      }
-                      aria-pressed={isSelected}
-                    >
-                      <div className="min-w-0">
-                        <p className={isSelected
-                          ? "text-xs font-semibold uppercase tracking-[0.25em] opacity-70"
-                          : "text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400"
-                        }>
-                          {item.started_at ? new Date(item.started_at).toLocaleString() : "Unknown date"}
-                        </p>
-                        <h2 className="mt-2 truncate text-base font-black">{item.domain}</h2>
-                        <p className={isSelected
-                          ? "mt-1 line-clamp-2 text-sm opacity-80"
-                          : "mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400"
-                        }>
-                          {item.topic}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <HistoryList
+                items={items}
+                selectedId={selectedId}
+                deletePromptId={deletePromptId}
+                deletingId={deletingId}
+                onSelect={selectSession}
+                onDeletePrompt={setDeletePromptId}
+                onDeleteCancel={() => setDeletePromptId(null)}
+                onDeleteConfirm={(sessionId) => void deleteSession(sessionId)}
+              />
             </aside>
             <section className="min-h-[28rem] rounded-[2rem] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950 sm:p-7 lg:rounded-l-none lg:border-l-0">
               {!selectedId ? (
