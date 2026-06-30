@@ -29,6 +29,7 @@ export function HistoryClient() {
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, SessionHistoryDetail>>({});
+  const [detailError, setDetailError] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export function HistoryClient() {
 
   async function selectSession(id: string) {
     setSelectedId(id);
+    setDetailError("");
     if (details[id]) return;
     setLoadingId(id);
     const userId = getAnonymousUserId();
@@ -62,6 +64,8 @@ export function HistoryClient() {
     if (res.ok) {
       const data: SessionHistoryDetail = await res.json();
       setDetails((prev) => ({ ...prev, [id]: data }));
+    } else {
+      setDetailError("Couldn't load this session.");
     }
     setLoadingId(null);
   }
@@ -146,9 +150,11 @@ export function HistoryClient() {
                     </p>
                   </div>
                 </div>
-              ) : loadingId === selectedId || !selectedDetail ? (
+              ) : loadingId === selectedId ? (
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading exchanges...</p>
-              ) : (
+              ) : detailError ? (
+                <p className="text-sm text-amber-700 dark:text-amber-200">{detailError}</p>
+              ) : !selectedDetail ? null : (
                 <div>
                   <div className="mb-5 border-b border-zinc-200 pb-5 dark:border-zinc-800">
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">

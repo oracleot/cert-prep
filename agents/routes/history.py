@@ -12,6 +12,13 @@ router = APIRouter()
 
 MAX_LIST_LIMIT = 100
 DEFAULT_LIST_LIMIT = 50
+SESSION_DETAIL_SQL = (
+    "SELECT e.cycle, e.domain, e.topic, e.challenge, e.user_answer, e.outcome, "
+    "e.answer_intent, e.sage_response, e.citations, e.review_status, "
+    "f.feedback_type, f.status, f.excludes_metrics FROM exchanges e "
+    "LEFT JOIN sage_feedback f ON f.exchange_id = e.id "
+    "WHERE e.session_id = %s ORDER BY e.cycle"
+)
 
 
 class HistoryListRequest(BaseModel):
@@ -93,14 +100,7 @@ async def history_session(req: HistorySessionRequest):
             if row[6] != req.user_id:
                 raise HTTPException(status_code=403, detail="Not your session")
 
-            await cur.execute(
-                "SELECT cycle, domain, topic, challenge, user_answer, outcome, "
-                "answer_intent, sage_response, citations, e.review_status, "
-                "f.feedback_type, f.status, f.excludes_metrics FROM exchanges e "
-                "LEFT JOIN sage_feedback f ON f.exchange_id = e.id "
-                "WHERE e.session_id = %s ORDER BY cycle",
-                (req.session_id,),
-            )
+            await cur.execute(SESSION_DETAIL_SQL, (req.session_id,))
             exchange_rows = await cur.fetchall()
 
     return {
