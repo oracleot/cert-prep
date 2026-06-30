@@ -48,6 +48,7 @@ python -m uvicorn main:app --reload  # target: :8000
 - `main` auto-deploys to production after merge. Do not manually redeploy production for ordinary fixes.
 - For pre-merge validation, use the Railway `staging` environment in the same project instead of production.
 - When deploying to staging, target the existing project and environment explicitly (for example `railway up -p 136668ab-3a35-4c76-a587-7e1adf2bf39c -e staging -s cert-prep` and `-s agents` as needed).
+- Worktrees must be created from the latest `main` before task work begins. Fetch/rebase `origin/main`, then branch the task worktree.
 
 ## Architecture: what's actually wired
 - **Phase 1 loop (fully working):** `app/session/use-session.ts` orchestrates the full 2-cycle Rex→Sage loop via direct Next.js API routes (`/api/rex/challenge`, `/api/rex/rechallenge`, `/api/evaluate`, `/api/sage`). Domain hardcoded to `"Deployment"`, `MAX_CYCLES = 2` in `use-session.ts`.
