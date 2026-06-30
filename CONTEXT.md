@@ -8,6 +8,9 @@ A curated, ready concept record selected by app code before Rex runs. It carries
 ### Session Ledger
 The canonical record of a study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history.
 
+### Session Deletion
+A permanent removal of one study Session and its related Exchanges from history.
+
 ### Session Submit Stream
 The typed event stream produced while a submitted answer moves through evaluation and Sage response: token, evaluation, citations, done, and error events.
 
