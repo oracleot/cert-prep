@@ -5,8 +5,11 @@
 ### Concept Packet
 A curated, ready concept record selected by app code before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge.
 
+### Study Session
+One complete Rex→Sage study run for a learner.
+
 ### Session Ledger
-The canonical record of a study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history.
+The canonical record of a Study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history.
 
 ### Session Deletion
 A permanent removal of one study Session and its related Exchanges from history.
