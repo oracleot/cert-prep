@@ -26,11 +26,16 @@ export type OptionSelectionHelpers = {
 const SINGLE_HINT = "Pick exactly one option.";
 const MULTI_HINT_PREFIX = "Pick all that apply";
 
+// Accept the full optional union (ResponseMode | undefined) so the caller
+// can forward `challenge?.response_mode` directly without coercing to "" —
+// the previous `?? ""` widened the type to `"" | ResponseMode` and broke
+// the `Challenge["response_mode"]` contract at the call site.
 export function nextSelectedLabels(
   prev: OptionLabel[],
   label: OptionLabel,
   mode: Challenge["response_mode"],
 ): OptionLabel[] {
+  if (!mode) return prev;
   const has = prev.includes(label);
   if (mode === "single_response") return has ? [] : [label];
   if (has) return prev.filter((item) => item !== label);
@@ -45,7 +50,7 @@ export function useOptionSelection(challenge: Challenge | null, isLocked: boolea
   const isOptionBased = Boolean(
     challenge?.options && challenge.options.length === OPTION_LABELS.length,
   );
-  const mode = challenge?.response_mode ?? "";
+  const mode: Challenge["response_mode"] = challenge?.response_mode;
 
   const toggle = useCallback(
     (label: OptionLabel) => {
@@ -69,7 +74,11 @@ export function useOptionSelection(challenge: Challenge | null, isLocked: boolea
   const has = selected.length > 0;
   const tooMany = mode === "multiple_response" && selected.length > 2;
   const selectionError = !has
-    ? (mode === "single_response" ? SINGLE_HINT : `${MULTI_HINT_PREFIX} (1–2).`)
+    ? (mode === "single_response"
+        ? SINGLE_HINT
+        : mode === "multiple_response"
+          ? `${MULTI_HINT_PREFIX} (1–2).`
+          : "")
     : tooMany
       ? "Too many options selected — pick at most 2."
       : "";

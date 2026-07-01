@@ -13,4 +13,12 @@ describe("nextSelectedLabels", () => {
     expect(nextSelectedLabels(["B"], "A", "multiple_response")).toEqual(["A", "B"]);
     expect(nextSelectedLabels(["A", "B"], "C", "multiple_response")).toEqual(["A", "B"]);
   });
+
+  it("is a no-op when mode is undefined (free-text / pre-mode challenges)", () => {
+    // The hook forwards `challenge?.response_mode` directly; an undefined
+    // mode must not toggle anything so a free-text challenge never picks up
+    // stray option selections.
+    expect(nextSelectedLabels([], "A", undefined)).toEqual([]);
+    expect(nextSelectedLabels(["A"], "A", undefined)).toEqual(["A"]);
+  });
 });
