@@ -25,6 +25,7 @@ from routes.onboarding import router as onboarding_router
 from routes.review import router as review_router
 from routes.settings import router as settings_router
 from routes.session import router as session_router
+from routes.session_next import router as session_next_router
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,7 @@ app.include_router(onboarding_router)
 app.include_router(review_router)
 app.include_router(settings_router)
 app.include_router(session_router)
+app.include_router(session_next_router)
 
 
 class HealthResponse(BaseModel):

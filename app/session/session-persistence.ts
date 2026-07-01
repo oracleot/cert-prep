@@ -12,9 +12,14 @@
 import { loadActiveCurriculum } from "@/lib/active-curriculum";
 import type { AnswerIntent, Challenge, Citation, EvaluationResult, SageFeedback, SessionResult } from "@/lib/types";
 
+// Mirrors the client-side `SessionPhase` union so a snapshot returned
+// while Sage is mid-stream (streaming_sage) can keep the input locked
+// after a page reload until Sage finishes or fails. The backend
+// ``_snapshot_phase`` in agents/routes/session.py maps the LangGraph
+// next-node set to one of these values.
 export type RestoredSession = {
   thread_id: string;
-  phase: "ready" | "sage_done" | "summary";
+  phase: "loading_challenge" | "ready" | "streaming_sage" | "sage_done" | "summary";
   cycle: number;
   max_cycles: number;
   challenge: Challenge | null;

@@ -44,10 +44,34 @@ def _latest_exchange(history: list[dict]) -> dict | None:
 
 
 def _snapshot_phase(snapshot) -> str:
+    """Map a LangGraph snapshot to a client ``SessionPhase``.
+
+    The previous implementation collapsed every non-end state to
+    ``"ready"``, which dropped the "Sage is streaming, do not let the
+    learner advance" lock. Map the next-node set so the client can
+    resume a mid-stream session and stay locked until Sage finishes
+    (or fails and the client surfaces the error phase).
+
+    Mapping:
+      - empty ``next``           → ``"summary"`` (graph at END)
+      - ``sage_depth``/``sage_explain`` in ``next`` → ``"streaming_sage"``
+        (Sage is currently running; the UI must stay locked)
+      - ``rex_rechallenge``/``coach_close`` in ``next`` → ``"sage_done"``
+        (Sage finished for the current cycle; waiting on the user)
+      - ``rex_challenge``/``coach_open`` in ``next`` → ``"loading_challenge"``
+      - ``evaluate_answer`` in ``next`` (paused by interrupt_before)
+        → ``"ready"`` (challenge is on screen, waiting for submit)
+    """
     nodes = set(snapshot.next or [])
     if not nodes:
         return "summary"
-    return "sage_done" if "rex_rechallenge" in nodes else "ready"
+    if "sage_depth" in nodes or "sage_explain" in nodes:
+        return "streaming_sage"
+    if "rex_rechallenge" in nodes or "coach_close" in nodes:
+        return "sage_done"
+    if "rex_challenge" in nodes or "coach_open" in nodes:
+        return "loading_challenge"
+    return "ready"
 
 
 def _clamp_cycles(v: int) -> int:
@@ -169,27 +193,5 @@ async def session_state(req: SessionStateRequest):
             "sage_feedback": latest_fb, "results": _session_results(history, feedback)}
 
 
-@router.post("/session/next")
-async def next_challenge(req: SessionNextRequest):
-    graph = get_session_graph()
-    config = cast(RunnableConfig, {"configurable": {"thread_id": req.thread_id}})
-    snap = await graph.aget_state(config)
-    if not snap or not snap.values:
-        raise HTTPException(status_code=404, detail="Session not found")
-    # Phase 11 — seed the next prompt's response_mode (thread_id = seed).
-    next_cycle = snap.values.get("cycle", 1) or 1
-    upd: dict = {
-        "openrouter_api_key": req.openrouter_api_key,
-        "current_response_mode": pick_response_mode(next_cycle, req.thread_id),
-    }
-    upd = {k: v for k, v in upd.items() if v}
-    await graph.aupdate_state(config, upd)
-    try:
-        with llm_runtime(req.openrouter_api_key, req.model_overrides):
-            await graph.ainvoke(None, config=config)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
-    snap = await graph.aget_state(config)
-    return {"challenge": snap.values.get("current_challenge"), "cycle": snap.values.get("cycle")}
+# Phase 11 — the /session/next endpoint moved to routes/session_next.py
+# so this file stays under the 200-line hard rule.
