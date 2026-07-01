@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import uuid
 from typing import cast
 
@@ -14,8 +13,11 @@ from feedback_repository import feedback_by_cycle
 from graphs.session import get_session_graph
 from llm import llm_runtime
 from onboarding_repository import get_latest_onboarding
+from option_types import is_response_mode, normalize_option_labels
 from routes.session_mode import NoReadyConcept, apply_mode_to_state
+from routes.session_mode_mix import pick_response_mode
 from routes.session_models import SessionNextRequest, SessionStartRequest, SessionStateRequest, SessionSubmitRequest
+from routes.session_submit import submit_sse_generator
 from state import initial_state
 
 router = APIRouter()
@@ -68,6 +70,8 @@ async def start_session(req: SessionStartRequest):
     if curriculum:
         state["curriculum_id"] = curriculum["id"]
     state["openrouter_api_key"] = req.openrouter_api_key
+    # Phase 11 — seed the prompt's response_mode via the app-controlled mix.
+    state["current_response_mode"] = pick_response_mode(state.get("cycle", 1) or 1)  # type: ignore[typeddict-item]
 
     try:
         state.update(await apply_mode_to_state(state, req))
@@ -100,35 +104,24 @@ async def submit_answer(req: SessionSubmitRequest):
 
     answer_intent = normalize_answer_intent(req.user_answer, req.answer_intent)
     user_answer = req.user_answer or (KNOWLEDGE_GAP_ANSWER if answer_intent == "knowledge_gap" else "")
-    upd = {"user_answer": user_answer, "answer_intent": answer_intent}
+    # Phase 11 — forward the learner's selected labels so evaluate_answer can
+    # run exact-match on option-based challenges.
+    selected_labels = normalize_option_labels(req.selected_labels or [])
+    upd: dict = {"user_answer": user_answer, "answer_intent": answer_intent}
+    if selected_labels:
+        upd["selected_labels"] = selected_labels
     if req.openrouter_api_key:
         upd["openrouter_api_key"] = req.openrouter_api_key
     await graph.aupdate_state(config, upd)
 
     async def sse():
-        try:
-            with llm_runtime(req.openrouter_api_key, req.model_overrides):
-                async for event in graph.astream_events(None, config=config, version="v2"):
-                    kind, name = event["event"], event["name"]
-                    if kind == "on_chat_model_stream":
-                        node = event.get("metadata", {}).get("langgraph_node")
-                        if node in {"sage_depth", "sage_explain"}:
-                            chunk = event["data"].get("chunk")
-                            if chunk and hasattr(chunk, "content") and chunk.content:
-                                yield f"data: {json.dumps({'type': 'token', 'token': chunk.content})}\n\n"
-                    elif kind == "on_chain_end" and name == "evaluate_answer":
-                        out = event["data"].get("output")
-                        if out and "last_evaluation" in out:
-                            yield f"data: {json.dumps({'type': 'evaluation', 'data': json.dumps(out['last_evaluation'])})}\n\n"
-                    elif kind == "on_chain_end" and name in {"sage_depth", "sage_explain"}:
-                        out = event["data"].get("output") or {}
-                        h = out.get("session_history") or []
-                        if h:
-                            yield f"data: {json.dumps({'type': 'citations', 'data': h[-1].get('citations', [])})}\n\n"
-                    elif kind == "on_chain_end" and name == "LangGraph":
-                        yield f"data: {json.dumps({'type': 'done'})}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'error': {'message': str(e)}})}\n\n"
+        async for chunk in submit_sse_generator(
+            graph,
+            config,
+            api_key=req.openrouter_api_key,
+            model_overrides=req.model_overrides,
+        ):
+            yield chunk
 
     return StreamingResponse(sse(), media_type="text/event-stream")
 
@@ -151,11 +144,20 @@ async def session_state(req: SessionStateRequest):
     if evaluation and evaluation.get("outcome") not in {"correct", "incorrect"}:
         evaluation = None
 
+    challenge = snap.values.get("current_challenge") or None
+    if isinstance(challenge, dict):
+        # Phase 11 — make sure the challenge payload exposes a response_mode
+        # so the client UI doesn't have to guess. Empty mode is fine for
+        # legacy / free-text challenges that pre-date the rollout.
+        if not is_response_mode(challenge.get("response_mode")):
+            challenge = dict(challenge)
+            challenge["response_mode"] = challenge.get("response_mode") or ""
+
     return {"thread_id": req.thread_id, "exam_id": snap.values.get("exam_id"),
             "curriculum_id": snap.values.get("curriculum_id", "") or "",
             "phase": _snapshot_phase(snap), "cycle": snap.values.get("cycle") or 1,
             "max_cycles": snap.values.get("max_cycles") or 2,
-            "challenge": snap.values.get("current_challenge") or None,
+            "challenge": challenge,
             "user_answer": snap.values.get("user_answer") or "",
             "answer_intent": snap.values.get("answer_intent") or "attempt",
             "evaluation": evaluation,
@@ -172,8 +174,17 @@ async def next_challenge(req: SessionNextRequest):
     if not snap or not snap.values:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    if req.openrouter_api_key:
-        await graph.aupdate_state(config, {"openrouter_api_key": req.openrouter_api_key})
+    # Phase 11 — set the next prompt's response_mode before invoking the
+    # graph. ``cycle`` has already been advanced by rex_rechallenge on the
+    # previous run; if the snapshot reflects pre-cycle state, fall back to
+    # the cycle index the route would compute.
+    next_cycle = snap.values.get("cycle", 1) or 1
+    upd: dict = {
+        "openrouter_api_key": req.openrouter_api_key,
+        "current_response_mode": pick_response_mode(next_cycle),
+    }
+    upd = {k: v for k, v in upd.items() if v}
+    await graph.aupdate_state(config, upd)
 
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):

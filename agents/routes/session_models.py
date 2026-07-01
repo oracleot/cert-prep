@@ -26,6 +26,11 @@ class SessionSubmitRequest(BaseModel):
     thread_id: str
     user_answer: str
     answer_intent: str = "attempt"
+    # Phase 11 — option-based session submission. When the active challenge
+    # is option-based, the client sends the learner's selected labels here so
+    # the backend can run exact-match evaluation. Free-text challenges leave
+    # this empty.
+    selected_labels: list[str] = Field(default_factory=list)
     model_overrides: dict[str, str] = Field(default_factory=dict)
     openrouter_api_key: str = ""
 

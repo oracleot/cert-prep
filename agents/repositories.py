@@ -53,11 +53,24 @@ async def create_exchange(
     official_docs: list[str] | None = None,
     skill_builder_links: list[str] | None = None,
     lab_links: list[str] | None = None,
+    response_mode: str | None = None,
+    options: list[dict[str, Any]] | None = None,
+    answer_key: list[str] | None = None,
+    selected_labels: list[str] | None = None,
+    correct_labels: list[str] | None = None,
+    missed_labels: list[str] | None = None,
+    incorrect_labels: list[str] | None = None,
 ) -> None:
     """Append a completed cycle to the exchanges table.
 
     Miss/resource metadata columns are additive (Phase 9.6 / 9.5) and default
     to an empty list when not provided so older callers keep working.
+
+    Phase 11 — option-based sessions persist response_mode + options +
+    answer_key alongside the challenge JSONB, and snapshot the four label
+    breakdowns (selected / correct / missed / incorrect) on dedicated
+    columns for fast history rendering. All new fields default to empty
+    values so existing call sites keep working.
     """
     if not has_pool():
         return
@@ -67,9 +80,12 @@ async def create_exchange(
         await conn.execute(
             "INSERT INTO exchanges (session_id, cycle, domain, topic, "
             "challenge, user_answer, outcome, answer_intent, sage_response, citations, concept_id, "
-            "missed_criteria, triggered_traps, official_docs, skill_builder_links, lab_links) "
+            "missed_criteria, triggered_traps, official_docs, skill_builder_links, lab_links, "
+            "response_mode, options, answer_key, selected_labels, correct_labels, "
+            "missed_labels, incorrect_labels) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULLIF(%s, ''), "
-            "%s, %s, %s, %s, %s)",
+            "%s, %s, %s, %s, %s, "
+            "NULLIF(%s, ''), %s, %s, %s, %s, %s, %s)",
             (
                 session_id,
                 cycle,
@@ -87,6 +103,13 @@ async def create_exchange(
                 json.dumps(official_docs or []),
                 json.dumps(skill_builder_links or []),
                 json.dumps(lab_links or []),
+                response_mode or "",
+                json.dumps(options or []),
+                json.dumps(answer_key or []),
+                json.dumps(selected_labels or []),
+                json.dumps(correct_labels or []),
+                json.dumps(missed_labels or []),
+                json.dumps(incorrect_labels or []),
             ),
         )
         await conn.commit()
