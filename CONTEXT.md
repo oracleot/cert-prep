@@ -27,7 +27,7 @@ The canonical record of a Study Session and its Exchanges, including active/excl
 A permanent removal of one completed Study Session and its related Exchanges from history. In-progress Study Sessions are not eligible.
 
 ### Session Submit Stream
-The typed event stream produced while a submitted answer moves through evaluation and Sage response: token, evaluation, citations, done, and error events.
+The typed event stream produced for one Learner Response while it moves through evaluation and Sage response: token, evaluation, citations, done, and error events.
 
 ### Onboarding Run/Feed
 The onboarding build lifecycle for a learner: start, restore, live agent-feed events, stale-feed recovery, and plan-reveal handoff.
