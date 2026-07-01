@@ -9,7 +9,7 @@ A curated, ready concept record selected once for a Study Session before Rex run
 One complete Rex→Sage study run for a learner. It may exist before the first Exchange is recorded. Retrying the same concept later creates a new Study Session rather than reopening a completed one. A learner may also leave a Study Session unfinished without ending its identity.
 
 ### Open Study Session
-A Study Session that exists but has not yet completed its intended Exchanges. This is internal language rather than a learner-visible term. Abandonment leaves the Study Session Open until cleanup or explicit resume. Only one Open Study Session may exist for the same learner and concept.
+A Study Session that exists but has not yet completed its intended Exchanges. This is internal language rather than a learner-visible term. Abandonment leaves the Study Session Open until cleanup or explicit resume. Only one Open Study Session may exist for the same learner and concept. An Open Study Session remains bound to its original exam and curriculum context.
 
 ### Completed Study Session
 A Study Session that has completed its intended Exchanges. It does not become Open again; later work creates a new Study Session. This is internal language rather than a learner-visible term.
