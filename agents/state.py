@@ -6,6 +6,8 @@ from __future__ import annotations
 import operator
 from typing import Annotated, Any, TypedDict
 
+from option_types import OptionLabel, ResponseMode
+
 
 class Challenge(TypedDict):
     concept_id: str
@@ -28,6 +30,11 @@ class Challenge(TypedDict):
     lab_links: list[str]
     expected_answer_criteria: str
     traps: list[str]
+    # Phase 11 — option-based session contract. App-controlled mode; options
+    # are exactly 4 labeled A/B/C/D; answer_key is the set of correct labels.
+    response_mode: ResponseMode
+    options: list[dict[str, str]]  # [{"label": "A", "text": "..."}, ...]
+    answer_key: list[OptionLabel]
 
 
 class EvaluationResult(TypedDict):
@@ -38,6 +45,13 @@ class EvaluationResult(TypedDict):
     # math; persisted on exchanges for the gap tracker / coach report.
     missed_criteria: list[str]
     triggered_traps: list[str]
+    # Phase 11 — option verdict payload. Emitted immediately on evaluation so
+    # the UI can mark chosen / correct / missed / incorrect options before Sage
+    # streams. All fields are required when the challenge is option-based.
+    selected_labels: list[OptionLabel]
+    correct_labels: list[OptionLabel]
+    missed_labels: list[OptionLabel]
+    incorrect_labels: list[OptionLabel]
 
 
 class Citation(TypedDict):
