@@ -6,7 +6,7 @@
 A curated, ready concept record selected once for a Study Session before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge. It corresponds to exactly one concept. If an unfinished Study Session is resumed, it keeps the same Concept Packet.
 
 ### Rex Challenge
-The first Rex prompt in a Study Session.
+The first Rex prompt in a Study Session. Its issuance can open an Open Study Session before any Learner Response exists.
 
 ### Rex Rechallenge
 A follow-up Rex prompt in the same Study Session after an earlier Exchange. It stays on the same concept while varying scenario or difficulty rather than changing grading criteria.
