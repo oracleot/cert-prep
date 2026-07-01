@@ -26,6 +26,18 @@ export type OptionSelectionHelpers = {
 const SINGLE_HINT = "Pick exactly one option.";
 const MULTI_HINT_PREFIX = "Pick all that apply";
 
+export function nextSelectedLabels(
+  prev: OptionLabel[],
+  label: OptionLabel,
+  mode: Challenge["response_mode"],
+): OptionLabel[] {
+  const has = prev.includes(label);
+  if (mode === "single_response") return has ? [] : [label];
+  if (has) return prev.filter((item) => item !== label);
+  if (prev.length >= 2) return prev;
+  return normalizeOptionLabels([...prev, label]);
+}
+
 export function useOptionSelection(challenge: Challenge | null, isLocked: boolean): OptionSelectionHelpers {
   const [selected, setSelected] = useState<OptionLabel[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -38,18 +50,7 @@ export function useOptionSelection(challenge: Challenge | null, isLocked: boolea
   const toggle = useCallback(
     (label: OptionLabel) => {
       if (!isOptionBased || isLocked || submitted) return;
-      setSelected((prev) => {
-        const has = prev.includes(label);
-        if (mode === "single_response") {
-          // Single-response: only one label at a time. Selecting the already-
-          // selected label keeps it (so the user can re-confirm).
-          return has ? [label] : [label];
-        }
-        // Multi-response: 1-2 labels in V1.
-        if (has) return prev.filter((l) => l !== label);
-        if (prev.length >= 2) return prev;
-        return normalizeOptionLabels([...prev, label]);
-      });
+      setSelected((prev) => nextSelectedLabels(prev, label, mode));
     },
     [isOptionBased, isLocked, submitted, mode],
   );
