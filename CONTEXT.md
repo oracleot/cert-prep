@@ -9,7 +9,7 @@ A curated, ready concept record selected once for a Study Session before Rex run
 One complete Rex→Sage study run for a learner. It may exist before the first Exchange is recorded. Retrying the same concept later creates a new Study Session rather than reopening a completed one.
 
 ### Exchange
-One learner answer and the immediate evaluation/Sage outcome for it.
+One learner answer and the immediate evaluation/Sage outcome for it. It is the smallest complete unit of assessed interaction and contains the Learner Response, Evaluation Verdict, and Sage Reply.
 
 ### Learner Response
 The learner’s answer before evaluation.
