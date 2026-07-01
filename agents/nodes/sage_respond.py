@@ -62,6 +62,15 @@ async def _generate_sage_response(
         official_docs=challenge.get("official_docs", []) or [],
         skill_builder_links=challenge.get("skill_builder_links", []) or [],
         lab_links=challenge.get("lab_links", []) or [],
+        # Phase 11 — forward the option context so Sage can refer to options
+        # by label + short paraphrase and explicitly name missed/incorrect
+        # labels on multi-response misses.
+        response_mode=str(challenge.get("response_mode") or ""),
+        options=list(challenge.get("options") or []),
+        answer_key=list(challenge.get("answer_key") or []),
+        selected_labels=list(evaluation.get("selected_labels") or []),
+        missed_labels=list(evaluation.get("missed_labels") or []),
+        incorrect_labels=list(evaluation.get("incorrect_labels") or []),
     )
 
     if kind == "depth":
@@ -91,6 +100,12 @@ def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) 
     from the evaluator's ``last_evaluation`` (internal concept-miss audit) and
     the three packet link lists are persisted alongside the exchange so the
     Review-next block can be reconstructed from the database row alone.
+
+    Phase 11 — option-based prompts persist their mode + options + answer_key
+    on the challenge JSONB (already serialized there by rex_challenge) and
+    surface the immediate-verdict label breakdowns on a sibling field set.
+    Storing these on the exchange keeps the per-cycle UI consistent even
+    after a server restart.
     """
     challenge = state["current_challenge"]
     evaluation = state["last_evaluation"]
@@ -113,6 +128,16 @@ def _build_exchange(state: AppState, sage_text: str, citations: list[Citation]) 
         # Read by ``concept_misses_for_user``; not used in readiness math.
         "missed_criteria": list(evaluation.get("missed_criteria", []) or []),
         "triggered_traps": list(evaluation.get("triggered_traps", []) or []),
+        # Phase 11 — option verdict snapshots. Persisted on the exchange so
+        # history renders can rebuild the chosen/correct/missed/incorrect
+        # overlay even when the challenge JSONB was migrated away.
+        "response_mode": str(challenge.get("response_mode") or ""),
+        "options": list(challenge.get("options") or []),
+        "answer_key": list(challenge.get("answer_key") or []),
+        "selected_labels": list(evaluation.get("selected_labels") or []),
+        "correct_labels": list(evaluation.get("correct_labels") or []),
+        "missed_labels": list(evaluation.get("missed_labels") or []),
+        "incorrect_labels": list(evaluation.get("incorrect_labels") or []),
     }
 
 
@@ -141,6 +166,13 @@ async def _persist_exchange_if_db(state: AppState, exchange: dict) -> None:
             official_docs=exchange.get("official_docs", []),
             skill_builder_links=exchange.get("skill_builder_links", []),
             lab_links=exchange.get("lab_links", []),
+            response_mode=exchange.get("response_mode", ""),
+            options=exchange.get("options", []),
+            answer_key=exchange.get("answer_key", []),
+            selected_labels=exchange.get("selected_labels", []),
+            correct_labels=exchange.get("correct_labels", []),
+            missed_labels=exchange.get("missed_labels", []),
+            incorrect_labels=exchange.get("incorrect_labels", []),
         )
         await record_rex_result(state["user_id"], state["exam_id"], exchange["outcome"])
     except Exception:
