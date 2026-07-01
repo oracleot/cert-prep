@@ -6,7 +6,7 @@
 A curated, ready concept record selected by app code before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge.
 
 ### Study Session
-One complete Rex→Sage study run for a learner.
+One complete Rex→Sage study run for a learner. It may exist before the first Exchange is recorded.
 
 ### Exchange
 One learner answer and the immediate evaluation/Sage outcome for it.
