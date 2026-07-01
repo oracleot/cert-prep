@@ -9,7 +9,7 @@ A curated, ready concept record selected once for a Study Session before Rex run
 The first Rex prompt in a Study Session.
 
 ### Rex Rechallenge
-A follow-up Rex prompt in the same Study Session after an earlier Exchange.
+A follow-up Rex prompt in the same Study Session after an earlier Exchange. It stays on the same concept while varying scenario or difficulty rather than changing grading criteria.
 
 ### Study Session
 One complete Rex→Sage study run for a learner within a single domain, topic, and concept. It may exist before the first Exchange is recorded. Retrying the same concept later creates a new Study Session rather than reopening a completed one. A learner may also leave a Study Session unfinished without ending its identity.
