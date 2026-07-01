@@ -3,7 +3,7 @@
 ## Glossary
 
 ### Concept Packet
-A curated, ready concept record selected by app code before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge.
+A curated, ready concept record selected once for a Study Session before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge.
 
 ### Study Session
 One complete Rex→Sage study run for a learner. It may exist before the first Exchange is recorded.
