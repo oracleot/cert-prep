@@ -26,6 +26,9 @@ The learner’s answer before evaluation.
 ### Sage Reply
 The system’s response after evaluation.
 
+### Sage Feedback
+The learner’s report on a Sage Reply.
+
 ### Evaluation Verdict
 The evaluator’s decision on a Learner Response.
 
