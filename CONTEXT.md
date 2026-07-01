@@ -11,6 +11,9 @@ One complete Rex→Sage study run for a learner. It may exist before the first E
 ### Exchange
 One learner answer and the immediate evaluation/Sage outcome for it. It is the smallest complete unit of assessed interaction and contains the Learner Response, Evaluation Verdict, and Sage Reply.
 
+### Aborted Exchange
+An assessed interaction where the Evaluation Verdict exists but the Sage Reply does not complete, so it is not a full Exchange.
+
 ### Learner Response
 The learner’s answer before evaluation.
 
