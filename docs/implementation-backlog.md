@@ -815,8 +815,86 @@ Status: reshuffled | Date: 2026-06-16
 
 ---
 
+## Phase 11: Option-Based Exam Mode — Issues 11.1 through 11.6
+
+**Done when:** Session prompts feel materially closer to the real AWS exam: Rex emits labeled answer options plus answer keys, the learner answers by selection instead of free text, evaluation remains binary, and Sage explains the correct option(s) deeply while still covering distractors.
+
+**Scope note:** This phase changes the session answer model and prompt shape, but does not change the 2-cycle session length, Readiness Score formula, Rex's record math, or Exchange-level feedback/review semantics.
+
+**Issue order:** 11.1 → 11.3 must land before 11.5. 11.2 can proceed in parallel with 11.3 after 11.1. 11.4 and 11.6 ship after the core contract exists.
+
+---
+
+### 11.1 — Rex option-based prompt contract (P0, M, agents)
+**Acceptance criteria:**
+- [ ] Rex challenge and rechallenge return structured prompt shape with `response_mode`, 4 labeled `options`, and `answer_key`
+- [ ] Supported modes are `single_response` and `multiple_response`
+- [ ] Single-response has exactly 1 correct label
+- [ ] Multiple-response has at most 2 correct labels in V1
+- [ ] Option labels are `A`, `B`, `C`, and `D`
+- [ ] No prompt uses `all of the above` or `none of the above`
+- [ ] Each distractor is plausibly tempting and wrong for a distinct reason
+
+---
+
+### 11.2 — Session UI: selection-only answering (P0, M, frontend)
+**Acceptance criteria:**
+- [ ] Free-text answer field is removed from the session UI
+- [ ] Challenge card renders response-mode instruction text (`Select ONE` / `Select TWO`)
+- [ ] Submit button stays disabled when zero options are selected
+- [ ] Learner may change selections before submit without penalty
+- [ ] Submitted selections lock for that prompt
+- [ ] Prompt remains visible during Sage streaming with the learner's chosen options marked
+
+---
+
+### 11.3 — Evaluation: exact-match option scoring (P0, M, agents)
+**Acceptance criteria:**
+- [ ] Evaluator accepts selected option labels instead of free-text answer content
+- [ ] Verdict remains binary: `correct` or `incorrect`
+- [ ] Multiple-response scoring requires exact full answer-key match; no partial credit
+- [ ] Verdict payload returns chosen labels and correct labels immediately
+- [ ] If a verdict never arrives, the interaction is not recorded as an Aborted Exchange
+- [ ] Existing readiness and Rex's-record calculations remain unchanged
+
+---
+
+### 11.4 — Immediate verdict highlighting (P1, S, frontend)
+**Acceptance criteria:**
+- [ ] UI visually marks correct options as soon as verdict arrives
+- [ ] UI visually marks incorrectly chosen options as soon as verdict arrives
+- [ ] UI visually marks missed correct options on multiple-response prompts as soon as verdict arrives
+- [ ] Learner can visually compare chosen labels vs correct labels before Sage completes
+
+---
+
+### 11.5 — Sage option explanation format (P0, M, agents + frontend)
+**Acceptance criteria:**
+- [ ] Sage explains correct option(s) first and in more depth than distractors
+- [ ] Sage briefly explains every distractor
+- [ ] Sage refers to options by label plus short paraphrase rather than repeating each full option text
+- [ ] On multiple-response misses, Sage explicitly names missed correct options and incorrectly chosen options
+- [ ] Learner cannot advance to the next prompt until Sage streaming completes
+
+---
+
+### 11.6 — Mode mix + persistence integration (P1, M, agents + frontend)
+**Acceptance criteria:**
+- [ ] The app, not Rex, controls whether a prompt is single-response or multiple-response
+- [ ] V1 targets an approximate 60/40 single-response to multiple-response mix across many sessions
+- [ ] Mixed response modes are allowed within the same Study Session
+- [ ] Session restore persists the pending prompt, response mode, options, and locked post-submit selection state
+- [ ] Review status and Sage feedback remain Exchange-level, not option-level
+
+---
+
 ## Ready Queue
 Issues startable right now (no dependencies unmet):
+- **11.1** — Rex option-based prompt contract
+- **11.2** — Session UI: selection-only answering
+- **11.3** — Evaluation: exact-match option scoring
+- **11.5** — Sage option explanation format
+- **11.6** — Mode mix + persistence integration
 - **10.1** — Deepen concept packet module
 - **8.1** — Choose test runners + record in docs
 - **8.2** — Wire Vitest into the Next.js app
