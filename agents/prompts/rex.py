@@ -1,4 +1,10 @@
 # Rex prompts — Python port of agents/prompts/rex.ts
+#
+# Phase 11: the JSON shape Rex must return now includes a `response_mode`,
+# `options` (exactly 4 labeled A/B/C/D), and `answer_key` (1 or 2 correct
+# labels). The mode is app-controlled — callers pass it in. The opt-in
+# directives live in `rex_options.py` so this file stays under the 200-line
+# hard rule.
 
 MODEL = "anthropic/claude-sonnet-4.6"
 
@@ -22,13 +28,14 @@ def build_rex_challenge_prompt(
     familiarity_level: str = "new",
     facts: list[str] | None = None,
     traps: list[str] | None = None,
+    response_mode: str = "single_response",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a new challenge.
 
     ``facts`` and ``traps`` are the selected concept's ground-truth claims and
-    gotchas. When provided, they are inlined into the user prompt so Rex's
-    generated scenario/question is anchored to the packet — preventing
-    free-roam to unrelated topics or services.
+    gotchas. ``response_mode`` is the app-controlled mode for this prompt
+    (single_response | multiple_response). The Rex prompt instructs the LLM
+    to emit a matching `answer_key`.
     """
     topic_instruction = (
         f'Target the selected concept/topic: "{topic}". Do not choose outside it.'
@@ -40,6 +47,18 @@ def build_rex_challenge_prompt(
     traps_block = _traps_block(traps)
     style_directive = _style_directive(learning_style)
     familiarity_directive = _familiarity_directive(familiarity_level)
+    from prompts.rex_options import (
+        distractor_rules_directive,
+        option_mode_directive,
+        option_shape_directive,
+    )
+    options_block = (
+        option_mode_directive(response_mode)
+        + "\n"
+        + distractor_rules_directive()
+        + "\n"
+        + option_shape_directive()
+    )
     user = f"""Generate a {exam_id.upper()} challenge for the "{domain}" domain at {difficulty} difficulty.
 {topic_instruction}
 {context}
@@ -47,14 +66,7 @@ def build_rex_challenge_prompt(
 {traps_block}
 {style_directive}
 {familiarity_directive}
-
-Return exactly this JSON shape — nothing else:
-{{
-  "domain": "{domain}",
-  "topic": "{topic or '<topic label from the selected concept packet>'}",
-  "scenario": "<2-4 sentence operational scenario an engineer would actually face>",
-  "question": "<precise question about what the engineer should do or what will happen>"
-}}"""
+{options_block}"""
     return REX_SYSTEM, user
 
 
@@ -72,6 +84,7 @@ def build_rex_rechallenge_prompt(
     familiarity_level: str = "new",
     facts: list[str] | None = None,
     traps: list[str] | None = None,
+    response_mode: str = "single_response",
 ) -> tuple[str, str]:
     """Returns (system, user) prompt tuple for a harder rechallenge."""
     topic_instruction = (
@@ -84,6 +97,18 @@ def build_rex_rechallenge_prompt(
     traps_block = _traps_block(traps)
     style_directive = _style_directive(learning_style, rechallenge=True)
     familiarity_directive = _familiarity_directive(familiarity_level)
+    from prompts.rex_options import (
+        distractor_rules_directive,
+        option_mode_directive,
+        option_shape_directive,
+    )
+    options_block = (
+        option_mode_directive(response_mode)
+        + "\n"
+        + distractor_rules_directive()
+        + "\n"
+        + option_shape_directive()
+    )
     user = f"""The challenger just saw Sage explain "{previous_topic}" in the "{domain}" domain. Now raise the stakes.
 
 Generate a harder {exam_id.upper()} challenge on the SAME domain — different topic, selected next concept only, higher-pressure scenario, more nuanced question. Difficulty: {difficulty}.
@@ -93,14 +118,7 @@ Generate a harder {exam_id.upper()} challenge on the SAME domain — different t
 {traps_block}
 {style_directive}
 {familiarity_directive}
-
-Return exactly this JSON shape — nothing else:
-{{
-  "domain": "{domain}",
-  "topic": "{topic or '<topic label from the selected concept packet>'}",
-  "scenario": "<2-4 sentence scenario with higher stakes and less obvious answer>",
-  "question": "<harder, more nuanced question — avoid yes/no, demand specific exam knowledge>"
-}}"""
+{options_block}"""
     return REX_SYSTEM, user
 
 
