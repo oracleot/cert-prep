@@ -21,10 +21,10 @@ One selectable answer presented with a Rex prompt.
 An Answer Option that is incorrect but plausibly tempting.
 
 ### Single-Response Question
-A Rex prompt with Answer Options where exactly one option is correct.
+A Rex prompt with Answer Options where exactly one option is correct. The learner is told that exactly one option should be selected.
 
 ### Multiple-Response Question
-A Rex prompt with Answer Options where more than one option is correct. A correct Learner Response must select the exact full set rather than receiving partial credit.
+A Rex prompt with Answer Options where more than one option is correct. A correct Learner Response must select the exact full set rather than receiving partial credit. The learner is told that more than one option should be selected.
 
 ### Study Session
 One complete Rex→Sage study run for a learner within a single domain, topic, and concept. It may exist before the first Exchange is recorded. Retrying the same concept later creates a new Study Session rather than reopening a completed one. A learner may also leave a Study Session unfinished without ending its identity.
