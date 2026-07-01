@@ -9,7 +9,7 @@ A curated, ready concept record selected once for a Study Session before Rex run
 The first Rex prompt in a Study Session. Its issuance can open an Open Study Session before any Learner Response exists. It always presents four Answer Options, does not use "all of the above" or "none of the above" options, and does not reduce the option count for narrow concepts. The app controls whether it is single-response or multiple-response, targeting an approximate 60/40 single-to-multiple mix across many sessions in V1.
 
 ### Rex Rechallenge
-A follow-up Rex prompt in the same Study Session after an earlier Exchange. It stays on the same concept while varying scenario or difficulty rather than changing grading criteria. It may use either single-response or multiple-response mode within the same Study Session. If an Aborted Exchange occurs, the session returns to the same unanswered Rex Rechallenge slot rather than advancing the prompt sequence.
+A follow-up Rex prompt in the same Study Session after an earlier Exchange. It stays on the same concept while varying scenario or difficulty rather than changing grading criteria. It always preserves four Answer Options and may use either single-response or multiple-response mode within the same Study Session. If an Aborted Exchange occurs, the session returns to the same unanswered Rex Rechallenge slot rather than advancing the prompt sequence.
 
 ### Pending Prompt
 A Rex Challenge or Rex Rechallenge that has been issued but not yet answered by a Learner Response. A Study Session has at most one Pending Prompt at a time. When answered, it is consumed and leads to either a full Exchange or an Aborted Exchange. It survives restore as part of resumability and remains internal until it becomes an Exchange.
