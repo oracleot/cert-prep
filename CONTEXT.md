@@ -21,7 +21,7 @@ One of four selectable answers labeled A, B, C, or D and presented with a Rex pr
 The correct Answer Option label or exact set of correct Answer Option labels returned with a Rex prompt.
 
 ### Distractor
-An Answer Option that is incorrect but plausibly tempting.
+An Answer Option that is incorrect but plausibly tempting. Each Distractor should be wrong for a distinct reason.
 
 ### Single-Response Question
 A Rex prompt with Answer Options where exactly one option is correct. The learner is told that exactly one option should be selected.
