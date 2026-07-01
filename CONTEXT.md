@@ -17,6 +17,9 @@ A Rex Challenge or Rex Rechallenge that has been issued but not yet answered by 
 ### Answer Option
 One of four selectable answers presented with a Rex prompt.
 
+### Answer Key
+The correct Answer Option or exact set of correct Answer Options returned with a Rex prompt.
+
 ### Distractor
 An Answer Option that is incorrect but plausibly tempting.
 
