@@ -12,7 +12,7 @@ The first Rex prompt in a Study Session. Its issuance can open an Open Study Ses
 A follow-up Rex prompt in the same Study Session after an earlier Exchange. It stays on the same concept while varying scenario or difficulty rather than changing grading criteria. If an Aborted Exchange occurs, the session returns to the same unanswered Rex Rechallenge slot rather than advancing the prompt sequence.
 
 ### Pending Prompt
-A Rex Challenge or Rex Rechallenge that has been issued but not yet answered by a Learner Response. A Study Session has at most one Pending Prompt at a time. When answered, it is consumed and leads to either a full Exchange or an Aborted Exchange.
+A Rex Challenge or Rex Rechallenge that has been issued but not yet answered by a Learner Response. A Study Session has at most one Pending Prompt at a time. When answered, it is consumed and leads to either a full Exchange or an Aborted Exchange. It survives restore as part of resumability.
 
 ### Study Session
 One complete Rex→Sage study run for a learner within a single domain, topic, and concept. It may exist before the first Exchange is recorded. Retrying the same concept later creates a new Study Session rather than reopening a completed one. A learner may also leave a Study Session unfinished without ending its identity.
