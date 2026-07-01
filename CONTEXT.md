@@ -42,7 +42,7 @@ The learner’s report on a Sage Reply. It belongs to the Exchange that produced
 The system’s handling state for an Exchange. It may exist even when no Sage Feedback has been submitted, and one Sage Feedback report may cause multiple Review Status transitions over time.
 
 ### Evaluation Verdict
-The evaluator’s decision on a Learner Response.
+The evaluator’s decision on a Learner Response, including correctness, reasoning, and answer intent.
 
 ### Session Ledger
 The canonical record of a Study Session, including its Rex Challenge, issued Rex Rechallenges, full Exchanges, and internal Aborted Exchanges, exchange-level review status, feedback effects, aggregate updates, and read projections for restore/history. Any session-level review view is derived from its Exchanges.
