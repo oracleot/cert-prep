@@ -14,6 +14,9 @@ One learner answer and the immediate evaluation/Sage outcome for it.
 ### Learner Response
 The learner’s answer before evaluation.
 
+### Sage Reply
+The system’s response after evaluation.
+
 ### Session Ledger
 The canonical record of a Study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history.
 
