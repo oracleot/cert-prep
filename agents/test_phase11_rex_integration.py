@@ -127,6 +127,40 @@ class TestRexChallengeOptionBased:
         assert ch["response_mode"] == "multiple_response"
         assert ch["answer_key"] == ["A", "B"]
 
+    def test_multi_response_with_one_label_is_accepted(self):
+        # Spec (option-based-session-spec.md): multiple-response uses
+        # "at most 2 correct options" in V1. The validator must accept a
+        # 1-label answer_key (e.g. a single distractor-out) and not the
+        # 2-label-only shape reviewers flagged in cycle 2.
+        from nodes import coach_open as coach_open_module
+        one_label_payload = json.dumps({
+            "domain": "Deployment",
+            "topic": "CI/CD Services",
+            "scenario": "An engineer selects AWS managed CI/CD services for a pipeline.",
+            "question": "Which ONE service runs a managed build?",
+            "response_mode": "multiple_response",
+            "options": [
+                {"label": "A", "text": "CodePipeline"},
+                {"label": "B", "text": "CodeBuild"},
+                {"label": "C", "text": "Lambda"},
+                {"label": "D", "text": "S3"},
+            ],
+            "answer_key": ["B"],
+        })
+        concept = dict(_FAKE_CONCEPT)
+        with patch.object(coach_open_module, "select_initial_concept", return_value=concept):
+            state = _seed_state()
+            graph = _node_graph()
+            state_after_coach = graph.invoke(state, node="coach_open")
+            state_after_coach["current_response_mode"] = "multiple_response"
+
+            with patch("nodes.rex_challenge.get_llm", return_value=FakeLLM(one_label_payload)):
+                result = graph.invoke(state_after_coach, node="rex_challenge")
+
+        ch = result["current_challenge"]
+        assert ch["response_mode"] == "multiple_response"
+        assert ch["answer_key"] == ["B"]
+
     def test_three_options_rejected(self):
         from nodes import coach_open as coach_open_module
         bad_payload = json.dumps({
