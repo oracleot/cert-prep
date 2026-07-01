@@ -8,7 +8,7 @@
 
 import { useCallback, useState } from "react";
 import type { Challenge, OptionLabel } from "@/lib/types";
-import { OPTION_LABELS, isOptionLabel, normalizeOptionLabels } from "@/lib/types";
+import { OPTION_LABELS, normalizeOptionLabels } from "@/lib/types";
 
 export type OptionSelectionHelpers = {
   selectedLabels: OptionLabel[];
@@ -58,7 +58,7 @@ export function useOptionSelection(challenge: Challenge | null, isLocked: boolea
   const markSubmitted = useCallback(() => setSubmitted(true), []);
 
   const resetForNewChallenge = useCallback(
-    (next: Challenge | null) => {
+    () => {
       setSelected([]);
       setSubmitted(false);
     },

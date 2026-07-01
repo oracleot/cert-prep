@@ -9,6 +9,12 @@ type Props = {
   onKnowledgeGap: () => void;
   isDisabled: boolean;
   isEvaluating: boolean;
+  // Phase 11 — option-based form. When set, the textarea is hidden and a
+  // disabled submit hint is shown instead — the option toggles live on the
+  // challenge card and submit comes from the page-level action button.
+  optionBased?: boolean;
+  optionHint?: string;
+  canSubmitOptions?: boolean;
 };
 
 export function AnswerForm({
@@ -18,7 +24,43 @@ export function AnswerForm({
   onKnowledgeGap,
   isDisabled,
   isEvaluating,
+  optionBased = false,
+  optionHint = "",
+  canSubmitOptions = false,
 }: Props) {
+  if (optionBased) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white/60 px-4 py-3 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-300">
+          {optionHint || "Pick one or more options on the card above, then submit below."}
+        </div>
+        <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+          <Button
+            onClick={onSubmit}
+            disabled={!canSubmitOptions || isDisabled}
+            className="min-h-11 bg-amber-300 text-zinc-950 hover:bg-amber-200"
+            aria-label={isEvaluating ? "Evaluating…" : "Submit selection"}
+          >
+            {isEvaluating ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Evaluating…
+              </span>
+            ) : "Submit selection"}
+          </Button>
+          <Button
+            onClick={onKnowledgeGap}
+            disabled={isDisabled}
+            variant="outline"
+            className="min-h-11 border-zinc-300 bg-white/70 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-zinc-800"
+          >
+            I don&apos;t know yet
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const canSubmit = value.trim().length > 0 && !isDisabled;
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {

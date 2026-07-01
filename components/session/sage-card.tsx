@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { AnswerIntent, Citation, ReviewNext, SageFeedback, SageFeedbackType } from "@/lib/types";
+import type { AnswerIntent, Citation, EvaluationResult, OptionLabel, ReviewNext, SageFeedback, SageFeedbackType } from "@/lib/types";
 import { hasReviewNextItems } from "@/lib/types";
 import { SageFeedbackControl } from "./sage-feedback-control";
 import { MarkdownStream } from "./markdown-stream";
@@ -18,6 +18,52 @@ type Props = {
   reviewNext: ReviewNext | null;
   onNext: () => void;
   onFeedbackSubmit: (feedbackType: SageFeedbackType, comment: string) => Promise<void>;
+  // Phase 11 — option verdict chips rendered immediately when the
+  // evaluation SSE event arrives, before Sage streams. Each chip is
+  // derived from the active EvaluationResult's selected/correct/missed/
+  // incorrect label breakdowns.
+  evaluation?: EvaluationResult | null;
+  isOptionBased?: boolean;
+};
+
+function verdictChips(
+  evaluation: EvaluationResult | null | undefined,
+  isOptionBased: boolean | undefined,
+): { label: string; tone: "good" | "bad" | "missed" | "neutral" }[] {
+  if (!evaluation || !isOptionBased) return [];
+  const chips: { label: string; tone: "good" | "bad" | "missed" | "neutral" }[] = [];
+  const correct = (evaluation.correct_labels ?? []) as OptionLabel[];
+  const missed = (evaluation.missed_labels ?? []) as OptionLabel[];
+  const incorrect = (evaluation.incorrect_labels ?? []) as OptionLabel[];
+  const selected = (evaluation.selected_labels ?? []) as OptionLabel[];
+  const isMulti = correct.length > 1;
+  if (evaluation.outcome === "correct") {
+    chips.push({
+      label: isMulti ? `Correct: ${correct.join(", ")}` : `Correct: ${correct[0] ?? ""}`,
+      tone: "good",
+    });
+  } else {
+    if (correct.length > 0) {
+      chips.push({ label: `Correct: ${correct.join(", ")}`, tone: "good" });
+    }
+    if (missed.length > 0) {
+      chips.push({ label: `Missed: ${missed.join(", ")}`, tone: "missed" });
+    }
+    if (incorrect.length > 0) {
+      chips.push({ label: `Incorrect: ${incorrect.join(", ")}`, tone: "bad" });
+    }
+    if (selected.length === 0) {
+      chips.push({ label: "No selection", tone: "neutral" });
+    }
+  }
+  return chips;
+}
+
+const CHIP_STYLES: Record<"good" | "bad" | "missed" | "neutral", string> = {
+  good: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200",
+  bad: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-200",
+  missed: "border-amber-400/40 bg-amber-400/10 text-amber-800 dark:text-amber-200",
+  neutral: "border-zinc-300 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200",
 };
 
 export function SageCard({
@@ -32,11 +78,14 @@ export function SageCard({
   reviewNext,
   onNext,
   onFeedbackSubmit,
+  evaluation = null,
+  isOptionBased = false,
 }: Props) {
   if (!text && !isStreaming) return null;
 
   const isLastCycle = cycle >= maxCycles;
   const isKnowledgeGap = answerIntent === "knowledge_gap";
+  const chips = verdictChips(evaluation, isOptionBased);
 
   return (
     <div
@@ -46,7 +95,7 @@ export function SageCard({
           : "border-zinc-200 bg-white/85 dark:border-zinc-800 dark:bg-zinc-950/80"
       }`}
     >
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-600 dark:text-zinc-500">
           Sage
         </span>
@@ -63,6 +112,14 @@ export function SageCard({
             {outcome === "correct" ? "correct" : isKnowledgeGap ? "knowledge gap" : "incorrect"}
           </span>
         )}
+        {chips.map((chip) => (
+          <span
+            key={chip.label}
+            className={`rounded-full border px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider ${CHIP_STYLES[chip.tone]}`}
+          >
+            {chip.label}
+          </span>
+        ))}
       </div>
 
       <div className="relative text-sm leading-relaxed text-zinc-900 dark:text-zinc-100">

@@ -7,8 +7,9 @@ import { useSession } from "./use-session";
 import { ChallengeCard } from "@/components/session/challenge-card";
 import { AnswerForm } from "@/components/session/answer-form";
 import { SageCard } from "@/components/session/sage-card";
-import { SummaryScreen } from "@/components/session/summary-screen";
+import { SessionErrorView, SessionSummaryView } from "@/components/session/session-overlay";
 import { deriveReviewNext } from "@/lib/review-next";
+import { OPTION_LABELS } from "@/lib/types";
 
 export default function SessionPage() {
   return (
@@ -22,78 +23,40 @@ function SessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const focusDomain = searchParams.get("focus_domain")?.trim() ?? "";
-  // Phase 10 — Review Queue. URL-driven entry: /session?mode=review&concept_id=X
-  // passes through to the start request. Otherwise the default "new" flow runs.
   const mode = (searchParams.get("mode") === "review" ? "review" : "new") as "new" | "review";
   const conceptId = searchParams.get("concept_id")?.trim() ?? "";
   const clearFocusDomain = useCallback(() => {
     if (focusDomain) router.replace("/session", { scroll: false });
   }, [focusDomain, router]);
   const {
-    phase,
-    cycle,
-    maxCycles,
-    domain,
-    challenge,
-    answer,
-    setAnswer,
-    evaluation,
-    sageText,
-    sageCitations,
-    sageFeedback,
-    results,
-    rexRecord,
-    errorMsg,
-    submitAnswer,
-    submitSageFeedback,
-    nextChallenge,
-    retry,
-    restart,
+    phase, cycle, maxCycles, domain, challenge, answer, setAnswer, evaluation,
+    sageText, sageCitations, sageFeedback, results, rexRecord, errorMsg,
+    submitAnswer, submitSageFeedback, nextChallenge, retry, restart, optionSelection,
   } = useSession(focusDomain, clearFocusDomain, { mode, conceptId });
 
-  // Phase 9.5 — derive the compact `Review next` block from the challenge's
-  // closed-book concept packet (official_docs, skill_builder_links, lab_links).
-  // Returns null when the packet has no links, so the SageCard omits the block.
   const reviewNext = useMemo(() => deriveReviewNext(challenge), [challenge]);
 
   if (phase === "summary") {
-    return (
-      <main className="relative min-h-screen overflow-hidden bg-background px-4 py-12 text-foreground">
-        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.12),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.14),transparent_32%)]" />
-        <div className="relative mx-auto flex w-full max-w-lg items-start justify-center">
-          <SummaryScreen results={results} domain={domain} onRestart={restart} />
-        </div>
-      </main>
-    );
+    return <SessionSummaryView results={results} domain={domain} onRestart={restart} />;
   }
-
   if (phase === "error") {
-    return (
-      <main className="relative min-h-screen overflow-hidden bg-background px-4 text-foreground">
-        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.12),transparent_32%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.18),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.14),transparent_32%)]" />
-        <div className="relative flex min-h-screen items-center justify-center">
-          <div className="w-full max-w-lg rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 text-center backdrop-blur-sm">
-            <p className="text-sm font-medium text-rose-700 dark:text-rose-200">{errorMsg}</p>
-            <button
-              onClick={retry}
-              className="mt-4 min-h-11 rounded-full bg-amber-300 px-5 text-sm font-black text-zinc-950 hover:bg-amber-200"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </main>
-    );
+    return <SessionErrorView errorMsg={errorMsg} onRetry={retry} />;
   }
 
-  const isLoading =
-    phase === "loading_challenge" || phase === "loading_rechallenge";
+  const isLoading = phase === "loading_challenge" || phase === "loading_rechallenge";
   const isEvaluating = phase === "evaluating";
   const isStreaming = phase === "streaming_sage";
   const answerDisabled = isEvaluating || isStreaming || phase === "sage_done";
   const cycleProgress = Math.min(100, Math.max(0, (cycle / maxCycles) * 100));
   const showAnswerForm = (phase === "ready" || answerDisabled) && !isLoading;
   const showSage = Boolean(sageText || isStreaming);
+  const isOptionBased = optionSelection.isOptionBased;
+  const isOptionLocked = isEvaluating || isStreaming || optionSelection.isSubmitted;
+  const canSubmitOptions = optionSelection.canSubmit && !isOptionLocked;
+  const challengeHasOptions =
+    Boolean(challenge?.options) &&
+    Array.isArray(challenge?.options) &&
+    (challenge?.options?.length ?? 0) === OPTION_LABELS.length;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background px-4 py-10 text-foreground">
@@ -122,7 +85,6 @@ function SessionContent() {
                 </p>
               </div>
             </div>
-
             <div className="mt-4 flex items-center gap-3">
               <span className="rounded-full bg-amber-300 px-3 py-1 text-xs font-black uppercase tracking-wider text-zinc-950">
                 Cycle {cycle}
@@ -139,7 +101,14 @@ function SessionContent() {
             </div>
           </div>
 
-          <ChallengeCard challenge={challenge} isLoading={isLoading} />
+          <ChallengeCard
+            challenge={challenge}
+            isLoading={isLoading}
+            verdict={evaluation}
+            selectedLabels={optionSelection.selectedLabels}
+            isLocked={isOptionLocked}
+            onToggleLabel={optionSelection.toggleLabel}
+          />
 
           {showAnswerForm && (
             <AnswerForm
@@ -149,6 +118,13 @@ function SessionContent() {
               onKnowledgeGap={() => submitAnswer("knowledge_gap")}
               isDisabled={answerDisabled}
               isEvaluating={isEvaluating}
+              optionBased={isOptionBased && challengeHasOptions}
+              optionHint={
+                challenge?.response_mode === "multiple_response"
+                  ? "Pick the options you think are correct, then submit."
+                  : "Pick the option you think is correct, then submit."
+              }
+              canSubmitOptions={canSubmitOptions}
             />
           )}
         </section>
@@ -167,6 +143,8 @@ function SessionContent() {
               reviewNext={reviewNext}
               onNext={nextChallenge}
               onFeedbackSubmit={submitSageFeedback}
+              evaluation={evaluation}
+              isOptionBased={challengeHasOptions}
             />
           ) : (
             <div className="min-h-[320px] rounded-2xl border border-dashed border-zinc-300 bg-white/55 p-6 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/50">

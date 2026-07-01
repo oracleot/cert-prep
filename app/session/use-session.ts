@@ -1,7 +1,7 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import type { AnswerIntent, Challenge, Citation, EvaluationResult, SageFeedback, SageFeedbackType, SessionResult } from "@/lib/types";
-import { nextSessionRequest, submitSageFeedbackRequest } from "./session-api";
+import { submitSageFeedbackRequest } from "./session-api";
 import { type RestoredSession } from "./session-persistence";
 import { useRexRecord } from "./use-rex-record";
 import { answerIntentFor, answerTextFor } from "./answer-intent";
@@ -58,7 +58,11 @@ export function useSession(
   }, []);
 
   const { startSession, restoreSession, loadNextChallenge } = useSessionStart({
-    activeRequestRef, lastActionRef, setPhase, setChallenge, setAnswer, setEvaluation,
+    activeRequestRef, lastActionRef,
+    // setPhase expects a string; SessionPhase is a string union so this is
+    // safe at runtime, and the narrower type is enforced at the call site.
+    setPhase: setPhase as Dispatch<SetStateAction<string>>,
+    setChallenge, setAnswer, setEvaluation,
     setSageText, setSageCitations, setSageFeedback, setResults, setErrorMsg, setThreadId,
     setCycle, setMaxCycles, threadId, applySnapshot, focusDomain, examId, startOverrides,
     onFocusDomainConsumed,
