@@ -15,10 +15,10 @@ A follow-up Rex prompt in the same Study Session after an earlier Exchange. It s
 A Rex Challenge or Rex Rechallenge that has been issued but not yet answered by a Learner Response. A Study Session has at most one Pending Prompt at a time. When answered, it is consumed and leads to either a full Exchange or an Aborted Exchange. It survives restore as part of resumability and remains internal until it becomes an Exchange.
 
 ### Answer Option
-One of four selectable answers presented with a Rex prompt.
+One of four selectable answers labeled A, B, C, or D and presented with a Rex prompt.
 
 ### Answer Key
-The correct Answer Option or exact set of correct Answer Options returned with a Rex prompt.
+The correct Answer Option label or exact set of correct Answer Option labels returned with a Rex prompt.
 
 ### Distractor
 An Answer Option that is incorrect but plausibly tempting.
