@@ -24,7 +24,7 @@ The evaluator’s decision on a Learner Response.
 The canonical record of a Study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history. A Study Session may move between active and excluded-from-review without being deleted.
 
 ### Session Deletion
-A permanent removal of one study Session and its related Exchanges from history.
+A permanent removal of one completed Study Session and its related Exchanges from history. In-progress Study Sessions are not eligible.
 
 ### Session Submit Stream
 The typed event stream produced while a submitted answer moves through evaluation and Sage response: token, evaluation, citations, done, and error events.
