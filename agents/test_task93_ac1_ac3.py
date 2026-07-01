@@ -115,7 +115,10 @@ class TestAC2_AC3_ChallengeOutputConceptFields:
             state_after_coach = graph.invoke(state, node="coach_open")
 
             with patch("nodes.rex_challenge.get_llm", return_value=FakeLLM(
-                '{"domain":"Deployment","topic":"CodePipeline Basics","scenario":"Test scenario.","question":"What?"}'
+                '{"domain":"Deployment","topic":"CodePipeline Basics","scenario":"Test scenario.","question":"What?",'
+                '"response_mode":"single_response",'
+                '"options":[{"label":"A","text":"src"},{"label":"B","text":"build"},{"label":"C","text":"deploy"},{"label":"D","text":"approve"}],'
+                '"answer_key":["B"]}'
             )):
                 result = graph.invoke(state_after_coach, node="rex_challenge")
 
@@ -146,7 +149,10 @@ class TestAC2_AC3_ChallengeOutputConceptFields:
             state_after_coach = graph.invoke(state, node="coach_open")
 
             with patch("nodes.rex_challenge.get_llm", return_value=FakeLLM(
-                '{"domain":"Deployment","topic":"CodePipeline Basics","scenario":"Test scenario.","question":"What?"}'
+                '{"domain":"Deployment","topic":"CodePipeline Basics","scenario":"Test scenario.","question":"What?",'
+                '"response_mode":"single_response",'
+                '"options":[{"label":"A","text":"src"},{"label":"B","text":"build"},{"label":"C","text":"deploy"},{"label":"D","text":"approve"}],'
+                '"answer_key":["B"]}'
             )):
                 result = graph.invoke(state_after_coach, node="rex_challenge")
 

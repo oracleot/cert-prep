@@ -122,7 +122,10 @@ class TestAC1_RexGroundedToFactsAndTraps:
                     '"scenario":"An engineer configures a pipeline with source, '
                     'build, and deploy stages.",'
                     '"question":"Which stage type is required for a '
-                    'CodePipeline to trigger a build?"}'
+                    'CodePipeline to trigger a build?",'
+                    '"response_mode":"single_response",'
+                    '"options":[{"label":"A","text":"src"},{"label":"B","text":"build"},{"label":"C","text":"deploy"},{"label":"D","text":"approve"}],'
+                    '"answer_key":["B"]}'
                 ),
             ):
                 result = graph.invoke(state_after_coach, node="rex_challenge")
@@ -148,7 +151,10 @@ class TestAC1_RexGroundedToFactsAndTraps:
                 return_value=FakeLLM(
                     '{"domain":"Deployment","topic":"Lambda Power Tuning Feature",'
                     '"scenario":"An engineer tunes Lambda memory settings.",'
-                    '"question":"Which setting controls Lambda duration billing?"}'
+                    '"question":"Which setting controls Lambda duration billing?",'
+                    '"response_mode":"single_response",'
+                    '"options":[{"label":"A","text":"a"},{"label":"B","text":"b"},{"label":"C","text":"c"},{"label":"D","text":"d"}],'
+                    '"answer_key":["A"]}'
                 ),
             ):
                 result = graph.invoke(state_after_coach, node="rex_challenge")

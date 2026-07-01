@@ -83,7 +83,10 @@ class TestAC4_RechallengeUsesAppSelectedConcept:
                 }
 
                 with patch("nodes.rex_rechallenge.get_llm", return_value=FakeLLM(
-                    '{"domain":"Deployment","topic":"CI/CD Services","scenario":"Test scenario.","question":"What?"}'
+                    '{"domain":"Deployment","topic":"CI/CD Services","scenario":"Test scenario.","question":"What?",'
+                    '"response_mode":"single_response",'
+                    '"options":[{"label":"A","text":"a"},{"label":"B","text":"b"},{"label":"C","text":"c"},{"label":"D","text":"d"}],'
+                    '"answer_key":["A"]}'
                 )):
                     result = graph.invoke(state_after_coach, node="rex_rechallenge")
 
@@ -145,7 +148,10 @@ class TestAC4_RechallengeUsesAppSelectedConcept:
                 }
 
                 with patch("nodes.rex_rechallenge.get_llm", return_value=FakeLLM(
-                    '{"domain":"Deployment","topic":"CI/CD Services","scenario":"Test scenario.","question":"What?"}'
+                    '{"domain":"Deployment","topic":"CI/CD Services","scenario":"Test scenario.","question":"What?",'
+                    '"response_mode":"single_response",'
+                    '"options":[{"label":"A","text":"a"},{"label":"B","text":"b"},{"label":"C","text":"c"},{"label":"D","text":"d"}],'
+                    '"answer_key":["A"]}'
                 )):
                     result = graph.invoke(state_after_coach, node="rex_rechallenge")
 

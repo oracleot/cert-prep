@@ -55,7 +55,11 @@ _CYCLE1_CHALLENGE = {
 _REX_RECHALLENGE_JSON = (
     '{"domain":"Deployment","topic":"CodePipeline Basics",'
     '"scenario":"An engineer must rebuild a failed deployment.",'
-    '"question":"How do you re-run the failed stage?"}'
+    '"question":"How do you re-run the failed stage?",'
+    '"response_mode":"single_response",'
+    '"options":[{"label":"A","text":"retry"},{"label":"B","text":"rollback"},'
+    '{"label":"C","text":"rebuild"},{"label":"D","text":"approve"}],'
+    '"answer_key":["A"]}'
 )
 
 

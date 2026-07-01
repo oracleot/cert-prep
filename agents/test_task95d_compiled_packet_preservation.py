@@ -77,7 +77,11 @@ _FAKE_CONCEPT = {
 _FAKE_REX_RESPONSE = (
     '{"domain":"Deployment","topic":"CodePipeline Basics",'
     '"scenario":"An engineer configures a pipeline.",'
-    '"question":"Which stage triggers a build?"}'
+    '"question":"Which stage triggers a build?",'
+    '"response_mode":"single_response",'
+    '"options":[{"label":"A","text":"src"},{"label":"B","text":"build"},'
+    '{"label":"C","text":"deploy"},{"label":"D","text":"approve"}],'
+    '"answer_key":["B"]}'
 )
 
 
