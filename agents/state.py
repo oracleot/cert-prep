@@ -121,6 +121,11 @@ class AppState(TypedDict):
     # "pressure_drills" | "guided_explanations" | "mixed_review" (default)
     learning_style: str
     local_timezone: str
+    # Phase 11 — app-controlled response_mode for the next prompt. Rex nodes
+    # read this and force the prompt/parser to honor it. The routes layer
+    # seeds it on /session/start and /session/next; rex_rechallenge forwards
+    # it through cycle increments.
+    current_response_mode: ResponseMode
 
     # 1-indexed cycle counter, advanced by rex_rechallenge.
     cycle: int
@@ -176,6 +181,7 @@ def initial_state(
         "focus_domain": focus_domain,
         "learning_style": learning_style,
         "local_timezone": local_timezone,
+        "current_response_mode": "single_response",
         "cycle": 0,
         "current_challenge": {},
         "user_answer": "",
