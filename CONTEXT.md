@@ -42,7 +42,7 @@ One learner answer and the immediate evaluation/Sage outcome for it. It is the s
 An assessed interaction where the Evaluation Verdict exists but the Sage Reply does not complete, so it is not a full Exchange. The Study Session may continue, but the learner must submit a fresh Learner Response rather than resume the aborted interaction. An Aborted Exchange does not consume a cycle limit, and a Study Session may contain more than one Aborted Exchange. It recreates the same prompt as the current Pending Prompt. Aborted Exchanges stay internal rather than appearing in learner-visible history, and they do not affect readiness or progress metrics.
 
 ### Learner Response
-The learner’s answer before evaluation.
+The learner’s selected Answer Option or Answer Options before evaluation. It is selection-only rather than free-text.
 
 ### Sage Reply
 The system’s response after evaluation.
