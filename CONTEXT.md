@@ -42,7 +42,7 @@ The system’s handling state for an Exchange. It may exist even when no Sage Fe
 The evaluator’s decision on a Learner Response.
 
 ### Session Ledger
-The canonical record of a Study Session, including its Rex Challenge, full Exchanges, and internal Aborted Exchanges, exchange-level review status, feedback effects, aggregate updates, and read projections for restore/history. Any session-level review view is derived from its Exchanges.
+The canonical record of a Study Session, including its Rex Challenge, issued Rex Rechallenges, full Exchanges, and internal Aborted Exchanges, exchange-level review status, feedback effects, aggregate updates, and read projections for restore/history. Any session-level review view is derived from its Exchanges.
 
 ### Session Deletion
 A permanent removal of one completed Study Session and its related Exchanges from history. In-progress Study Sessions are not eligible.
