@@ -8,6 +8,9 @@ A curated, ready concept record selected by app code before Rex runs. It carries
 ### Study Session
 One complete Rex→Sage study run for a learner.
 
+### Exchange
+One learner answer and the immediate evaluation/Sage outcome for it.
+
 ### Session Ledger
 The canonical record of a Study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history.
 
