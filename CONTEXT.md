@@ -11,6 +11,9 @@ One complete Rex→Sage study run for a learner.
 ### Exchange
 One learner answer and the immediate evaluation/Sage outcome for it.
 
+### Learner Response
+The learner’s answer before evaluation.
+
 ### Session Ledger
 The canonical record of a Study Session and its Exchanges, including active/excluded review status, feedback effects, aggregate updates, and read projections for restore/history.
 
