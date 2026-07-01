@@ -24,7 +24,7 @@ The correct Answer Option label or exact set of correct Answer Option labels ret
 An Answer Option that is incorrect but plausibly tempting. Each Distractor should be wrong for a distinct reason.
 
 ### Single-Response Question
-A Rex prompt with Answer Options where exactly one option is correct. The learner is told on that prompt that exactly one option should be selected.
+A Rex prompt with Answer Options where exactly one option is correct. The learner is told on that prompt that exactly one option should be selected, including an explicit instruction such as "Select ONE."
 
 ### Multiple-Response Question
 A Rex prompt with Answer Options where more than one option is correct. It uses four Answer Options with at most two correct options in V1. A correct Learner Response must select the exact full set rather than receiving partial credit. The learner is told on that prompt that more than one option should be selected, including an explicit instruction such as "Select TWO," but may still submit only one option and be marked incorrect.
