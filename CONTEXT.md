@@ -48,7 +48,7 @@ An assessed interaction where the Evaluation Verdict exists but the Sage Reply d
 The learner’s selected Answer Option or Answer Options before evaluation. It is selection-only rather than free-text, and must include at least one selection.
 
 ### Sage Reply
-The system’s response after evaluation. For option-based prompts, it explains the correct option or options first with the most depth, then briefly explains each distractor. On Multiple-Response misses, it explicitly names any missed correct option and any incorrectly chosen option.
+The system’s response after evaluation. For option-based prompts, it explains the correct option or options first with the most depth, then briefly explains each distractor. It refers to options by label plus short paraphrase rather than repeating each full option text. On Multiple-Response misses, it explicitly names any missed correct option and any incorrectly chosen option.
 
 ### Sage Feedback
 The learner’s report on a Sage Reply. It belongs to the Exchange that produced that Sage Reply.
