@@ -33,6 +33,15 @@ class SageInput:
     official_docs: list[str] | None = None
     skill_builder_links: list[str] | None = None
     lab_links: list[str] | None = None
+    # Phase 11 — option-based session context. When set, Sage is told to refer
+    # to options by label + short paraphrase, and to explicitly call out missed
+    # correct options / incorrectly chosen options on multi-response misses.
+    response_mode: str = ""
+    options: list[dict] | None = None
+    answer_key: list[str] | None = None
+    selected_labels: list[str] | None = None
+    missed_labels: list[str] | None = None
+    incorrect_labels: list[str] | None = None
 
 
 def _grounding_rules(sage: SageInput) -> str:
@@ -69,10 +78,71 @@ def _context_directive(sage: SageInput) -> str:
     return "\n".join(lines)
 
 
+def _short_paraphrase(text: str, limit: int = 60) -> str:
+    """First sentence / first 60 chars of an option for label-reference style."""
+    if not text:
+        return ""
+    snippet = text.strip().split(".")[0].strip()
+    if len(snippet) > limit:
+        snippet = snippet[: limit - 1].rstrip() + "…"
+    return snippet
+
+
+def _option_directive(sage: SageInput) -> str:
+    """Phase 11 — option-aware Sage instructions.
+
+    Injected whenever the challenge carries option data. Tells Sage to refer
+    to options by label + short paraphrase, prioritize the correct option(s)
+    deeply, cover distractors briefly, and on multi-response misses name the
+    missed correct options and any incorrect selections explicitly.
+    """
+    options = sage.options or []
+    if not options:
+        return ""
+    rows: list[str] = []
+    for opt in options:
+        if not isinstance(opt, dict):
+            continue
+        label = str(opt.get("label", "")).strip()
+        text = str(opt.get("text", "")).strip()
+        if not label or not text:
+            continue
+        rows.append(f"  - {label}: {_short_paraphrase(text)}")
+    if not rows:
+        return ""
+    options_block = "\n".join(rows)
+    selected = list(sage.selected_labels or [])
+    missed = list(sage.missed_labels or [])
+    incorrect = list(sage.incorrect_labels or [])
+    is_multi = sage.response_mode == "multiple_response"
+
+    parts: list[str] = ["Option contract:"]
+    parts.append(f"- Mode: {sage.response_mode or 'unknown'}. Each label refers to:")
+    parts.append(options_block)
+    parts.append("- Refer to options by label (A/B/C/D) plus a short paraphrase of the option text — never repeat the option text verbatim.")
+    parts.append("- Explain the correct option(s) first and in more depth.")
+    parts.append("- Cover each distractor in one short sentence — the rule it appears to test and why it does not actually apply.")
+    if selected:
+        parts.append(f"- The learner selected: {', '.join(selected)}.")
+    if missed:
+        parts.append(
+            f"- Multi-response miss: explicitly name the missed correct option(s) — {', '.join(missed)} — and explain why each is required."
+        )
+    if incorrect:
+        parts.append(
+            f"- The learner incorrectly chose: {', '.join(incorrect)}. Explain why each is wrong."
+        )
+    if is_multi:
+        parts.append("- Because this is a multi-response prompt, walk through every label the learner picked AND every label they missed; never silently skip a label.")
+    return "\n".join(parts)
+
+
 def build_sage_depth_prompt(sage: SageInput) -> tuple[str, str]:
     style_line = _style_directive(sage.learning_style, "depth")
     style_block = f"\n{style_line}" if style_line else ""
     context_directive = _context_directive(sage)
+    option_block = _option_directive(sage)
+    option_section = f"\n{option_block}\n" if option_block else ""
     user = f"""Topic: {sage.topic} ({sage.domain})
 
 Grounding:
@@ -88,7 +158,7 @@ The challenge:
 They answered: "{sage.user_answer}"
 Evaluator note: {sage.reasoning}
 {context_directive}
-
+{option_section}
 They got it right. Now go deeper. What else is worth knowing about this topic that the question didn't test? What separates a 750 from an 850 on this domain? Cite the specific behaviour, edge case, or gotcha that most practitioners miss. Be specific. Be direct. Be useful.{style_block}"""
     return SAGE_SYSTEM, user
 
@@ -97,6 +167,8 @@ def build_sage_explain_prompt(sage: SageInput) -> tuple[str, str]:
     style_line = _style_directive(sage.learning_style, "explain")
     style_block = f"\n{style_line}" if style_line else ""
     context_directive = _context_directive(sage)
+    option_block = _option_directive(sage)
+    option_section = f"\n{option_block}\n" if option_block else ""
     instruction = "Teach the missing foundation, state the exact exam rule, then give one concrete AWS example." if sage.answer_intent == "knowledge_gap" else "Correct the misconception. Cite the specific service or concept directly. Tell them exactly what the right mental model is and why it matters in a real deployment."
     user = f"""Topic: {sage.topic} ({sage.domain})
 
@@ -113,6 +185,6 @@ The challenge:
 They answered: "{sage.user_answer}"
 The gap: {sage.reasoning}
 {context_directive}
-
+{option_section}
 {instruction} No hedging. No "it depends". Give them the knowledge they were missing.{style_block}"""
     return SAGE_SYSTEM, user
