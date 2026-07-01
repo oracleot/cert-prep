@@ -12,7 +12,7 @@ One complete Rex→Sage study run for a learner. It may exist before the first E
 One learner answer and the immediate evaluation/Sage outcome for it. It is the smallest complete unit of assessed interaction and contains the Learner Response, Evaluation Verdict, and Sage Reply.
 
 ### Aborted Exchange
-An assessed interaction where the Evaluation Verdict exists but the Sage Reply does not complete, so it is not a full Exchange. The Study Session may continue, but the learner must submit a fresh Learner Response rather than resume the aborted interaction. An Aborted Exchange does not consume a cycle limit.
+An assessed interaction where the Evaluation Verdict exists but the Sage Reply does not complete, so it is not a full Exchange. The Study Session may continue, but the learner must submit a fresh Learner Response rather than resume the aborted interaction. An Aborted Exchange does not consume a cycle limit, and a Study Session may contain more than one Aborted Exchange.
 
 ### Learner Response
 The learner’s answer before evaluation.
