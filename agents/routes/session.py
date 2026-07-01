@@ -71,7 +71,12 @@ async def start_session(req: SessionStartRequest):
         state["curriculum_id"] = curriculum["id"]
     state["openrouter_api_key"] = req.openrouter_api_key
     # Phase 11 — seed the prompt's response_mode via the app-controlled mix.
-    state["current_response_mode"] = pick_response_mode(state.get("cycle", 1) or 1)  # type: ignore[typeddict-item]
+    # thread_id doubles as the session seed so the per-prompt 60/40 choice
+    # is stable for a given session but the aggregate across sessions
+    # approaches the spec's target.
+    state["current_response_mode"] = pick_response_mode(  # type: ignore[typeddict-item]
+        state.get("cycle", 1) or 1, thread_id
+    )
 
     try:
         state.update(await apply_mode_to_state(state, req))
@@ -181,7 +186,7 @@ async def next_challenge(req: SessionNextRequest):
     next_cycle = snap.values.get("cycle", 1) or 1
     upd: dict = {
         "openrouter_api_key": req.openrouter_api_key,
-        "current_response_mode": pick_response_mode(next_cycle),
+        "current_response_mode": pick_response_mode(next_cycle, req.thread_id),
     }
     upd = {k: v for k, v in upd.items() if v}
     await graph.aupdate_state(config, upd)
