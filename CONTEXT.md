@@ -11,6 +11,9 @@ One complete Rex→Sage study run for a learner. It may exist before the first E
 ### Open Study Session
 A Study Session that exists but has not yet completed its intended Exchanges.
 
+### Completed Study Session
+A Study Session that has completed its intended Exchanges.
+
 ### Exchange
 One learner answer and the immediate evaluation/Sage outcome for it. It is the smallest complete unit of assessed interaction and contains the Learner Response, Evaluation Verdict, and Sage Reply.
 
