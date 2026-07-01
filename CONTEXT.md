@@ -30,7 +30,7 @@ The system’s response after evaluation.
 The learner’s report on a Sage Reply. It belongs to the Exchange that produced that Sage Reply.
 
 ### Review Status
-The system’s handling state for an Exchange. It may exist even when no Sage Feedback has been submitted.
+The system’s handling state for an Exchange. It may exist even when no Sage Feedback has been submitted, and one Sage Feedback report may cause multiple Review Status transitions over time.
 
 ### Evaluation Verdict
 The evaluator’s decision on a Learner Response.
