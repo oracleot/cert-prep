@@ -1,5 +1,10 @@
 # rex_rechallenge node — generates a harder variant on the same domain.
 # Phase 1 logic ported from app/api/rex/rechallenge/route.ts.
+#
+# Phase 11: same option-based contract as rex_challenge. Rechallenges keep
+# 4 labeled A/B/C/D options; the response_mode is app-controlled and may
+# differ from the previous prompt (per spec: "may be single-response or
+# multiple-response").
 
 from __future__ import annotations
 
@@ -13,6 +18,13 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from concepts.packet import concept_packet_fields
 from concepts.selector import NoReadyConcept, select_rechallenge_concept
 from llm import get_llm, llm_runtime, model_for
+from nodes.rex_challenge import (
+    _default_response_mode,
+    _normalize_answer_key,
+    _normalize_options,
+    _validate_option_payload,
+)
+from option_types import is_response_mode
 from prompts.rex import MODEL, build_rex_rechallenge_prompt
 from repositories import exchange_history_for_user
 from state import AppState
@@ -85,6 +97,10 @@ async def rex_rechallenge(state: AppState) -> dict:
     concept_id = target.get("id", target.get("concept_id", state.get("current_concept_id", "")))
     packet = concept_packet_fields({**target, "id": concept_id})
 
+    response_mode = state.get("current_response_mode") or _default_response_mode(state)
+    if not is_response_mode(response_mode):
+        response_mode = "single_response"
+
     system, user = build_rex_rechallenge_prompt(
         exam_id=state["exam_id"],
         domain=state["current_domain"],
@@ -99,6 +115,7 @@ async def rex_rechallenge(state: AppState) -> dict:
         familiarity_level=packet["familiarity_level"],
         facts=packet["facts"],
         traps=packet["traps"],
+        response_mode=response_mode,
     )
 
     # Set the API key in the runtime context so get_llm finds it.
@@ -119,6 +136,15 @@ async def rex_rechallenge(state: AppState) -> dict:
 
     if not all(k in challenge for k in ("domain", "topic", "scenario", "question")):
         raise ValueError(f"rex_rechallenge returned invalid shape: {challenge}")
+
+    # Phase 11 — same option contract as rex_challenge.
+    emitted_mode = challenge.get("response_mode")
+    if not is_response_mode(emitted_mode):
+        emitted_mode = response_mode
+    challenge["response_mode"] = emitted_mode
+    challenge["options"] = _normalize_options(challenge.get("options"))
+    challenge["answer_key"] = _normalize_answer_key(challenge.get("answer_key"), emitted_mode)
+    _validate_option_payload(challenge, emitted_mode)
 
     resolved_difficulty = packet["difficulty"] if packet["difficulty"] != "medium" else target.get("difficulty", "hard")
 
@@ -144,6 +170,10 @@ async def rex_rechallenge(state: AppState) -> dict:
             "traps": packet["traps"],
             "scenario": challenge["scenario"],
             "question": challenge["question"],
+            # Phase 11 — option-based contract.
+            "response_mode": emitted_mode,
+            "options": challenge["options"],
+            "answer_key": challenge["answer_key"],
         },
         "current_topic": packet["topic"],
         "current_topic_id": packet["topic_id"],
