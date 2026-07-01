@@ -1,5 +1,14 @@
-# evaluate_answer node — strict LLM evaluation of a user's answer.
+# evaluate_answer node — strict evaluation of a user's answer.
 # Phase 1 logic ported from app/api/evaluate/route.ts.
+#
+# Phase 11 — option-based challenges take a deterministic exact-match path:
+# the LLM evaluator is bypassed and verdict labels (chosen / correct /
+# missed / incorrect) are computed in-process from the challenge's
+# answer_key. Free-text challenges (legacy) and knowledge-gap submissions
+# still flow through the LLM evaluator / knowledge-gap branch.
+#
+# The option-verdict helpers live in ``option_verdict.py`` to keep this file
+# under the 200-line hard rule.
 
 from __future__ import annotations
 
@@ -12,6 +21,11 @@ from langchain_core.runnables import RunnableConfig
 
 from answer_intent import normalize_answer_intent
 from llm import get_llm, model_for
+from nodes.option_verdict import (
+    challenge_is_option_based,
+    compute_option_verdict,
+    extract_selected_labels,
+)
 from prompts.evaluator import MODEL, EvaluatorInput, build_evaluator_prompt
 from state import AppState
 
@@ -34,46 +48,46 @@ def _coerce_miss_list(value: Any) -> list[str]:
     return []
 
 
-def evaluate_answer(state: AppState, config: RunnableConfig) -> dict:
-    """Evaluate the user's answer against the current challenge.
-
-    Phase 9.4 — the prompt now ships ``expected_answer_criteria`` and
-    ``traps`` from the concept packet, and the parsed response must include
-    ``missed_criteria`` and ``triggered_traps`` lists (empty when nothing
-    applies). These flow into ``last_evaluation`` and onward into the
-    exchange record for internal concept-miss auditing.
-    """
-    user_answer = state.get("user_answer") or ""
-    if not user_answer:
-        # Empty answer (also covers tests that don't seed user_answer).
-        # Treat as knowledge_gap so the cycle can still complete with a
-        # structured last_evaluation record for downstream nodes.
-        return {
-            "last_evaluation": {
-                "outcome": "incorrect",
-                "reasoning": "Knowledge gap: no answer provided.",
-                "answer_intent": "knowledge_gap",
-                "missed_criteria": [],
-                "triggered_traps": [],
-            },
+def _knowledge_gap_eval(reasoning: str) -> dict[str, Any]:
+    return {
+        "last_evaluation": {
+            "outcome": "incorrect",
+            "reasoning": reasoning,
             "answer_intent": "knowledge_gap",
-        }
+            "missed_criteria": [],
+            "triggered_traps": [],
+            "selected_labels": [],
+            "correct_labels": [],
+            "missed_labels": [],
+            "incorrect_labels": [],
+        },
+        "answer_intent": "knowledge_gap",
+    }
 
-    answer_intent = normalize_answer_intent(user_answer, state.get("answer_intent", "attempt"))
-    if answer_intent == "knowledge_gap":
-        return {
-            "last_evaluation": {
-                "outcome": "incorrect",
-                "reasoning": "Knowledge gap: user indicated they do not know yet.",
-                "answer_intent": "knowledge_gap",
-                "missed_criteria": [],
-                "triggered_traps": [],
-            },
-            "answer_intent": "knowledge_gap",
-        }
 
+def _option_eval(state: AppState) -> dict[str, Any]:
     challenge = state["current_challenge"]
+    selected = extract_selected_labels(state)
+    verdict = compute_option_verdict(challenge, selected)
+    return {
+        "last_evaluation": {
+            "outcome": verdict["outcome"],
+            "reasoning": verdict["reasoning"],
+            "answer_intent": "attempt",
+            "missed_criteria": [],
+            "triggered_traps": [],
+            "selected_labels": verdict["selected_labels"],
+            "correct_labels": verdict["correct_labels"],
+            "missed_labels": verdict["missed_labels"],
+            "incorrect_labels": verdict["incorrect_labels"],
+        },
+        "answer_intent": "attempt",
+    }
 
+
+def _free_text_eval(state: AppState) -> dict[str, Any]:
+    challenge = state["current_challenge"]
+    user_answer = state.get("user_answer") or ""
     ev_input = EvaluatorInput(
         exam_id=state["exam_id"],
         domain=challenge["domain"],
@@ -104,9 +118,44 @@ def evaluate_answer(state: AppState, config: RunnableConfig) -> dict:
             "outcome": result["outcome"],
             "reasoning": result["reasoning"],
             "answer_intent": "attempt",
-            # Phase 9.4 — internal miss audit fields, parsed from the LLM JSON.
             "missed_criteria": _coerce_miss_list(result.get("missed_criteria")),
             "triggered_traps": _coerce_miss_list(result.get("triggered_traps")),
+            # Phase 11 — option challenges don't use this branch; defaults are
+            # empty so the EvaluationResult TypedDict shape stays valid.
+            "selected_labels": [],
+            "correct_labels": [],
+            "missed_labels": [],
+            "incorrect_labels": [],
         },
         "answer_intent": "attempt",
     }
+
+
+def evaluate_answer(state: AppState, config: RunnableConfig) -> dict:
+    """Evaluate the user's answer against the current challenge.
+
+    Phase 9.4 — the prompt ships ``expected_answer_criteria`` and
+    ``traps`` from the concept packet; the parsed response must include
+    ``missed_criteria`` and ``triggered_traps`` lists (empty when nothing
+    applies). These flow into ``last_evaluation`` and onward into the
+    exchange record for internal concept-miss auditing.
+
+    Phase 11 — option-based challenges short-circuit the LLM evaluator.
+    Verdict is exact-match binary; the four label breakdowns are computed
+    deterministically so the UI can render them immediately on receipt of
+    the ``evaluation`` SSE event.
+    """
+    challenge = state["current_challenge"]
+
+    if challenge_is_option_based(challenge):
+        return _option_eval(state)
+
+    user_answer = state.get("user_answer") or ""
+    if not user_answer:
+        return _knowledge_gap_eval("Knowledge gap: no answer provided.")
+
+    answer_intent = normalize_answer_intent(user_answer, state.get("answer_intent", "attempt"))
+    if answer_intent == "knowledge_gap":
+        return _knowledge_gap_eval("Knowledge gap: user indicated they do not know yet.")
+
+    return _free_text_eval(state)
