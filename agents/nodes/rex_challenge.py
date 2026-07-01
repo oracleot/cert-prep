@@ -152,10 +152,19 @@ def rex_challenge(state: AppState, config: RunnableConfig) -> dict:
     if not is_response_mode(emitted_mode):
         emitted_mode = response_mode
 
+    # Validate the raw payload before normalization so a malformed Rex output
+    # (3 options, bad labels, 2 correct labels on a single-response prompt)
+    # hard-fails with a clear error rather than silently padding to fit.
+    _validate_option_payload(
+        {
+            "options": challenge.get("options"),
+            "answer_key": challenge.get("answer_key"),
+        },
+        emitted_mode,
+    )
     challenge["response_mode"] = emitted_mode
     challenge["options"] = _normalize_options(challenge.get("options"))
     challenge["answer_key"] = _normalize_answer_key(challenge.get("answer_key"), emitted_mode)
-    _validate_option_payload(challenge, emitted_mode)
 
     # Enforce packet grounding: if the LLM picked a topic outside the
     # selected concept, snap it back to the packet topic. concept_id is

@@ -69,11 +69,15 @@ def _option_eval(state: AppState) -> dict[str, Any]:
     challenge = state["current_challenge"]
     selected = extract_selected_labels(state)
     verdict = compute_option_verdict(challenge, selected)
+    intent = state.get("answer_intent") or "attempt"
+    # knowledge_gap can land here when the learner presses "I don't know yet"
+    # on an option-based prompt — surface that as the answer_intent so Sage
+    # teaches the foundation rather than diagnosing a misconception.
     return {
         "last_evaluation": {
             "outcome": verdict["outcome"],
             "reasoning": verdict["reasoning"],
-            "answer_intent": "attempt",
+            "answer_intent": intent,
             "missed_criteria": [],
             "triggered_traps": [],
             "selected_labels": verdict["selected_labels"],
@@ -81,7 +85,7 @@ def _option_eval(state: AppState) -> dict[str, Any]:
             "missed_labels": verdict["missed_labels"],
             "incorrect_labels": verdict["incorrect_labels"],
         },
-        "answer_intent": "attempt",
+        "answer_intent": intent,
     }
 
 
