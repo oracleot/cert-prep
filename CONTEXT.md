@@ -3,7 +3,7 @@
 ## Glossary
 
 ### Concept Packet
-A curated, ready concept record selected once for a Study Session before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge. If an unfinished Study Session is resumed, it keeps the same Concept Packet.
+A curated, ready concept record selected once for a Study Session before Rex runs. It carries the grounding facts, exam traps, expected answer criteria, and allowed review resources used by Rex, the Evaluator, Sage, and rechallenge. It corresponds to exactly one concept. If an unfinished Study Session is resumed, it keeps the same Concept Packet.
 
 ### Study Session
 One complete Rex→Sage study run for a learner. It may exist before the first Exchange is recorded. Retrying the same concept later creates a new Study Session rather than reopening a completed one. A learner may also leave a Study Session unfinished without ending its identity.
