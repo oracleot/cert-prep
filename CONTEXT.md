@@ -29,6 +29,9 @@ The system’s response after evaluation.
 ### Sage Feedback
 The learner’s report on a Sage Reply.
 
+### Review Status
+The system’s handling state for a Sage Feedback report on an Exchange.
+
 ### Evaluation Verdict
 The evaluator’s decision on a Learner Response.
 
