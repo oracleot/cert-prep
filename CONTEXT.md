@@ -51,10 +51,10 @@ The learner’s selected Answer Option or Answer Options before evaluation. It i
 The system’s response after evaluation. While it streams, the prompt remains visible with the learner’s chosen options marked, and the learner cannot proceed to the next prompt until it finishes. For option-based prompts, it explains the correct option or options first with the most depth, then briefly explains each distractor. It refers to options by label plus short paraphrase rather than repeating each full option text. On Multiple-Response misses, it explicitly names any missed correct option and any incorrectly chosen option.
 
 ### Sage Feedback
-The learner’s report on a Sage Reply. It belongs to the Exchange that produced that Sage Reply.
+The learner’s report on a Sage Reply. It belongs to the Exchange that produced that Sage Reply rather than to individual Answer Options.
 
 ### Review Status
-The system’s handling state for an Exchange. It may exist even when no Sage Feedback has been submitted, and one Sage Feedback report may cause multiple Review Status transitions over time.
+The system’s handling state for an Exchange. It may exist even when no Sage Feedback has been submitted, and one Sage Feedback report may cause multiple Review Status transitions over time. It applies to the Exchange as a whole rather than to individual Answer Options.
 
 ### Evaluation Verdict
 The evaluator’s decision on a Learner Response, including correctness, reasoning, and answer intent. Correctness remains binary even for partial misses on Multiple-Response Questions. For option-based prompts, it immediately identifies the learner’s chosen Answer Option labels and the correct Answer Option label or labels before the full Sage Reply, and the UI visually marks correct options, missed correct options, and incorrectly chosen options as soon as the verdict arrives.
