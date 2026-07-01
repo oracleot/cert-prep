@@ -1,4 +1,13 @@
 // Shared domain types for the app and API proxy boundaries.
+import type { OptionLabel, ResponseMode, ChallengeOption } from "./option-types";
+
+export {
+  OPTION_LABELS,
+  isOptionLabel,
+  isResponseMode,
+  normalizeOptionLabels,
+} from "./option-types";
+export type { ChallengeOption, OptionLabel, OptionVerdict, ResponseMode } from "./option-types";
 
 export type Challenge = {
   concept_id?: string;
@@ -17,6 +26,10 @@ export type Challenge = {
   official_docs?: string[];
   skill_builder_links?: string[];
   lab_links?: string[];
+  // Phase 11 — option-based contract. App-controlled mode; options are exactly 4 labeled A/B/C/D.
+  response_mode?: ResponseMode;
+  options?: ChallengeOption[];
+  answer_key?: OptionLabel[];
 };
 
 export type EvaluationResult = {
@@ -26,6 +39,13 @@ export type EvaluationResult = {
   // Phase 9.4 — concept packet miss tracking (internal, optional).
   missed_criteria?: string[];
   triggered_traps?: string[];
+  // Phase 11 — option verdict payload. UI marks chosen / correct / missed /
+  // incorrect options immediately on receipt, before Sage streams. Optional so
+  // existing free-text evaluation payloads still parse.
+  selected_labels?: OptionLabel[];
+  correct_labels?: OptionLabel[];
+  missed_labels?: OptionLabel[];
+  incorrect_labels?: OptionLabel[];
 };
 
 export type Citation = {
