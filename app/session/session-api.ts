@@ -86,8 +86,16 @@ export function nextSessionRequest(threadId: string) {
  * Submits the user's answer for the current challenge. Returns an SSE
  * stream (evaluation → citations → token* → done) consumed by
  * `readSessionStream`.
+ *
+ * Phase 11 — `selectedLabels` is forwarded to the agent service for
+ * option-based challenges. Free-text challenges pass an empty array.
  */
-export function submitSessionRequest(threadId: string, userAnswer: string, answerIntent: AnswerIntent) {
+export function submitSessionRequest(
+  threadId: string,
+  userAnswer: string,
+  answerIntent: AnswerIntent,
+  selectedLabels: import("@/lib/types").OptionLabel[] = [],
+) {
   return fetch("/api/session/submit", {
     method: "POST",
     headers: JSON_HEADERS,
@@ -95,6 +103,7 @@ export function submitSessionRequest(threadId: string, userAnswer: string, answe
       thread_id: threadId,
       user_answer: userAnswer,
       answer_intent: answerIntent,
+      ...(selectedLabels.length > 0 ? { selected_labels: selectedLabels } : {}),
       ...sessionSettingsPayload(loadSettings()),
     }),
   });
