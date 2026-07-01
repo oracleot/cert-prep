@@ -71,9 +71,7 @@ async def start_session(req: SessionStartRequest):
         state["curriculum_id"] = curriculum["id"]
     state["openrouter_api_key"] = req.openrouter_api_key
     # Phase 11 — seed the prompt's response_mode via the app-controlled mix.
-    # thread_id doubles as the session seed so the per-prompt 60/40 choice
-    # is stable for a given session but the aggregate across sessions
-    # approaches the spec's target.
+    # thread_id is the session seed for the 60/40 hash bias.
     state["current_response_mode"] = pick_response_mode(  # type: ignore[typeddict-item]
         state.get("cycle", 1) or 1, thread_id
     )
@@ -178,11 +176,7 @@ async def next_challenge(req: SessionNextRequest):
     snap = await graph.aget_state(config)
     if not snap or not snap.values:
         raise HTTPException(status_code=404, detail="Session not found")
-
-    # Phase 11 — set the next prompt's response_mode before invoking the
-    # graph. ``cycle`` has already been advanced by rex_rechallenge on the
-    # previous run; if the snapshot reflects pre-cycle state, fall back to
-    # the cycle index the route would compute.
+    # Phase 11 — seed the next prompt's response_mode (thread_id = seed).
     next_cycle = snap.values.get("cycle", 1) or 1
     upd: dict = {
         "openrouter_api_key": req.openrouter_api_key,
@@ -190,7 +184,6 @@ async def next_challenge(req: SessionNextRequest):
     }
     upd = {k: v for k, v in upd.items() if v}
     await graph.aupdate_state(config, upd)
-
     try:
         with llm_runtime(req.openrouter_api_key, req.model_overrides):
             await graph.ainvoke(None, config=config)
@@ -198,6 +191,5 @@ async def next_challenge(req: SessionNextRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
     snap = await graph.aget_state(config)
     return {"challenge": snap.values.get("current_challenge"), "cycle": snap.values.get("cycle")}

@@ -8,7 +8,9 @@ Extracted from ``routes/session.py`` so the route file stays under the
       prompts) so the UI can render the verdict overlay before Sage streams.
     - ``token``      : incremental Sage stream chunks.
     - ``citations``  : the Sage citation set after the cycle ends.
-    - ``done``       : session stream completed.
+    - ``done``       : session stream completed (always last, after the
+                       ``astream_events`` loop drains so a trailing node
+                       end can never slip past the client contract).
     - ``error``      : surfaced to the client with the original message.
 
 The generator is an async iterator (``AsyncIterator[str]``) so FastAPI's
@@ -33,6 +35,13 @@ async def submit_sse_generator(
     ``NodeAwareGraph`` wrapper). The caller is responsible for running
     ``ainvoke(None)`` via the graph in the surrounding route — this function
     only consumes events for the already-invoked submit.
+
+    Event ordering is guaranteed as
+    ``evaluation → token* → citations → done`` (or ``→ error`` on
+    failure). ``done`` is emitted after the ``astream_events`` iterator
+    drains so a late ``on_chain_end`` from a nested tool / sub-graph
+    cannot fire a trailing event after the client has already closed
+    out the cycle.
     """
     from llm import llm_runtime  # local import: avoids circular at module load
 
@@ -56,8 +65,9 @@ async def submit_sse_generator(
                     h = out.get("session_history") or []
                     if h:
                         yield f"data: {json.dumps({'type': 'citations', 'data': h[-1].get('citations', [])})}\n\n"
-                elif kind == "on_chain_end" and name == "LangGraph":
-                    yield f"data: {json.dumps({'type': 'done'})}\n\n"
+        # ``done`` is the last event the client sees; emit it after the
+        # astream_events loop drains so no node-end event can fire after.
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
     except Exception as exc:
         yield f"data: {json.dumps({'type': 'error', 'error': {'message': str(exc)}})}\n\n"
 
